@@ -1,0 +1,44 @@
+ * Instrucciones de aplicacion:
+
+ - para lanzar la aplicacion "npm run dev"
+     - ya esta configurado para lanzar el debug haciendo esto mismo
+     * en el puerto 3000 para probarla normal
+     * se pueden ver los cambios de un componente react sin tener que recargar la pagina
+       si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
+       ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
+
+ - para constuir la aplicacion "npm run build"
+     - para probarla construida "npm run start"
+     * siempre en el puerto 3000
+
+======================================================================================================
+
+ * Apuntes sobre uso de librerias:
+
+ - vite para contruir el frontend con react
+
+ - just-scripts para transpilar el typescript del backend
+
+ - rimraf para que se pueda quitar la carpeta dist en windows y linux (dentro del arhivo just.config.ts)
+
+ - nodemon para detectar cambios en los archivos y volver a construir con el archivo
+   de just-scripts y luego volver a lanzar el servidor
+   (no conseguí matar el proceso en el que se lanzaba el servidor desde dentro del archivo
+   de just-scripts)
+
+ - cross-env para poder poner el comando con las variables de entorno en windows y linux
+ - dot-env para cargar variables de entorno desde un archivo .env
+
+ - concurrently para lanzar la aplicacion en desarrollo con un solo comando
+
+ - en developmente se lanza la ejecucion con NODE_NO_WARNINGS=1 para evitar el warnin de deprecado del
+   proxyMiddleware
+     - Warning:
+       DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
+       at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
+       at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
+       at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+ - recharts para hacer graficos en react
+
+ - redis para la base de datos
