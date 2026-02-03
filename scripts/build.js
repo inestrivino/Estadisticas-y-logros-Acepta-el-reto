@@ -1,0 +1,29 @@
+const esbuild = require("esbuild");
+const { rimraf } = require("rimraf"); // rimraf moderno ya exporta promesas
+
+async function cleanTask() {
+  await rimraf("dist-server"); // directamente, sin promisify
+  console.log(" * Carpeta dist limpiada");
+}
+
+async function buildTask() {
+  await esbuild.build({
+    entryPoints: ["./src/server.ts"],
+    bundle: true,
+    platform: "node",
+    target: "node22",
+    outfile: "./dist-server/server.js",
+    sourcemap: true,
+    external: ["express", "redis"],
+    minify: false,
+  });
+
+  console.log(" * Proyecto construido");
+}
+
+async function start() {
+  await cleanTask();
+  await buildTask();
+}
+
+start();
