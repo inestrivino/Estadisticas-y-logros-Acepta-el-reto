@@ -3,6 +3,7 @@
  - para lanzar la aplicacion "npm run dev"
      - ya esta configurado para lanzar el debug haciendo esto mismo
      * en el puerto 3000 para probarla normal
+       ej: http://localhost3000/
      * se pueden ver los cambios de un componente react sin tener que recargar la pagina
        si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
        ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
@@ -10,6 +11,7 @@
  - para constuir la aplicacion "npm run build"
      - para probarla construida "npm run start"
      * siempre en el puerto 3000
+       ej: http://localhost3000/
 
 ======================================================================================================
 

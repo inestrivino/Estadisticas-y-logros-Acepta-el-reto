@@ -1,5 +1,9 @@
 import express, { Request, Response } from 'express';
 import redisClient from './redisClient.js';
+import { WebSocketServer  } from 'ws';
+import http from "http";
+import { Server } from 'socket.io';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {createProxyMiddleware} from 'http-proxy-middleware';
@@ -10,10 +14,24 @@ docker run -d --name redis-server -p 6379:6379 redis
 */
 
 const app = express();
+const server = http.createServer(app);
+
+//prueba de websocket
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
+io.on('connection', (socket) => {
+  console.log('Nuevo cliente conectado');
+  socket.on('message', (message) => {
+    console.log(message);
+    io.emit('message', `${socket.id.substring(0,2)} said ${message}`);
+  });
+});
+server.listen(8080, () => console.log(' * Servidor WebSocket escuchando en el puerto 8080'));
 
 app.use(express.json());
 
-//simulo una de api
+//simulo una ruta de api
 app.get('/api/diagrama2', (req: Request, res: Response) => {
   console.log("Redirigiendo a diagramaDinamico.html");
   //res.redirect('/public/diagramaDinamico.html');
@@ -42,7 +60,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 else if (process.env.NODE_ENV === 'development') {
   //debug
-  console.log(" * Iniciando en modo PRODUCCION");
+  console.log(" * Iniciando en modo DESARROLLO");
 
   const proxy = createProxyMiddleware({
     target: 'http://localhost:5173', 

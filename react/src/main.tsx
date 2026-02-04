@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { Contador } from "./contador.js";
 import { EjemploRecharts } from "./diagramaSectores.js";
+import { PruebaSocket } from "./pruebaSocket.js";
 
 const domNode = document.getElementById("root");
 if (domNode) {
@@ -16,5 +17,11 @@ if (domNode) {
 const domNode2 = document.getElementById("diagrama");
 if (domNode2) {
     const aux2 = createRoot(domNode2);
-    aux2.render(<EjemploRecharts valor1={300} valor2={50} valor3={400}/>);
+    aux2.render(
+        <>
+            <PruebaSocket/>
+            <EjemploRecharts valor1={300} valor2={50} valor3={400}/>
+        </>
+        
+    );
 }

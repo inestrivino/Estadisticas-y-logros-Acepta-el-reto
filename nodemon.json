@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["dist", "node_modules"],
-  "exec": "just local-deploy && node dist-server/server.js"
+  "exec": "node scripts/build.js && node dist-server/server.js"
 }

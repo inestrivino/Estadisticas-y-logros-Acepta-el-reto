@@ -1,7 +1,6 @@
 {
   "name": "tfg",
   "scripts": {
-    "prueba": "node scripts/build.js",
     "dev-back": "cross-env NODE_NO_WARNINGS=1 NODE_ENV=development nodemon --watch",
     "dev-front": "vite",
     "dev": "concurrently \"npm run dev-back\" \"npm run dev-front\"",
@@ -16,7 +15,9 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.7.0",
-    "redis": "^5.8.3"
+    "redis": "^5.8.3",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -24,6 +25,7 @@
     "@types/node": "^24.10.9",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^5.0.4",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",

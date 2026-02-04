@@ -1,8 +1,8 @@
 const esbuild = require("esbuild");
-const { rimraf } = require("rimraf"); // rimraf moderno ya exporta promesas
+const { rimraf } = require("rimraf");
 
 async function cleanTask() {
-  await rimraf("dist-server"); // directamente, sin promisify
+  await rimraf("dist-server");
   console.log(" * Carpeta dist limpiada");
 }
 
