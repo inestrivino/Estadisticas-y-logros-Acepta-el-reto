@@ -41,6 +41,10 @@
        at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
        at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 
+======================================================================================================
+
  - recharts para hacer graficos en react
 
  - redis para la base de datos
+
+ - socket.io para el uso de web-sockets
