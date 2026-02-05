@@ -9,8 +9,8 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       input: {
-        diagramas: '/public/diagramas.html',
-        index: '/home.html'
+        pruebaSocket: '/public/pruebaSocket.html',
+        index: '/index.html'
       },
     },
   },

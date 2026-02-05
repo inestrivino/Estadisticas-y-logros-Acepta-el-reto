@@ -1,17 +1,17 @@
  * Instrucciones de aplicacion:
 
  - para lanzar la aplicacion "npm run dev"
-     - ya esta configurado para lanzar el debug haciendo esto mismo
-     * en el puerto 3000 para probarla normal
-       ej: http://localhost3000/
-     * se pueden ver los cambios de un componente react sin tener que recargar la pagina
-       si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
-       ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
+    - ya esta configurado para lanzar el debug haciendo esto mismo
+    * en el puerto 3000 para probarla normal
+      ej: http://localhost3000/
+    * se pueden ver los cambios de un componente react sin tener que recargar la pagina
+      si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
+      ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
 
  - para constuir la aplicacion "npm run build"
-     - para probarla construida "npm run start"
-     * siempre en el puerto 3000
-       ej: http://localhost3000/
+    - para probarla construida "npm run start"
+    * siempre en el puerto 3000
+      ej: http://localhost3000/
 
 ======================================================================================================
 
@@ -35,11 +35,11 @@
 
  - en developmente se lanza la ejecucion con NODE_NO_WARNINGS=1 para evitar el warnin de deprecado del
    proxyMiddleware
-     - Warning:
-       DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
-       at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
-       at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
-       at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    - Warning:
+      DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
+      at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
+      at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 
 ======================================================================================================
 
@@ -48,3 +48,5 @@
  - redis para la base de datos
 
  - socket.io para el uso de web-sockets
+   - Cada grafico tendria que escuchar un evento y desde el backend se lanza el evento
+     correspondiente

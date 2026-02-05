@@ -1,25 +1,23 @@
-import { io } from "socket.io-client";
+import { socket } from "./socket"; // Socket compartido
 
 export function PruebaSocket() {
-
-    const socket = io('ws://localhost:8080');
 
     socket.on('message', (text) => {
         const el = document.createElement('li');
         el.innerHTML = text;
-        document.querySelector('ul')?.appendChild(el);
+        document.getElementById('messages')?.appendChild(el);
     });
 
     const handleClick = (): void => {
-        const input = document.querySelector('input')?.value
-        socket.emit('message', input);
+        const input = (document.getElementById('input') as HTMLInputElement)?.value
+        socket.emit('messageReload', input);
     }
 
     return (
         <>
-            <ul>
+            <ul id="messages">
             </ul>
-            <input placeholder="message" />
+            <input placeholder="message" id="input"/>
             <button onClick={handleClick}>Send</button>
         </>
     );

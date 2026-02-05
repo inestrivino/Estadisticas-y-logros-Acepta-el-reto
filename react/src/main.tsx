@@ -1,27 +1,34 @@
 import { createRoot } from "react-dom/client";
-import { Contador } from "./contador.js";
-import { EjemploRecharts } from "./diagramaSectores.js";
 import { PruebaSocket } from "./pruebaSocket.js";
+import { Diagrama } from "./diagrama.js";
 
-const domNode = document.getElementById("root");
+const domNode = document.getElementById("diagramas");
 if (domNode) {
     const root = createRoot(domNode);
     root.render(
         <>
-            <EjemploRecharts valor1={400} valor2={500} valor3={400}/>
-            <EjemploRecharts valor1={100} valor2={333} valor3={400}/>
+            <Diagrama
+                evento="reload-diagrama1" 
+                dimensiones={{ width: 250, height: 250, outerRadius: 75}} 
+                colores={["#7947cfff", "#35d0bcff", "#df9350ff"]} 
+                datos={[{name:"dato1", value:10}, {name:"dato2", value:10}]}
+            />
+            <Diagrama
+                evento="reload-diagrama2" 
+                dimensiones={{ width: 250, height: 250, outerRadius: 75 }} 
+                colores={["#7947cfff", "#35d0bcff", "#df9350ff"]} 
+                datos={[{name:"dato1", value:10}, {name:"dato2", value:10}]}
+            />
         </>
     );
 }
 
-const domNode2 = document.getElementById("diagrama");
+const domNode2 = document.getElementById("prueba-socket");
 if (domNode2) {
-    const aux2 = createRoot(domNode2);
-    aux2.render(
+    const root2 = createRoot(domNode2);
+    root2.render(
         <>
             <PruebaSocket/>
-            <EjemploRecharts valor1={300} valor2={50} valor3={400}/>
         </>
-        
     );
 }

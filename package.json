@@ -4,7 +4,7 @@
     "dev-back": "cross-env NODE_NO_WARNINGS=1 NODE_ENV=development nodemon --watch",
     "dev-front": "vite",
     "dev": "concurrently \"npm run dev-back\" \"npm run dev-front\"",
-    "build": "vite build && just local-deploy",
+    "build": "node scripts/build.js && vite build",
     "start": "set NODE_ENV=production&& node dist-server/server.js"
   },
   "dependencies": {

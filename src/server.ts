@@ -1,36 +1,24 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Application } from 'express';
 import redisClient from './redisClient.js';
-import { WebSocketServer  } from 'ws';
-import http from "http";
-import { Server } from 'socket.io';
-
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 import 'dotenv/config'
 
+import { initSocket } from './socket.js';
+
 /*
 docker run -d --name redis-server -p 6379:6379 redis
 */
 
+//============== INICIAR EL SERVIDOR ==============
 const app = express();
-const server = http.createServer(app);
-
-//prueba de websocket
-const io = new Server(server, {
-  cors: { origin: "*" }
-});
-io.on('connection', (socket) => {
-  console.log('Nuevo cliente conectado');
-  socket.on('message', (message) => {
-    console.log(message);
-    io.emit('message', `${socket.id.substring(0,2)} said ${message}`);
-  });
-});
-server.listen(8080, () => console.log(' * Servidor WebSocket escuchando en el puerto 8080'));
-
 app.use(express.json());
 
+//incializo el socket
+initSocket(app);
+
+//====================== RUTAS ======================
 //simulo una ruta de api
 app.get('/api/diagrama2', (req: Request, res: Response) => {
   console.log("Redirigiendo a diagramaDinamico.html");
@@ -45,17 +33,17 @@ if (process.env.NODE_ENV === 'production') {
 
   app.get('/', (req, res) => {
     console.log("LLego a /");
-    res.sendFile(path.join(process.cwd(), 'dist', 'home.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   });
 
   app.get('/home', (req, res) => {
     console.log("LLego a /home");
-    res.sendFile(path.join(process.cwd(), 'dist', 'home.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   });
   
-  app.get('/diagramas', (req, res) => {
+  app.get('/pruebaSocket', (req, res) => {
     console.log("LLego a /diagramas");
-    res.sendFile(path.join(process.cwd(), 'dist', 'public', 'diagramas.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'public', 'pruebaSocket.html'));
   });
 }
 else if (process.env.NODE_ENV === 'development') {
@@ -66,8 +54,8 @@ else if (process.env.NODE_ENV === 'development') {
     target: 'http://localhost:5173', 
     changeOrigin: true,
     pathRewrite: {
-      '^/diagramas$': '/public/diagramas.html',
-      '^/$': '/home.html',
+      '^/pruebaSocket$': '/public/pruebaSocket.html',
+      '^/$': '/index.html',
     }/*,
     on: {
       proxyReq: (proxyReq, req, res) => {
@@ -83,6 +71,7 @@ else if (process.env.NODE_ENV === 'development') {
   app.use('/', proxy);
 };
 
+/*
 interface Usuario {
   email: string;
   password: string;
@@ -92,7 +81,7 @@ const usuarioFalso: Usuario = {
   password: '1234'
 };
 
-/*app.post('/login', async (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res: Response) => {
   const { email, password }: Usuario = req.body;
 
   if (email !== usuarioFalso.email) {
@@ -134,7 +123,8 @@ app.get("/user", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error al obtener el usuario de Redis", detalles: err });
   });
   return res;
-});*/
+});
+*/
 
 app.listen(3000, (error) => {
   if(error)
