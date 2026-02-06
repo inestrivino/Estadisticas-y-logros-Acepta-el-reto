@@ -6,11 +6,6 @@ import 'dotenv/config'
 import redisClient from './redisClient.ts';
 import { initSocket, sendDatos } from './socket.ts';
 import { initRedis } from './redisInit.ts';
-import { send } from 'vite';
-
-/*
-docker run -d --name redis-server -p 6379:6379 redis
-*/
 
 //============== INICIAR EL SERVIDOR ==============
 const app = express();
@@ -42,21 +37,21 @@ if (process.env.NODE_ENV === 'production') {
   //debug
   console.log(" * Iniciando en modo PRODUCCION");
 
-  app.use(express.static(path.join(process.cwd(), 'dist')));
+  app.use(express.static(path.join(process.cwd(), 'dist-front')));
 
   app.get('/', (req, res) => {
     console.log("LLego a /");
-    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist-front', 'index.html'));
   });
 
   app.get('/home', (req, res) => {
     console.log("LLego a /home");
-    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist-front', 'index.html'));
   });
 
   app.get('/pruebaSocket', (req, res) => {
     console.log("LLego a /diagramas");
-    res.sendFile(path.join(process.cwd(), 'dist', 'public', 'pruebaSocket.html'));
+    res.sendFile(path.join(process.cwd(), 'dist-front', 'public', 'pruebaSocket.html'));
   });
 }
 

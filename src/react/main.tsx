@@ -22,9 +22,11 @@ if (domNode) {
                     "#b351e0", 
                     "#EB5757",
                     "#56CCF2", 
+                    "#2F80ED",
                 ]}
                 datos={[{ name: "dato1", value: 10 }, { name: "dato2", value: 10 }]}
             />
+            <PruebaRedis />
             <Diagrama
                 evento="reload-diagrama2"
                 dimensiones={{ width: 400, height: 400, outerRadius: 75 }}

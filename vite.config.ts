@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react({})],
   publicDir: false, //para que no se copien dos veces por tener dos inputs
   build: {
-    outDir: 'dist',
+    outDir: 'dist-front',
     assetsDir: 'assets',
     rollupOptions: {
       input: {
