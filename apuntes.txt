@@ -13,6 +13,8 @@
     * siempre en el puerto 3000
       ej: http://localhost3000/
 
+ - para generar el json con los casos de prueba para redis "node scripts/generarProblemas.js"
+
 ======================================================================================================
 
  * Apuntes sobre uso de librerias:

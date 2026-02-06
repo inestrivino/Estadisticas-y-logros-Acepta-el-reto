@@ -1,4 +1,4 @@
-import { socket } from "./socket"; // Socket compartido
+import { socket } from "../socket"; // Socket compartido
 
 export function PruebaSocket() {
 

@@ -1,5 +1,5 @@
-const esbuild = require("esbuild");
-const { rimraf } = require("rimraf");
+import esbuild from "esbuild";
+import { rimraf } from "rimraf";
 
 async function cleanTask() {
   await rimraf("dist-server");

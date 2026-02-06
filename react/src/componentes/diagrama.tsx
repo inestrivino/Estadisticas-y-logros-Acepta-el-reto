@@ -1,5 +1,5 @@
-import { PieChart, Pie } from "recharts";
-import { socket } from "./socket"; // Socket compartido
+import { PieChart, Pie, Legend } from "recharts";
+import { socket } from "../socket.ts"; // Socket compartido
 import { useState, useEffect } from 'react';
 
 //contenido del diagrama
@@ -32,7 +32,7 @@ export function Diagrama(props: {
     const [data, setData] = useState<DataItem[]>(info);
 
     useEffect(() => {        
-        socket.on(props.evento, (newDatos) => {
+        socket.on(props.evento, (newDatos:{ name:string; value:number; }[]) => {
             console.log("Recibiendo datos nuevos:", newDatos);
             const info = formatearDatos(newDatos, props.colores);
             setData(info);
@@ -45,7 +45,16 @@ export function Diagrama(props: {
 
     return (
         <PieChart width={props.dimensiones.width} height={props.dimensiones.height}>
-            <Pie data={data} dataKey="value" nameKey="name" outerRadius={props.dimensiones.outerRadius}/>
+            <Pie 
+                data={data} 
+                dataKey="value" 
+                nameKey="name" 
+                innerRadius={30}
+                outerRadius={props.dimensiones.outerRadius}
+                paddingAngle={2}
+                label
+            />
+            <Legend />
         </PieChart>
     );
 }
