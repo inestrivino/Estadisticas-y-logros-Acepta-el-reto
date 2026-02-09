@@ -8,7 +8,7 @@ async function cleanTask() {
 
 async function buildTask() {
   await esbuild.build({
-    entryPoints: ["./src/server/server.ts"],
+    entryPoints: ["./server/server.ts"],
     bundle: true,
     platform: "node",
     target: "node22",

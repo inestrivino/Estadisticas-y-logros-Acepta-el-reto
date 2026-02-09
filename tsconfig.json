@@ -12,6 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "sourceMap": true
   }
 }

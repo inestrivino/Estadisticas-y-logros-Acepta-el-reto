@@ -3,6 +3,12 @@ import fs from "fs";
 
 export async function initRedis () {
 
+    //si ya hay datos en redis no hago nada
+    if (await redisClient.DBSIZE() > 0) {
+        console.log(" * Redis ya inicializado, no se cargan los envios de prueba");
+        return;
+    }
+
     redisClient.flushAll();
     
     const envios = JSON.parse(fs.readFileSync("./data/envios.json", "utf8"));
