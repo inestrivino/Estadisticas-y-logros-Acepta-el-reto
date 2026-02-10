@@ -5,6 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Iniciar Servidor con Nodemon",
+      "cwd":"${workspaceFolder}/Aplicacion",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "skipFiles": ["<node_internals>/**"]
