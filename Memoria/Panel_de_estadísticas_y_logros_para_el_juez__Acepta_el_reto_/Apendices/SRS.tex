@@ -1,0 +1,227 @@
+\chapter{Especificación de Requisitos Software}
+\label{cap:SRS}
+
+Versión 0.1\\
+Preparada por Inés Triviño Rello\\
+Universidad Complutense de Madrid\\
+A 31 de enero de 2026\\
+
+\section{Introducción}
+
+\subsection{Propósito del documento}
+
+El propósito del presente documento es servir como especificación de requisitos de software (SRS) para las funcionalidades de estadísticas y logros del juez online \textit{¡Acepta el reto!}. Este documento constituye la base para el diseño, desarrollo, validación y mantenimiento de dichas funcionalidades.
+
+El documento está dirigido principalmente a los desarrolladores y mantenedores de las funcionalidades descritas, a los mantenedores del juez \textit{¡Acepta el reto!}, y a cualquier otra persona interesada en comprender el funcionamiento, alcance y limitaciones del producto.
+
+Asimismo, este documento debe emplearse como referencia durante el ciclo de vida del software para constatar las funcionalidades implementadas, las decisiones de diseño adoptadas, los motivos que las justifican y las limitaciones actuales del sistema, con el objetivo de facilitar su mantenibilidad y evolución futura.
+
+\subsection{Ámbito del producto}
+
+El producto no cuenta con una denominación propia. A lo largo de este documento se hará referencia a él como \textit{las funcionalidades de estadísticas y logros para el juez ¡Acepta el reto!}, manteniendo la consistencia con el título del proyecto en cuyo marco se desarrolla.
+
+En este documento se describen las especificaciones correspondientes a la primera versión del producto. Las capacidades principales incluyen la visualización fiel y actualizada de estadísticas de usuario, estadísticas asociadas a los ejercicios, y la gestión de logros o medallas otorgadas por la realización de determinadas acciones.
+
+Cabe destacar que este documento se refiere exclusivamente a las funcionalidades de estadísticas y logros, las cuales se implementan de manera independiente a la arquitectura actual de \textit{¡Acepta el reto!}. No obstante, el producto se diseña con el objetivo de facilitar una posible integración futura en la arquitectura del juez, en caso de que se considere oportuno.
+
+\subsection{Definiciones, acrónimos y abreviaciones}
+
+\begin{itemize}
+    \item \textbf{UI}: User Interface.
+    \item \textbf{API}: Application Programming Interface.
+    \item \textbf{SRS}: Software Requirements Specification.
+    \item \textbf{TFG}: Trabajo Fin de Grado.
+    \item \textbf{¡Acepta el reto!}: Juez online de programación competitiva objeto de este proyecto.
+\end{itemize}
+
+\subsection{Referencias}
+
+\begin{itemize}
+    \item IEEE Std 830-1998 / IEEE Std 29148-2018, \textit{Software Requirements Specification}.
+\end{itemize}
+
+\section{Descripción general del producto}
+
+\subsection{Perspectiva del producto}
+
+El producto se desarrolla en el marco de un Trabajo de Fin de Grado (TFG), bajo la supervisión de los creadores y mantenedores de \textit{¡Acepta el reto!}. Su objetivo es cubrir la necesidad de introducir mayor dinamismo y nuevas fuentes de motivación para los usuarios del juez online mediante estadísticas detalladas y un sistema de logros.
+
+Aunque la integración directa de estas funcionalidades en el juez no forma parte del alcance del proyecto, el diseño tendrá en cuenta criterios de modularidad y desacoplamiento que faciliten una posible integración futura.
+
+\subsection{Funciones del producto}
+
+\begin{itemize}
+    \item Mostrar estadísticas agregadas y detalladas de los usuarios que reflejen su progreso y actividad.
+    \item Mostrar estadísticas de ejercicios que permitan inferir su dificultad, popularidad o tasa de éxito.
+    \item Actualizar las estadísticas de manera automática y en tiempo cercano al real.
+    \item Otorgar logros o medallas a los usuarios como recompensa por acciones específicas o hitos alcanzados.
+    \item Ordenar a los usuarios en una tabla de clasificación en base a su puntuación.
+\end{itemize}
+
+\subsection{Limitaciones del producto}
+
+El producto estará sujeto a limitaciones técnicas derivadas del stack tecnológico seleccionado durante el desarrollo del TFG, así como a restricciones de tiempo y recursos propios de un proyecto académico. Asimismo, el sistema dependerá de la disponibilidad y calidad de los datos proporcionados por el juez \textit{¡Acepta el reto!} u otras fuentes externas. No se contemplan requisitos específicos de hardware más allá de los necesarios para ejecutar una aplicación web moderna.
+
+\subsection{Características de los usuarios}
+
+Se identifican los siguientes grupos de usuarios:
+
+\begin{itemize}
+    \item \textbf{Usuarios finales}: estudiantes o programadores que utilizan el juez. Tienen conocimientos técnicos básicos, acceden con frecuencia al sistema y su objetivo principal es medir su progreso y obtener motivación adicional para mejorar sus habilidades de programación y algoritmia.
+    \item \textbf{Administradores/mantenedores}: usuarios con conocimientos técnicos avanzados y acceso a funciones de configuración o mantenimiento. Su uso es esporádico y orientado a la supervisión del sistema.
+\end{itemize}
+
+No se prevén necesidades especiales de accesibilidad en esta primera versión, aunque se seguirán buenas prácticas de diseño de interfaces.
+
+\subsection{Supuestos y dependencias}
+
+Se asume la disponibilidad de datos fiables sobre usuarios y ejercicios, así como el acceso a interfaces o mecanismos que permitan obtenerlos. El producto depende de librerías y servicios de terceros para la persistencia de datos y la visualización de estadísticas. Si alguna de estas dependencias no se cumple, el impacto principal será la imposibilidad de mostrar estadísticas actualizadas o de calcular correctamente los logros.
+
+\section{Requisitos}
+
+\subsection{Interfaces externas}
+
+El sistema expone y consume las siguientes interfaces externas:
+\begin{itemize}
+    \item \textbf{Interfaces de usuario (UI)}
+ El sistema proporcionará una interfaz web accesible mediante navegadores modernos (Chrome, Firefox, Edge, etc).
+ La UI incluirá:
+    \begin{itemize}
+        \item Paneles de estadísticas de usuario.
+        \item Vistas de estadísticas de ejercicios.
+        \item Sección de logros y medallas obtenidas.
+        \item Tabla de clasifiación de usuarios.
+
+ Se seguirán principios de diseño responsivo y consistencia visual con el estilo general de \textit{¡Acepta el reto!}.
+    \end{itemize}
+
+    \item \textbf{Interfaces software (API)}
+ El sistema consumirá datos provenientes de las APIs del juez que proporcionen información sobre usuarios, envíos y ejercicios.
+
+    \item \textbf{Interfaces de hardware}
+ No se definen interfaces hardware específicas. El sistema se ejecutará sobre infraestructura estándar de servidores web y será accesible desde dispositivos de escritorio y móviles.
+\end{itemize}
+
+\subsection{Funcionales}
+
+\textbf{REQ-FUN-001}
+\begin{itemize}
+    \item \textbf{Título:} Visualización de estadísticas de usuario
+    \item \textbf{Descripción:} El sistema debe permitir visualizar estadísticas asociadas a un usuario, incluyendo número de ejercicios resueltos, envíos realizados y tasa de aciertos, entre otros.
+    \item \textbf{Racional:} Proporcionar al usuario información clara sobre su progreso y actividad.
+    \item \textbf{Criterio de aceptación:} Dado un usuario válido, el sistema muestra sus estadísticas de forma correcta y consistente.
+    \item \textbf{Método de verificación:} Test funcional.
+
+\end{itemize}
+
+\textbf{REQ-FUN-002}
+\begin{itemize}
+    \item \textbf{Título:} Visualización de estadísticas de ejercicios
+    \item \textbf{Descripción:} El sistema debe mostrar estadísticas agregadas por ejercicio, como número de intentos, número de resoluciones y porcentaje de éxito.
+    \item \textbf{Racional:} Ayudar a los usuarios a estimar la dificultad o popularidad de los ejercicios.
+    \item \textbf{Criterio de aceptación:} Las estadísticas mostradas coinciden con los datos almacenados.
+    \item \textbf{Método de verificación:} Test funcional.
+
+\end{itemize}
+
+\textbf{REQ-FUN-003}
+\begin{itemize}
+    \item \textbf{Título:} Actualización automática de estadísticas y puntos
+    \item \textbf{Descripción:} El sistema debe actualizar las estadísticas y puntos de usuario cuando se produzcan nuevos eventos relevantes (por ejemplo, un envío evaluado).
+    \item \textbf{Racional:} Garantizar que la información mostrada sea actual y fiable.
+    \item \textbf{Criterio de aceptación:} Las estadísticas reflejan los cambios sin necesidad de intervención manual.
+    \item \textbf{Método de verificación:} Demostración, test funcional.
+
+\end{itemize}
+
+\textbf{REQ-FUN-004}
+\begin{itemize}
+    \item \textbf{Título:} Gestión de logros
+    \item \textbf{Descripción:} El sistema debe otorgar logros a los usuarios cuando se cumplan determinadas condiciones predefinidas.
+    \item \textbf{Racional:} Incrementar la motivación de los usuarios mediante recompensas simbólicas.
+    \item \textbf{Criterio de aceptación:} Un logro se asigna automáticamente cuando se cumple su condición.
+    \item \textbf{Método de verificación:} Test funcional.
+
+
+\end{itemize}
+
+\textbf{REQ-FUN-005}
+\begin{itemize}
+    \item \textbf{Título:} Consulta de logros obtenidos
+    \item \textbf{Descripción:} El sistema debe permitir a un usuario consultar la lista de logros que ha obtenido.
+    \item \textbf{Racional:} Hacer visibles las recompensas y fomentar la participación.
+    \item \textbf{Criterio de aceptación:} El usuario puede ver todos sus logros sin errores.
+    \item \textbf{Método de verificación:} Demostración y test funcional.
+\end{itemize}
+
+\textbf{REQ-FUN-006}
+\begin{itemize}
+    \item \textbf{Título:} Actualización de la tabla de clasificación
+    \item \textbf{Descripción:} El sistema debe actualizar automáticamente la tabla de clasificación según las puntuaciones de los usuarios.
+    \item \textbf{Racional:} Mostrar una imagen fiel y actualizada de las puntuaciones de los usuarios.
+    \item \textbf{Criterio de aceptación:} La tabla de clasificación se actualiza correctamente cada vez que un usuario completa una acción que afecta su puntuación.
+    \item \textbf{Método de verificación:} Test funcional.
+\end{itemize}
+
+\textbf{REQ-FUN-007}
+\begin{itemize}
+    \item \textbf{Título:} Consulta de la tabla de clasificación
+    \item \textbf{Descripción:} El sistema debe permitir a los usuarios consultar la tabla de clasificación, mostrando su posición y la de otros usuarios según su puntuación.
+    \item \textbf{Racional:} Permitir a los usuarios compararse con otros.
+    \item \textbf{Criterio de aceptación:} El usuario puede visualizar la tabla de clasificación completa, incluyendo su posición, sin errores y con los datos actualizados.
+    \item \textbf{Método de verificación:} Demostración y test funcional.
+\end{itemize}
+
+\textbf{REQ-FUN-008}
+\begin{itemize}
+    \item \textbf{Título:} Compartición de estadísticas y logros
+    \item \textbf{Descripción:} El sistema debe permitir a los usuarios compartir sus estadísticas o logros de usuario como imágen.
+    \item \textbf{Racional:} Permitir a los usuarios compartir sus hitos, generando más motivación.
+    \item \textbf{Criterio de aceptación:} El usuario puede recibir desde la aplicación una imágen o link con la que mostrar una estadística o logro recibido a otras personas.
+    \item \textbf{Método de verificación:} Demostración.
+\end{itemize}
+
+\subsection{No funcionales}
+
+\textbf{REQ-NF-001}
+\begin{itemize}
+    \item \textbf{Título:} Rendimiento
+    \item \textbf{Descripción:} El sistema debe responder a las consultas de estadísticas en menos de 2 segundos en condiciones normales de carga.
+    \item \textbf{Racional:} Garantizar una experiencia de usuario fluida.
+    \item \textbf{Criterio de aceptación:} El tiempo de respuesta se mantiene dentro del límite establecido.
+    \item \textbf{Método de verificación:} Test de rendimiento.
+\end{itemize}
+
+\textbf{REQ-NF-002}
+\begin{itemize}
+    \item \textbf{Título:} Fiabilidad de los datos
+    \item \textbf{Descripción:} Las estadísticas mostradas deben ser consistentes con los datos de origen.
+    \item \textbf{Racional:} Evitar información incorrecta que afecte a la confianza del usuario.
+    \item \textbf{Criterio de aceptación:} No se detectan discrepancias en auditorías de datos.
+    \item \textbf{Método de verificación:} Análisis.
+\end{itemize}
+
+\textbf{REQ-NF-003}
+\begin{itemize}
+    \item \textbf{Título:} Usabilidad
+    \item \textbf{Descripción:} La interfaz debe ser comprensible sin necesidad de formación previa.
+    \item \textbf{Racional:} Facilitar la adopción del sistema por parte de usuarios sin experiencia.
+    \item \textbf{Criterio de aceptación:} Usuarios de prueba completan tareas básicas sin ayuda.
+    \item \textbf{Método de verificación:} Test de usabilidad.
+\end{itemize}
+
+\subsection{Diseño e implementación}
+
+El sistema deberá diseñarse siguiendo principios de modularidad y desacoplamiento para facilitar su mantenimiento y posible integración futura.
+
+ Se priorizará el uso de tecnologías web estándar y ampliamente soportadas.
+
+ El sistema deberá ser portable entre navegadores modernos y fácilmente desplegable en entornos de servidor convencionales.
+
+ Las decisiones de diseño deberán documentarse para facilitar la mantenibilidad y reutilización del código.
+
+\section{Verificación}
+
+La verificación del sistema se llevará a cabo comprobando que cada requisito definido en la Sección 3 ha sido satisfecho de forma objetiva. Para ello, se emplearán distintos métodos de verificación, incluyendo pruebas funcionales, análisis y demostraciones.
+
+Cada requisito estará asociado a uno o más casos de prueba que permitan validar su cumplimiento. Los resultados de la verificación se documentarán, indicando si el requisito ha sido cumplido, parcialmente cumplido o no cumplido, así como las incidencias detectadas y las acciones correctivas adoptadas.

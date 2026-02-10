@@ -1,0 +1,125 @@
+\begin{thebibliography}{16}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Bartle(1996)}]{bartle_players_muds}
+{\sc Bartle, R.~A.}
+\newblock Players who suit muds.
+\newblock 1996.
+\newblock Consultado: 2026-01-24.
+
+\bibitem[{Buljic et\ al.(2025)Buljic, Kadusic, Cvijanovic, Hadzajlic y
+  Zivic}]{Buljic_Kadusic_Cvijanovic_Hadzajlic_Zivic_2025}
+{\sc Buljic, I.}, {\sc Kadusic, E.}, {\sc Cvijanovic, T.}, {\sc Hadzajlic, N.}
+  y {\sc Zivic, N.}
+\newblock Comparative performance analysis of leading backend frameworks for
+  developers.
+\newblock En {\em 2025 24th International Symposium INFOTEH-JAHORINA
+  (INFOTEH)\/}, p\'agina 1–5. IEEE, East Sarajevo, Bosnia and Herzegovina,
+  2025.
+\newblock ISBN 9798331515799.
+
+\bibitem[{Endsley y Jones(2012)}]{Endsley_Jones_2012}
+{\sc Endsley, M.~R.} y {\sc Jones, D.~G.}
+\newblock {\em Designing for situation awareness: an approach to user-centered
+  design\/}.
+\newblock CRC Pr, Boca Raton, Fla., 2. ed edici\'on, 2012.
+\newblock ISBN 9781420063585.
+
+\bibitem[{Forsythe y Wirth(1965)}]{Forsythe_Wirth_1965}
+{\sc Forsythe, G.~E.} y {\sc Wirth, N.}
+\newblock Automatic grading programs.
+\newblock {\em Communications of the ACM\/}, vol.\ 8(5), p\'agina 275–278,
+  1965.
+\newblock ISSN 0001-0782, 1557-7317.
+
+\bibitem[{Kuo et\ al.(2023)Kuo, Wen, Hsieh y Huang}]{Kuo_Wen_Hsieh_Huang_2023}
+{\sc Kuo, J.-Y.}, {\sc Wen, Z.-J.}, {\sc Hsieh, T.-F.} y {\sc Huang, H.-X.}
+\newblock A study on the security of online judge system applied sandbox
+  technology.
+\newblock {\em Electronics\/}, vol.\ 12(14), p\'agina 3018, 2023.
+\newblock ISSN 2079-9292.
+
+\bibitem[{Lei et\ al.(2014)Lei, Ma y Tan}]{Lei_Ma_Tan_2014}
+{\sc Lei, K.}, {\sc Ma, Y.} y {\sc Tan, Z.}
+\newblock Performance comparison and evaluation of web development technologies
+  in php, python, and node.js.
+\newblock En {\em 2014 IEEE 17th International Conference on Computational
+  Science and Engineering\/}, p\'agina 661–668. IEEE, Chengdu, China, 2014.
+\newblock ISBN 9781479979813.
+
+\bibitem[{Morschheuser et\ al.(2018)Morschheuser, Hassan, Werder y
+  Hamari}]{Morschheuser_Hassan_Werder_Hamari_2018}
+{\sc Morschheuser, B.}, {\sc Hassan, L.}, {\sc Werder, K.} y {\sc Hamari, J.}
+\newblock How to design gamification? a method for engineering gamified
+  software.
+\newblock {\em Information and Software Technology\/}, vol.\ 95, p\'agina
+  219–237, 2018.
+\newblock ISSN 09505849.
+
+\bibitem[{Nielsen(1994)}]{Nielsen_1994}
+{\sc Nielsen, J.}
+\newblock Enhancing the explanatory power of usability heuristics.
+\newblock En {\em Proceedings of the SIGCHI Conference on Human Factors in
+  Computing Systems\/}, p\'agina 152–158. ACM, Boston Massachusetts USA,
+  1994.
+\newblock ISBN 9780897916509.
+
+\bibitem[{Olsina et\ al.(2001)Olsina, Lafuente y
+  Rossi}]{Olsina_Lafuente_Rossi_2001}
+{\sc Olsina, L.}, {\sc Lafuente, G.} y {\sc Rossi, G.}
+\newblock {\em Specifying Quality Characteristics and Attributes for
+  Websites\/}, vol. 2016, p\'aginas 266--278.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2001.
+\newblock ISBN 9783540421306.
+
+\bibitem[{Pedro Pablo
+  Gómez-Martín(2017)}]{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}
+{\sc Pedro Pablo Gómez-Martín, M. A. G.-M.}
+\newblock ¡acepta el reto!: juez online para docencia en español.
+\newblock {\em Actas de las Jenui\/}, vol.\ 2, p\'agina 289–296, 2017.
+
+\bibitem[{Pressman(2010)}]{Pressman_2010}
+{\sc Pressman, R.~S.}
+\newblock {\em Ingenier{\'i}a del software: un enfoque pr{\'a}ctico\/}.
+\newblock McGraw-Hill, M{\'e}xico, 7a ed. edici\'on, 2010.
+\newblock ISBN 9786071503145.
+
+\bibitem[{Revilla et\ al.(2008)Revilla, Manzoor y
+  Liu}]{Revilla_Manzoor_Liu_2008}
+{\sc Revilla, M.~�.}, {\sc Manzoor, S.} y {\sc Liu, R.}
+\newblock Competitive learning in informatics: The uva online judge experience.
+\newblock 2008.
+
+\bibitem[{Sekhar~Emmanni(2023)}]{Sekhar_Emmanni_2023}
+{\sc Sekhar~Emmanni, P.}
+\newblock Comparative analysis of angular, react, and vue.js in single page
+  application development.
+\newblock {\em International Journal of Science and Research (IJSR)\/}, vol.\
+  12(6), p\'agina 2971–2974, 2023.
+\newblock ISSN 23197064.
+
+\bibitem[{Wasik et\ al.(2019)Wasik, Antczak, Badura, Laskowski y
+  Sternal}]{Wasik_Antczak_Badura_Laskowski_Sternal_2019}
+{\sc Wasik, S.}, {\sc Antczak, M.}, {\sc Badura, J.}, {\sc Laskowski, A.} y
+  {\sc Sternal, T.}
+\newblock A survey on online judge systems and their applications.
+\newblock {\em ACM Computing Surveys\/}, vol.\ 51(1), p\'agina 1–34, 2019.
+\newblock ISSN 0360-0300, 1557-7341.
+
+\bibitem[{Watanobe et\ al.(2022)Watanobe, Rahman, Matsumoto, Rage y
+  Ravikumar}]{Watanobe_Rahman_Matsumoto_Rage_Ravikumar_2022}
+{\sc Watanobe, Y.}, {\sc Rahman, M.~M.}, {\sc Matsumoto, T.}, {\sc Rage, U.~K.}
+  y {\sc Ravikumar, P.}
+\newblock Online judge system: Requirements, architecture, and experiences.
+\newblock {\em International Journal of Software Engineering and Knowledge
+  Engineering\/}, vol.\ 32(06), p\'agina 917–946, 2022.
+\newblock ISSN 0218-1940, 1793-6403.
+
+\bibitem[{Zichermann y Cunningham(2011)}]{Zichermann_Cunningham_2011}
+{\sc Zichermann, G.} y {\sc Cunningham, C.}
+\newblock {\em Gamification by design: implementing game mechanics in web and
+  mobile apps\/}.
+\newblock O’Reilly, Beijing, Köln, 2011.
+\newblock ISBN 9781449397678.
+
+\end{thebibliography}
