@@ -25,8 +25,8 @@ app.use("/api/problemas", rutasProblemas);
 //ruta solo para simular nuevas entradas a la base de datos
 import routerSocket from "./sockets/socketRouter.ts";
 app.post("/api/nuevo", (request, response) => {
-    const body = request.body;
-    routerSocket();
+    const body = request.body
+    routerSocket(body);
     response.sendStatus(200);
 })
 

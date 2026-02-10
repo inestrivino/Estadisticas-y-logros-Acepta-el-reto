@@ -20,7 +20,8 @@ export async function initRedis () {
             break;
 
         //meto cada envio en redis con su id como clave
-        pipeline.hSet(envio.id.toString(), {
+        const nextId = await redisClient.incr("nextId");
+        pipeline.hSet(nextId.toString(), {
             usuario: envio.usuario,
             problema: envio.problema,
             resultado: envio.resultado,
@@ -31,7 +32,7 @@ export async function initRedis () {
             fecha: envio.fecha
         });
 
-        pipeline.sAdd(`problema:${envio.problema}:envios`, envio.id.toString());
+        pipeline.sAdd(`problema:${envio.problema}:envios`, nextId.toString());
     }
 
     await pipeline.exec();

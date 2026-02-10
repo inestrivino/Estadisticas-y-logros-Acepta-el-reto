@@ -9,7 +9,6 @@ const envios = [];
 
 for (let i = 1; i <= 1000000; i++) {
   const envio = {
-    id: i,
     usuario: usuarios[Math.floor(Math.random() * usuarios.length)],
     problema: problemas[Math.floor(Math.random() * problemas.length)],
     resultado: resultados[Math.floor(Math.random() * resultados.length)],

@@ -12,13 +12,13 @@ router.get("/", async (req, res) => {
 
     const datos = await pipeline.exec();
 
-    const contador: Record<string, number> = {};
+    const contador: Map<string, number> = new Map;
 
     for (const dato of datos) {
         const key = String(dato);
 
         //si no existe la clave se inicializa a 0 y suma 1
-        contador[key] = (contador[key] ?? 0) + 1;
+        contador.set(key, (contador.get(key) ?? 0) + 1);
     }
 
     const estados: Record<string, string> = {
@@ -35,10 +35,11 @@ router.get("/", async (req, res) => {
         IE: "Error interno",
     };
 
-    const formateados = Object.entries(contador).map(([name, value]) => ({
-        name: estados[name],
-        value,
-    }));
+    Object.keys(contador).sort()
+
+    const formateados:{}[] = [];
+    for (const aux of contador.entries())
+        formateados.push({name:estados[aux[0]], value:aux[1]})
 
     return res.json(formateados);
 });
