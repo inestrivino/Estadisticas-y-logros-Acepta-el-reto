@@ -1,0 +1,27 @@
+Para trabajar con LaTeX en nuestras máquinas tendremos que instalar tanto texlive como los dos siguientes elementos extra:
+
+sudo apt-get install texlive-pictures
+sudo apt-get install texlive-latex-extra
+
+Cuando se desee eliminar LaTeX completamente del ordenador se podrán usar los siguientes comandos:
+    sudo apt-get purge texlive*
+    
+    sudo apt-get purge texlive-*
+	sudo apt-get autoremove
+	sudo apt-get autoclean
+
+    sudo rm -rf /usr/local/texlive/* and rm -rf ~/.texlive*
+    sudo rm -rf /usr/local/share/texmf
+    sudo rm -rf /var/lib/texmf
+    sudo rm -rf /etc/texmf
+    sudo apt-get remove tex-common --purge
+    rm -rf ~/.texlive
+    
+ Asegurandose de desinstalar también los elementos extra instalados.
+ 
+ Para trabajar con LaTeX en VSCode se recomienda hacer uso de la extensión LaTeX Workshop o similar.
+ 
+ Se ha incluído un script útil para compilar el proyecto latex rápidamente desde la terminal. Se encuentra en:
+ ./compilar_latex.sh
+
+
