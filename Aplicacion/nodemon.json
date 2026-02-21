@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["dist", "node_modules"],
-  "exec": "node scripts/build.js && node dist-server/server.js"
+  "exec": "node scripts/build.js && node --inspect=0.0.0.0:9229 dist-server/server.js"
 }

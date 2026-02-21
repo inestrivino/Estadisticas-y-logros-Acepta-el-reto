@@ -1,49 +1,55 @@
  * Instrucciones de aplicacion:
 
- - para lanzar la aplicacion "npm run dev"
-    - ya esta configurado para lanzar el debug haciendo esto mismo
+ - para lanzar la aplicacion "npm run start"
     * en el puerto 3000 para probarla normal
       ej: http://localhost3000/
-    * se pueden ver los cambios de un componente react sin tener que recargar la pagina
-      si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
-      ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
+
+ - una vea la aplicacion este lanzada se puede lanzar el debug para debuggear normalmente
 
  - para constuir la aplicacion "npm run build"
-    - para probarla construida "npm run start"
-    * siempre en el puerto 3000
-      ej: http://localhost3000/
 
  - para generar el json con los casos de prueba para redis "node scripts/generarProblemas.js"
 
 ======================================================================================================
 
- * Apuntes sobre uso de librerias:
+ * Apuntes sobre la implementacion:
 
  - vite para contruir el frontend con react
 
- - just-scripts para transpilar el typescript del backend
+ - rimraf para que se pueda quitar la carpeta dist en windows y linux (dentro del script que construye el proyecto)
 
- - rimraf para que se pueda quitar la carpeta dist en windows y linux (dentro del arhivo just.config.ts)
-
- - nodemon para detectar cambios en los archivos y volver a construir con el archivo
-   de just-scripts y luego volver a lanzar el servidor
-   (no conseguí matar el proceso en el que se lanzaba el servidor desde dentro del archivo
-   de just-scripts)
+ - nodemon para detectar cambios en los archivos y volver a construir con el script
+   y luego volver a lanzar el servidor
 
  - cross-env para poder poner el comando con las variables de entorno en windows y linux
  - dot-env para cargar variables de entorno desde un archivo .env
 
  - concurrently para lanzar la aplicacion en desarrollo con un solo comando
 
- - en developmente se lanza la ejecucion con NODE_NO_WARNINGS=1 para evitar el warnin de deprecado del
+ - en development se lanza la ejecucion con NODE_NO_WARNINGS=1 para evitar el warnin de deprecado del
    proxyMiddleware
-    - Warning:
-      DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
-      at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
-      at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
-      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+   - Warning:
+     DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
+     at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
+     at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
+     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 
-======================================================================================================
+ - Funcionamiento de como se lanza el codigo en los dockers:
+   La aplicacion se lanza corriendo en dockers, uno para el servidor y otro para la base de datos en redis.
+   Se lanzan con docker compose configurado en compose.yaml, en el archivo Dockerfile esta la configuracion
+   de como se crea la imagen del docker del servidor.
+   Esta tiene habilitado el puerto 8080 para los sockets y el 9229 para conectarse con el debugger de VSCode.
+   En el launch.json esta especificado como se conecta el debugger.
+
+   Mas en detalle como funciona:
+   1. Crea la imagen y la lanza con el código del proyecto de la maquina local como un volumen
+   2. Ejecuta "npm run dev" dentro del docker (Lanza el servidor de vite y el back)
+   3. El del back lo que hace es pasar el typescript al javascript y lo ejecuta, esto con nodemon
+      asi que cada vez que detecta un cambio vuelve a hacer esto
+   4. Se conecta el debugger una vez está lanzada la aplicacion con el docker compose,
+      esto permite poner punto de ruptura y debuggear normalmente el codigo
+   5. Como comparten el codigo con un volumen se detectan los cambios y nodemon vuelve 
+      a lanzar la aplicacioon con los cambios
 
  - recharts para hacer graficos en react
 
@@ -52,3 +58,15 @@
  - socket.io para el uso de web-sockets
    - Cada grafico tendria que escuchar un evento y desde el backend se lanza el evento
      correspondiente
+
+======================================================================================================
+
+  * Recordatorios:
+
+    Dejo por aqui otras cosas que ahora mismo no funcionan:
+  * se pueden ver los cambios de un componente react sin tener que recargar la pagina
+    si se ve la pagina en el puerto 5173, pero hay que escribir la ruta completa
+    ej: http://localhost:5173/public/diagramas o http://localhost:5173/home
+
+  - para probarla construida "npm run start"     
+    comando de start => "set NODE_ENV=production&& node dist-server/server.js"

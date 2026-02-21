@@ -5,7 +5,7 @@
     "dev-front": "vite",
     "dev": "concurrently \"npm run dev-back\" \"npm run dev-front\"",
     "build": "node scripts/build.js && vite build",
-    "start": "set NODE_ENV=production&& node dist-server/server.js"
+    "start": "docker compose up --build"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
