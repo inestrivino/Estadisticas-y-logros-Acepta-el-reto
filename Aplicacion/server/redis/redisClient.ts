@@ -4,7 +4,7 @@ import { createClient } from "redis";
 docker run -d --name redis-server -p 6379:6379 redis
 */
 
-const redisClient = createClient({ url: "redis://localhost:6379" });
+const redisClient = createClient({ url: "redis://redis:6379" });
 
 redisClient.connect()
   .then(

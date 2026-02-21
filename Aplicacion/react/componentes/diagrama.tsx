@@ -83,6 +83,7 @@ export function Diagrama(props: {
                 outerRadius={props.dimensiones.outerRadius}
                 paddingAngle={2}
                 label
+                isAnimationActive={false}
             />
             <Legend />
         </PieChart>
