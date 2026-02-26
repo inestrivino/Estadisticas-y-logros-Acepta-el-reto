@@ -9,7 +9,7 @@ export async function initRedis () {
         return;
     }
 
-    redisClient.flushAll();
+    await redisClient.flushAll();
     
     const envios = JSON.parse(fs.readFileSync("./data/envios.json", "utf8"));
 
@@ -33,6 +33,17 @@ export async function initRedis () {
         });
 
         pipeline.sAdd(`problema:${envio.problema}:envios`, nextId.toString());
+        
+        //Actualiza el tiempo total y el numero de envios
+        const tiempo = Number(envio.tiempo);
+        await redisClient.hIncrByFloat(`problema:${envio.problema}`, "totalTiempo", tiempo);
+        await redisClient.hIncrBy(`problema:${envio.problema}`, "totalEnvios", 1);
+        
+        //Actualiza el tiempo minimo o en caso de no estar inicializado lo pone a un numero alto
+        const tiempoMinActual = await redisClient.hGet(`problema:${envio.problema}`, "minTiempo") || 2345678;
+        if (tiempoMinActual === null || tiempo < Number(tiempoMinActual)) {
+            await redisClient.hSet(`problema:${envio.problema}`, "minTiempo", tiempo.toString());
+        }
     }
 
     await pipeline.exec();

@@ -50,7 +50,7 @@ export function Diagrama(props: {
     useEffect(() => {
         socket.on(props.evento, (newDato: string) => {
             setData(prevData => {
-                let newData:DataItem[] = [];
+                let newData: DataItem[] = [];
                 for (let i = 0; i < prevData.length; i++) {
                     if (prevData[i].name === newDato) {
                         newData[i] = {
@@ -74,18 +74,31 @@ export function Diagrama(props: {
 
     //se renderiza el diagrama con los datos y colores asignados
     return (
-        <PieChart width={props.dimensiones.width} height={props.dimensiones.height}>
-            <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={30}
-                outerRadius={props.dimensiones.outerRadius}
-                paddingAngle={2}
-                label
-                isAnimationActive={false}
-            />
-            <Legend />
-        </PieChart>
+
+        <div style={{ //caja que rodea al diagrama
+            //border: "1px solid #ccc",
+            borderRadius: "12px",
+            padding: "16px",
+            margin: "5px",
+            display: "inline-block",
+            textAlign: "center",
+            width: `${props.dimensiones.width * 1.1}px`,
+            height: `${props.dimensiones.height * 1.1}px`,
+            backgroundColor: "#D9EDF7"
+        }}>
+            <PieChart width={props.dimensiones.width} height={props.dimensiones.height}>
+                <Pie
+                    data={data}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={30}
+                    outerRadius={props.dimensiones.outerRadius}
+                    paddingAngle={2}
+                    label
+                    isAnimationActive={false}
+                />
+                <Legend />
+            </PieChart>
+        </div>
     );
 }
