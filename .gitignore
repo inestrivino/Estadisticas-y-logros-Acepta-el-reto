@@ -3,6 +3,7 @@ dist*
 .env
 .env.*
 data
+package-lock.json
 
 /.vscode
 

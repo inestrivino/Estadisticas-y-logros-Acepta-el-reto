@@ -2,6 +2,7 @@ Para trabajar con LaTeX en nuestras máquinas tendremos que instalar tanto texli
 
 sudo apt-get install texlive-pictures
 sudo apt-get install texlive-latex-extra
+sudo apt install texlive-lang-spanish
 
 Se recomienda utilizar la instalación de apt en lugar de la instalación mediante descarga del repositorio a usr/local (ya que esa instalación es más difícil de limpiar en el futuro).
 
