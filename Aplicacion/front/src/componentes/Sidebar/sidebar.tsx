@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faXmark } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
 
-export function Sidebar() {
+export default function Sidebar() {
   const [show, setShow] = useState(false);
 
   const links = (

@@ -1,5 +1,5 @@
 import { PieChart, Pie, Legend } from "recharts";
-import { socket } from "../socket.ts"; // Socket compartido
+import { socket } from "../services/socket.ts"; // Socket compartido
 import { useState, useEffect, useMemo } from 'react';
 
 //contenido del diagrama
@@ -9,29 +9,7 @@ type DataItem = {
     fill?: string;
 };
 
-/*
-function asignarColores(datos: DataItem[], colores:string[]): DataItem[] {
-    for (let i = 0; i < datos.length; i++) {
-        const dato = datos[i];
-        const color = colores[i % colores.length];
-        dato.fill = color;
-    }
-    return datos;
-}
-
-function formatearDatos(datos: Map<string, number>, colores:string[]): DataItem[] {
-    let datosFormateados: DataItem[] = [];
-    for (const [name, value] of datos) {
-        datosFormateados.push({ name, value });
-    }
-    //se le asigna un color de la paleta a cada dato
-    //se repiten si hay mas datos que colores
-    datosFormateados = asignarColores(datosFormateados, colores);
-    return datosFormateados;
-}
-*/
-
-export function Diagrama(props: {
+export default function Diagrama(props: {
     evento: string,
     dimensiones: { width: number; height: number, outerRadius: number },
     colores: string[],
@@ -39,6 +17,8 @@ export function Diagrama(props: {
 }) {
     //se colocan los datos con un useState para actualizarlos si llega un mensaje por el socket
     const [data, setData] = useState<DataItem[]>(() => {
+        console.log("Inicializando datos del diagrama");
+        console.log(props.datos);
         const inicial: DataItem[] = props.datos;
         for (let i = 0; i < inicial.length; i++) {
             inicial[i].fill = props.colores[i % props.colores.length];

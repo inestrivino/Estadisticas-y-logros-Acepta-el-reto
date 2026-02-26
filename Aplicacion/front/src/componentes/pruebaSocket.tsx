@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { socket } from "../socket"; // Socket compartido
 
-export function PruebaSocket() {
+export default function PruebaSocketComponent() {
 
     const [resultado, setResultado] = useState("AC");
 

@@ -7,7 +7,7 @@ import 'dotenv/config'
 import { initSocket } from './sockets/socketInit.ts';
 import { initRedis } from './redis/redisInit.ts';
 //routers
-import rutasProblemas from "./api/problemas";
+import rutasProblemas from "./api/problemas.ts";
 
 //============== INICIAR EL SERVIDOR ==============
 const app = express();
@@ -61,19 +61,10 @@ else if (process.env.NODE_ENV === 'development') {
     const proxy = createProxyMiddleware({
         target: 'http://localhost:5173',
         changeOrigin: true,
-        pathRewrite: {
+        /*pathRewrite: {
             '^/pruebaSocket$': '/public/pruebaSocket.html',
             '^/$': '/index.html',
-        }/*,
-    on: {
-      proxyReq: (proxyReq, req, res) => {
-        console.log(proxyReq.path);
-        console.log(req.url)
-      },
-      error: (err, req, res) => {
-        console.error('Proxy error:', err);
-      },
-    }*/
+        }*/
     });
 
     app.use('/', proxy);

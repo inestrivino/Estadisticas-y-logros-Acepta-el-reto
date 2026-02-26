@@ -1,28 +1,29 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from "path";
 
 export default defineConfig({
   plugins: [react({})],
-  publicDir: false, //para que no se copien dos veces por tener dos inputs
   build: {
     outDir: 'dist-front',
-    assetsDir: 'assets',
+    /*assetsDir: 'assets',
     rollupOptions: {
       input: {
         pruebaSocket: '/public/pruebaSocket.html',
         index: '/index.html'
       },
-    },
+    },*/
   },
   server: {
+    host: true, // o '0.0.0.0'
+    port: 5173,
+    watch: {
+      usePolling: true, // para volúmenes de Docker
+    },
     proxy: {
-      '/api': 'http://app:3000',
+      '/api': 'http://back:3000',
     },
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname),
-    },
+    dedupe: ["react", "react-dom", "react-router-dom"]
   },
 });
