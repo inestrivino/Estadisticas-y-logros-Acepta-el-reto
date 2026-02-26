@@ -1,27 +1,22 @@
-Para trabajar con LaTeX en nuestras máquinas tendremos que instalar tanto texlive como los dos siguientes elementos extra:
+Para trabajar con LaTeX en nuestras máquinas tendremos que instalar tanto texlive básico como los siguientes elementos extra:
 
 sudo apt-get install texlive-pictures
 sudo apt-get install texlive-latex-extra
 
+Se recomienda utilizar la instalación de apt en lugar de la instalación mediante descarga del repositorio a usr/local (ya que esa instalación es más difícil de limpiar en el futuro).
+
+Para trabajar con LaTeX en VSCode se recomienda hacer uso de la extensión LaTeX Workshop o similar. Sin embargo, para el presente proyecto latexmk solo producirá errores de compilación por lo que se recomienda añadir el siguiente texto al archivo settings.json de vscode:
+"latex-workshop.latex.autoBuild.run": "never",
+"latex-workshop.latex.recipes": [],
+"latex-workshop.latex.tools": []
+Ya que no usaremos la compilación automática de vscode no hace falta instalar latexmk. 
+En su lugar, para compilar el proyecto, haremos uso de los scripts aportados en el momento que consideremos oportuno para tener una versión pdf de la memoria:
+- Linux: compilar_latex.sh
+- Windows: compilar_latex.bat
+Sin embargo, el archivo .bat NO está testeado y se usa bajo propia responsabilidad.
+
 Cuando se desee eliminar LaTeX completamente del ordenador se podrán usar los siguientes comandos:
-    sudo apt-get purge texlive*
-    
-    sudo apt-get purge texlive-*
-	sudo apt-get autoremove
-	sudo apt-get autoclean
-
-    sudo rm -rf /usr/local/texlive/* and rm -rf ~/.texlive*
-    sudo rm -rf /usr/local/share/texmf
-    sudo rm -rf /var/lib/texmf
-    sudo rm -rf /etc/texmf
-    sudo apt-get remove tex-common --purge
-    rm -rf ~/.texlive
-    
- Asegurandose de desinstalar también los elementos extra instalados.
- 
- Para trabajar con LaTeX en VSCode se recomienda hacer uso de la extensión LaTeX Workshop o similar.
- 
- Se ha incluído un script útil para compilar el proyecto latex rápidamente desde la terminal. Se encuentra en:
- ./compilar_latex.sh
-
-
+	sudo apt purge 'texlive*'
+    sudo apt purge tex-common
+    sudo apt autoremove --purge
+    sudo apt autoclean
