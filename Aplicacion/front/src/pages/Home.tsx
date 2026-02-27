@@ -63,7 +63,7 @@ export default function Home() {
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {datos && <Diagrama
-                                evento={"texto"} //TODO falta esto aqui <==================
+                                evento={"reload-resultadosProblemas"} //TODO falta esto aqui <==================
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
@@ -76,7 +76,7 @@ export default function Home() {
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {datos &&<Diagrama
-                                evento={"texto"} //TODO falta esto aqui <==================
+                                evento={"reload-resultadosProblemas"} //TODO falta esto aqui <==================
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",

@@ -17,8 +17,6 @@ export default function Diagrama(props: {
 }) {
     //se colocan los datos con un useState para actualizarlos si llega un mensaje por el socket
     const [data, setData] = useState<DataItem[]>(() => {
-        console.log("Inicializando datos del diagrama");
-        console.log(props.datos);
         const inicial: DataItem[] = props.datos;
         for (let i = 0; i < inicial.length; i++) {
             inicial[i].fill = props.colores[i % props.colores.length];
@@ -28,9 +26,11 @@ export default function Diagrama(props: {
 
     //se actualiza el diagrama cada vez que llega un nuevo mensaje por el socket
     useEffect(() => {
-        socket.on(props.evento, (newDato: string) => {
+        const handler = (newDato: string) => {
             setData(prevData => {
-                let newData: DataItem[] = [];
+                console.log("prevData al momento del evento:", prevData);
+                let newData:DataItem[] = [];
+                let encontrado:boolean = false;
                 for (let i = 0; i < prevData.length; i++) {
                     if (prevData[i].name === newDato) {
                         newData[i] = {
@@ -38,17 +38,28 @@ export default function Diagrama(props: {
                             value: prevData[i].value + 1,
                             fill: prevData[i].fill
                         }
+                        encontrado = true;
                     }
                     else
                         newData[i] = prevData[i];
                 }
-                return newData
+                if (!encontrado) {
+                    newData.push({
+                        name: newDato,
+                        value: 1,
+                        fill: props.colores[newData.length % props.colores.length]
+                    });
+                }
+                return newData;
             });
-        });
+        };
+
+        //se asigna el handler para que no haya problemas al tener varios diagramas en la misma pagina
+        socket.on(props.evento, handler);
 
         //se limpia el listener al desmontar el componente
         return () => {
-            socket.off(props.evento);
+            socket.off(props.evento, handler);
         };
     }, []);
 

@@ -1,18 +1,4 @@
- * Instrucciones de aplicacion:
-
- - para lanzar la aplicacion "npm run start"
-    * en el puerto 3000 para probarla normal
-      ej: http://localhost3000/
-
- - una vea la aplicacion este lanzada se puede lanzar el debug para debuggear normalmente
-
- - para constuir la aplicacion "npm run build"
-
- - para generar el json con los casos de prueba para redis "node scripts/generarProblemas.js"
-
-======================================================================================================
-
- * Apuntes sobre la implementacion:
+* Apuntes sobre la implementacion:
 
  - vite para contruir el frontend con react
 

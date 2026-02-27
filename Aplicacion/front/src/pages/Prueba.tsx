@@ -17,7 +17,7 @@ export default function Prueba() {
         <div>
             <p>Diagrama de prueba</p>
             {datos && <Diagrama
-                evento={"texto"} //TODO falta esto aqui <==================
+                evento={"reload-resultadosProblemas"} //TODO falta esto aqui <==================
                 dimensiones={{ width: 400, height: 400, outerRadius: 75 }}
                 colores={[
                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",

@@ -4,23 +4,21 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react({})],
   build: {
-    outDir: 'dist-front',
-    /*assetsDir: 'assets',
-    rollupOptions: {
-      input: {
-        pruebaSocket: '/public/pruebaSocket.html',
-        index: '/index.html'
-      },
-    },*/
+    outDir: 'dist-front'
   },
   server: {
-    host: true, // o '0.0.0.0'
+    host: true,
     port: 5173,
     watch: {
-      usePolling: true, // para volúmenes de Docker
+      usePolling: true,
     },
     proxy: {
       '/api': 'http://back:3000',
+      '/socket.io': {
+        target: 'http://back:8080',
+        ws: true,        
+        changeOrigin: true,
+      }
     },
   },
   resolve: {
