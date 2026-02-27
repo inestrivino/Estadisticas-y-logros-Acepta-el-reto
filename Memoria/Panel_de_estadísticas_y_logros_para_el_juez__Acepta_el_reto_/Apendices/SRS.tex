@@ -2,17 +2,14 @@
 \label{cap:SRS}
 
 Versión 0.1\\
-Preparada por Inés Triviño Rello\\
-Universidad Complutense de Madrid\\
-A 31 de enero de 2026\\
 
 \section{Introducción}
 
 \subsection{Propósito del documento}
 
-El propósito del presente documento es servir como especificación de requisitos de software (SRS) para las funcionalidades de estadísticas y logros del juez online \textit{¡Acepta el reto!}. Este documento constituye la base para el diseño, desarrollo, validación y mantenimiento de dichas funcionalidades.
+El propósito del presente documento es servir como especificación de requisitos de software (SRS) para las funcionalidades de estadísticas y logros del juez \textit{online} \aer. Este documento constituye la base para el diseño, desarrollo, validación y mantenimiento de dichas funcionalidades.
 
-El documento está dirigido principalmente a los desarrolladores y mantenedores de las funcionalidades descritas, a los mantenedores del juez \textit{¡Acepta el reto!}, y a cualquier otra persona interesada en comprender el funcionamiento, alcance y limitaciones del producto.
+El documento está dirigido principalmente a los desarrolladores y mantenedores de las funcionalidades descritas, a los mantenedores del juez \aer, y a cualquier otra persona interesada en comprender el funcionamiento, alcance y limitaciones del producto.
 
 Asimismo, este documento debe emplearse como referencia durante el ciclo de vida del software para constatar las funcionalidades implementadas, las decisiones de diseño adoptadas, los motivos que las justifican y las limitaciones actuales del sistema, con el objetivo de facilitar su mantenibilidad y evolución futura.
 
@@ -22,7 +19,7 @@ El producto no cuenta con una denominación propia. A lo largo de este documento
 
 En este documento se describen las especificaciones correspondientes a la primera versión del producto. Las capacidades principales incluyen la visualización fiel y actualizada de estadísticas de usuario, estadísticas asociadas a los ejercicios, y la gestión de logros o medallas otorgadas por la realización de determinadas acciones.
 
-Cabe destacar que este documento se refiere exclusivamente a las funcionalidades de estadísticas y logros, las cuales se implementan de manera independiente a la arquitectura actual de \textit{¡Acepta el reto!}. No obstante, el producto se diseña con el objetivo de facilitar una posible integración futura en la arquitectura del juez, en caso de que se considere oportuno.
+Cabe destacar que este documento se refiere exclusivamente a las funcionalidades de estadísticas y logros, las cuales se implementan de manera independiente a la arquitectura actual de \aer. No obstante, el producto se diseña con el objetivo de facilitar una posible integración futura en la arquitectura del juez, en caso de que se considere oportuno.
 
 \subsection{Definiciones, acrónimos y abreviaciones}
 
@@ -31,7 +28,7 @@ Cabe destacar que este documento se refiere exclusivamente a las funcionalidades
     \item \textbf{API}: Application Programming Interface.
     \item \textbf{SRS}: Software Requirements Specification.
     \item \textbf{TFG}: Trabajo Fin de Grado.
-    \item \textbf{¡Acepta el reto!}: Juez online de programación competitiva objeto de este proyecto.
+    \item \textbf{¡Acepta el reto!}: Juez \textit{online} de programación competitiva objeto de este proyecto.
 \end{itemize}
 
 \subsection{Referencias}
@@ -44,7 +41,7 @@ Cabe destacar que este documento se refiere exclusivamente a las funcionalidades
 
 \subsection{Perspectiva del producto}
 
-El producto se desarrolla en el marco de un Trabajo de Fin de Grado (TFG), bajo la supervisión de los creadores y mantenedores de \textit{¡Acepta el reto!}. Su objetivo es cubrir la necesidad de introducir mayor dinamismo y nuevas fuentes de motivación para los usuarios del juez online mediante estadísticas detalladas y un sistema de logros.
+El producto se desarrolla en el marco de un Trabajo de Fin de Grado (TFG), bajo la supervisión de los creadores y mantenedores de \aer. Su objetivo es cubrir la necesidad de introducir mayor dinamismo y nuevas fuentes de motivación para los usuarios del juez \textit{online} mediante estadísticas detalladas y un sistema de logros.
 
 Aunque la integración directa de estas funcionalidades en el juez no forma parte del alcance del proyecto, el diseño tendrá en cuenta criterios de modularidad y desacoplamiento que faciliten una posible integración futura.
 
@@ -60,7 +57,7 @@ Aunque la integración directa de estas funcionalidades en el juez no forma part
 
 \subsection{Limitaciones del producto}
 
-El producto estará sujeto a limitaciones técnicas derivadas del stack tecnológico seleccionado durante el desarrollo del TFG, así como a restricciones de tiempo y recursos propios de un proyecto académico. Asimismo, el sistema dependerá de la disponibilidad y calidad de los datos proporcionados por el juez \textit{¡Acepta el reto!} u otras fuentes externas. No se contemplan requisitos específicos de hardware más allá de los necesarios para ejecutar una aplicación web moderna.
+El producto estará sujeto a limitaciones técnicas derivadas del stack tecnológico seleccionado durante el desarrollo del TFG, así como a restricciones de tiempo y recursos propios de un proyecto académico. Asimismo, el sistema dependerá de la disponibilidad y calidad de los datos proporcionados por el juez \aer u otras fuentes externas. No se contemplan requisitos específicos de hardware más allá de los necesarios para ejecutar una aplicación web moderna.
 
 \subsection{Características de los usuarios}
 
@@ -92,7 +89,7 @@ El sistema expone y consume las siguientes interfaces externas:
         \item Sección de logros y medallas obtenidas.
         \item Tabla de clasifiación de usuarios.
 
- Se seguirán principios de diseño responsivo y consistencia visual con el estilo general de \textit{¡Acepta el reto!}.
+ Se seguirán principios de diseño responsivo y consistencia visual con el estilo general de \aer.
     \end{itemize}
 
     \item \textbf{Interfaces software (API)}

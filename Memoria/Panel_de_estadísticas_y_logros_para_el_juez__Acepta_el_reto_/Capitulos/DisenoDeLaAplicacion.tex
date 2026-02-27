@@ -57,11 +57,11 @@ El primer paso de nuestro diseño será identificar los requisitos que el softwa
 
 A partir del análisis de requisitos recogido en el Apéndice \ref{cap:SRS}, se definen en esta sección las funcionalidades que conforman la aplicación. Dichas funcionalidades responden directamente a los requisitos funcionales identificados en la SRS y constituyen el núcleo del sistema desde el punto de vista del usuario final.
 
-El diseño funcional se ha orientado a proporcionar información relevante, clara y actualizada sobre la actividad de los usuarios en el juez \textit{¡Acepta el reto!}, así como a introducir mecanismos de motivación adicionales mediante la gamificación. Para ello, las funcionalidades se agrupan en cuatro bloques principales: estadísticas de usuario, estadísticas de ejercicios, sistema de logros y tabla de clasificación.
+El diseño funcional se ha orientado a proporcionar información relevante, clara y actualizada sobre la actividad de los usuarios en el juez \aer, así como a introducir mecanismos de motivación adicionales mediante la gamificación. Para ello, las funcionalidades se agrupan en cuatro bloques principales: estadísticas de usuario, estadísticas de ejercicios, sistema de logros y tabla de clasificación.
 
 \subsection{Estadísticas de usuario}
 
-Una de las funcionalidades centrales del sistema es la visualización de estadísticas asociadas a cada usuario (REQ-FUN-001). Estas estadísticas permiten reflejar de manera cuantitativa el progreso y la actividad del usuario dentro del juez online.
+Una de las funcionalidades centrales del sistema es la visualización de estadísticas asociadas a cada usuario (REQ-FUN-001). Estas estadísticas permiten reflejar de manera cuantitativa el progreso y la actividad del usuario dentro del juez \textit{online}.
 
 Entre la información mostrada se incluyen, entre otros indicadores, el número total de ejercicios resueltos, el número de envíos realizados y la tasa de aciertos. Estos datos se presentan de forma agregada y comprensible, con el objetivo de que el usuario pueda evaluar su evolución a lo largo del tiempo y detectar posibles áreas de mejora.
 
@@ -97,7 +97,7 @@ Desde el punto de vista funcional, esta característica busca aumentar la visibi
 
 \section{Diseño del sistema de gamificación}
 
-Como se ha establecido previamente, el objetivo de este proyecto es incorporar componentes de estadísticas y logros en el juez online \textit{¡Acepta el reto!} para impulsar la motivación, la fidelización de los usuarios y facilitar su proceso de aprendizaje. Los elementos que se pretenden integrar se corresponden con mecánicas de juego. Por consiguiente, el proceso de diseño de estas funciones en la aplicación no consiste únicamente en añadir características aisladas, sino en aplicar de manera consciente y estructurada principios de diseño de juegos relevantes para generar experiencias que resulten atractivas y significativas para los usuarios. Este proceso se reconoce como \textbf{gamificación} (del inglés \textit{game}, juego). 
+Como se ha establecido previamente, el objetivo de este proyecto es incorporar componentes de estadísticas y logros en el juez \textit{online} \aer para impulsar la motivación, la fidelización de los usuarios y facilitar su proceso de aprendizaje. Los elementos que se pretenden integrar se corresponden con mecánicas de juego. Por consiguiente, el proceso de diseño de estas funciones en la aplicación no consiste únicamente en añadir características aisladas, sino en aplicar de manera consciente y estructurada principios de diseño de juegos relevantes para generar experiencias que resulten atractivas y significativas para los usuarios. Este proceso se reconoce como \textbf{gamificación} (del inglés \textit{game}, juego). 
 
 \subsection{Introducción a la gamificación}
 
@@ -138,7 +138,7 @@ Desde el punto de vista del diseño, esto justifica la implementación de un sis
     \item Exploradores (Explorers): El perfil explorador destaca principalmente en los contextos de aprendizaje. Los usuarios muestran interés por descubrir nuevas estrategias, experimentar con distintos tipos de problemas o lenguajes, y obtener reconocimiento por enfoques menos convencionales. Este comportamiento se refleja, por ejemplo, en el interés por logros asociados a tipos de problemas, características específicas de los envíos o lenguajes utilizados.  
 En consecuencia, el diseño del sistema de gamificación debe contemplar la inclusión de elementos que fomenten la exploración, como contenido desbloqueable o insignias especiales, incluyendo un número limitado de \textit{insignias sorpresa} o \textit{medallas misteriosas}, cuya aceptación, aunque no unánime, resulta significativa para una parte de los usuarios.
     
-    \item Socializadores (Socializers): Aunque se trata del perfil menos predominante en términos generales, los socializadores aparecen en aquellos contextos en los que la colaboración contribuye al aprendizaje. Estos jugadores encuentran satisfacción en cooperar para alcanzar soluciones o en enseñar a otros. Dado que \textit{¡Acepta el reto!} no dispone de funcionalidades sociales como foros o soporte para grupos, y que el desarrollo de dichas características queda fuera del alcance de este proyecto, unido a la baja representación de este perfil, no se implementarán técnicas de gamificación específicas para este grupo, como sistemas de puntos por participación en foros.
+    \item Socializadores (Socializers): Aunque se trata del perfil menos predominante en términos generales, los socializadores aparecen en aquellos contextos en los que la colaboración contribuye al aprendizaje. Estos jugadores encuentran satisfacción en cooperar para alcanzar soluciones o en enseñar a otros. Dado que \aer no dispone de funcionalidades sociales como foros o soporte para grupos, y que el desarrollo de dichas características queda fuera del alcance de este proyecto, unido a la baja representación de este perfil, no se implementarán técnicas de gamificación específicas para este grupo, como sistemas de puntos por participación en foros.
 \end{enumerate}
 
 A partir del análisis realizado, se concluye que los usuarios de la plataforma no responden a un único perfil de jugador, sino que alternan entre distintos roles en función del contexto, predominando claramente los perfiles de logrador, competidor y explorador. En general, los jugadores muestran una preferencia marcada por mecánicas que refuercen el progreso individual, la comparación objetiva del rendimiento y el dominio del \enquote{mundo del juego}, entendido como el conjunto de habilidades y conocimientos propios de la programación competitiva, frente a la interacción social con otros usuarios.
@@ -155,7 +155,7 @@ El sistema de logros es la primera de las mecánicas ideada. Para su diseño, se
 \begin{itemize}
     \item Simplicidad y claridad: Cada logro debe poder describirse en una o dos frases como máximo, lo que garantiza su fácil comprensión por parte de los usuarios.
     \item Permanencia: Los logros deben corresponder a acciones irreversibles o que no puedan perderse. Una vez obtenido, el usuario lo conservará de forma definitiva. Por ejemplo, no se contempla un logro por conseguir todos los logros disponibles, ya que su validez se vería comprometida al incorporarse nuevos logros en el futuro.
-    \item Categorización por dificultad: Los logros se clasifican en tres niveles (Bronce, Plata y Oro) según su dificultad o relevancia. Esta jerarquía, inspirada en el sistema de medallas del ámbito deportivo, resulta intuitiva y reconocible para los usuarios, y sirve como indicador de progreso. Además, otros jueces online, como HackerRank, ya implementan esta jerarquía de logros.
+    \item Categorización por dificultad: Los logros se clasifican en tres niveles (Bronce, Plata y Oro) según su dificultad o relevancia. Esta jerarquía, inspirada en el sistema de medallas del ámbito deportivo, resulta intuitiva y reconocible para los usuarios, y sirve como indicador de progreso. Además, otros jueces \textit{online}, como HackerRank, ya implementan esta jerarquía de logros.
     \item Categorización por tipo de acción: Los logros también se agrupan según el aspecto que premian, como la calidad de los envíos o el uso de lenguajes de programación. Las categorías definidas son:
     \begin{itemize}
         \item Onboarding: Ayudan a los usuarios a aclimatarse con el sistema de gamificación.
@@ -172,27 +172,30 @@ En la tabla \ref{tab:logros} se detallan los logros propuestos a partir de las d
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{8cm}|c|c|}
-\hline
-\textbf{Descripción} & \textbf{Nivel} & \textbf{Categoría} \\ \hline
-Creación de una cuenta & Bronce & Onboarding \\ \hline
-Realización del primer envío & Bronce & Onboarding \\ \hline
-Obtención de 5 logros & Plata & Onboarding \\ \hline
-Resolución de 10 problemas & Bronce & Número de problemas \\ \hline
-Resolución de 50 problemas & Plata & Número de problemas \\ \hline
-Resolución de 100 problemas & Plata & Número de problemas \\ \hline
-Resolución de 500 problemas & Oro & Número de problemas \\ \hline
-Resolución de 25 problemas en C & Oro & Uso de lenguajes \\ \hline
-Resolución de 25 problemas en C++ & Oro & Uso de lenguajes \\ \hline
-Resolución de 25 problemas en Java & Oro & Uso de lenguajes \\ \hline
-Haber realizado envíos con 3 lenguajes diferentes& Plata & Uso de lenguajes \\ \hline
-Consecución de una racha de 5 envíos aceptados a la primera & Oro & Rachas \\ \hline
-Realización de envíos en 7 días consecutivos & Bronce & Rachas \\ \hline
-Resolución de un problema en el primer intento & Bronce & Calidad \\ \hline
-Envío correcto dentro del 25\% de soluciones más rápidas para un problema & Plata & Calidad \\ \hline
-Resolución de un problema de cada categoría& Oro & Categorías \\ \hline
-Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema & Oro & Calidad (sorpresa) \\ \hline
-Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\ \hline
+\small
+\begin{tabular}{p{8cm}cc}
+\toprule
+\textbf{Descripción} & \textbf{Nivel} & \textbf{Categoría} \\
+\midrule
+Creación de una cuenta & Bronce & Onboarding \\
+Realización del primer envío & Bronce & Onboarding \\
+Obtención de 5 logros & Plata & Onboarding \\
+Resolución de 10 problemas & Bronce & Número de problemas \\
+Resolución de 50 problemas & Plata & Número de problemas \\
+Resolución de 100 problemas & Plata & Número de problemas \\
+Resolución de 500 problemas & Oro & Número de problemas \\
+Resolución de 25 problemas en C & Oro & Uso de lenguajes \\
+Resolución de 25 problemas en C++ & Oro & Uso de lenguajes \\
+Resolución de 25 problemas en Java & Oro & Uso de lenguajes \\
+Haber realizado envíos con 3 lenguajes diferentes & Plata & Uso de lenguajes \\
+Consecución de una racha de 5 envíos aceptados a la primera & Oro & Rachas \\
+Realización de envíos en 7 días consecutivos & Bronce & Rachas \\
+Resolución de un problema en el primer intento & Bronce & Calidad \\
+Envío correcto dentro del 25\% de soluciones más rápidas para un problema & Plata & Calidad \\
+Resolución de un problema de cada categoría & Oro & Categorías \\
+Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema & Oro & Calidad (sorpresa) \\
+Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
+\bottomrule
 \end{tabular}
 \caption{Logros propuestos}
 \label{tab:logros}
@@ -237,14 +240,17 @@ Los niveles de dominio establecidos se detallan en la Tabla~\ref{tab:niveles_dom
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Nivel de dominio} & \textbf{Rango de XP} \\ \hline
-Aprendiz                  & 0 - 100 XP           \\ \hline
-Competente                & 101 - 500 XP         \\ \hline
-Hábil                     & 501 - 1,000 XP       \\ \hline
-Especialista              & 1,001 - 2,000 XP     \\ \hline
-Maestro                   & Más de 2,000 XP      \\ \hline
+\small
+\begin{tabular}{cc}
+\toprule
+\textbf{Nivel de dominio} & \textbf{Rango de XP} \\
+\midrule
+Aprendiz     & 0 - 100 XP \\
+Competente   & 101 - 500 XP \\
+Hábil        & 501 - 1,000 XP \\
+Especialista & 1,001 - 2,000 XP \\
+Maestro      & Más de 2,000 XP \\
+\bottomrule
 \end{tabular}
 \caption{Niveles de dominio según puntos de experiencia (XP)}
 \label{tab:niveles_dominio}
@@ -260,7 +266,7 @@ El sistema de XP permite generar una tabla de clasificación con dos vistas comp
 
 Este diseño fomenta la interacción competitiva entre los usuarios, al tiempo que ofrece una recompensa\textbf{ }tangible por interactuar con el sistema. Además, al vincularse directamente con el desbloqueo de logros, el sistema refuerza la sensación de progreso y logro personal.
 
-Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobretodo uno que se introduce en en un sistema ya existente con años de experiencia como es \textit{¡Acepta el reto!}, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inituliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
+Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobretodo uno que se introduce en en un sistema ya existente con años de experiencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inituliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
 En nuestro caso, las estadísticas no cuentan con un \enquote{nivel máximo} y por lo tanto no corren riesgo de volverse obsoletas, ya que su único objetivo es mostrarle su situación al usuario, no evaluarle o recompensarle por ésta. Por otro lado, el sistema de logros es facilmente extensible añadiendo nuevos logros que cumplan las condiciones de diseño anteriormente definidas. Por ejemplo, podrían añadirse nuevos logros que recompensen la cantidad de ejercicios resueltos según se añadan más ejercicios a la plataforma. Finalmente, los niveles de dominio del sistema de puntos podrían ser reasignados a cantidades de XP diferentes, o definirse un nuevo nivel con su rango de XP correspondiente.
 
  \subsubsection{Dinámicas}
@@ -283,21 +289,23 @@ A continuación, se detalla la asignación de XP según las acciones realizadas 
 
 \begin{table}[h]
 \centering
-
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Acción}               & \textbf{XP recibido} \\ \hline
-Envío no aceptado             & 1 XP                 \\ \hline
-Envío aceptado                & 15 XP                \\ \hline
-Obtención de logro de bronce  & 20 XP                \\ \hline
-Obtención de logro de plata   & 40 XP                \\ \hline
-Obtención de logro de oro     & 60 XP                \\ \hline
+\small
+\begin{tabular}{cc}
+\toprule
+\textbf{Acción} & \textbf{XP recibido} \\
+\midrule
+Envío no aceptado            & 1 XP \\
+Envío aceptado               & 15 XP \\
+Obtención de logro de bronce & 20 XP \\
+Obtención de logro de plata  & 40 XP \\
+Obtención de logro de oro    & 60 XP \\
+\bottomrule
 \end{tabular}
 \caption{Acciones y recompensas en XP}
 \label{tab:sistema-puntos}
 \end{table}
 
- Sin embargo, según el sistema continúe creciendo y ante la posibilidad de que se redistribuyan o creen niveles de dominio, las recompensas podrán ser editadas.
+Sin embargo, según el sistema continúe creciendo y ante la posibilidad de que se redistribuyan o creen niveles de dominio, las recompensas podrán ser editadas.
 
 \subsubsection{Estética}
 El diseño del sistema de logros, estadísticas y puntos de experiencia (XP) busca evocar en los usuarios dos sensaciones fundamentales, alineadas con los principios de la \textbf{conciencia situacional} y la \textbf{motivación extrínseca}. Estas emociones no solo mejoran la experiencia del usuario, sino que también refuerzan su compromiso a largo plazo con la plataforma.
@@ -323,15 +331,15 @@ En conjunto, estas estrategias buscan crear una experiencia donde los usuarios s
 \section{Diseño de la interfaz}
 El primer paso para el diseño de la interfaz, es establecer los parámetros que guiarán el diseño de la interfaz, es decir, la guía de estilo. Los elementos de la guía de estilos se han elegido con la idea de mantener consistencia visual con la aplicación actual de acepta el reto, a la vez que se respetan las necesidades de contraste y accesibilidad:
 \begin{enumerate}
-    \item Para la paleta de colores se han seleccionado 8 colores distintos: 3 tonos azules originarios de \textit{¡Acepta el Reto!}, donde sirven para indicar selecciones, títulos o menús, un tono claro y un tono oscuro que pueden servir para color del fondo de la página y color de la letra o viceversa según qué tema se esté utilizando, y 3 tonos rojos obtenidos a partir de los tonos azules para representar situaciones de peligro o como color de resalte. 
-    \item La tipografía es la misma que en \textit{¡Acepta el Reto!}: Open Sans\footnote{\url{https://fonts.google.com/specimen/Open+Sans}}, tanto para el texto general como para títulos.
-    \item En cuanto a la iconografía, mantendremos la misma que en \textit{¡Acepta el Reto!}. Se tratan de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/v3/}}, los cuales son escalables y tienen una licencia libre. 
+    \item Para la paleta de colores se han seleccionado 8 colores distintos: 3 tonos azules originarios de \aer, donde sirven para indicar selecciones, títulos o menús, un tono claro y un tono oscuro que pueden servir para color del fondo de la página y color de la letra o viceversa según qué tema se esté utilizando, y 3 tonos rojos obtenidos a partir de los tonos azules para representar situaciones de peligro o como color de resalte. 
+    \item La tipografía es la misma que en \aer: Open Sans\footnote{\url{https://fonts.google.com/specimen/Open+Sans}}, tanto para el texto general como para títulos.
+    \item En cuanto a la iconografía, mantendremos la misma que en \aer. Se tratan de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/v3/}}, los cuales son escalables y tienen una licencia libre. 
 \end{enumerate}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.5\linewidth]{Imagenes/Vectorial/Guía de estilos.pdf}
-    \caption{Colores y topografía seleccionados para la guía de estilos}
+    \caption{Colores y tipografía seleccionados para la guía de estilos}
     \label{fig:guiaEstilos}
 \end{figure}
 
@@ -369,6 +377,6 @@ Tras el análisis comparativo de las tecnologías disponibles, detallado en el c
     \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, como la nuestra, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
 \end{itemize}
 
-La arquitectura actual de \textit{¡Acepta el Reto!}, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.
+La arquitectura actual de \aer, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.
 
-En contraste, la arquitectura propuesta para este proyecto introduce un enfoque modular, lo que no solo simplifica la integración futura con la infraestructura existente de \textit{¡Acepta el Reto!}, sino que también facilita la evolución independiente de cada componente. Esta modularidad, combinada con el uso de tecnologías modernas, asegura que el sistema sea adaptable, escalable y capaz de responder a las necesidades cambiantes del proyecto sin requerir rediseños profundos.
+En contraste, la arquitectura propuesta para este proyecto introduce un enfoque modular, lo que no solo simplifica la integración futura con la infraestructura existente de \aer, sino que también facilita la evolución independiente de cada componente. Esta modularidad, combinada con el uso de tecnologías modernas, asegura que el sistema sea adaptable, escalable y capaz de responder a las necesidades cambiantes del proyecto sin requerir rediseños profundos.
