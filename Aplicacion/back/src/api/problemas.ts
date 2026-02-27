@@ -3,7 +3,6 @@ import express from 'express';
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-    console.log("Recibiendo peticion de problemas");
     const envioIds = await redisClient.sMembers('problema:problema1:envios');
     const pipeline = redisClient.multi();
 

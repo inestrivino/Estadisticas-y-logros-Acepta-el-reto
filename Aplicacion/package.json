@@ -1,6 +1,7 @@
 {
   "name": "tfg",
   "scripts": {
-    "start": "docker compose up --build"
+    "start": "docker compose up --build",
+    "casos": "node back/scripts/generarProblemas.js"
   }
 }

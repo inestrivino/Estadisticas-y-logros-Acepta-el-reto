@@ -25,5 +25,5 @@ for (let i = 1; i <= 1000000; i++) {
 
   envios.push(envio);
 }
-fs.mkdirSync("data");
-fs.writeFileSync("data/envios.json", JSON.stringify(envios, null, 2));
+fs.mkdirSync("back/data", { recursive: true });
+fs.writeFileSync("back/data/envios.json", JSON.stringify(envios, null, 2));
