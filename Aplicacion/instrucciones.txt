@@ -1,8 +1,0 @@
-* Instrucciones de aplicacion:
-
-1. Generar el json con los casos de prueba para redis "npm run casos" (desde la carpeta Aplicacion)
-
-2. para lanzar la aplicacion "npm run start"
-   en el puerto 3000 para probarla normal, ej: http://localhost3000/
-
-3. una vea la aplicacion este lanzada se puede adjuntar el debug desde VSCode (Ajuntar debugger)
