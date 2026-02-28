@@ -12,14 +12,6 @@
 
  - concurrently para lanzar la aplicacion en desarrollo con un solo comando
 
- - en development se lanza la ejecucion con NODE_NO_WARNINGS=1 para evitar el warnin de deprecado del
-   proxyMiddleware
-   - Warning:
-     DeprecationWarning: The util._extend API is deprecated. Please use Object.assign() instead.       
-     at ProxyServer.<anonymous> (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:2025:30)
-     at HttpProxyMiddleware.middleware (C:\Users\nesto\OneDrive\Documentos\1 Estudios\4 ingenieria de software\TFG\dist-server\server.js:5577:26)
-     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-
  - Funcionamiento de como se lanza el codigo en los dockers:
    La aplicacion se lanza corriendo en dockers, uno para el servidor y otro para la base de datos en redis.
    Se lanzan con docker compose configurado en compose.yaml, en el archivo Dockerfile esta la configuracion
@@ -57,32 +49,4 @@
   - para probarla construida "npm run start"     
     comando de start => "set NODE_ENV=production&& node dist-server/server.js"
 
-
 ============================
-
-  front:
-    build: 
-        dockerfile: Dockerfile.front
-    ports:
-      - "3000:3000"
-      - "8080:8080"
-      - "9229:9229"
-
-============================
-
-const domNode = document.getElementById("diagramas");
-if (domNode)
-    renderPaginaDiagramas(domNode);
-
-async function renderPaginaDiagramas(domNode: HTMLElement) {
-
-    const envios = await fetch("/api/problemas/envios").then((response) => response.json());
-    const tiempoMedio = await fetch("/api/problemas/tiempoMedio").then(response => response.json());
-    const tiempoMin = await fetch("/api/problemas/tiempoMin").then(response => response.json());
-    const problemas = await fetch("/api/problemas").then(response => response.json());
-
-    const root = createRoot(domNode);
-    root.render(
-        
-    )
-}
