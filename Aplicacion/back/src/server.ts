@@ -1,13 +1,13 @@
 //librerias
 import express, { Request, Response, Application } from 'express';
-import path from 'path';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import 'dotenv/config'
 //archivos
-import { initSocket } from './sockets/socketInit.ts';
-import { initRedis } from './redis/redisInit.ts';
+import { initSocket } from './sockets/socketInit.js';
+import { initRedis } from './redis/redisInit.js';
 //routers
-import rutasProblemas from "./api/problemas.ts";
+import rutasProblemas from "./api/problemas.js";
+
+//hola
 
 //============== INICIAR EL SERVIDOR ==============
 const app = express();
@@ -23,13 +23,14 @@ initRedis();
 app.use("/api/problemas", rutasProblemas);
 
 //ruta solo para simular nuevas entradas a la base de datos
-import routerSocket from "./sockets/socketRouter.ts";
+import routerSocket from "./sockets/socketRouter.js";
 app.post("/api/nuevo", (request, response) => {
     const body = request.body
     routerSocket(body);
     response.sendStatus(200);
 })
 
+/*
 //RUTAS DE VISTAS EN PRODUCCION
 if (process.env.NODE_ENV === 'production') {
     //debug
@@ -61,14 +62,14 @@ else if (process.env.NODE_ENV === 'development') {
     const proxy = createProxyMiddleware({
         target: 'http://localhost:5173',
         changeOrigin: true,
-        /*pathRewrite: {
-            '^/pruebaSocket$': '/public/pruebaSocket.html',
-            '^/$': '/index.html',
-        }*/
+        //pathRewrite: {
+        //    '^/pruebaSocket$': '/public/pruebaSocket.html',
+        //    '^/$': '/index.html',
+        //}
     });
 
     app.use('/', proxy);
-};
+};*/
 
 app.listen(3000, (error) => {
     if (error)

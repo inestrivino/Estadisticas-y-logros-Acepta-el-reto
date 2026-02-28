@@ -1,6 +1,6 @@
-import { getIO } from "./socketInit.ts"
-import { EventType } from "./socketEventTypes.ts"
-import redisClient from '../redis/redisClient.ts';
+import { getIO } from "./socketInit.js"
+import { EventType } from "shared";
+import redisClient from '../redis/redisClient.js';
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas y logros correspondientes

@@ -1,4 +1,4 @@
-import redisClient from './redisClient.ts';
+import redisClient from './redisClient.js';
 import fs from "fs";
 
 export async function initRedis () {

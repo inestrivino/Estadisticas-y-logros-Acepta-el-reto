@@ -5,22 +5,24 @@ services:
       dockerfile: Dockerfile.front
     ports:
       - "3000:5173"
+    depends_on:
+      - back
     volumes:
       - ./front:/app
       - /app/node_modules
 
   back:
     build: 
-      context: ./back
-      dockerfile: Dockerfile.back
+      context: .
+      dockerfile: ./back/Dockerfile.back
     ports:
       - "8080:8080"
       - "9229:9229"
     depends_on:
       - redis
     volumes:
-      - ./back:/app
-      - /app/node_modules
+      - ./back:/app/back
+      - /app/back/node_modules
   
   redis:
     image: "redis"

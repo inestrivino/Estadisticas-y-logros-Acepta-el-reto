@@ -50,3 +50,17 @@
     comando de start => "set NODE_ENV=production&& node dist-server/server.js"
 
 ============================
+  * Antes de cambiar a tsc y tsx
+
+  - comando dev en package.json
+    "dev": "cross-env NODE_NO_WARNINGS=1 NODE_ENV=development nodemon --watch"
+
+  - archivo nodemon.json
+    {
+      "watch": ["src"],
+      "ext": "ts",
+      "ignore": ["dist", "node_modules"],
+      "legacyWatch": true,
+      "exec": "tsc && node --inspect=0.0.0.0:9229 dist-server/server.js"
+    }
+

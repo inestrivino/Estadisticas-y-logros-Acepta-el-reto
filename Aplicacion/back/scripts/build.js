@@ -14,7 +14,7 @@ async function buildTask() {
     target: "node22",
     outfile: "./dist-server/server.js",
     sourcemap: true,
-    external: ["express", "redis"],
+    external: ["express", "redis", "shared"],
     minify: false,
   });
 

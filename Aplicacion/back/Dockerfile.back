@@ -1,9 +1,10 @@
 FROM node:lts-alpine
 
-WORKDIR /app
+WORKDIR /app/back
 
-COPY package*.json ./
+COPY shared ../shared
+COPY back/package*.json ./
 
-RUN npm ci
+RUN npm i --include=dev
 
 CMD ["npm", "run", "dev"]
