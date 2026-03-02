@@ -46,13 +46,13 @@ async function routerEvents(datos:any) {
 
     io.emit(EventType.DIAGRAMA_PROBLEMAS, estados[datos.resultado]);
 
-    io.emit(EventType.ENVIOS_PROBLEMA, envioIds.length);
+    //io.emit(EventType.ENVIOS_PROBLEMA, envioIds.length);
 
-    const mediaNueva = nuevoTotalTiempo / nuevoTotalEnvios;
-    io.emit(EventType.TIEMPO_MEDIO_PROBLEMA, mediaNueva.toFixed(4));
+    //const mediaNueva = nuevoTotalTiempo / nuevoTotalEnvios;
+    //io.emit(EventType.TIEMPO_MEDIO_PROBLEMA, mediaNueva.toFixed(4));
     
-    const tiempoMin = await redisClient.hmGet("problema:problema1", "minTiempo");
-    io.emit(EventType.TIEMPO_MIN_PROBLEMA, Number(tiempoMin).toFixed(4));
+    //const tiempoMin = await redisClient.hmGet("problema:problema1", "minTiempo");
+    //io.emit(EventType.TIEMPO_MIN_PROBLEMA, Number(tiempoMin).toFixed(4));
 }
 
 async function actualizaTiempos(datos: any): Promise<{ nuevoTotalTiempo: number; nuevoTotalEnvios: number }> {

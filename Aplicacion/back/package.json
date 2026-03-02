@@ -7,12 +7,14 @@
     "start": "docker compose up --build"
   },
   "dependencies": {
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "react": "^19.2.0",
     "redis": "^5.8.3",
     "shared": "file:../shared",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

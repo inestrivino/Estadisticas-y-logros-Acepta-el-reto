@@ -1,8 +1,10 @@
 FROM node:lts-alpine
 
-WORKDIR /app
+WORKDIR /app/front
 
-COPY package*.json ./
+COPY shared ../shared
+COPY front/package.json ./
+COPY front/package-lock.json ./
 
 RUN npm ci
 

@@ -3,8 +3,9 @@ FROM node:lts-alpine
 WORKDIR /app/back
 
 COPY shared ../shared
-COPY back/package*.json ./
+COPY back/package.json ./
+COPY back/package-lock.json ./
 
-RUN npm i --include=dev
+RUN npm ci
 
 CMD ["npm", "run", "dev"]

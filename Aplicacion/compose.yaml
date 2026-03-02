@@ -1,15 +1,15 @@
 services:
   front:
     build: 
-      context: ./front
-      dockerfile: Dockerfile.front
+      context: .
+      dockerfile: ./front/Dockerfile.front
     ports:
       - "3000:5173"
     depends_on:
       - back
     volumes:
-      - ./front:/app
-      - /app/node_modules
+      - ./front:/app/front
+      - /app/front/node_modules
 
   back:
     build: 

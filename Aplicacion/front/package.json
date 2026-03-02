@@ -4,6 +4,7 @@
     "dev": "vite"
   },
   "dependencies": {
+    "shared": "file:../shared",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.2.0",
     "react": "^19.2.0",
