@@ -1,13 +1,21 @@
 import fs from "fs";
 
 const resultados = ["AC","PE","WA","CE","RTE","TLE","MLE","OLE","RF","IQ","IE"];
-const lenguajes = ["c", "cpp", "java", "python", "js"];
-const usuarios = Array.from({ length: 50 }, (_, i) => `user${i+1}`);
-const problemas = Array.from({ length: 20 }, (_, i) => `problema${i+1}`);
+const lenguajes = ["c", "cpp", "java"];
+const usuarios = [];
+const NUMERO_USUARIOS = 50;
+for (let i = 0; i < NUMERO_USUARIOS; i++) {
+  usuarios.push(`user${i + 1}`);
+}
+const problemas = [];
+const NUMERO_PROBLEMAS = 3;
+for (let i = 0; i < NUMERO_PROBLEMAS; i++) {
+  problemas.push(`problema${i + 1}`);
+}
 
 const envios = [];
 
-for (let i = 1; i <= 1000000; i++) {
+for (let i = 1; i <= 100; i++) {
   const envio = {
     usuario: usuarios[Math.floor(Math.random() * usuarios.length)],
     problema: problemas[Math.floor(Math.random() * problemas.length)],

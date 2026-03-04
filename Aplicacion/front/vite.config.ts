@@ -13,9 +13,9 @@ export default defineConfig({
       usePolling: true,
     },
     proxy: {
-      '/api': 'http://back:3000',
+      '/api': process.env.BACKEND_URL || 'http://localhost:3000',
       '/socket.io': {
-        target: 'http://back:8080',
+        target: process.env.SOCKETS_URL || 'http://localhost:8080',
         ws: true,        
         changeOrigin: true,
       }

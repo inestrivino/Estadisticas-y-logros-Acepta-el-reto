@@ -2,9 +2,9 @@
   "name": "back",
   "type": "module",
   "scripts": {
+    "dev-local": "tsx watch --clear-screen=false src/server.ts",
     "dev": "cross-env CHOKIDAR_USEPOLLING=true tsx watch --clear-screen=false --inspect=0.0.0.0:9229 src/server.ts",
-    "build": "tsc",
-    "start": "docker compose up --build"
+    "build": "tsc"
   },
   "dependencies": {
     "cross-env": "^10.1.0",

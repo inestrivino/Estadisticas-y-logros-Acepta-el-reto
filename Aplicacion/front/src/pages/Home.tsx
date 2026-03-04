@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType } from "shared";
@@ -12,13 +12,22 @@ import Diagrama from "../componentes/diagrama.tsx"
 //import { EventType } from "@/server/sockets/socketEventTypes.ts"
 
 export default function Home() {
-    const [datos, setDatos] = useState<{ name: string; value: number }[]>();
+    const { problema } = useParams();
+
+    const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
+    const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
 
     useEffect(() => {
-        fetch('/api/problemas')
-            .then(res => res.json())
-            .then(data => setDatos(data));
-    }, []);
+        fetch(`/api/problemas/${problema}/resultados`)
+            .then(response => response.json())
+            .then(data => setResultados(data));
+    }, [problema]);
+
+    useEffect(() => {
+        fetch(`/api/problemas/${problema}/lenguajes`)
+            .then(response => response.json())
+            .then(data => setLenguajes(data));
+    }, [problema]);
 
     return (
         <div className="d-flex">
@@ -63,7 +72,7 @@ export default function Home() {
                         {/*<Row className="g-4">*/}
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
-                            {datos && <Diagrama
+                            {resultados && <Diagrama
                                 evento={EventType.DIAGRAMA_PROBLEMAS} //TODO falta esto aqui <==================
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
@@ -71,12 +80,12 @@ export default function Home() {
                                     "#E84C88", "#6BCF63", "#F2C94C", "#b351e0",
                                     "#EB5757", "#56CCF2", "#2F80ED",
                                 ]}
-                                datos={datos as { name: string; value: number }[]}
+                                datos={resultados as { name: string; value: number }[]}
                             />}
                         </Col>
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
-                            {datos &&<Diagrama
+                            {lenguajes &&<Diagrama
                                 evento={EventType.DIAGRAMA_PROBLEMAS} //TODO falta esto aqui <==================
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
@@ -84,7 +93,7 @@ export default function Home() {
                                     "#E84C88", "#6BCF63", "#F2C94C", "#b351e0",
                                     "#EB5757", "#56CCF2", "#2F80ED",
                                 ]}
-                                datos={datos}
+                                datos={lenguajes as { name: string; value: number }[]}
                             />}
                         </Col>
                     </Row>

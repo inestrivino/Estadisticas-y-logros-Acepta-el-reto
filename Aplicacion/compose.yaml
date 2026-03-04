@@ -5,6 +5,8 @@ services:
       dockerfile: ./front/Dockerfile.front
     ports:
       - "3000:5173"
+    env_file:
+    - .env.development.dockers
     depends_on:
       - back
     volumes:
@@ -18,6 +20,8 @@ services:
     ports:
       - "8080:8080"
       - "9229:9229"
+    env_file:
+      - .env.development.dockers
     depends_on:
       - redis
     volumes:
