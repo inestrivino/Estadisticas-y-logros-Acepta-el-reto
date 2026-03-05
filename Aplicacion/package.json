@@ -2,6 +2,7 @@
   "name": "tfg",
   "scripts": {
     "start": "docker compose up --build",
+    "start-local": "docker start redis || docker run --name redis -p 6379:6379 redis",
     "casos": "node back/scripts/generarProblemas.js"
   }
 }
