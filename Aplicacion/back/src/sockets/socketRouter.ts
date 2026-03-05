@@ -1,6 +1,6 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatProblemEvent } from "shared";
-import { procesarEnvio } from "../db/inicializar.js";
+import { procesarEnvio } from "../db/cargarDatos.js";
 import redisClient from '../redis/redisClient.js';
 import { format } from "path";
 
@@ -23,19 +23,24 @@ async function routerEvents(envio:Envio) {
     console.log(" - Se emite un nuevo envio")
 
     //se procesa el envio y se guarda en la base de datos
-    procesarEnvio(envio);
+    await procesarEnvio(envio);
 
     io.emit(formatProblemEvent(envio.problema, EventType.DIAGRAMA_PROBLEMAS), envio.resultado);
 
     io.emit(formatProblemEvent(envio.problema, EventType.DIAGRAMA_LENGUAJES), envio.lenguaje);
 
-    //io.emit(EventType.ENVIOS_PROBLEMA, envioIds.length);
+    io.emit(formatProblemEvent(envio.problema, EventType.ENVIOS_PROBLEMA), await redisClient.get(`problema:${envio.problema}:envios`));
 
-    //const mediaNueva = nuevoTotalTiempo / nuevoTotalEnvios;
-    //io.emit(EventType.TIEMPO_MEDIO_PROBLEMA, mediaNueva.toFixed(4));
+    const tiempoTotal = await redisClient.get(`problema:${envio.problema}:tiempoTotal`);
+    const aciertos = await redisClient.get(`problema:${envio.problema}:aciertos`);
+    const promedio = aciertos && Number(aciertos) > 0 ? Number(tiempoTotal) / Number(aciertos) : 0;
+    io.emit(formatProblemEvent(envio.problema, EventType.TIEMPO_PROM_PROBLEMA), promedio);
     
-    //const tiempoMin = await redisClient.hmGet("problema:problema1", "minTiempo");
-    //io.emit(EventType.TIEMPO_MIN_PROBLEMA, Number(tiempoMin).toFixed(4));*/
+    const current = await redisClient.get(`problema:${envio.problema}:mejorTiempo`);
+    let min = current ? Number(current) : null;
+    if (min !== null && Number(min) > envio.tiempo)
+        min = envio.tiempo as number;
+    io.emit(formatProblemEvent(envio.problema, EventType.MEJOR_TIEMPO_PROBLEMA), min);
 }
 
 async function actualizaTiempos(datos: any): Promise<{ nuevoTotalTiempo: number; nuevoTotalEnvios: number }> {

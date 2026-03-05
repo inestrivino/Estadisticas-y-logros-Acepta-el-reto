@@ -8,21 +8,45 @@ import Sidebar from "../componentes/Sidebar/sidebar.tsx"
 import { DatoNumerico } from "../componentes/datoNumerico.tsx"
 import Diagrama from "../componentes/diagrama.tsx"
 
-//ENUMERADO DE EVENTOS
-//import { EventType } from "@/server/sockets/socketEventTypes.ts"
+export default function EstadisticasProblema() {
 
-export default function Home() {
+    //parametros de la url
     const { problema } = useParams();
 
-    const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
-    const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
+    //ENVIOS
+    const [envios, setEnvios] = useState<number>(0);
+    useEffect(() => {
+        fetch(`/api/problemas/${problema}/envios`)
+            .then(response => response.json())
+            .then(data => setEnvios(data));
+    }, [problema]);
 
+    //MEJOR TIEMPO
+    const [mejorTiempo, setMejorTiempo] = useState<number>(0);
+    useEffect(() => {
+        fetch(`/api/problemas/${problema}/mejorTiempo`)
+            .then(response => response.json())
+            .then(data => setMejorTiempo(data));
+    }, [problema]);
+
+    //TIEMPO PROMEDIO
+    const [tiempoPromedio, setTiempoPromedio] = useState<number>(0);
+    useEffect(() => {
+        fetch(`/api/problemas/${problema}/tiempoPromedio`)
+            .then(response => response.json())
+            .then(data => setTiempoPromedio(data));
+    }, [problema]);
+
+    //RESULTADOS
+    const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
         fetch(`/api/problemas/${problema}/resultados`)
             .then(response => response.json())
             .then(data => setResultados(data));
     }, [problema]);
 
+    //LENGUAJES
+    const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
         fetch(`/api/problemas/${problema}/lenguajes`)
             .then(response => response.json())
@@ -37,35 +61,34 @@ export default function Home() {
                 <div style={{ width: "100%", maxWidth: "860px" }} className="mt-5">
                     <Row className="d-flex justify-content-between">
                         {/*<Row className="g-4">*/}
-
                         <Col xs="auto" >
                             {/*<Col xs={12} md="auto">*/}
-                            <DatoNumerico
-                                evento={"texto"} //TODO falta esto aqui <==================
+                            {envios && <DatoNumerico
+                                evento={formatProblemEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 100, description: "texto" }} //TODO falta esto aqui <==================
+                                dato={{ value: envios, description: "Envios" }}
                                 style={{ gridArea: "dato1" }}
-                            />
+                            />}
                         </Col>
 
                         <Col xs="auto" >
                             {/*<Col xs={12} md="auto">*/}
-                            <DatoNumerico
-                                evento={"texto"} //TODO falta esto aqui <==================
+                            {mejorTiempo && <DatoNumerico
+                                evento={formatProblemEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 100, description: "texto" }} //TODO falta esto aqui <==================
+                                dato={{ value: mejorTiempo, description: "Mejor tiempo" }}
                                 style={{ gridArea: "dato2" }}
-                            />
+                            />}
                         </Col>
 
                         <Col xs="auto" >
                             {/*<Col xs={12} md="auto">*/}
-                            <DatoNumerico
-                                evento={"texto"} //TODO falta esto aqui <==================
+                            {tiempoPromedio && <DatoNumerico
+                                evento={formatProblemEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 100, description: "texto" }} //TODO falta esto aqui <==================
+                                dato={{ value: tiempoPromedio, description: "Tiempo Promedio" }}
                                 style={{ gridArea: "dato3" }}
-                            />
+                            />}
                         </Col>
                     </Row>
                     <Row className="d-flex justify-content-between">
@@ -85,7 +108,7 @@ export default function Home() {
                         </Col>
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
-                            {lenguajes &&<Diagrama
+                            {lenguajes && <Diagrama
                                 evento={formatProblemEvent(problema as string, EventType.DIAGRAMA_LENGUAJES)}
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[

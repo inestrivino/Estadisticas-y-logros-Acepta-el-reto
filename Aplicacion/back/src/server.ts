@@ -3,7 +3,7 @@ import express, { Request, Response, Application } from 'express';
 import 'dotenv/config'
 //archivos
 import { initSocket } from './sockets/socketInit.js';
-import { inicializar } from './db/inicializar.js';
+import { inicializar } from './db/cargarDatos.js';
 //routers
 import rutasProblemas from "./api/problemas.js";
 

@@ -1,9 +1,10 @@
 export const EventType = {
-  DIAGRAMA_PROBLEMAS: "reload-resultadosProblemas",
-  DIAGRAMA_LENGUAJES: "reload-resultadosLenguajes",
+  //ESTADISTICAS PROBLEMA
   ENVIOS_PROBLEMA: "reload-enviosTotalesProblema",
-  TIEMPO_MEDIO_PROBLEMA: "reload-tiempoMedioProblema",
-  TIEMPO_MIN_PROBLEMA: "reload-tiempoMinProblema"
+  MEJOR_TIEMPO_PROBLEMA: "reload-mejorTiempoProblema",
+  TIEMPO_PROM_PROBLEMA: "reload-tiempoPromedioProblema",
+  DIAGRAMA_PROBLEMAS: "reload-resultadosProblemas",
+  DIAGRAMA_LENGUAJES: "reload-resultadosLenguajes"
 } as const;
 
 export function formatProblemEvent(problema: string, eventType: EventTypes): string {

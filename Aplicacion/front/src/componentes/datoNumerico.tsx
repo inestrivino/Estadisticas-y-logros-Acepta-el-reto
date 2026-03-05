@@ -1,4 +1,4 @@
-//import { socket } from "../socket.ts";
+import { socket } from "../services/socket.ts";
 import { useState, useEffect } from "react";
 
 export function DatoNumerico(props: {
@@ -9,21 +9,29 @@ export function DatoNumerico(props: {
 }) {
     //se colocan los datos con un useState para actualizarlos si llega un mensaje por el socket
     const [data, setData] = useState<number>(() => {
-        const inicial: number = props.dato.value;
+        let inicial: number = props.dato.value;
+        if (inicial % 1 !== 0)
+            inicial = parseFloat(inicial.toFixed(3));
         return inicial;
     });
 
     //se actualiza el dato cada vez que llega un nuevo mensaje por el socket
-    /*useEffect(() => {
-        socket.on(props.evento, (newDato: string) => {
-            setData(Number(newDato));
-        });
+    useEffect(() => {
+        const handler = (newDato: number) => {
+            setData(() => {
+                if (newDato % 1 !== 0)
+                    newDato = parseFloat(newDato.toFixed(3));
+                return newDato;
+            });
+        };
+
+        socket.on(props.evento, handler);
 
         //se limpia el listener al desmontar el componente
         return () => {
-            socket.off(props.evento);
+            socket.off(props.evento, handler);
         };
-    }, [props.evento]);*/
+    }, [props.evento]);
 
     return (
         <div style={props.style}>
