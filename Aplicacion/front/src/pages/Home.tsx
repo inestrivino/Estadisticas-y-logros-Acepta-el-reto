@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
-import { EventType } from "shared";
+import { EventType, formatProblemEvent } from "shared";
 
 //COMPONENTES
 import Sidebar from "../componentes/Sidebar/sidebar.tsx"
@@ -73,7 +73,7 @@ export default function Home() {
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {resultados && <Diagrama
-                                evento={EventType.DIAGRAMA_PROBLEMAS} //TODO falta esto aqui <==================
+                                evento={formatProblemEvent(problema as string, EventType.DIAGRAMA_PROBLEMAS)}
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
@@ -86,7 +86,7 @@ export default function Home() {
                         <Col xs="auto">
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {lenguajes &&<Diagrama
-                                evento={EventType.DIAGRAMA_PROBLEMAS} //TODO falta esto aqui <==================
+                                evento={formatProblemEvent(problema as string, EventType.DIAGRAMA_LENGUAJES)}
                                 dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",

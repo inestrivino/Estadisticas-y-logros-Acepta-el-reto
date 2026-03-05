@@ -3,7 +3,7 @@ import express, { Request, Response, Application } from 'express';
 import 'dotenv/config'
 //archivos
 import { initSocket } from './sockets/socketInit.js';
-import initRedis from './db/inicializar.js';
+import { inicializar } from './db/inicializar.js';
 //routers
 import rutasProblemas from "./api/problemas.js";
 
@@ -17,7 +17,7 @@ initSocket(app);
 //prueba
 
 //inicializo la base de datos de redis con los datos historicos
-await initRedis();
+await inicializar();
 
 //====================== RUTAS ======================
 app.use("/api/problemas", rutasProblemas);

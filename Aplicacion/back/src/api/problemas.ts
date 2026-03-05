@@ -10,6 +10,8 @@ router.get("/:problema/resultados", async (req, res) => {
     for (const aux of Object.entries(datos))
         formateados.push({name:aux[0], value:Number(aux[1])})
 
+    formateados.sort((a:any, b:any) => a.name.localeCompare(b.name));
+
     return res.json(formateados);
 });
 
@@ -20,6 +22,8 @@ router.get("/:problema/lenguajes", async (req, res) => {
     const formateados:{}[] = [];
     for (const aux of Object.entries(datos))
         formateados.push({name:aux[0], value:Number(aux[1])})
+
+    formateados.sort((a:any, b:any) => a.name.localeCompare(b.name));
 
     return res.json(formateados);
 });

@@ -1,50 +1,33 @@
 import { getIO } from "./socketInit.js"
-import { EventType } from "shared";
+import { EventType, formatProblemEvent } from "shared";
+import { procesarEnvio } from "../db/inicializar.js";
 import redisClient from '../redis/redisClient.js';
+import { format } from "path";
+
+type Envio = {
+    "usuario": string,
+    "problema": string,
+    "resultado": string,
+    "lenguaje": string,
+    "tiempo": number,
+    "memoria": number,
+    "pos": number,
+    "fecha": string
+};
 
 /*
-Recibe el json que llego por rabbitMQ y actualiza los diagramas y logros correspondientes
+Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
-async function routerEvents(datos:any) {
+async function routerEvents(envio:Envio) {
     const io = getIO();
     console.log(" - Se emite un nuevo envio")
 
-    let envioIds = await redisClient.sMembers('problema:problema1:envios');
-    //console.log("envios antes: " + envioIds.length)
-    const nextId = await redisClient.incr("nextId");
-    await redisClient.hSet(nextId.toString(), {
-        usuario: datos.usuario,
-        problema: datos.problema,
-        resultado: datos.resultado,
-        lenguaje: datos.lenguaje,
-        tiempo: datos.tiempo.toString(),
-        memoria: datos.memoria.toString(),
-        pos: datos.pos.toString(),
-        fecha: datos.fecha
-    });
-    await redisClient.sAdd(`problema:${datos.problema}:envios`, nextId.toString())
+    //se procesa el envio y se guarda en la base de datos
+    procesarEnvio(envio);
 
-    // Actualiza los tiempos
-    const { nuevoTotalTiempo, nuevoTotalEnvios } = await actualizaTiempos(datos);
+    io.emit(formatProblemEvent(envio.problema, EventType.DIAGRAMA_PROBLEMAS), envio.resultado);
 
-    envioIds = await redisClient.sMembers('problema:problema1:envios');
-    //console.log("envios despues: " + envioIds.length)
-
-    const estados: Record<string, string> = {
-        AC: "Aceptado",
-        PE: "Error",
-        WA: "Incorrecto",
-        CE: "Error de compilación",
-        RTE: "Error durante la ejecución",
-        TLE: "Tiempo límite",
-        MLE: "Límite de memoria",
-        OLE: "Límite de salida",
-        RF: "Función restringida",
-        IQ: "En cola",
-        IE: "Error interno",
-    };
-
-    io.emit(EventType.DIAGRAMA_PROBLEMAS, estados[datos.resultado]);
+    io.emit(formatProblemEvent(envio.problema, EventType.DIAGRAMA_LENGUAJES), envio.lenguaje);
 
     //io.emit(EventType.ENVIOS_PROBLEMA, envioIds.length);
 
@@ -52,7 +35,7 @@ async function routerEvents(datos:any) {
     //io.emit(EventType.TIEMPO_MEDIO_PROBLEMA, mediaNueva.toFixed(4));
     
     //const tiempoMin = await redisClient.hmGet("problema:problema1", "minTiempo");
-    //io.emit(EventType.TIEMPO_MIN_PROBLEMA, Number(tiempoMin).toFixed(4));
+    //io.emit(EventType.TIEMPO_MIN_PROBLEMA, Number(tiempoMin).toFixed(4));*/
 }
 
 async function actualizaTiempos(datos: any): Promise<{ nuevoTotalTiempo: number; nuevoTotalEnvios: number }> {

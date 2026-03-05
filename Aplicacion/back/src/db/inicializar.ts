@@ -19,8 +19,7 @@ type datosProblema = {
     "tiempo": number,
 }
 
-export default async function inicializar() {
-
+export async function inicializar() {
     // Hace las peticiones para obtener los envios
     // . . .
 
@@ -42,7 +41,20 @@ export default async function inicializar() {
     }
 }
 
-async function datosProblemas(dato:datosProblema) {
+export async function procesarEnvio(envio: Envio) {
+    //informacion de los problemas
+    datosProblemas({
+        problema: envio.problema,
+        resultado: envio.resultado,
+        lenguaje: envio.lenguaje,
+        tiempo: envio.tiempo
+    });
+
+    //informacion de los usuarios
+    // . . .
+}
+
+async function datosProblemas(dato: datosProblema) {
     //suma uno mas a los envios de ese problema
     await redisClient.incr(`problema:${dato.problema}:envios`);
 
