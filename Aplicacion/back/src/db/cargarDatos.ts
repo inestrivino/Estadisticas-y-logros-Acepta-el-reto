@@ -11,13 +11,6 @@ type Envio = {
     "fecha": string
 };
 
-type datosProblema = {
-    "problema": string,
-    "resultado": string,
-    "lenguaje": string,
-    "tiempo": number,
-};
-
 export async function procesarEnvio(envio: Envio) {
     const daoProblema = new ProblemaDAO();
 

@@ -30,7 +30,7 @@ services:
       - /app/back/node_modules
   
   redis:
-    image: "redis"
+    image: "redis:alpine"
     volumes:
       - redis_data:/data
     ports:

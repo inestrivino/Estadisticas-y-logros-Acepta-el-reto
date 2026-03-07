@@ -10,8 +10,8 @@ type datosProblema = {
 export default class ProblemaDAO {
     private redis;
 
-    constructor() {
-        this.redis = redisClient;
+    constructor(redisClientTest?: typeof redisClient) {
+        this.redis = redisClientTest ?? redisClient;
     }
 
     async registrarEnvio(dato: datosProblema): Promise<void> {
@@ -36,16 +36,19 @@ export default class ProblemaDAO {
         await pipeline.exec();
     }
 
+    //Devuelve el numero de envios o 0 si no hay ninguno
     async getNumEnvios(problema: string): Promise<number> {
         const numEnvios = await this.redis.get(`problema:${problema}:envios`);
         return numEnvios ? Number(numEnvios) : 0;
     }
 
+    //Devuelve el mejor tiempo o 0 si no hay ninguno
     async getMejorTiempo(problema: string):Promise<number|null> {
         const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
-        return mejorTiempo ? Number(mejorTiempo) : null;
+        return mejorTiempo ? Number(mejorTiempo) : 0;
     }
 
+    //Devuelve el tiempo promedio o 0 si no hay ninguno
     async getTiempoPromedio(problema: string): Promise<number> {
         const numAciertos = await this.redis.hGet(`problema:${problema}:resultados`, 'AC');
         const tiempoTotal = await this.redis.get(`problema:${problema}:tiempoTotal`);
@@ -56,6 +59,7 @@ export default class ProblemaDAO {
         return numAciertosNum > 0 ? tiempoTotalNum / numAciertosNum : 0;
     }
 
+    //Devuelve el resultado ordenado alfabeticamente por nombre
     async getResultados(problema: string): Promise<{name: string, value: number}[]> {
         const datos = await this.redis.hGetAll(`problema:${problema}:resultados`);
 
@@ -68,6 +72,7 @@ export default class ProblemaDAO {
         return formateados;
     }
 
+    //Devuelve el resultado ordenado alfabeticamente por nombre
     async getLenguajes(problema: string): Promise<{name: string, value: number}[]> {
         const datos = await this.redis.hGetAll(`problema:${problema}:lenguajes`);
 
