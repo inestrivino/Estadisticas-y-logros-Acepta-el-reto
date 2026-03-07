@@ -4,7 +4,8 @@
   "scripts": {
     "dev-local": "tsx watch --clear-screen=false src/server.ts",
     "dev": "cross-env CHOKIDAR_USEPOLLING=true tsx watch --clear-screen=false --inspect=0.0.0.0:9229 src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "cross-env": "^10.1.0",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.10.9",
+    "@types/ws": "^8.18.1",
     "esbuild": "^0.27.2",
     "rimraf": "^6.1.2"
   }
