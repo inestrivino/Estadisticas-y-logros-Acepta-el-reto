@@ -2,6 +2,7 @@
 import express, { Request, Response, Application } from 'express';
 import 'dotenv/config'
 //archivos
+import redisClient from './redis/redisClient.js';
 import { initSocket } from './sockets/socketInit.js';
 import inicializar from './db/inicializar.js';
 //routers
@@ -10,6 +11,8 @@ import rutasProblemas from "./api/problemas.js";
 //============== INICIAR EL SERVIDOR ==============
 const app = express();
 app.use(express.json());
+
+await redisClient.connect();
 
 //inicializo la base de datos de redis con los datos historicos
 await inicializar();
