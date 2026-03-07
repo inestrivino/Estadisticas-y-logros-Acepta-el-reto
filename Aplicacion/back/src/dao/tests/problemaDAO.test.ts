@@ -1,19 +1,17 @@
 import { beforeAll, afterAll, beforeEach, describe, test, expect } from 'vitest';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { createClient } from 'redis';
 import ProblemaDAO from '../problemaDAO.js';
 
-let container: StartedTestContainer;
+let container: StartedRedisContainer;
 let redis: ReturnType<typeof createClient>;
 let problemaDAO: ProblemaDAO;
 
 beforeAll(async () => {
-    container = await new GenericContainer("redis:alpine")
-        .withExposedPorts(6379)
-        .start();
+    container = await new RedisContainer('redis:alpine').start();
 
     redis = createClient({
-        url: `redis://localhost:${container.getMappedPort(6379)}`
+        url: container.getConnectionUrl(),
     });
     await redis.connect();
 
