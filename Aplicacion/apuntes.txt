@@ -1,17 +1,5 @@
 * Apuntes sobre la implementacion:
 
- - vite para contruir el frontend con react
-
- - rimraf para que se pueda quitar la carpeta dist en windows y linux (dentro del script que construye el proyecto)
-
- - nodemon para detectar cambios en los archivos y volver a construir con el script
-   y luego volver a lanzar el servidor
-
- - cross-env para poder poner el comando con las variables de entorno en windows y linux
- - dot-env para cargar variables de entorno desde un archivo .env
-
- - concurrently para lanzar la aplicacion en desarrollo con un solo comando
-
  - Funcionamiento de como se lanza el codigo en los dockers:
    La aplicacion se lanza corriendo en dockers, uno para el servidor y otro para la base de datos en redis.
    Se lanzan con docker compose configurado en compose.yaml, en el archivo Dockerfile esta la configuracion
@@ -29,14 +17,29 @@
    5. Como comparten el codigo con un volumen se detectan los cambios y nodemon vuelve 
       a lanzar la aplicacioon con los cambios
 
+ - Los eventos de los sockets están compartidos y los cargan ambas carpetas en su package.json,
+   también hay una función que te da el formato del evento cogiendo el problema y el evento del diagramas
+   en cuestión para evitar errores a la hora de escribir manualmente el evento.
+
+======================================================================================================
+
+* Tecnologías usadas:
+
  - recharts para hacer graficos en react
 
  - redis para la base de datos
-
+ 
  - socket.io para el uso de web-sockets
    - Cada grafico tendria que escuchar un evento y desde el backend se lanza el evento
      correspondiente
 
+ - vite para contruir el frontend con react
+
+ - cross-env para poder poner el comando con las variables de entorno en windows y linux
+ - dot-env para cargar variables de entorno desde un archivo .env
+
+======================================================================================================
+======================================================================================================
 ======================================================================================================
 
   * Recordatorios:

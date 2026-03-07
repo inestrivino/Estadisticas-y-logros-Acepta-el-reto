@@ -5,7 +5,8 @@ dist*
 data
 package-lock.json
 
-/.vscode
+.vscode/*
+!.vscode/launch.json 
 
 *.acn
 *.acr
