@@ -3,7 +3,7 @@ import express, { Request, Response, Application } from 'express';
 import 'dotenv/config'
 //archivos
 import { initSocket } from './sockets/socketInit.js';
-import { inicializar } from './db/cargarDatos.js';
+import inicializar from './db/inicializar.js';
 //routers
 import rutasProblemas from "./api/problemas.js";
 
@@ -11,19 +11,17 @@ import rutasProblemas from "./api/problemas.js";
 const app = express();
 app.use(express.json());
 
-//incializo el socket
-initSocket(app);
-
-//prueba
-
 //inicializo la base de datos de redis con los datos historicos
 await inicializar();
+
+//incializo el socket
+initSocket(app);
 
 //====================== RUTAS ======================
 app.use("/api/problemas", rutasProblemas);
 
 //ruta solo para simular nuevas entradas a la base de datos
-import routerSocket from "./sockets/socketRouter.js";
+import routerSocket from "./sockets/socketEmitter.js";
 app.post("/api/nuevo", (request, response) => {
     const body = request.body
     routerSocket(body);
