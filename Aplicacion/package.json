@@ -3,12 +3,13 @@
   "scripts": {
     "start": "docker compose up --build",
     "start-local": "docker start redis || docker run --name redis -p 6379:6379 redis",
-    "casos": "node back/scripts/generarProblemas.js"
-  },
-  "dependencies": {
-    "vitest": "^4.0.18"
-  },
-  "devDependencies": {
-    "testcontainers": "^11.12.0"
+    "casos": "node back/scripts/generarProblemas.js",
+
+    "build:back": "docker build -t n3stor173/app-back:latest -f ./back/Dockerfile.prod .",
+    "build:front": "docker build -t n3stor173/app-front:latest -f ./front/Dockerfile.prod .",
+    "push:back": "docker push n3stor173/app-back:latest",
+    "push:front": "docker push n3stor173/app-front:latest",
+    "push": "npm run build:back && npm run build:front && npm run push:back && npm run push:front",
+    "start-prueba": "docker compose -f compose.prueba.yaml up --build"
   }
 }

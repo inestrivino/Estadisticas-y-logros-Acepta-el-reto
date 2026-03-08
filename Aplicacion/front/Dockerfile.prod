@@ -1,0 +1,28 @@
+FROM node:lts-alpine AS builder
+
+WORKDIR /app/front
+
+COPY shared ../shared
+COPY front/package.json ./
+COPY front/package-lock.json ./
+
+RUN npm ci
+
+COPY front/src ./src
+COPY front/index.html ./ 
+COPY front/vite.config.ts ./
+
+RUN npm run build
+
+FROM node:lts-alpine
+
+WORKDIR /app/front
+
+COPY --from=builder /app/front/dist-front ./dist-front
+COPY front/package.json ./
+COPY front/package-lock.json ./
+COPY front/vite.config.ts ./
+
+RUN npm ci
+
+CMD ["npm", "run", "preview"]

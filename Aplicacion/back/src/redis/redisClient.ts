@@ -1,5 +1,10 @@
 import { createClient } from "redis";
 
-const redisClient = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+const redisClient = createClient({ 
+    url: process.env.REDIS_URL || "redis://localhost:6379",
+    socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 500, 3000)
+    }
+});
 
 export default redisClient;

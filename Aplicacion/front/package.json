@@ -1,7 +1,9 @@
 {
   "name": "front",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host --outDir dist-front"
   },
   "dependencies": {
     "shared": "file:../shared",

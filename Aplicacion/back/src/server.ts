@@ -1,5 +1,5 @@
 //librerias
-import express, { Request, Response, Application } from 'express';
+import express from 'express';
 import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
