@@ -5,6 +5,8 @@
     "start-local": "docker start redis || docker run --name redis -p 6379:6379 redis",
     "casos": "node back/scripts/generarProblemas.js",
 
+    "start-prod": "docker compose -f compose.prod.yaml up --build",
+
     "build:back": "docker build -t n3stor173/app-back:latest -f ./back/Dockerfile.prod .",
     "build:front": "docker build -t n3stor173/app-front:latest -f ./front/Dockerfile.prod .",
     "push:back": "docker push n3stor173/app-back:latest",
