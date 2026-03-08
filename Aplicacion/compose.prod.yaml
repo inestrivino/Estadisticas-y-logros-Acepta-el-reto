@@ -1,5 +1,9 @@
+name: app-prod
+
 services:
   front:
+    image: app-front-prod
+    container_name: app-front-prod
     build: 
       context: .
       dockerfile: ./front/Dockerfile.prod
@@ -12,6 +16,8 @@ services:
       - back
 
   back:
+    image: app-back-prod
+    container_name: app-back-prod
     build: 
       context: .
       dockerfile: ./back/Dockerfile.prod

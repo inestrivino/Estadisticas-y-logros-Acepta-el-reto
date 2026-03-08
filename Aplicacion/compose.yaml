@@ -1,5 +1,9 @@
+name: app-dev
+
 services:
   front:
+    image: app-front-dev
+    container_name: app-front-dev
     build: 
       context: .
       dockerfile: ./front/Dockerfile.dev
@@ -15,6 +19,8 @@ services:
       - /app/front/node_modules
 
   back:
+    image: app-back-dev
+    container_name: app-back-dev
     build: 
       context: .
       dockerfile: ./back/Dockerfile.dev
