@@ -6,52 +6,58 @@ import "./sidebar.css";
 
 export default function Sidebar() {
   const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const links = (
     <>
       <Nav.Link href="#"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
-      <Nav.Link href="#"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
-      <Nav.Link href="#"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
-      <Nav.Link href="#"><FontAwesomeIcon icon={faChartPie} />Estadísticas de ejercicios</Nav.Link>
-      <Nav.Link href="#"><FontAwesomeIcon icon={faGear} />Ajustes</Nav.Link>
+      <Nav.Link href="/problemas/problema3"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+      <Nav.Link href="/problemas/problema2"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
+      <Nav.Link href="/problemas/problema1"><FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
+      <Nav.Link href="/pruebaSocket"><FontAwesomeIcon icon={faGear} />Ajustes</Nav.Link>
     </>
   );
 
   return (
     <>
-      {/* cuando la pantalla es pequeña se esconde la navbar y se muestra solo este boton para desplegarla */}
-      <Button className="d-lg-none m-2" onClick={() => setShow(true)}>{/*TODO cambiar para que coincida con el color de la navbar */}
-        <FontAwesomeIcon icon={faBars} />
-      </Button>
+      {/*navbar superior para pantallas pequeñas*/}
+      <Navbar className="d-lg-none fixed-top px-3">
+        <Button variant="outline-primary" onClick={handleShow}>
+          <FontAwesomeIcon icon={faBars} />
+        </Button>
 
-      <div className="d-flex">
-        
-        {/*La navbar cuando la pantalla es grande se muestra siempre a la izquierda*/}
-        <Navbar className="d-none d-lg-flex flex-column p-3 navbar-lg">
-          <Navbar.Brand className="mb-5 fs-4">
+        <Navbar.Brand className="ms-2">
+          <FontAwesomeIcon icon={faLightbulb} className="me-2" />
+          ¡Acepta el reto!
+        </Navbar.Brand>
+      </Navbar>
+
+      {/*Sidebar fija en pantallas grandes*/}
+      <div className="sidebar d-none d-lg-flex flex-column p-3">
+        <Navbar.Brand className="mb-5">
+          <FontAwesomeIcon icon={faLightbulb} className="me-2" />
+          ¡Acepta el reto!
+        </Navbar.Brand>
+
+        <Nav className="flex-column gap-3 sidebar-links">
+          {links}
+        </Nav>
+      </div>
+
+      {/*sidebar desplegada para pantallas pequeñas (con offcanvas) */}
+      <Offcanvas show={show} onHide={handleClose} placement="start">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>
             <FontAwesomeIcon icon={faLightbulb} className="me-2" />
             ¡Acepta el reto!
-          </Navbar.Brand>
-          <Nav className="flex-column w-100 gap-3 mt-2">{links}</Nav>
-        </Navbar>
+          </Offcanvas.Title>
+        </Offcanvas.Header>
 
-        {/*La navbar cuando la pantalla es pequeña y esta desplegada cubre toda la pantalla */}
-        <div className={`navbar-sm ${show ? "show" : ""}`}>
-          <div className="navbar-title">
-            <span>
-              <FontAwesomeIcon icon={faLightbulb} className="me-2" />
-              ¡Acepta el reto!
-            </span>
-            <FontAwesomeIcon
-              icon={faXmark}
-              className="close-icon"
-              onClick={() => setShow(false)}
-            />
-          </div>
-          <Nav className="flex-column">{links}</Nav>
-        </div>
-        
-      </div>
+        <Offcanvas.Body>
+          <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
     </>
   );
 }

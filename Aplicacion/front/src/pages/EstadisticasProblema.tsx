@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatProblemEvent } from "shared";
+import "./estadistucasProblema.css";
 
 //COMPONENTES
 import Sidebar from "../componentes/Sidebar/sidebar.tsx"
@@ -58,36 +59,33 @@ export default function EstadisticasProblema() {
             <Sidebar />
 
             <Container fluid="md" className="py-5 d-flex justify-content-center">
-                <div style={{ width: "100%", maxWidth: "860px" }} className="mt-5">
+                <div style={{ width: "100%", maxWidth: "860px" }} className="mt-5 contenido">
                     <Row className="d-flex justify-content-between">
                         {/*<Row className="g-4">*/}
                         <Col xs="auto" >
-                            {/*<Col xs={12} md="auto">*/}
+                            {/*<Col xs={12} md="auto" className="d-flex justify-content-center">*/}
                             {envios && <DatoNumerico
                                 evento={formatProblemEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
                                 dato={{ value: envios, description: "Envios" }}
-                                style={{ gridArea: "dato1" }}
                             />}
                         </Col>
 
                         <Col xs="auto" >
-                            {/*<Col xs={12} md="auto">*/}
+                            {/*<Col xs={12} md="auto" className="d-flex justify-content-center">*/}
                             {mejorTiempo && <DatoNumerico
                                 evento={formatProblemEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
                                 dato={{ value: mejorTiempo, description: "Mejor tiempo" }}
-                                style={{ gridArea: "dato2" }}
                             />}
                         </Col>
 
                         <Col xs="auto" >
-                            {/*<Col xs={12} md="auto">*/}
+                            {/*<Col xs={12} md="auto" className="d-flex justify-content-center">*/}
                             {tiempoPromedio && <DatoNumerico
                                 evento={formatProblemEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
                                 dimensiones={{ width: 200, height: 100 }}
                                 dato={{ value: tiempoPromedio, description: "Tiempo Promedio" }}
-                                style={{ gridArea: "dato3" }}
                             />}
                         </Col>
                     </Row>
