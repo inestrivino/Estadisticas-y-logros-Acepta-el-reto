@@ -1,7 +1,6 @@
 /* navbar barra superior en pantallas pequeñas */
 .navbar {
   background-color: #446E9B;
-  min-height: 64px;
   padding: 0.6rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -59,10 +58,10 @@
 .nav-link {
   color: #F5F5F5 !important;
   font-size: 1.3rem !important;
-  padding: 14px 6px !important;
+  padding: 10px 6px !important;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
   border-radius: 10px;
   transition: all 0.2s ease !important;
 }
@@ -70,7 +69,6 @@
 /* iconos de links */
 .nav-link svg {
   font-size: 1.5rem !important;
-  margin-right: 8px;
 }
 
 .nav-link:hover {
@@ -83,7 +81,7 @@
   background-color: #72acd3a2 !important;
   /*color: #446E9B !important;*/
   border-left: 8px solid #72ACD3 !important;
-  padding-left: 12px !important;
+  padding-left: 8px !important;
 }
 
 

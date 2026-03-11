@@ -1,14 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import EstadisticasProblema from "./pages/EstadisticasProblema.tsx"
 import PruebaSocket from "./pages/PruebaSocket.tsx"
+import Layout from "./pages/Layout.tsx"
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PruebaSocket />} />
-        <Route path="/problemas/:problema" element={<EstadisticasProblema />} />
-        <Route path="/pruebaSocket" element={<PruebaSocket />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<PruebaSocket />} />
+          <Route path="/problemas/:problema" element={<EstadisticasProblema />} />
+          <Route path="/pruebaSocket" element={<PruebaSocket />} />
+          <Route path="/usuarios/:usuario/estadisticas" element={<PruebaSocket />} />
+          <Route path="/usuarios/:usuario/logros" element={<PruebaSocket />} />
+          <Route path="/usuarios/ranking" element={<PruebaSocket />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

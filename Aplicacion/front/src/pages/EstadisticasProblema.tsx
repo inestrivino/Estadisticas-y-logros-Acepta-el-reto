@@ -55,11 +55,10 @@ export default function EstadisticasProblema() {
     }, [problema]);
 
     return (
-        <div className="d-flex">
-            <Sidebar />
-
-            <Container fluid="md" className="py-5 d-flex justify-content-center">
-                <div style={{ width: "100%", maxWidth: "860px" }} className="mt-5 contenido">
+        <>        
+            <h1 className="p-4 titulo">Estadísticas problema <b>{problema}</b></h1>
+            <Container fluid="md" className="d-flex justify-content-center">
+                <div style={{ width: "100%", maxWidth: "820px" }} className="mt-2">
                     <Row className="d-flex justify-content-between">
                         {/*<Row className="g-4">*/}
                         <Col xs="auto" >
@@ -95,7 +94,7 @@ export default function EstadisticasProblema() {
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {resultados && <Diagrama
                                 evento={formatProblemEvent(problema as string, EventType.DIAGRAMA_PROBLEMAS)}
-                                dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
+                                dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
                                     "#E84C88", "#6BCF63", "#F2C94C", "#b351e0",
@@ -108,7 +107,7 @@ export default function EstadisticasProblema() {
                             {/*<Col xs={12} lg={6} className="d-flex justify-content-center">*/}
                             {lenguajes && <Diagrama
                                 evento={formatProblemEvent(problema as string, EventType.DIAGRAMA_LENGUAJES)}
-                                dimensiones={{ width: 370, height: 370, outerRadius: 75 }}
+                                dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
                                 colores={[
                                     "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
                                     "#E84C88", "#6BCF63", "#F2C94C", "#b351e0",
@@ -121,6 +120,6 @@ export default function EstadisticasProblema() {
                     <Link to="/PruebaSocket">Get</Link>
                 </div>
             </Container>
-        </div >
+        </>
     )
 }
