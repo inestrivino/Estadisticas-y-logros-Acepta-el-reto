@@ -10,5 +10,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "sourceMap": false
-  }
+  },
+  "exclude": [
+    "vitest.config.ts",
+     "**/*.test.ts"
+  ]
 }
