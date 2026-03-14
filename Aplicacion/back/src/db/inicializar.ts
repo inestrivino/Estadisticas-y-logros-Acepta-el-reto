@@ -21,10 +21,12 @@ export default async function inicializar() {
     let envios: Envio[] = simularEnvios();
     await redisClient.flushAll();
 
+    let promesas = [];
     for (const envio of envios) {
-        //informacion de los problemas
-        procesarEnvio(envio);
+        promesas.push(procesarEnvio(envio));
     }
+    
+    await Promise.all(promesas);
 }
 
 

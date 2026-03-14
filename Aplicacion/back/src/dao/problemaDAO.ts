@@ -1,4 +1,4 @@
-import redisClient from '../redis/redisClient.js';
+import DAO from "./DAO.js"
 
 type datosProblema = {
     "problema": string,
@@ -7,14 +7,9 @@ type datosProblema = {
     "tiempo": number,
 };
 
-export default class ProblemaDAO {
-    private redis;
-
-    constructor(redisClientTest?: typeof redisClient) {
-        this.redis = redisClientTest ?? redisClient;
-    }
-
-    async registrarEnvio(dato: datosProblema): Promise<void> {
+export default class ProblemaDAO extends DAO {
+    
+    async registrarDatosProblema(dato: datosProblema): Promise<void> {
 
         //juntas las operaciones para hacer solo una llamada de escritura
         const pipeline = this.redis.multi();
