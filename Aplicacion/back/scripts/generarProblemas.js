@@ -3,7 +3,7 @@ import fs from "fs";
 const resultados = ["AC","PE","WA","CE","RTE","TLE","MLE","OLE","RF","IQ","IE"];
 const lenguajes = ["c", "cpp", "java"];
 const usuarios = [];
-const NUMERO_USUARIOS = 50;
+const NUMERO_USUARIOS = 1;
 for (let i = 0; i < NUMERO_USUARIOS; i++) {
   usuarios.push(`user${i + 1}`);
 }
