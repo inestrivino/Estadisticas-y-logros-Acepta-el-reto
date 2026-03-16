@@ -1,20 +1,22 @@
 import DAO from "./DAO.js"
 
 type datosUsuario = {
-    "usuario": string,
-    "resultado": string,
-    "lenguaje": string
+    usuario: string,
+    resultado: string,
+    lenguaje: string,
+    fecha: {
+        dia: number,
+        mes: number,
+        anio: number
+    }
 };
-
-//TODO hacer los tests de este DAO
 
 export default class UsuarioDAO extends DAO {
 
-    async registrarDatosUsuario(dato: datosUsuario): Promise<void> {
+    async registrarDatosUsuario(datos: datosUsuario): Promise<void> {
 
         //guardo el timeStamp en segundos
-        const hoy = new Date;
-        hoy.setHours(0, 0, 0, 0);
+        const hoy = new Date(datos.fecha.anio, datos.fecha.mes, datos.fecha.dia);
         const timeStamp = hoy.valueOf() / 1000;
 
         //juntas las operaciones para hacer solo una llamada de escritura
@@ -22,11 +24,11 @@ export default class UsuarioDAO extends DAO {
 
         //incrementa los envios de un usuario
         pipeline.zAdd(
-            `usuario:${dato.usuario}:dias`,
+            `usuario:${datos.usuario}:dias`,
             [{ value: String(timeStamp), score: timeStamp }]
         );
         pipeline.hIncrBy(
-            `usuario:${dato.usuario}:diasValor`,
+            `usuario:${datos.usuario}:diasValor`,
             String(timeStamp),
             1
         );
@@ -34,13 +36,13 @@ export default class UsuarioDAO extends DAO {
         //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
         pipeline.sAdd(
             `timestamp:${timeStamp}`,
-            dato.usuario
+            datos.usuario
         )
 
         await pipeline.exec();
     }
 
-    async getEnviosUsuario(usuario: String) {
+    async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
 
         //saco los dias (timeStamps) en los que hizo envios y la cantidad (valores)
         const timeStamps = await this.redis.zRangeWithScores(`usuario:${usuario}:dias`, 0, -1);
@@ -53,19 +55,13 @@ export default class UsuarioDAO extends DAO {
                 timeStamp: timeStamp.score,
                 value: Number(valores[timeStamp.value])
             });
-        }
+        }        
 
-        //devuelvo un array de 365 numeros
-        const hoy = new Date;
-        hoy.setHours(0, 0, 0, 0);
-        const timeStamp = hoy.valueOf() / 1000; // timeStamp en segundos
-        let haceUnAnio = timeStamp - 31536000 // 365 * 24 * 60 * 60;
-        haceUnAnio += 86400; // 86400 = 24 * 60 * 60
-
+        //formateo los dato
         let formateados = [];
         let contador = 0;
         let current = resultados[0].timeStamp;
-        for (let i = haceUnAnio; i <= timeStamp; i += 86400) { // 86400 = 24 * 60 * 60
+        for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
             if (i != current) {
                 formateados.push({timeStamp:i, value: 0});
             }

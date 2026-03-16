@@ -1,6 +1,6 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatProblemEvent } from "shared";
-import { procesarEnvio } from "../db/cargarDatos.js";
+import { cargarDatos } from "../db/cargarDatos.js";
 import ProblemaDAO from "../dao/problemaDAO.js";
 
 const problemaDAO = new ProblemaDAO();
@@ -24,7 +24,7 @@ export default async function routerEmitter(envio:Envio) {
     const io = getIO();
 
     //se procesa el envio y se guarda en la base de datos
-    await procesarEnvio(envio);
+    await cargarDatos(envio);
 
     //se actualizan los diagramas de estadisticas de problemas
     io.emit(formatProblemEvent(envio.problema, EventType.DIAGRAMA_PROBLEMAS), envio.resultado);

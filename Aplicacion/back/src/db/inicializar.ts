@@ -1,6 +1,6 @@
 import fs from 'fs';
 import redisClient from '../redis/redisClient.js';
-import { procesarEnvio } from './cargarDatos.js';
+import { cargarDatos } from './cargarDatos.js';
 
 type Envio = {
     "usuario": string,
@@ -23,7 +23,7 @@ export default async function inicializar() {
 
     let promesas = [];
     for (const envio of envios) {
-        promesas.push(procesarEnvio(envio));
+        promesas.push(cargarDatos(envio));
     }
     
     await Promise.all(promesas);

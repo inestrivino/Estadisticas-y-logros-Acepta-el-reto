@@ -1,31 +1,10 @@
-import { beforeAll, afterAll, beforeEach, describe, test, expect } from 'vitest';
-import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
-import { createClient } from 'redis';
+import { describe, test, expect } from 'vitest';
 import ProblemaDAO from '../problemaDAO.js';
+import setUpTestFile from './setUptTest.js';
 
-let container: StartedRedisContainer;
-let redis: ReturnType<typeof createClient>;
-let problemaDAO: ProblemaDAO;
+let problemaDAO = new ProblemaDAO();
 
-beforeAll(async () => {
-    container = await new RedisContainer('redis:alpine').start();
-
-    redis = createClient({
-        url: container.getConnectionUrl(),
-    });
-    await redis.connect();
-
-    problemaDAO = new ProblemaDAO(redis);
-});
-
-beforeEach(async () => {
-    await redis.flushAll();
-});
-
-afterAll(async () => {
-    await redis.quit();
-    await container.stop();
-});
+setUpTestFile(problemaDAO);
 
 const datoAC = {
     problema: "Facundo y el undo",
@@ -66,7 +45,7 @@ describe("Registrar primer envio", () => {
         await problemaDAO.registrarDatosProblema(datoWA);
         expect(await problemaDAO.getMejorTiempo("Facundo y el undo")).toBe(0);
     });
-    
+
     test("inserta resultados", async () => {
         await problemaDAO.registrarDatosProblema(datoAC);
         await problemaDAO.registrarDatosProblema(datoWA);
@@ -115,7 +94,7 @@ describe("Registrar nuevos envios", () => {
         await problemaDAO.registrarDatosProblema(datoAC);
         const datoWA2 = { ...datoWA, tiempo: 0.1 };
         await problemaDAO.registrarDatosProblema(datoWA2);
-        expect(await problemaDAO.getMejorTiempo("Facundo y el undo")).toBe(0.2); 
+        expect(await problemaDAO.getMejorTiempo("Facundo y el undo")).toBe(0.2);
     });
 
     test("no actualiza el mejor tiempo si es mas lento", async () => {
