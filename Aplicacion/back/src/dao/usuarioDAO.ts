@@ -1,4 +1,5 @@
-import DAO from "./DAO.js"
+import DAO from "./DAO.js";
+import logros from "src/data/logros.js";
 
 type datosUsuario = {
     "usuario": string,
@@ -37,6 +38,11 @@ export default class UsuarioDAO extends DAO {
             dato.usuario
         )
 
+        const nuevosLogros = await this.nuevosLogros(dato);
+        if (nuevosLogros.length > 0) {
+            pipeline.sAdd(`usuario:${dato.usuario}:logros`, nuevosLogros);
+        }
+
         await pipeline.exec();
     }
 
@@ -67,10 +73,10 @@ export default class UsuarioDAO extends DAO {
         let current = resultados[0].timeStamp;
         for (let i = haceUnAnio; i <= timeStamp; i += 86400) { // 86400 = 24 * 60 * 60
             if (i != current) {
-                formateados.push({timeStamp:i, value: 0});
+                formateados.push({ timeStamp: i, value: 0 });
             }
             else {
-                formateados.push({timeStamp:i, value:resultados[contador].value});
+                formateados.push({ timeStamp: i, value: resultados[contador].value });
                 contador++;
                 if (contador != resultados.length)
                     current = resultados[contador].timeStamp;
@@ -90,11 +96,50 @@ export default class UsuarioDAO extends DAO {
         //se quitan los envios de todos los usuario que hicieron un envio ese dia
         for (const usuario of usuarios) {
             pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
+            pipeline.hDel(`usuario:${usuario}:diasValor`, String(timeStamp));
         }
 
         await pipeline.exec();
 
         //se borra el set con los usuario de ese dia
         await this.redis.del(`timestamp:${timeStamp}`);
+    }
+
+    async getLogrosUsuario(usuario: string, clasificacion: string) {
+        const setLogros = new Set(await this.redis.sMembers(`usuario:${usuario}:logros`));
+
+        // agrega el etributo de si el usuario tiene ese logro o no
+        const logrosUsuario = logros.map(logro => ({ ...logro, obtenido: setLogros.has(logro.nombre) }));
+
+        // agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
+        const gruposMap = new Map();
+        for (const logro of logrosUsuario) {
+            const key = clasificacion === "nivel" ? logro.nivel : logro.categoria;
+            if (!gruposMap.has(key)) {
+                gruposMap.set(key, []);
+            }
+            gruposMap.get(key).push(logro);
+        }
+
+        // transforma el map a una estructura similar a la del tipo GrupoLogros 
+        const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
+        return { clasificacion, grupos };
+    }
+
+    async nuevosLogros(dato: datosUsuario) {
+        const logrosAlcanzados = await this.logrosAlcanzados(dato);
+        let logrosNuevos: string[] = [];
+
+        for (const logro of logrosAlcanzados) {
+            const obtenido = await this.redis.sIsMember(`usuario:${dato.usuario}:logros`, logro);
+            if (!obtenido) {
+                logrosNuevos.push(logro);
+            }
+        }
+        return logrosNuevos;
+    }
+
+    async logrosAlcanzados(dato: datosUsuario) {
+        return ["logro1"];
     }
 }
