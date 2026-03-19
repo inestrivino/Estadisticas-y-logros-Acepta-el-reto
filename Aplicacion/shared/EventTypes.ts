@@ -4,7 +4,10 @@ export const EventType = {
   MEJOR_TIEMPO_PROBLEMA: "reload-mejorTiempoProblema",
   TIEMPO_PROM_PROBLEMA: "reload-tiempoPromedioProblema",
   DIAGRAMA_PROBLEMAS: "reload-resultadosProblemas",
-  DIAGRAMA_LENGUAJES: "reload-resultadosLenguajes"
+  DIAGRAMA_LENGUAJES: "reload-resultadosLenguajes",
+
+  //LOGROS USUARIO
+  LOGROS_USUARIO: "reload-logrosUsuario"
 } as const;
 
 export function formatProblemEvent(problema: string, eventType: EventTypes): string {
