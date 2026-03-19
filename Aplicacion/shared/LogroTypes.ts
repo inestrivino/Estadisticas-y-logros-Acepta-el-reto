@@ -10,12 +10,12 @@ export type DatosLogro = {
   sorpresa: boolean;
 };
 
-export type GrupoLogros = {
+export type TGrupoLogros = {
   grupo: string;
   logros: DatosLogro[];
 };
 
 export type ListadoLogros = {
   clasificacion: string;
-  grupos: GrupoLogros[];
+  grupos: TGrupoLogros[];
 };

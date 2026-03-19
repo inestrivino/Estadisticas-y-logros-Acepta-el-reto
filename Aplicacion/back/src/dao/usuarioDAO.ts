@@ -121,7 +121,7 @@ export default class UsuarioDAO extends DAO {
             gruposMap.get(key).push(logro);
         }
 
-        // transforma el map a una estructura similar a la del tipo GrupoLogros 
+        // transforma el map a una estructura similar a la del tipo TGrupoLogros 
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
