@@ -18,7 +18,7 @@ export default function LogrosUsuario() {
 
     const [logros, setLogros] = useState<ListadoLogros>();
     useEffect(() => { //TODO al inicializar la vista de logros ver si recordamos de la ultima vez visitada o no
-        fetch(`/api/usuarios/${usuario}/logros?clasificacion=categoria`)
+        fetch(`/api/usuarios/${usuario}/logros?clasificacion=nivel`)
             .then(response => response.json())
             .then(data => {
                 setLogros(data);
