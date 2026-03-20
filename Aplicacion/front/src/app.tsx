@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import EstadisticasProblema from "./pages/EstadisticasProblema.tsx"
 import PruebaSocket from "./pages/PruebaSocket.tsx"
-import Layout from "./pages/Layout.tsx"
-import LogrosUsuario from "./pages/LogrosUsuario.tsx"
+import Layout from "./pages/Layout/Layout.tsx"
+import LogrosUsuario from "./pages/LogrosUsuario/LogrosUsuario.tsx"
 
 export default function App() {
   return (

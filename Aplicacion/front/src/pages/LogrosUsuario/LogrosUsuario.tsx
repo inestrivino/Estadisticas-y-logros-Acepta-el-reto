@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { EventType, formatProblemEvent } from "shared";
-import { Container, Row, Col, Card } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightLeft } from "@fortawesome/free-solid-svg-icons";
-import {Tab, Tabs} from 'react-bootstrap';
+import { Container, Tab, Tabs} from "react-bootstrap";
 
-// COMPONENTES
-import GrupoLogro from "../componentes/Logro/grupoLogros";
 import { ListadoLogros } from "shared/LogroTypes";
 import { CategoriaLogro, NivelLogro } from "shared/LogroConsts";
+
+// COMPONENTES
+import GrupoLogro from "../../componentes/Logro/grupoLogros";
 
 
 export default function LogrosUsuario() {
@@ -33,6 +31,17 @@ export default function LogrosUsuario() {
             <h1 className="p-4 titulo">Logros de <b>{usuario}</b></h1>
             <Container fluid="md" className="d-flex justify-content-center">
                 <div style={{ width: "100%", maxWidth: "1100px" }} className="mt-2">
+                    
+                    <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k?k:'nivel')}
+                        className="mb-3 justify-content-end app-tabs">
+                        <Tab eventKey="nivel" title="Home">
+                            {/* TODO actualizar el listado de logros */}
+                        </Tab>
+                        <Tab eventKey="categoria" title="Profile">
+                            {/* TODO actualizar el listado de logros */}
+                        </Tab>
+                    </Tabs>
+
                     {logros?.grupos.map((logrosGrupo, idx) => (
                         <GrupoLogro
                             dimensiones={{ width: 1100, height: 300, outerRadius: 0 }}
