@@ -38,6 +38,7 @@ export default class UsuarioDAO extends DAO {
             dato.usuario
         )
 
+        //en caso de haber alcanzado algun logro con ese envio lo/s añade al listado de logros obtenidos
         const nuevosLogros = await this.nuevosLogros(dato);
         if (nuevosLogros.length > 0) {
             pipeline.sAdd(`usuario:${dato.usuario}:logros`, nuevosLogros);
@@ -108,10 +109,10 @@ export default class UsuarioDAO extends DAO {
     async getLogrosUsuario(usuario: string, clasificacion: string) {
         const setLogros = new Set(await this.redis.sMembers(`usuario:${usuario}:logros`));
 
-        // agrega el etributo de si el usuario tiene ese logro o no
+        //agrega el etributo de si el usuario tiene ese logro o no
         const logrosUsuario = logros.map(logro => ({ ...logro, obtenido: setLogros.has(logro.nombre) }));
 
-        // agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
+        //agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
         const gruposMap = new Map();
         for (const logro of logrosUsuario) {
             const key = clasificacion === "nivel" ? logro.nivel : logro.categoria;
@@ -121,7 +122,7 @@ export default class UsuarioDAO extends DAO {
             gruposMap.get(key).push(logro);
         }
 
-        // transforma el map a una estructura similar a la del tipo TGrupoLogros 
+        //transforma el map a una estructura similar a la del tipo TGrupoLogros 
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
@@ -139,7 +140,8 @@ export default class UsuarioDAO extends DAO {
         return logrosNuevos;
     }
 
+    // TODO esto mas adelante analizara el nuevo envio y los datos de usuario para ver si de verdad se ha alcanzado algun logro
     async logrosAlcanzados(dato: datosUsuario) {
-        return ["logro1"];
+        return ["logro1", "logro13"];
     }
 }

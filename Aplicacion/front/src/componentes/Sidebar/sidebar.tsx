@@ -47,8 +47,8 @@ export default function Sidebar() {
 
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/usuario1/estadisticas"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/usuario1/logros"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/estadisticas"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/logros"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to="/problemas/problema1"><FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to="/pruebaSocket"><FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>

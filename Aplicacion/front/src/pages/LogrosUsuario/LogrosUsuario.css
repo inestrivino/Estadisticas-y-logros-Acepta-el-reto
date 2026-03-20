@@ -1,0 +1,15 @@
+.app-tabs {
+  border-bottom: 3px solid var(--tab-color);
+}
+
+.app-tabs .nav-link {
+  font-size: 1.2rem;
+  color: var(--tab-color);
+  border: none;
+}
+
+.app-tabs .nav-link.active {
+  color: var(--tab-color);
+  border: 3px solid var(--tab-color);
+  border-bottom: none;
+}

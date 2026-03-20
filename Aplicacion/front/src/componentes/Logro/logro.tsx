@@ -13,13 +13,13 @@ export default function Logro(props: {
     datos: DatosLogro,
     idx: number
 }) {
-    const imagen = "../../../public/logros/logro_placeholder_sin_color.png";
+    const imagen = "/logros/" + props.datos.imagen;
 
     return (
         <>
             <Col key={props.idx}>
                 <Card className='border-0'>
-                    <Card.Img variant="top" src={imagen} />
+                    <Card.Img variant="top" src={imagen} style={{ filter: !props.datos.obtenido ? 'grayscale(100%)' : 'none' }} />
                     <Card.Body className="text-center">
                         <Card.Title>{props.datos.nombre}</Card.Title>
                         <Card.Text>

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { EventType, formatProblemEvent } from "shared";
 import { Container, Tab, Tabs} from "react-bootstrap";
 
 import { ListadoLogros } from "shared/LogroTypes";
 import { CategoriaLogro, NivelLogro } from "shared/LogroConsts";
+import "./LogrosUsuario.css";
 
 // COMPONENTES
 import GrupoLogro from "../../componentes/Logro/grupoLogros";
@@ -14,30 +14,31 @@ export default function LogrosUsuario() {
 
     const { usuario } = useParams();
 
+    const [key, setKey] = useState('nivel');
+
     const [logros, setLogros] = useState<ListadoLogros>();
     useEffect(() => { //TODO al inicializar la vista de logros ver si recordamos de la ultima vez visitada o no
-        fetch(`/api/usuarios/${usuario}/logros?clasificacion=nivel`)
+        fetch(`/api/usuarios/${usuario}/logros?clasificacion=${key}`)
             .then(response => response.json())
             .then(data => {
                 setLogros(data);
                 //console.log(JSON.stringify(data, null, 2));
             });
-    }, [usuario])
-
-    const [key, setKey] = useState('nivel');
+    }, [usuario, key])
 
     return (
         <>
             <h1 className="p-4 titulo">Logros de <b>{usuario}</b></h1>
             <Container fluid="md" className="d-flex justify-content-center">
-                <div style={{ width: "100%", maxWidth: "1100px" }} className="mt-2">
-                    
+                <div className="mt-2" style={{ width: "100%", maxWidth: "1100px", 
+                    "--tab-color":getGroupColor(logros?.grupos?.[0]?.grupo || "") } as React.CSSProperties} >
+
                     <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k?k:'nivel')}
                         className="mb-3 justify-content-end app-tabs">
-                        <Tab eventKey="nivel" title="Home">
+                        <Tab eventKey="nivel" title="Nivel">
                             {/* TODO actualizar el listado de logros */}
                         </Tab>
-                        <Tab eventKey="categoria" title="Profile">
+                        <Tab eventKey="categoria" title="Categoría">
                             {/* TODO actualizar el listado de logros */}
                         </Tab>
                     </Tabs>
@@ -60,12 +61,12 @@ export default function LogrosUsuario() {
             case NivelLogro.ORO: color = "#f9c22b"; break;
             case NivelLogro.PLATA: color = "#9babb2"; break;
             case NivelLogro.BRONCE: color = "#Cd683d"; break;
-            case CategoriaLogro.ONBOARDING: color = "red"; break;
-            case CategoriaLogro.CALIDAD: color = "lightblue"; break;
-            case CategoriaLogro.CATEGORIAS: color = "blue"; break;
-            case CategoriaLogro.LENGUAJES: color = "lightgreen"; break;
-            case CategoriaLogro.PROBLEMAS: color = "green"; break;
-            case CategoriaLogro.RACHAS: color = "purple"; break;
+            case CategoriaLogro.ONBOARDING: color = "#3c6e71"; break;
+            case CategoriaLogro.PROBLEMAS: color = "#80AEAB"; break;
+            case CategoriaLogro.LENGUAJES: color = "#7A99C7"; break;
+            case CategoriaLogro.RACHAS: color = "#0078A7"; break;
+            case CategoriaLogro.CALIDAD: color = "#848F95"; break;
+            case CategoriaLogro.CATEGORIAS: color = "#d9d9d9"; break;
         }
         return color;
     }

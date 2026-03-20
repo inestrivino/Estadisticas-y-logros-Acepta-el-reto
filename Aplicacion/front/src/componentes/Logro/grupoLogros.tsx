@@ -1,14 +1,12 @@
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { EventType, formatProblemEvent } from "shared";
-import { NivelLogro, CategoriaLogro } from "shared/LogroConsts";
-import { DatosLogro, TGrupoLogros } from "shared/LogroTypes";
+import { TGrupoLogros } from "shared/LogroTypes";
 
 // COMPONENTES
 import Logro from "./logro";
 
 export default function GrupoLogros(props: {
-    /*evento: string,*/
     dimensiones: { width: number; height: number, outerRadius: number },
     color: string,
     datos: TGrupoLogros,
@@ -19,7 +17,7 @@ export default function GrupoLogros(props: {
     return (
         <div style={{ width: "100%", maxWidth: "1100px", border: "3px solid " + props.color, borderRadius: "7px" }}
             className="mb-3">
-            <h3 className="p-2 d-inline-block" style={{ backgroundColor: props.color, borderRadius: "2px" }}>{props.datos.grupo}</h3>
+            <h3 className="p-2 d-inline-block" style={{ backgroundColor: props.color, borderRadius: "1px" }}>{props.datos.grupo}</h3>
             <Row xs={2} md={4} className="g-4 justify-content-center">
                 {props.datos.logros.map((logro, idx) => (
                     <Logro
