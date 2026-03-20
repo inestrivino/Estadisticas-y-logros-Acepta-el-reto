@@ -18,6 +18,14 @@
   color: #F5F5F5;
 }
 
+.app-navbar-top button:focus,
+.app-navbar-top button:focus-visible {
+  background-color: #72ACD3;
+  color: #F5F5F5;
+  outline: none;
+  box-shadow: none;
+}
+
 /* titulo navbar */
 .app-navbar-titulo {
   color: #F5F5F5;
@@ -45,6 +53,10 @@
   margin-top: 30px;
   margin-bottom: 65px;
   font-size: 1.6rem;
+}
+
+.sidebar .app-navbar-titulo:hover {
+  color: #F5F5F5;
 }
 
 
@@ -83,6 +95,15 @@
   padding-left: 8px;
 }
 
+.app-nav-link:focus,
+.app-nav-link:focus-visible { 
+  color: #F5F5F5;
+  outline: none;
+  box-shadow: inset 0 0 0 5px #72ACD3;
+  /*outline: 4px solid #72acd3a2;
+  outline-offset: 2px;*/
+}
+
 
 /* navbar cuando la pantalla es pequeñas */
 .app-offcanvas {
@@ -98,15 +119,33 @@
   }
 }
 
+.app-offcanvas .btn-close {
+  background-size: 20px;
+  filter: invert(1);
+  opacity: 1;
+  margin-top: 5px;
+}
+/*
+.app-offcanvas .btn-close:focus,
+.app-offcanvas .btn-close:focus-visible {
+  outline: 3px solid #72ACD3;
+  outline-offset: 2px;
+}
+*/
+.app-offcanvas .offcanvas-header {
+  align-items: flex-start;
+  padding-top: 10px;
+}
+
 .app-offcanvas-titulo {
   font-size: 1.8rem;
   font-weight: 700;
   color: #F5F5F5;
-  margin-top: 15px;
+  margin-top: 40px;
 }
 
 .app-offcanvas-body {
-  padding: 1.8rem 1.75rem;
+  padding: 1.8rem 1.65rem;
 }
 
 
@@ -115,7 +154,7 @@
 
   .app-nav-link {
     font-size: 1.3rem;
-    padding: 16px 6px;
+    padding: 16px 10px;
     gap: 18px;
   }
 

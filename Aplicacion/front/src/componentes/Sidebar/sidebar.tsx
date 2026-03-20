@@ -89,7 +89,7 @@ export default function Sidebar() {
           </Offcanvas.Title>
         </Offcanvas.Header>
 
-        <Offcanvas.Body className="app-offcanvas.body">
+        <Offcanvas.Body className="app-offcanvas-body">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
         </Offcanvas.Body>
       </Offcanvas>
