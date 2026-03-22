@@ -4,8 +4,10 @@ dist*
 .env.*
 data
 package-lock.json
+test-report
 
-/.vscode
+.vscode/*
+!.vscode/launch.json 
 
 *.acn
 *.acr

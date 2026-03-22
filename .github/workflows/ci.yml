@@ -1,0 +1,12 @@
+on: [push, pull_request]
+
+jobs:
+  ci-back:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Aplicacion/back
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run test

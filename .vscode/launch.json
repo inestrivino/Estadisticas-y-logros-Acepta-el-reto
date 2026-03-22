@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Adjuntar debugger",
+            "cwd": "${workspaceFolder}/Aplicacion/back",
+            "localRoot": "${workspaceFolder}/Aplicacion/back",
+            "remoteRoot": "/app/back",
+            "port": 9229,
+            "restart": true,
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug en local",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "dev-local"],
+            "cwd": "${workspaceFolder}/Aplicacion/back",
+        }
+    ]
+}

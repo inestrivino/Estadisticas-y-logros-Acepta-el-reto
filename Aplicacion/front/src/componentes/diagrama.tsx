@@ -1,6 +1,5 @@
 import { PieChart, Pie, Legend } from "recharts";
-import { socket } from "../services/socket.ts"; // Socket compartido
-import { useState, useEffect, useMemo } from 'react';
+import useSocket from "../hooks/socket.ts";
 
 //contenido del diagrama
 type DataItem = {
@@ -11,61 +10,15 @@ type DataItem = {
 
 export default function Diagrama(props: {
     evento: string,
-    dimensiones: { width: number; height: number, outerRadius: number },
+    datos: { name: string; value: number }[],
     colores: string[],
-    datos: { name: string; value: number }[]
+    dimensiones: { width: number; height: number, outerRadius: number },
 }) {
-    //se colocan los datos con un useState para actualizarlos si llega un mensaje por el socket
-    const [data, setData] = useState<DataItem[]>(() => {
-        const inicial: DataItem[] = props.datos;
-        for (let i = 0; i < inicial.length; i++) {
-            inicial[i].fill = props.colores[i % props.colores.length];
-        }
-        return inicial;
-    });
 
-    //se actualiza el diagrama cada vez que llega un nuevo mensaje por el socket
-    useEffect(() => {
-        const handler = (newDato: string) => {
-            setData(prevData => {
-                console.log("prevData al momento del evento:", prevData);
-                let newData:DataItem[] = [];
-                let encontrado:boolean = false;
-                for (let i = 0; i < prevData.length; i++) {
-                    if (prevData[i].name === newDato) {
-                        newData[i] = {
-                            name: prevData[i].name,
-                            value: prevData[i].value + 1,
-                            fill: prevData[i].fill
-                        }
-                        encontrado = true;
-                    }
-                    else
-                        newData[i] = prevData[i];
-                }
-                if (!encontrado) {
-                    newData.push({
-                        name: newDato,
-                        value: 1,
-                        fill: props.colores[newData.length % props.colores.length]
-                    });
-                }
-                return newData;
-            });
-        };
-
-        //se asigna el handler para que no haya problemas al tener varios diagramas en la misma pagina
-        socket.on(props.evento, handler);
-
-        //se limpia el listener al desmontar el componente
-        return () => {
-            socket.off(props.evento, handler);
-        };
-    }, []);
+    const data = useSocket(props.evento, props.datos, props.colores);
 
     //se renderiza el diagrama con los datos y colores asignados
     return (
-
         <div style={{ //caja que rodea al diagrama
             //border: "1px solid #ccc",
             borderRadius: "12px",

@@ -1,23 +1,33 @@
 {
   "name": "back",
+  "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_NO_WARNINGS=1 NODE_ENV=development nodemon --watch",
-    "build": "node scripts/build.js",
-    "start": "docker compose up --build"
+    "dev-local": "tsx watch --clear-screen=false src/server.ts",
+    "dev": "cross-env CHOKIDAR_USEPOLLING=true tsx watch --clear-screen=false --inspect=0.0.0.0:9229 src/server.ts",
+    "build": "tsc",
+    "minify": "npx esbuild dist-server/server.js --bundle --minify --platform=node --format=esm --packages=external --outfile=dist-server/server.min.js",
+    "test": "vitest run"
   },
   "dependencies": {
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5",
-    "nodemon": "^3.1.11",
+    "node-cron": "^4.2.1",
     "react": "^19.2.0",
     "redis": "^5.8.3",
-    "socket.io": "^4.8.3"
+    "shared": "file:../shared",
+    "socket.io": "^4.8.3",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
+    "@testcontainers/redis": "^11.12.0",
     "@types/express": "^5.0.3",
     "@types/node": "^24.10.9",
+    "@types/ws": "^8.18.1",
+    "@vitest/ui": "^4.0.18",
     "esbuild": "^0.27.2",
-    "rimraf": "^6.1.2"
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

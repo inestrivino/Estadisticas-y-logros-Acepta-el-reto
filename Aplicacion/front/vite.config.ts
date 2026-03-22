@@ -4,7 +4,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react({})],
   build: {
-    outDir: 'dist-front'
+    outDir: 'dist-front',
+    minify: 'esbuild',
+    sourcemap: false,
   },
   server: {
     host: true,
@@ -13,9 +15,9 @@ export default defineConfig({
       usePolling: true,
     },
     proxy: {
-      '/api': 'http://back:3000',
+      '/api': process.env.BACKEND_URL || 'http://localhost:3000',
       '/socket.io': {
-        target: 'http://back:8080',
+        target: process.env.SOCKETS_URL || 'http://localhost:8080',
         ws: true,        
         changeOrigin: true,
       }

@@ -6,7 +6,7 @@ export default function PruebaSocket() {
         <div>
             <p>Panel de pruebas</p>
             <PruebaSocketComponent />
-            <Link to="/home">Get</Link>
+            <Link to="/problemas/problema1">Get</Link>
         </div>
     )
 }

@@ -1,0 +1,29 @@
+FROM node:lts-alpine AS builder
+
+WORKDIR /app/back
+
+COPY shared ../shared
+COPY back/package.json ./
+COPY back/package-lock.json ./
+
+RUN npm ci
+
+COPY back/src ./src
+COPY back/tsconfig.json ./
+
+RUN npm run build
+RUN npm run minify
+
+FROM node:lts-alpine
+
+WORKDIR /app/back
+
+COPY --from=builder /app/back/dist-server/server.min.js ./dist-server/
+COPY back/data ./data
+COPY shared ../shared
+COPY back/package.json ./
+COPY back/package-lock.json ./
+
+RUN npm ci --omit=dev
+
+CMD ["node", "dist-server/server.min.js"]

@@ -1,17 +1,10 @@
 import { createClient } from "redis";
 
-/*
-docker run -d --name redis-server -p 6379:6379 redis
-*/
-
-const redisClient = createClient({ url: "redis://redis:6379" });
-
-redisClient.connect()
-  .then(
-    () => console.log(" * Conexión establecida con Redis")
-  )
-  .catch(
-    err => console.error("No se pudo conectar a Redis", err)
-  );
+const redisClient = createClient({ 
+    url: process.env.REDIS_URL || "redis://localhost:6379",
+    socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 500, 3000)
+    }
+});
 
 export default redisClient;

@@ -1,0 +1,15 @@
+.contenido {
+  margin-left: 0;
+}
+
+@media (min-width: 992px) {
+  .contenido {
+    margin-left: 300px;
+  }
+}
+
+@media (max-width: 992px) {
+  .contenido {
+    margin-top: 75px;
+  }
+}

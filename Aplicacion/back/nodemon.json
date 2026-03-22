@@ -3,5 +3,5 @@
   "ext": "ts",
   "ignore": ["dist", "node_modules"],
   "legacyWatch": true,
-  "exec": "node scripts/build.js && node --inspect=0.0.0.0:9229 dist-server/server.js"
+  "exec": "tsc && node --inspect=0.0.0.0:9229 dist-server/server.js"
 }
