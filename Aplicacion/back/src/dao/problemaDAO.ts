@@ -1,10 +1,11 @@
 import DAO from "./DAO.js"
 
 type datosProblema = {
-    "problema": string,
-    "resultado": string,
-    "lenguaje": string,
-    "tiempo": number,
+    envioId: number,
+    problema: string,
+    resultado: string,
+    lenguaje: string,
+    tiempo: number,
 };
 
 export default class ProblemaDAO extends DAO {
@@ -23,7 +24,7 @@ export default class ProblemaDAO extends DAO {
 
         if (dato.resultado === "AC") {
             pipeline.incrByFloat(`problema:${dato.problema}:tiempoTotal`, dato.tiempo);
-            pipeline.zAdd(`problema:${dato.problema}:tiemposEnvios`, {score: dato.tiempo, value: `${dato.tiempo}`});
+            pipeline.zAdd(`problema:${dato.problema}:tiemposEnvios`, {score: dato.tiempo, value: String(dato.envioId)});
         }
     }
 
@@ -36,7 +37,9 @@ export default class ProblemaDAO extends DAO {
     //Devuelve el mejor tiempo o 0 si no hay ninguno
     async getMejorTiempo(problema: string):Promise<number|null> {
         //const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
-        const aux = await this.redis.zRangeWithScores(`problema:${problema}:tiemposEnvios`, 0, 5);
+        const aux = await this.redis.zRangeWithScores(`problema:${problema}:tiemposEnvios`, 0, 0);
+        if (aux.length === 0)
+            return 0;
         const mejorTiempo = aux[0].score;
         return mejorTiempo ? Number(mejorTiempo) : 0;
     }

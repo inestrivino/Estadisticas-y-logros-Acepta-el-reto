@@ -82,6 +82,7 @@ async function procesarEnvio(envio: EnvioProcesado, pipeline?: any) {
     //actualiza la informacion del problema
     await problemaDAO.registrarDato(
         {
+            envioId: envio.envioId,
             problema: envio.problema,
             resultado: envio.resultado,
             lenguaje: envio.lenguaje,

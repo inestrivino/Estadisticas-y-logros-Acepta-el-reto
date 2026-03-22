@@ -23,7 +23,7 @@ export default async function inicializar() {
     //si ya tiene datos la base de datos
     //TODO aqui habria que poner que mire el ultimo envio que hay y hasta cual tiene
     const keys = await redisClient.keys('*');
-    if (keys.length > 0) {
+    if (keys.length > 0 && false) {
         console.log(" * Envios ya cargados");
         return;
     }
