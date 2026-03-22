@@ -14,7 +14,7 @@
 
 El análisis, la planificación y el diseño de un proyecto software constituyen etapas fundamentales dentro de su ciclo de desarrollo (\cite{Pressman_2010}). Un enfoque basado en un análisis exhaustivo de los requisitos, junto con un diseño centrado en las necesidades del usuario, no solo permite garantizar el cumplimiento de los objetivos funcionales del sistema, sino que también contribuye a reducir la aparición de errores, optimizar los costes de desarrollo y facilitar tanto el mantenimiento como las futuras actualizaciones de la aplicación.
 
-En este contexto, el diseño puede entenderse como un factor clave para la incorporación de calidad al producto software. Tal y como señalan \cite{Olsina_Lafuente_Rossi_2001}, la calidad de una aplicación no es un atributo único, sino el resultado de la combinación de múltiples características. Estos autores proponen un \textit{árbol de requerimientos de calidad} que identifica los principales elementos sobre los que es necesario incidir a lo largo del desarrollo del proyecto, especialmente en el caso de aplicaciones web, donde aspectos como la usabilidad, la eficiencia o la confiabilidad adquieren un papel especialmente relevante.
+En este contexto, el diseño puede entenderse como un factor clave para la incorporación de calidad al producto software. Tal y como señalan \cite{Olsina_Lafuente_Rossi_2001}, la calidad de una aplicación no es un atributo único, sino el resultado de la combinación de múltiples características. Estos autores proponen un \textit{árbol de requerimientos de calidad} (representado en la figura \ref{fig:Elementos de calidad para una aplicación web}) que identifica los principales elementos sobre los que es necesario incidir a lo largo del desarrollo del proyecto, especialmente en el caso de aplicaciones web, donde aspectos como la usabilidad, la eficiencia o la confiabilidad adquieren un papel especialmente relevante.
 
 \begin{figure}[ht]
 \centering
@@ -45,6 +45,7 @@ En este contexto, el diseño puede entenderse como un factor clave para la incor
 
 \end{tikzpicture}
 \caption{Árbol de los requisitos de calidad para una aplicación web}
+\label{fig:Elementos de calidad para una aplicación web}
 \end{figure}
 
 Atendiendo a estos principios, el diseño de la aplicación se aborda en este capítulo desde una perspectiva multidimensional. En primer lugar, se definen las funcionalidades del sistema a partir de un análisis detallado de los usuarios finales y de los objetivos del proyecto, seleccionando aquellas capacidades que resultan esenciales para satisfacer los requisitos previamente identificados. De forma paralela, se plantea el diseño de la arquitectura técnica del sistema, describiendo sus distintos componentes y justificando la selección de las tecnologías empleadas para su implementación, siempre teniendo en cuenta criterios de eficiencia, confiabilidad y facilidad de mantenimiento.
@@ -118,6 +119,8 @@ Según \cite{bartle_players_muds}, los jugadores pueden clasificarse en cuatro t
     \item Socializadores: Priorizan la interacción con otros jugadores.
     \item Competidores (Killers): Disfrutan superando a otros, incluso a costa de la colaboración. Es decir, no solo buscan ganar, si no que además buscan hacer perder a otro.
 \end{itemize}
+
+La figura \ref{fig:Taxonomía de jugadores de Bartle} muestra el alineamiento de cada personalidad de jugador en relación con su forma de actuar en el juego (unilateralmente o interaccionando) y su deseo de exploración (sobre el mundo o sobre otros jugadores).
 
 \begin{figure}
     \centering
@@ -333,7 +336,7 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
 \begin{enumerate}
     \item Para la paleta de colores se han seleccionado 8 colores distintos: 3 tonos azules originarios de \aer, donde sirven para indicar selecciones, títulos o menús, un tono claro y un tono oscuro que pueden servir para color del fondo de la página y color de la letra o viceversa según qué tema se esté utilizando, y 3 tonos rojos obtenidos a partir de los tonos azules para representar situaciones de peligro o como color de resalte. 
     \item La tipografía es la misma que en \aer: Open Sans\footnote{\url{https://fonts.google.com/specimen/Open+Sans}}, tanto para el texto general como para títulos.
-    \item En cuanto a la iconografía, mantendremos la misma que en \aer. Se tratan de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/v3/}}, los cuales son escalables y tienen una licencia libre. 
+    \item En cuanto a la iconografía usaremos la versión más moderna de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/icons}}, en específico los paquetes gratuitos con licencia CC-BY 4.0. \aer usa los iconos de Font Awesome en la versión 3.2.1\footnote{\url{https://fontawesome.com/v3/}}, sin embargo, esta versión ya no recibe soporte. De esta manera hemos optado por un balance entre la modernidad y usabilidad a largo plazo (garantizando soporte durante más tiempo), y la coherencia visual con \aer (ya que ambos paquetes de iconos son de la misma compañía y tienen fuertes similitudes). 
 \end{enumerate}
 
 \begin{figure}
@@ -342,6 +345,8 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
     \caption{Colores y tipografía seleccionados para la guía de estilos}
     \label{fig:guiaEstilos}
 \end{figure}
+
+% TO DO REFERENCIAR ESTA FIGURA EN ALGUNA PARTE CUANDO TERMINE DE ESCRIBIR ESTA SECCIÓN
 
 En cuanto a los elementos de la interacción humano-máquina, tendremos en cuenta las heurísticas presentadas en \cite{Nielsen_1994}. En específico para nuestra aplicación son importantes la visibilidad del estado del sistema, la equivalencia entre el sistema y el mundo real, y una representación de la información que simplifique el reconocimiento de los usuarios de la información, en vez de apelar a su memoria. 
 
