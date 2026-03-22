@@ -1,6 +1,7 @@
 import DAO from "./DAO.js"
 
 type datosUsuario = {
+    envioId: number,
     usuario: string,
     resultado: string,
     lenguaje: string,
@@ -13,22 +14,25 @@ type datosUsuario = {
 
 export default class UsuarioDAO extends DAO {
 
-    async registrarDatosUsuario(datos: datosUsuario): Promise<void> {
-
-        //guardo el timeStamp en segundos
-        const hoy = new Date(datos.fecha.anio, datos.fecha.mes, datos.fecha.dia);
-        const timeStamp = hoy.valueOf() / 1000;
-
-        //juntas las operaciones para hacer solo una llamada de escritura
+    //Funcion para introducir solo 1 datos
+    async registrarDirecto(dato: datosUsuario): Promise<void> {
         const pipeline = this.redis.multi();
+        await this.agregarAlPipeline(dato, pipeline);
+        await pipeline.exec();
+    }
+
+    async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> { 
+        //guardo el timeStamp en segundos
+        const fecha = new Date(dato.fecha.anio, dato.fecha.mes, dato.fecha.dia);
+        const timeStamp = fecha.valueOf() / 1000;
 
         //incrementa los envios de un usuario
         pipeline.zAdd(
-            `usuario:${datos.usuario}:dias`,
-            [{ value: String(timeStamp), score: timeStamp }]
+            `usuario:${dato.usuario}:dias`,
+            [{ value: String(dato.envioId), score: timeStamp }]
         );
         pipeline.hIncrBy(
-            `usuario:${datos.usuario}:diasValor`,
+            `usuario:${dato.usuario}:diasValor`,
             String(timeStamp),
             1
         );
@@ -36,10 +40,8 @@ export default class UsuarioDAO extends DAO {
         //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
         pipeline.sAdd(
             `timestamp:${timeStamp}`,
-            datos.usuario
+            dato.usuario
         )
-
-        await pipeline.exec();
     }
 
     async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
@@ -57,7 +59,7 @@ export default class UsuarioDAO extends DAO {
             });
         }        
 
-        //formateo los dato
+        //formateo los datos
         let formateados = [];
         let contador = 0;
         let current = resultados[0].timeStamp;

@@ -8,27 +8,23 @@ type datosProblema = {
 };
 
 export default class ProblemaDAO extends DAO {
-    
-    async registrarDatosProblema(dato: datosProblema): Promise<void> {
 
-        //juntas las operaciones para hacer solo una llamada de escritura
+    //Funcion para introducir solo 1 datos
+    async registrarDirecto(dato: datosProblema): Promise<void> {
         const pipeline = this.redis.multi();
-        
-        if (dato.resultado === "AC") {
-            const tiempoMinStr = await this.redis.get(`problema:${dato.problema}:mejorTiempo`);
-            const tiempoMin = tiempoMinStr ? Number(tiempoMinStr) : Infinity;
-            if (dato.tiempo < tiempoMin)
-                pipeline.set(`problema:${dato.problema}:mejorTiempo`, dato.tiempo.toString());
-        }
+        await this.agregarAlPipeline(dato, pipeline);
+        await pipeline.exec();
+    }
 
+    async agregarAlPipeline(dato: datosProblema, pipeline: any): Promise<void> { 
         pipeline.incr(`problema:${dato.problema}:envios`);
         pipeline.hIncrBy(`problema:${dato.problema}:resultados`, dato.resultado, 1);
         pipeline.hIncrBy(`problema:${dato.problema}:lenguajes`, dato.lenguaje, 1);
 
-        if (dato.resultado === "AC")
+        if (dato.resultado === "AC") {
             pipeline.incrByFloat(`problema:${dato.problema}:tiempoTotal`, dato.tiempo);
-
-        await pipeline.exec();
+            pipeline.zAdd(`problema:${dato.problema}:tiemposEnvios`, {score: dato.tiempo, value: `${dato.tiempo}`});
+        }
     }
 
     //Devuelve el numero de envios o 0 si no hay ninguno
@@ -39,7 +35,9 @@ export default class ProblemaDAO extends DAO {
 
     //Devuelve el mejor tiempo o 0 si no hay ninguno
     async getMejorTiempo(problema: string):Promise<number|null> {
-        const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
+        //const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
+        const aux = await this.redis.zRangeWithScores(`problema:${problema}:tiemposEnvios`, 0, 5);
+        const mejorTiempo = aux[0].score;
         return mejorTiempo ? Number(mejorTiempo) : 0;
     }
 
