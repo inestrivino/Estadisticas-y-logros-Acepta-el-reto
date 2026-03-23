@@ -2,29 +2,35 @@ import DAO from "./DAO.js";
 import logros from "src/data/logros.js";
 
 type datosUsuario = {
-    "usuario": string,
-    "resultado": string,
-    "lenguaje": string
+    envioId: number,
+    usuario: string,
+    resultado: string,
+    lenguaje: string,
+    fecha: {
+        dia: number,
+        mes: number,
+        anio: number
+    }
 };
-
-//TODO hacer los tests de este DAO
 
 export default class UsuarioDAO extends DAO {
 
-    async registrarDatosUsuario(dato: datosUsuario): Promise<void> {
-
-        //guardo el timeStamp en segundos
-        const hoy = new Date;
-        hoy.setHours(0, 0, 0, 0);
-        const timeStamp = hoy.valueOf() / 1000;
-
-        //juntas las operaciones para hacer solo una llamada de escritura
+    //Funcion para introducir solo 1 datos
+    async registrarDirecto(dato: datosUsuario): Promise<void> {
         const pipeline = this.redis.multi();
+        await this.agregarAlPipeline(dato, pipeline);
+        await pipeline.exec();
+    }
+
+    async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> { 
+        //guardo el timeStamp en segundos
+        const fecha = new Date(dato.fecha.anio, dato.fecha.mes, dato.fecha.dia);
+        const timeStamp = fecha.valueOf() / 1000;
 
         //incrementa los envios de un usuario
         pipeline.zAdd(
             `usuario:${dato.usuario}:dias`,
-            [{ value: String(timeStamp), score: timeStamp }]
+            [{ value: String(dato.envioId), score: timeStamp }]
         );
         pipeline.hIncrBy(
             `usuario:${dato.usuario}:diasValor`,
@@ -39,15 +45,13 @@ export default class UsuarioDAO extends DAO {
         )
 
         //en caso de haber alcanzado algun logro con ese envio lo/s añade al listado de logros obtenidos
-        const nuevosLogros = await this.nuevosLogros(dato);
+        /*const nuevosLogros = await this.nuevosLogros(dato);
         if (nuevosLogros.length > 0) {
             pipeline.sAdd(`usuario:${dato.usuario}:logros`, nuevosLogros);
-        }
-
-        await pipeline.exec();
+        }*/
     }
 
-    async getEnviosUsuario(usuario: String) {
+    async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
 
         //saco los dias (timeStamps) en los que hizo envios y la cantidad (valores)
         const timeStamps = await this.redis.zRangeWithScores(`usuario:${usuario}:dias`, 0, -1);
@@ -62,22 +66,16 @@ export default class UsuarioDAO extends DAO {
             });
         }
 
-        //devuelvo un array de 365 numeros
-        const hoy = new Date;
-        hoy.setHours(0, 0, 0, 0);
-        const timeStamp = hoy.valueOf() / 1000; // timeStamp en segundos
-        let haceUnAnio = timeStamp - 31536000 // 365 * 24 * 60 * 60;
-        haceUnAnio += 86400; // 86400 = 24 * 60 * 60
-
+        //formateo los datos
         let formateados = [];
         let contador = 0;
         let current = resultados[0].timeStamp;
-        for (let i = haceUnAnio; i <= timeStamp; i += 86400) { // 86400 = 24 * 60 * 60
+        for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
             if (i != current) {
-                formateados.push({ timeStamp: i, value: 0 });
+                formateados.push({timeStamp:i, value: 0});
             }
             else {
-                formateados.push({ timeStamp: i, value: resultados[contador].value });
+                formateados.push({timeStamp:i, value:resultados[contador].value});
                 contador++;
                 if (contador != resultados.length)
                     current = resultados[contador].timeStamp;
