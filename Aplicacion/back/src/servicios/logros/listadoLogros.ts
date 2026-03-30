@@ -1,0 +1,216 @@
+import { EstadoUsuario } from "../estado/EstadoUsuario.js";
+
+// TODO poner esto de otra manera
+const CATEGORIAS_PROBLEMAS = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
+const NUM_CATEGORIAS = CATEGORIAS_PROBLEMAS.length;
+
+enum NivelLogro {
+  BRONCE = "Bronce",
+  PLATA = "Plata",
+  ORO = "Oro"
+}
+
+export enum CategoriaLogro {
+  ONBOARDING = "Onboarding",
+  PROBLEMAS = "Número de problemas",
+  LENGUAJES = "Uso de lenguajes",
+  RACHAS = "Rachas",
+  CALIDAD = "Calidad",
+  CATEGORIAS = "Categorías"
+}
+
+export type Logro = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  imagen: string;
+  categoria: CategoriaLogro;
+  nivel: NivelLogro;
+  sorpresa: boolean;
+  condicion: (estado: EstadoUsuario) => boolean;
+};
+
+export const logros: Logro[] = [
+  {
+    id: 1,
+    nombre: "logro1",
+    descripcion: "Creación de una cuenta",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.ONBOARDING,
+    sorpresa: false,
+    condicion: (estado) => true 
+  },
+  {
+    id: 1,
+    nombre: "logro2",
+    descripcion: "Realización del primer envío", 
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.ONBOARDING,
+    sorpresa: false,
+    condicion: (estado) => estado.numEnvios > 0
+  },
+  {
+    id: 1,
+    nombre: "logro4",
+    descripcion: "Resolución de 10 problemas",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.PROBLEMAS,
+    sorpresa: false,
+    condicion: (estado) => estado.numEnviosAC >= 10
+  },
+  {
+    id: 1,
+    nombre: "logro5",
+    descripcion: "Resolución de 50 problemas",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.PROBLEMAS,
+    sorpresa: false,
+    condicion: (estado) => estado.numEnviosAC >= 50
+  },
+  {
+    id: 1,
+    nombre: "logro6",
+    descripcion: "Resolución de 100 problemas",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.PROBLEMAS,
+    sorpresa: false,
+    condicion: (estado) => estado.numEnviosAC >= 100
+  },
+  {
+    id: 1,
+    nombre: "logro7",
+    descripcion: "Resolución de 500 problemas",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.PROBLEMAS,
+    sorpresa: false,
+    condicion: (estado) => estado.numEnviosAC >= 500
+  },
+  {
+    id: 1,
+    nombre: "logro8",
+    descripcion: "Resolución de 25 problemas en C",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.LENGUAJES,
+    sorpresa: false,
+    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("c")?? 0) >= 25
+  },
+  {
+    id: 1,
+    nombre: "logro9",
+    descripcion: "Resolución de 25 problemas en C++",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.LENGUAJES,
+    sorpresa: false, 
+    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("cpp")?? 0) >= 25
+  },
+  {
+    id: 1,
+    nombre: "logro10",
+    descripcion: "Resolución de 25 problemas en Java",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.LENGUAJES,
+    sorpresa: false,
+    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("java")?? 0) >= 25
+  },
+  {
+    id: 1,
+    nombre: "logro11",
+    descripcion: "Haber realizado envíos con 3 lenguajes diferentes",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.LENGUAJES,
+    sorpresa: false,
+    condicion: (estado) => estado.lenguajesProblemasResueltos.size >= 3
+  },
+  {
+    id: 1,
+    nombre: "logro12",
+    descripcion: "Consecución de una racha de 5 envíos aceptados a la primera",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.RACHAS,
+    sorpresa: false,
+    condicion: (estado) => (estado.rachaEnviosACMax?? 0) >= 5
+  },
+  {
+    id: 1,
+    nombre: "logro13",
+    descripcion: "Realización de envíos en 7 días consecutivos",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.RACHAS,
+    sorpresa: false,
+    condicion: (estado) => (estado.rachaDiasEnvioMax?? 0) >= 7
+  },
+  {
+    id: 1,
+    nombre: "logro14",
+    descripcion: "Resolución de un problema en el primer intento",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.CALIDAD,
+    sorpresa: false,
+    condicion: (estado) => false //TODO no esta hecho
+  },
+  {
+    id: 1,
+    nombre: "logro15",
+    descripcion: "Envío correcto dentro del 25% de soluciones más rápidas para un problema",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.CALIDAD,
+    sorpresa: false,
+    condicion: (estado) => false //TODO no esta hecho
+  },
+  {
+    id: 1,
+    nombre: "logro16",
+    descripcion: "Resolución de un problema de cada categoría",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.CATEGORIAS,
+    sorpresa: false,
+    condicion: (estado) => estado.categoriaProblemasResueltos.size === NUM_CATEGORIAS
+  },
+  {
+    id: 1,
+    nombre: "logro17",
+    descripcion: "Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.ORO,
+    categoria: CategoriaLogro.CALIDAD,
+    sorpresa: true,
+    condicion: (estado) => false //TODO no esta hecho
+  },
+  {
+    id: 1,
+    nombre: "logro18",
+    descripcion: "Realización de envíos en cada franja horaria",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.CATEGORIAS,
+    sorpresa: true,
+    condicion: (estado) => estado.franjasHorarias.size === 24
+  },
+  {
+    id: 1,
+    nombre: "logro3",
+    descripcion: "Obtención de 5 logros",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.ONBOARDING,
+    sorpresa: false,
+    condicion: (estado) => estado.logros.size >= 5
+  }
+];
+
+export default logros;

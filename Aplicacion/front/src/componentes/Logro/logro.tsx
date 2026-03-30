@@ -15,19 +15,24 @@ export default function Logro(props: {
 }) {
     const imagen = "/logros/" + props.datos.imagen;
 
-    return (
-        <>
-            <Col key={props.idx}>
-                <Card className='border-0'>
-                    <Card.Img variant="top" src={imagen} style={{ filter: !props.datos.obtenido ? 'grayscale(100%)' : 'none' }} />
-                    <Card.Body className="text-center">
-                        <Card.Title>{props.datos.nombre}</Card.Title>
-                        <Card.Text>
-                            {props.datos.descripcion}
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            </Col>
-        </>
-    )
+    if (!props.datos.sorpresa || props.datos.obtenido) {
+        return (
+            <>
+                <Col key={props.idx}>
+                    <Card className='border-0'>
+                        <Card.Img variant="top" src={imagen} style={{ filter: !props.datos.obtenido ? 'grayscale(100%)' : 'none' }} />
+                        <Card.Body className="text-center">
+                            <Card.Title>{props.datos.nombre}</Card.Title>
+                            <Card.Text>
+                                {props.datos.descripcion}
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </>
+        )
+    } else {
+        return(<></>)
+    }
+
 }

@@ -1,3 +1,4 @@
+import redisClient from "src/redis/redisClient.js";
 import DAO from "./DAO.js";
 import logros from "src/data/logros.js";
 
@@ -9,7 +10,8 @@ type datosUsuario = {
     fecha: {
         dia: number,
         mes: number,
-        anio: number
+        anio: number,
+        hora: number
     }
 };
 
@@ -44,11 +46,6 @@ export default class UsuarioDAO extends DAO {
             dato.usuario
         )
 
-        //en caso de haber alcanzado algun logro con ese envio lo/s añade al listado de logros obtenidos
-        /*const nuevosLogros = await this.nuevosLogros(dato);
-        if (nuevosLogros.length > 0) {
-            pipeline.sAdd(`usuario:${dato.usuario}:logros`, nuevosLogros);
-        }*/
     }
 
     async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
@@ -123,6 +120,17 @@ export default class UsuarioDAO extends DAO {
         //transforma el map a una estructura similar a la del tipo TGrupoLogros 
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
+    }
+
+    async guardarLogros(usuario: string, logros: string[], pipeline?: any) {
+        if(logros.length > 0) {
+            if(pipeline) {
+                pipeline.sAdd(`usuario:${usuario}:logros`, logros);
+            }
+            else{
+                await redisClient.sAdd(`usuario:${usuario}:logros`, logros);
+            }
+        }
     }
 
     async nuevosLogros(dato: datosUsuario) {
