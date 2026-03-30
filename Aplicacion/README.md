@@ -37,29 +37,15 @@ Cuando estés preparado, sigue estos pasos:
 git clone https://github.com/inestrivino/Estadisticas-y-logros-Acepta-el-reto
 ```
 
-2. En la terminal, entra a la carpeta `Aplicacion` y ejecuta los siguientes comandos:
-
-Para descargar los módulos node correspondientes:
+2. En la terminal, entra a la carpeta `Aplicacion` y ejecuta el siguiente comando:
 
 ```bash
-npm ci
+npm start
 ```
 
-Para crear la base de datos local:
+3. Una vez hayas lanzado la aplicación puedes abrir un navegador y dirigirte a `http://localhost:3000/` para probarla por ti mismo.
 
-```bash
-npm run casos
-```
-
-Para lanzar la aplicación:
-
-```bash
-npm run start
-```
-
-3. Una vez hayas lanzado la aplicación puedes abrir un navegador y dirigirte a `http://localhost3000/` para probarla por ti mismo.
-
-4. Una vea la aplicacion este lanzada se puede adjuntar el debug desde VSCode (Adjuntar debugger).
+4. Una vea la aplicación esté lanzada se puede adjuntar el debug desde VSCode (Adjuntar debugger).
 
 Ahora ya estás preparado para realizar cambios sobre la aplicación. Para cerrarla bastará con hacer un `Ctrl+C` en la terminal desde la que se lanzó. Luego usar el comando `docker ps` o similar para comprobar que el contenedor no sigue activo.
 
