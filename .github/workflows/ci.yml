@@ -18,4 +18,4 @@ jobs:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
           external_repository: N3STOR173/Reportes-Estadisticas-Logros
           publish_dir: Aplicacion/back/test-report
-          destination_dir: reportes/back
+          destination_dir: back/${{ github.ref_name }}
