@@ -12,6 +12,7 @@ jobs:
       - run: npm run test
 
       - name: Subir reporte
+        continue-on-error: true
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
