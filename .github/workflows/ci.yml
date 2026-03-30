@@ -17,6 +17,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
-          external_repository: n3stor173/Reportes-Estadisticas-Logros
-          publish_dir: ./test-report
+          external_repository: N3STOR173/Reportes-Estadisticas-Logros
+          publish_dir: Aplicacion/back/test-report
           destination_dir: reportes/back
