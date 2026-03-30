@@ -7,6 +7,7 @@ let usuarioDAO = new UsuarioDAO();
 setUpTestFile(usuarioDAO);
 
 const dato = {
+    envioId: 1,
     usuario: "user1",
     resultado: "AC",
     lenguaje: "Cpp",
@@ -17,9 +18,10 @@ const dato = {
     }
 };
 
-describe("Pruebas", () => {
+describe("Registrar datos de usuario", () => {
+
     test("coge bien lo dias", async () => {
-        await usuarioDAO.registrarDatosUsuario(dato);
+        await usuarioDAO.registrarDirecto(dato);
         const fin = new Date(2026, 2, 16);
         const timeFin = fin.valueOf() / 1000;
         const timeIni = timeFin - 31449600; //364 * 24 * 60 * 60
@@ -41,7 +43,7 @@ describe("Pruebas", () => {
     });
 
     test("coge bien los dias un anio bisiesto", async () => {
-        await usuarioDAO.registrarDatosUsuario(dato);
+        await usuarioDAO.registrarDirecto(dato);
         const fin = new Date(2024, 2, 16);
         const timeFin = fin.valueOf() / 1000;
         const timeIni = timeFin - 31449600; //364 * 24 * 60 * 60
@@ -59,5 +61,16 @@ describe("Pruebas", () => {
         expect(consulta[364].timeStamp).toBe(timeFin);
         expect(consulta.length).toBe(365);
         expect(consulta).toStrictEqual(res);
+    });
+});
+
+describe("Lecturas vacias", () => {
+
+    test("devuelve resultados vacios si no hay datos", async () => {
+        expect(await usuarioDAO.getResultados("usuario-1")).toEqual([]);
+    });
+
+    test("devuelve lenguajes vacios si no hay datos", async () => {
+        expect(await usuarioDAO.getLenguajes("usuario-1")).toEqual([]);
     });
 });

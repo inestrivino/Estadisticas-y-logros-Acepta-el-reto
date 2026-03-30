@@ -7,7 +7,7 @@ export default abstract class DAO {
         this.redis = redisClient;
     }
 
-    protected setRedis(redisClientTest: typeof redisClient) {
+    public setRedis(redisClientTest: typeof redisClient) {
         this.redis = redisClientTest;
     }
 

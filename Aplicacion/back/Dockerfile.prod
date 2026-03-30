@@ -19,7 +19,6 @@ FROM node:lts-alpine
 WORKDIR /app/back
 
 COPY --from=builder /app/back/dist-server/server.min.js ./dist-server/
-COPY back/data ./data
 COPY shared ../shared
 COPY back/package.json ./
 COPY back/package-lock.json ./
