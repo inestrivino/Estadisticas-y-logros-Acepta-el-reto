@@ -49,6 +49,12 @@
 
 ======================================================================================================
 
+* Recordaatorios:
+- cambiar el nombre de los archivos de la api a problema y usuario en vez de sus prurales
+- el css de EstadisticasProblemas pone EstadistUcas
+
+======================================================================================================
+
 * Tecnologías usadas:
 
 - recharts para hacer graficos en react
@@ -68,7 +74,7 @@
 ======================================================================================================
 ======================================================================================================
 
-* Recordatorios:
+* Basurero:
 
   Dejo por aqui otras cosas que ahora mismo no funcionan:
 * se pueden ver los cambios de un componente react sin tener que recargar la pagina
