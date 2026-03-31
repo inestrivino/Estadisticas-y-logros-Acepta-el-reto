@@ -1,4 +1,4 @@
-import redisClient from "src/redis/redisClient.js";
+import redisClient from "../redis/redisClient.js";
 import DAO from "./DAO.js";
 import logros from "src/data/logros.js";
 
