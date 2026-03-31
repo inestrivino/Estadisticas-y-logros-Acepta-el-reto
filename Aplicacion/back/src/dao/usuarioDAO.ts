@@ -1,6 +1,6 @@
 import redisClient from "../redis/redisClient.js";
 import DAO from "./DAO.js";
-import logros from "../data/logros.js";
+import logros from "../transfers/logros.js";
 
 type datosUsuario = {
     envioId: number,
