@@ -67,19 +67,19 @@ export default class UsuarioDAO extends DAO {
 
     //TODO poner jdoc
     //Devuelve el resultado ordenado alfabeticamente por nombre
-    async getLenguajes(usuario: string): Promise<{name: string, value: number}[]> {
+    async getLenguajes(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:lenguajes`);
 
-        const formateados: {name: string, value: number}[] = [];
+        const formateados: { name: string, value: number }[] = [];
         for (const aux of Object.entries(datos))
-            formateados.push({name:aux[0], value:Number(aux[1])})
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
 
         formateados.sort((a, b) => a.name.localeCompare(b.name));
 
         return formateados;
     }
 
-    async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
+    async getEnviosUsuario(usuario: string, timeIni: number, timeFin: number) {
 
         //saco los dias (timeStamps) en los que hizo envios y la cantidad (valores)
         const timeStamps = await this.redis.zRangeWithScores(`usuario:${usuario}:dias`, 0, -1);
@@ -88,6 +88,13 @@ export default class UsuarioDAO extends DAO {
         //vinculo cada dia con su cantidad
         let resultados = []
         for (const timeStamp of timeStamps) {
+            //por si se han quedado datos viejos por algun error solo coge los nuevos
+            if (timeStamp.score < timeIni)
+                continue;
+            //por si en algun momento se quisiera pedir un intervalo que no llega hasta hoy
+            if (timeStamp.score > timeFin)
+                continue;
+
             resultados.push({
                 timeStamp: timeStamp.score,
                 value: Number(valores[timeStamp.value])
@@ -97,7 +104,9 @@ export default class UsuarioDAO extends DAO {
         //formateo los datos
         let formateados = [];
         let contador = 0;
-        let current = resultados[0].timeStamp;
+        let current = -1;
+        if (resultados.length > 0)
+            current = resultados[0].timeStamp;
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
             if (i != current) {
                 formateados.push({ timeStamp: i, value: 0 });
