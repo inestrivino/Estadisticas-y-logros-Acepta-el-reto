@@ -10,3 +10,12 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run test
+
+      - name: Subir reporte
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.REPORTS_TOKEN }}
+          external_repository: n3stor173/Reportes-Estadisticas-Logros
+          publish_dir: ./Aplicacion/back/test-report
+          destination_dir: reportes/back

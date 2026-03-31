@@ -16,8 +16,18 @@
             "request": "launch",
             "name": "Debug en local",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "dev-local"],
+            "runtimeArgs": [
+                "run",
+                "dev-local"
+            ],
             "cwd": "${workspaceFolder}/Aplicacion/back",
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug Chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/Aplicacion/front"
         }
     ]
 }

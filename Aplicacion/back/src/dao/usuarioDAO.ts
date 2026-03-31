@@ -24,7 +24,7 @@ export default class UsuarioDAO extends DAO {
         await pipeline.exec();
     }
 
-    async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> { 
+    async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> {
         //guardo el timeStamp en segundos
         const fecha = new Date(dato.fecha.anio, dato.fecha.mes, dato.fecha.dia);
         const timeStamp = fecha.valueOf() / 1000;
@@ -46,6 +46,37 @@ export default class UsuarioDAO extends DAO {
             dato.usuario
         )
 
+
+        pipeline.hIncrBy(`usuario:${dato.usuario}:resultados`, dato.resultado, 1);
+        pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajes`, dato.lenguaje, 1);
+    }
+
+    //TODO poner jdoc
+    //Devuelve el resultado ordenado alfabeticamente por nombre
+    async getResultados(usuario: string): Promise<{ name: string, value: number }[]> {
+        const datos = await this.redis.hGetAll(`usuario:${usuario}:resultados`);
+
+        const formateados: { name: string, value: number }[] = [];
+        for (const aux of Object.entries(datos))
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
+
+        formateados.sort((a, b) => a.name.localeCompare(b.name));
+
+        return formateados;
+    }
+
+    //TODO poner jdoc
+    //Devuelve el resultado ordenado alfabeticamente por nombre
+    async getLenguajes(usuario: string): Promise<{name: string, value: number}[]> {
+        const datos = await this.redis.hGetAll(`usuario:${usuario}:lenguajes`);
+
+        const formateados: {name: string, value: number}[] = [];
+        for (const aux of Object.entries(datos))
+            formateados.push({name:aux[0], value:Number(aux[1])})
+
+        formateados.sort((a, b) => a.name.localeCompare(b.name));
+
+        return formateados;
     }
 
     async getEnviosUsuario(usuario: String, timeIni: number, timeFin: number) {
@@ -69,10 +100,10 @@ export default class UsuarioDAO extends DAO {
         let current = resultados[0].timeStamp;
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
             if (i != current) {
-                formateados.push({timeStamp:i, value: 0});
+                formateados.push({ timeStamp: i, value: 0 });
             }
             else {
-                formateados.push({timeStamp:i, value:resultados[contador].value});
+                formateados.push({ timeStamp: i, value: resultados[contador].value });
                 contador++;
                 if (contador != resultados.length)
                     current = resultados[contador].timeStamp;
@@ -123,11 +154,11 @@ export default class UsuarioDAO extends DAO {
     }
 
     async guardarLogros(usuario: string, logros: string[], pipeline?: any) {
-        if(logros.length > 0) {
-            if(pipeline) {
+        if (logros.length > 0) {
+            if (pipeline) {
                 pipeline.sAdd(`usuario:${usuario}:logros`, logros);
             }
-            else{
+            else {
                 await redisClient.sAdd(`usuario:${usuario}:logros`, logros);
             }
         }
