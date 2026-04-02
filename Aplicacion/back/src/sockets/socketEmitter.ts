@@ -1,8 +1,8 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
 import { cargarEnvio } from "../db/cargarDatos.js";
-import ProblemaDAO from "src/dao/problemaDAO.js";
-import UsuarioService from "src/servicios/usuarioService.js";
+import ProblemaDAO from "../dao/problemaDAO.js";
+import UsuarioService from "../servicios/usuarioService.js";
 
 //TODO poner aqui el servicio en vez del DAO
 const problemaDAO = new ProblemaDAO();

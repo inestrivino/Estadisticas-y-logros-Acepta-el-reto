@@ -1,5 +1,5 @@
-import UsuarioDAO from "src/dao/usuarioDAO.js";
-import ProblemaDAO from "src/dao/problemaDAO.js";
+import UsuarioDAO from "../dao/usuarioDAO.js";
+import ProblemaDAO from "../dao/problemaDAO.js";
 import redisClient from '../redis/redisClient.js';
 
 type Envio = {
