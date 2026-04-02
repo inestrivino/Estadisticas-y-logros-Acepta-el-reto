@@ -1,4 +1,5 @@
 import DAO from "./DAO.js"
+import dateToTimestamp from "../utils/fecha.js";
 
 type datosUsuario = {
     envioId: number,
@@ -23,8 +24,7 @@ export default class UsuarioDAO extends DAO {
 
     async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> {
         //guardo el timeStamp en segundos
-        const fecha = new Date(dato.fecha.anio, dato.fecha.mes, dato.fecha.dia);
-        const timeStamp = fecha.valueOf() / 1000;
+        const timeStamp = dateToTimestamp(dato.fecha);
 
         //INCREMENTA LOS ENVIOS DE UN USUARIO
         //primero registra el dia del envio

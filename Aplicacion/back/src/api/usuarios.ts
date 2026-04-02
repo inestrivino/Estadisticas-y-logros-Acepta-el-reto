@@ -1,32 +1,22 @@
 import express from 'express';
-import UsuarioDAO from 'src/dao/usuarioDAO.js';
+import UsuarioService from 'src/servicios/usuarioService.js';
 
-const usuarioDAO = new UsuarioDAO();
+const usuarioService = new UsuarioService();
 const router = express.Router();
 
 router.get("/:usuario/resultados", async (req, res) => {
     const { usuario } = req.params;
-    return res.json(await usuarioDAO.getResultados(usuario));
+    return res.json(await usuarioService.getResultados(usuario));
 });
 
 router.get("/:usuario/lenguajes", async (req, res) => {
     const { usuario } = req.params;
-    return res.json(await usuarioDAO.getLenguajes(usuario));
+    return res.json(await usuarioService.getLenguajes(usuario));
 });
 
 router.get("/:usuario/enviosAnio", async (req, res) => {
-    //se saca el usuario del que se quiere hacer la consulta
     const { usuario } = req.params;
-
-    //se saca el timeStamp del inicio del dia en el que se hizo la consulta
-    const hoy = new Date;
-    hoy.setHours(0, 0, 0, 0);
-    const timeFin = hoy.valueOf() / 1000;
-
-    const timeIni = timeFin - 364 * 24 * 60 * 60;
-
-    const datos = await usuarioDAO.getEnviosUsuario(usuario, timeIni, timeFin);
-
+    const datos = await usuarioService.getEnviosAnio(usuario);
     return res.json(datos);
 });
 

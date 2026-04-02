@@ -2,10 +2,11 @@ import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
 import { cargarEnvio } from "../db/cargarDatos.js";
 import ProblemaDAO from "src/dao/problemaDAO.js";
-import UsuarioDAO from "src/dao/usuarioDAO.js";
+import UsuarioService from "src/servicios/usuarioService.js";
 
+//TODO poner aqui el servicio en vez del DAO
 const problemaDAO = new ProblemaDAO();
-const usuarioDAO = new UsuarioDAO();
+const usuarioService = new UsuarioService();
 
 type Envio = {
     envioId: number,
@@ -37,6 +38,7 @@ export default async function routerEmitter(envio:Envio) {
     io.emit(formatEvent(envio.problema, EventType.MEJOR_TIEMPO_PROBLEMA), await problemaDAO.getMejorTiempo(envio.problema));
 
     //eventos para actualizar los diagramas de estadisticas de usuario
-    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RESULTADOS), await usuarioDAO.getResultados(envio.usuario));
-    io.emit(formatEvent(envio.usuario, EventType.USUARIO_LENGUAJES), await usuarioDAO.getLenguajes(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RESULTADOS), await usuarioService.getResultados(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_LENGUAJES), await usuarioService.getLenguajes(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(envio.usuario));
 }
