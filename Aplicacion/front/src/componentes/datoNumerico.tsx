@@ -1,7 +1,7 @@
 import { socket } from "../services/socket.ts";
 import { useState, useEffect } from "react";
 
-export function DatoNumerico(props: {
+export default function DatoNumerico(props: {
     evento: string,
     dimensiones: { width: number; height: number },
     dato: { value: number; description: string }
@@ -34,17 +34,17 @@ export function DatoNumerico(props: {
     }, [props.evento]);
 
     return (
-        <div style={props.style}>
-            <div style={{ //caja del elemento
-                //border: "1px solid #ccc",
+        <div style={props.style} className="w-full">
+            <div style={{
+                border: "1px solid #86e7ffa8",
                 borderRadius: "12px",
                 padding: "16px",
-                margin: "5px",
-                display: "inline-block",
+                display: "block",
                 textAlign: "center",
-                width: `${props.dimensiones.width}px`,
+                width: "100%",  // ← CAMBIO: 100% en lugar de px fijo
                 height: `${props.dimensiones.height}px`,
-                backgroundColor: "#D9EDF7"
+                backgroundColor: "#D9EDF7",
+                boxShadow: "0 0 10px #43555c66",
             }}>
                 <div style={{ fontSize: "28px", fontWeight: "bold" }}> {data} </div>
                 <div style={{ fontSize: "14px", color: "#555" }}> {props.dato.description} </div>

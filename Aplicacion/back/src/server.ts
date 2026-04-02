@@ -7,6 +7,7 @@ import { initSocket } from './sockets/socketInit.js';
 import inicializar from './db/inicializar.js';
 //routers
 import rutasProblemas from "./api/problemas.js";
+import rutasUsuarios from "./api/usuarios.js";
 
 //============== INICIAR EL SERVIDOR ==============
 const app = express();
@@ -36,6 +37,7 @@ initSocket(app);
 
 //====================== RUTAS ======================
 app.use("/api/problemas", rutasProblemas);
+app.use("/api/usuarios", rutasUsuarios);
 
 //ruta solo para simular nuevas entradas a la base de datos
 import routerSocket from "./sockets/socketEmitter.js";

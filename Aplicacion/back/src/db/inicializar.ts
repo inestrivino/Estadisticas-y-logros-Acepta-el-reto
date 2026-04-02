@@ -23,7 +23,7 @@ export default async function inicializar() {
     //si ya tiene datos la base de datos
     //TODO aqui habria que poner que mire el ultimo envio que hay y hasta cual tiene
     const keys = await redisClient.keys('*');
-    if (keys.length > 0 && false) {
+    if (keys.length > 0) {
         console.log(" * Envios ya cargados");
         return;
     }
@@ -84,7 +84,7 @@ function* simularEnvios(): Generator<Envio> {
             tiempo: +(Math.random() * 2 + 0.001).toFixed(3),
             memoria: Math.floor(500 + Math.random() * 4000),
             pos: Math.floor(1 + Math.random() * 100),
-            fecha: new Date(2024, Math.floor(Math.random() * 12), Math.floor(1 + Math.random() * 28))
+            fecha: new Date(2025, Math.floor(Math.random() * 12), Math.floor(1 + Math.random() * 28))
                 .toISOString().split("T")[0]
         };
     }

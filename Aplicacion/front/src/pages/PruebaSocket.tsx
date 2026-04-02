@@ -10,7 +10,6 @@ export default function PruebaSocket() {
             <Link to="/problemas/problema1">Get</Link>
 
             <p>Panel de participacion</p>
-            <PanelParticipacion />
         </div>
     )
 }
