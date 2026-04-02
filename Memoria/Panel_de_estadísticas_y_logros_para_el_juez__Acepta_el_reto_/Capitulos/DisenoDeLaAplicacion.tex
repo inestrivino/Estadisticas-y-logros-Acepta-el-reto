@@ -12,7 +12,7 @@
 
 \section{Introducción}
 
-El análisis, la planificación y el diseño de un proyecto software constituyen etapas fundamentales dentro de su ciclo de desarrollo (\cite{Pressman_2010}). Un enfoque basado en un análisis exhaustivo de los requisitos, junto con un diseño centrado en las necesidades del usuario, no solo permite garantizar el cumplimiento de los objetivos funcionales del sistema, sino que también contribuye a reducir la aparición de errores, optimizar los costes de desarrollo y facilitar tanto el mantenimiento como las futuras actualizaciones de la aplicación.
+El análisis, la planificación y el diseño de un proyecto software constituyen etapas fundamentales dentro de su ciclo de desarrollo \citep{Pressman_2010}. Un enfoque basado en un análisis exhaustivo de los requisitos, junto con un diseño centrado en las necesidades del usuario, no solo permite garantizar el cumplimiento de los objetivos funcionales del sistema, sino que también contribuye a reducir la aparición de errores, optimizar los costes de desarrollo y facilitar tanto el mantenimiento como las futuras actualizaciones de la aplicación.
 
 En este contexto, el diseño puede entenderse como un factor clave para la incorporación de calidad al producto software. Tal y como señalan \cite{Olsina_Lafuente_Rossi_2001}, la calidad de una aplicación no es un atributo único, sino el resultado de la combinación de múltiples características. Estos autores proponen un \textit{árbol de requerimientos de calidad} (representado en la figura \ref{fig:Elementos de calidad para una aplicación web}) que identifica los principales elementos sobre los que es necesario incidir a lo largo del desarrollo del proyecto, especialmente en el caso de aplicaciones web, donde aspectos como la usabilidad, la eficiencia o la confiabilidad adquieren un papel especialmente relevante.
 
@@ -54,9 +54,9 @@ Finalmente, se desarrolla el diseño de la interfaz y de la experiencia de usuar
 
 \section{Análisis de requisitos}
 
-El primer paso de nuestro diseño será identificar los requisitos que el software debe suplir. Este análisis sirve de base para todo el diseño, ya que establece qué se debe implementar, con qué eficiencia, y quién es nuestro público objetivo. 
+El primer paso del diseño será identificar los requisitos que el software debe suplir. Este análisis sirve de base para todo el diseño, ya que establece qué se debe implementar, con qué eficiencia, y quién es el público objetivo. 
 
-A partir del análisis de requisitos recogido en el Apéndice \ref{cap:SRS}, se definen en esta sección las funcionalidades que conforman la aplicación. Dichas funcionalidades responden directamente a los requisitos funcionales identificados en la SRS y constituyen el núcleo del sistema desde el punto de vista del usuario final.
+A partir del análisis de requisitos recogido en el Apéndice \ref{cap:SRS}, se definen en esta sección las funcionalidades que conforman la aplicación. Dichas funcionalidades responden directamente a los requisitos funcionales identificados en la SRS (\textit{Software Requirements Specification}) y constituyen el núcleo del sistema desde el punto de vista del usuario final.
 
 El diseño funcional se ha orientado a proporcionar información relevante, clara y actualizada sobre la actividad de los usuarios en el juez \aer, así como a introducir mecanismos de motivación adicionales mediante la gamificación. Para ello, las funcionalidades se agrupan en cuatro bloques principales: estadísticas de usuario, estadísticas de ejercicios, sistema de logros y tabla de clasificación.
 
@@ -102,49 +102,50 @@ Como se ha establecido previamente, el objetivo de este proyecto es incorporar c
 
 \subsection{Introducción a la gamificación}
 
-El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la decada de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas (\cite{Zichermann_Cunningham_2011}). En este sentido, la gamificación representa una herramienta para fomentar comportamientos deseables y no una solución mágica o independiente de contexto. Por ello, es crucial evitar prácticas de “gamificación por gamificar” que carezcan de un análisis previo sobre su pertinencia y efectos esperados. También conviene considerar la diferencia entre la motivación extrínseca (que procede de estímulos externos) e intrínseca (que procede de un deseo interno) a la hora de gamificar. Nuestro objetivo será producir una fuente de motivación extrínseca que ofrezca resultados predecibles en los usuarios, pero sea tan agradable y fluida para el usuario que parezca intrínseca. 
+El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la decada de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas \citep{Zichermann_Cunningham_2011}. En este sentido, la gamificación representa una herramienta para fomentar comportamientos deseables y no una solución mágica o independiente de contexto. Por ello, es crucial evitar prácticas de “gamificación por gamificar” que carezcan de un análisis previo sobre su pertinencia y efectos esperados. También conviene considerar la diferencia entre la motivación extrínseca (que procede de estímulos externos) e intrínseca (que procede de un deseo interno) a la hora de gamificar. El objetivo será producir una fuente de motivación extrínseca que ofrezca resultados predecibles en los usuarios, pero sea tan agradable y fluida para el usuario que parezca intrínseca. 
 
-De forma complementaria, otros autores la describen como el enriquecimiento de software mediante características de diseño propias de los juegos, con el objetivo de generar experiencias tan atractivas y absorbentes como las que ofrecen los juegos tradicionales (\cite{Morschheuser_Hassan_Werder_Hamari_2018}). Este enfoque subraya que el diseño gamificado va más allá de la simple aplicación de recompensas superficiales y requiere integrar conocimientos sobre motivación y diseño de juegos para que las interacciones resulten realmente significativas y no solo un añadido cosmético.
+De forma complementaria, otros autores la describen como el enriquecimiento de software mediante características de diseño propias de los juegos, con el objetivo de generar experiencias tan atractivas y absorbentes como las que ofrecen los juegos tradicionales \citep{Morschheuser_Hassan_Werder_Hamari_2018}. Este enfoque subraya que el diseño gamificado va más allá de la simple aplicación de recompensas superficiales y requiere integrar conocimientos sobre motivación y diseño de juegos para que las interacciones resulten realmente significativas y no solo un añadido cosmético.
 
 Por lo tanto, se debe realizar un análisis de los usuarios (en esta sección también llamados \textit{jugadores}) y mecánicas, para determinar qué es más conveniente en el contexto dado.
 
 \subsection{Análisis de jugadores y mecánicas}
 
-En la sección anterior hemos destacado la importancia de la motivación extrínseca para crear un buen sistema de gamificación. Sin embargo, todo diseño de gamificación debe realizarse con el foco en el jugador. Comprender qué motiva a los jugadores es esencial para construir un sistema gamificado exitoso.
+En la sección anterior se ha destacado la importancia de la motivación extrínseca para crear un buen sistema de gamificación. Sin embargo, todo diseño de gamificación debe realizarse con el foco en el jugador. Comprender qué motiva a los jugadores es esencial para construir un sistema gamificado exitoso.
 
 Según \cite{bartle_players_muds}, los jugadores pueden clasificarse en cuatro tipos no excluyentes, que determinan como debe diseñarse la experiencia de juego para poder fidelizarlos. Las cuatro categorías son:
 \begin{itemize}
-    \item Exploradores: Buscan descubrir y experimentar.
-    \item Logradores (Achievers): Se enfocan en completar objetivos y acumular recompensas.
-    \item Socializadores: Priorizan la interacción con otros jugadores.
-    \item Competidores (Killers): Disfrutan superando a otros, incluso a costa de la colaboración. Es decir, no solo buscan ganar, si no que además buscan hacer perder a otro.
+    \item Exploradores (\textit{Explorers}): Buscan descubrir y experimentar.
+    \item Orientados al logro (\textit{Achievers}): Se enfocan en completar objetivos y acumular recompensas.
+    \item Socializadores (\textit{Socializers}): Priorizan la interacción con otros jugadores.
+    \item Competidores (\textit{Killers}): Disfrutan superando a otros, incluso a costa de la colaboración. Es decir, no solo buscan ganar, si no que además buscan hacer perder a otro.
 \end{itemize}
 
 La figura \ref{fig:Taxonomía de jugadores de Bartle} muestra el alineamiento de cada personalidad de jugador en relación con su forma de actuar en el juego (unilateralmente o interaccionando) y su deseo de exploración (sobre el mundo o sobre otros jugadores).
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{Imagenes/Bitmap/Character_theory_chart.svg.png}
-    \caption{Gráfico de la taxonomía de jugadores de Bartle. Se trata de una versión gráfica disponible en la página de Wikipedia correspondiente, basada en el dibujo taxonómico realizado por Bartle con ASCII en su artículo original.}
+    \includegraphics[width=0.5\linewidth]{Imagenes/Bitmap/Character_theory_chart.png}
+    \caption{Taxonomía de jugadores de Bartle}
+    \addcontentsline{lof}{figure}{Gráfico basado en el diagrama original en ASCII propuesto por Bartle, disponible en Wikipedia: \url{https://en.wikipedia.org/wiki/Bartle_taxonomy_of_player_types#/media/File:Character_theory_chart.svg}}
     \label{fig:Taxonomía de jugadores de Bartle}
 \end{figure}
 
-Para determinar a qué categoría pertenecen nuestros jugadores objetivo en las distintas áreas de la aplicación, se diseñó un formulario cuyos resultados se recogen en el apéndice \ref{FormularioJugadores}. El análisis de estos datos revela patrones relevantes en relación con las preferencias y motivaciones de los jugadores. A continuación, se presentan las principales implicaciones de dichos resultados para cada una de las categorías del modelo de Bartle:
+Para determinar a qué categoría pertenecen los jugadores objetivo en las distintas áreas de la aplicación, se diseñó un formulario cuyos resultados se recogen en el apéndice \ref{FormularioJugadores}. El análisis de estos datos revela patrones relevantes en relación con las preferencias y motivaciones de los jugadores. A continuación, se presentan las principales implicaciones de dichos resultados para cada una de las categorías del modelo de Bartle:
 
 \begin{enumerate}
-    \item Competidores (Killers): Tal y como cabía esperar en un entorno de programación competitiva, los resultados reflejan una presencia notable de comportamientos asociados al perfil competitivo, especialmente en contextos de comparación directa y resolución de problemas de alta dificultad. El fuerte interés mostrado por las tablas de clasificación (con más del 90\% de los encuestados manifestando su deseo de aparecer en ellas), así como la preferencia por mecanismos de filtrado por nivel o tipo de problema, refuerzan esta interpretación
+    \item Competidores (\textit{Killers}): Tal y como cabía esperar en un entorno de programación competitiva, los resultados reflejan una presencia notable de comportamientos asociados al perfil competitivo, especialmente en contextos de comparación directa y resolución de problemas de alta dificultad. El fuerte interés mostrado por las tablas de clasificación (con más del 90\% de los encuestados manifestando su deseo de aparecer en ellas), así como la preferencia por mecanismos de filtrado por nivel o tipo de problema, refuerzan esta interpretación
  No obstante, este perfil aparece de forma más limitada en aspectos relacionados con la satisfacción personal, la motivación intrínseca o el reconocimiento individual. En consecuencia, aunque resulta imprescindible incorporar mecánicas competitivas como rankings y comparaciones entre usuarios, estas no deben dominar el diseño global del sistema de gamificación.
     
-    \item Logradores (Achievers): El perfil de logrador es el más consistente a lo largo de los distintos contextos analizados y adquiere especial relevancia en relación con la satisfacción y el progreso personal. Este comportamiento está alineado con el carácter educativo de la plataforma y con los resultados de la encuesta, donde los usuarios valoran especialmente poder visualizar su mejora a lo largo del tiempo, el número de envíos correctos o el tiempo invertido.  
+    \item Orientados al logro (\textit{Achievers}): El perfil orientado al logro es el más consistente a lo largo de los distintos contextos analizados y adquiere especial relevancia en relación con la satisfacción y el progreso personal. Este comportamiento está alineado con el carácter educativo de la plataforma y con los resultados de la encuesta, donde los usuarios valoran especialmente poder visualizar su mejora a lo largo del tiempo, el número de envíos correctos o el tiempo invertido.  
 Desde el punto de vista del diseño, esto justifica la implementación de un sistema variado de insignias y logros, así como estadísticas claras y detalladas que permitan a los usuarios seguir su evolución, comparar su rendimiento entre distintos periodos o lenguajes de programación y recibir retroalimentación constante sobre su progreso.
     
-    \item Exploradores (Explorers): El perfil explorador destaca principalmente en los contextos de aprendizaje. Los usuarios muestran interés por descubrir nuevas estrategias, experimentar con distintos tipos de problemas o lenguajes, y obtener reconocimiento por enfoques menos convencionales. Este comportamiento se refleja, por ejemplo, en el interés por logros asociados a tipos de problemas, características específicas de los envíos o lenguajes utilizados.  
+    \item Exploradores (\textit{Explorers}): El perfil explorador destaca principalmente en los contextos de aprendizaje. Los usuarios muestran interés por descubrir nuevas estrategias, experimentar con distintos tipos de problemas o lenguajes, y obtener reconocimiento por enfoques menos convencionales. Este comportamiento se refleja, por ejemplo, en el interés por logros asociados a tipos de problemas, características específicas de los envíos o lenguajes utilizados.  
 En consecuencia, el diseño del sistema de gamificación debe contemplar la inclusión de elementos que fomenten la exploración, como contenido desbloqueable o insignias especiales, incluyendo un número limitado de \textit{insignias sorpresa} o \textit{medallas misteriosas}, cuya aceptación, aunque no unánime, resulta significativa para una parte de los usuarios.
     
-    \item Socializadores (Socializers): Aunque se trata del perfil menos predominante en términos generales, los socializadores aparecen en aquellos contextos en los que la colaboración contribuye al aprendizaje. Estos jugadores encuentran satisfacción en cooperar para alcanzar soluciones o en enseñar a otros. Dado que \aer no dispone de funcionalidades sociales como foros o soporte para grupos, y que el desarrollo de dichas características queda fuera del alcance de este proyecto, unido a la baja representación de este perfil, no se implementarán técnicas de gamificación específicas para este grupo, como sistemas de puntos por participación en foros.
+    \item Socializadores (\textit{Socializers}): Aunque se trata del perfil menos predominante en términos generales, los socializadores aparecen en aquellos contextos en los que la colaboración contribuye al aprendizaje. Estos jugadores encuentran satisfacción en cooperar para alcanzar soluciones o en enseñar a otros. Dado que \aer no dispone de funcionalidades sociales como foros o soporte para grupos, y que el desarrollo de dichas características queda fuera del alcance de este proyecto, unido a la baja representación de este perfil, no se implementarán técnicas de gamificación específicas para este grupo, como sistemas de puntos por participación en foros.
 \end{enumerate}
 
-A partir del análisis realizado, se concluye que los usuarios de la plataforma no responden a un único perfil de jugador, sino que alternan entre distintos roles en función del contexto, predominando claramente los perfiles de logrador, competidor y explorador. En general, los jugadores muestran una preferencia marcada por mecánicas que refuercen el progreso individual, la comparación objetiva del rendimiento y el dominio del \enquote{mundo del juego}, entendido como el conjunto de habilidades y conocimientos propios de la programación competitiva, frente a la interacción social con otros usuarios.
+A partir del análisis realizado, se concluye que los usuarios de la plataforma no responden a un único perfil de jugador, sino que alternan entre distintos roles en función del contexto, predominando claramente los perfiles orientados al logro, competidor y explorador. En general, los jugadores muestran una preferencia marcada por mecánicas que refuercen el progreso individual, la comparación objetiva del rendimiento y el dominio del \enquote{mundo del juego}, entendido como el conjunto de habilidades y conocimientos propios de la programación competitiva, frente a la interacción social con otros usuarios.
 
 Estas conclusiones justifican un diseño de gamificación centrado en estadísticas detalladas, retroalimentación continua, sistemas de logros significativos y tablas de clasificación segmentadas por nivel. De este modo, el sistema propuesto se alinea tanto con las motivaciones detectadas en la encuesta como con los objetivos formativos de la plataforma.
 
@@ -165,10 +166,10 @@ El sistema de logros es la primera de las mecánicas ideada. Para su diseño, se
         \item Número de problemas: Premian al usuario por haber resuelto una cierta cantidad de problemas.
         \item Uso de lenguajes: Premian al usuario por haber usado ciertos lenguajes.
         \item Rachas: Premian al usuario por su consistencia en diferentes aspectos.
-        \item Calidad: Premian al usuario por ideas soluciones buenas.
+        \item Calidad: Premian al usuario por ideas buenas para alcanzar la solución a un problema.
         \item Categorías: Premian al usuario por hacer ejercicios de determinadas categorías. Las cateogrías que contemplamos son: construcciones de programación, estructuras de datos, algoritmia, matemáticas, grafos y geometría. 
     \end{itemize}
-    \item Logros sorpresa: Con el objetivo de fomentar la exploración y la sensación de descubrimiento en los usuarios, especialmente en aquellos con perfiles de \textit{logrador} o \textit{explorador}, se han incluido dos logros cuya descripción no es accesible hasta que se obtienen. Estos logros no ofrecen pistas sobre cómo conseguirlos y pueden desbloquearse en cualquier momento.
+    \item Logros sorpresa: Con el objetivo de fomentar la exploración y la sensación de descubrimiento en los usuarios, especialmente en aquellos con perfiles orientados al logro o de explorador, se han incluido dos logros cuya descripción no es accesible hasta que se obtienen. Estos logros no ofrecen pistas sobre cómo conseguirlos y pueden desbloquearse en cualquier momento.
 \end{itemize}
 
 En la tabla \ref{tab:logros} se detallan los logros propuestos a partir de las directrices definidas, junto con su categorización:
@@ -181,22 +182,39 @@ En la tabla \ref{tab:logros} se detallan los logros propuestos a partir de las d
 \textbf{Descripción} & \textbf{Nivel} & \textbf{Categoría} \\
 \midrule
 Creación de una cuenta & Bronce & Onboarding \\
+\midrule
 Realización del primer envío & Bronce & Onboarding \\
+\midrule
 Obtención de 5 logros & Plata & Onboarding \\
+\midrule
 Resolución de 10 problemas & Bronce & Número de problemas \\
+\midrule
 Resolución de 50 problemas & Plata & Número de problemas \\
+\midrule
 Resolución de 100 problemas & Plata & Número de problemas \\
+\midrule
 Resolución de 500 problemas & Oro & Número de problemas \\
+\midrule
 Resolución de 25 problemas en C & Oro & Uso de lenguajes \\
+\midrule
 Resolución de 25 problemas en C++ & Oro & Uso de lenguajes \\
+\midrule
 Resolución de 25 problemas en Java & Oro & Uso de lenguajes \\
+\midrule
 Haber realizado envíos con 3 lenguajes diferentes & Plata & Uso de lenguajes \\
+\midrule
 Consecución de una racha de 5 envíos aceptados a la primera & Oro & Rachas \\
+\midrule
 Realización de envíos en 7 días consecutivos & Bronce & Rachas \\
+\midrule
 Resolución de un problema en el primer intento & Bronce & Calidad \\
+\midrule
 Envío correcto dentro del 25\% de soluciones más rápidas para un problema & Plata & Calidad \\
+\midrule
 Resolución de un problema de cada categoría & Oro & Categorías \\
+\midrule
 Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema & Oro & Calidad (sorpresa) \\
+\midrule
 Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
 \bottomrule
 \end{tabular}
@@ -206,7 +224,7 @@ Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
 
 La distribución final de los logros queda establecida en 5 de nivel \textit{Bronce}, 6 de nivel \textit{Plata} y 7 de nivel \textit{Oro}. Esta proporción garantiza un equilibrio en la progresión del usuario, al tiempo que diversifica las categorías de logros según su tipo. Asimismo, se han incluido solo dos logros sorpresa, una decisión que busca satisfacer, en la mayor medida posible, las preferencias de los usuarios encuestados, cuyas opiniones sobre este aspecto estuvieron divididas.
 
-La siguiente mecánica a definir es el tema de las estadísticas. Dispondremos tanto de estadísticas de cada usuario, como de cada ejercicio. 
+La siguiente mecánica a definir son las estadísticas. Se dispondrá tanto de estadísticas de cada usuario, como de cada ejercicio. 
 
 Para los usuarios se han ideado las siguientes estadísticas, considerandolas informativas para entender rápidamente el nivel de experiencia y conocimiento de un determinado usuario, o para servir de referencia a la hora de intentar obtener ciertos logros:
 
@@ -249,9 +267,13 @@ Los niveles de dominio establecidos se detallan en la Tabla~\ref{tab:niveles_dom
 \textbf{Nivel de dominio} & \textbf{Rango de XP} \\
 \midrule
 Aprendiz     & 0 - 100 XP \\
+\midrule
 Competente   & 101 - 500 XP \\
+\midrule
 Hábil        & 501 - 1,000 XP \\
+\midrule
 Especialista & 1,001 - 2,000 XP \\
+\midrule
 Maestro      & Más de 2,000 XP \\
 \bottomrule
 \end{tabular}
@@ -270,7 +292,7 @@ El sistema de XP permite generar una tabla de clasificación con dos vistas comp
 Este diseño fomenta la interacción competitiva entre los usuarios, al tiempo que ofrece una recompensa\textbf{ }tangible por interactuar con el sistema. Además, al vincularse directamente con el desbloqueo de logros, el sistema refuerza la sensación de progreso y logro personal.
 
 Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobretodo uno que se introduce en en un sistema ya existente con años de experiencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inituliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
-En nuestro caso, las estadísticas no cuentan con un \enquote{nivel máximo} y por lo tanto no corren riesgo de volverse obsoletas, ya que su único objetivo es mostrarle su situación al usuario, no evaluarle o recompensarle por ésta. Por otro lado, el sistema de logros es facilmente extensible añadiendo nuevos logros que cumplan las condiciones de diseño anteriormente definidas. Por ejemplo, podrían añadirse nuevos logros que recompensen la cantidad de ejercicios resueltos según se añadan más ejercicios a la plataforma. Finalmente, los niveles de dominio del sistema de puntos podrían ser reasignados a cantidades de XP diferentes, o definirse un nuevo nivel con su rango de XP correspondiente.
+En este caso, las estadísticas no cuentan con un \enquote{nivel máximo} y por lo tanto no corren riesgo de volverse obsoletas, ya que su único objetivo es mostrarle su situación al usuario, no evaluarle o recompensarle por ésta. Por otro lado, el sistema de logros es facilmente extensible añadiendo nuevos logros que cumplan las condiciones de diseño anteriormente definidas. Por ejemplo, podrían añadirse nuevos logros que recompensen la cantidad de ejercicios resueltos según se añadan más ejercicios a la plataforma. Finalmente, los niveles de dominio del sistema de puntos podrían ser reasignados a cantidades de XP diferentes, o definirse un nuevo nivel con su rango de XP correspondiente.
 
  \subsubsection{Dinámicas}
 En esta sección profundizamos en una de las categorías mencionadas previamente, pero no desarrollada: la bienvenida (\textit{onboarding}). Esta etapa se centra en técnicas diseñadas para guiar al usuario en su primer contacto con el sistema, evitando la sobrecarga de información y previniendo la sensación de desorientación. Los logros resultan una herramienta especialmente efectiva para este propósito, ya que actúan como indicadores interactivos\ que orientan al usuario sobre las acciones más relevantes y sus beneficios.
@@ -298,9 +320,13 @@ A continuación, se detalla la asignación de XP según las acciones realizadas 
 \textbf{Acción} & \textbf{XP recibido} \\
 \midrule
 Envío no aceptado            & 1 XP \\
+\midrule
 Envío aceptado               & 15 XP \\
+\midrule
 Obtención de logro de bronce & 20 XP \\
+\midrule
 Obtención de logro de plata  & 40 XP \\
+\midrule
 Obtención de logro de oro    & 60 XP \\
 \bottomrule
 \end{tabular}
@@ -308,12 +334,13 @@ Obtención de logro de oro    & 60 XP \\
 \label{tab:sistema-puntos}
 \end{table}
 
-Sin embargo, según el sistema continúe creciendo y ante la posibilidad de que se redistribuyan o creen niveles de dominio, las recompensas podrán ser editadas.
+Por supuesto, el XP relativo a los envíos solo se recibe si el problema en cuestión no ha sido anteriormente resuelto por el usuario.
+A largo plazo, según el sistema continúe creciendo y ante la posibilidad de que se redistribuyan los niveles de dominio, las recompensas podrán ser editadas.
 
 \subsubsection{Estética}
 El diseño del sistema de logros, estadísticas y puntos de experiencia (XP) busca evocar en los usuarios dos sensaciones fundamentales, alineadas con los principios de la \textbf{conciencia situacional} y la \textbf{motivación extrínseca}. Estas emociones no solo mejoran la experiencia del usuario, sino que también refuerzan su compromiso a largo plazo con la plataforma.
 
-La conciencia situacional se refiere a la capacidad del usuario para comprender su posición actual dentro del sistema, así como las acciones necesarias para mejorar (\cite{Endsley_Jones_2012}.) En este contexto, se logra mediante:
+La conciencia situacional se refiere a la capacidad del usuario para comprender su posición actual dentro del sistema, así como las acciones necesarias para mejorar \citep{Endsley_Jones_2012}. En este contexto, se logra mediante:
 \begin{itemize}
     \item Retroalimentación visual clara: Las estadísticas y los niveles de dominio proporcionan una imagen inmediata del progreso del usuario, permitiéndole identificar sus fortalezas y áreas de mejora.
     \item Objetivos definidos: Los logros actúan como hitos tangibles que guían al usuario hacia metas concretas, facilitando la planificación de su progreso.
@@ -326,7 +353,7 @@ La motivación extrínseca en este sistema se centra en el reconocimiento social
 \begin{itemize}
     \item Logros y medallas: Actúan como símbolos de estatus que el usuario puede mostrar, generando un sentido de orgullo y pertenencia dentro de la comunidad.
     \item Tabla de clasificación: Fomenta la competencia saludable, especialmente en usuarios con perfiles hipercompetitivos, quienes buscan destacar incluso sin recompensas tangibles.
-    \item Recompensas progresivas: Los puntos de experiencia (XP) y los niveles de dominio ofrecen una sensación de avance constante, reduciendo el riesgo de que el usuario dependa exclusivamente de "victorias" puntuales para mantener su motivación.
+    \item Recompensas progresivas: Los puntos de experiencia (XP) y los niveles de dominio ofrecen una sensación de avance constante, reduciendo el riesgo de que el usuario dependa exclusivamente de \enquote{victorias} puntuales para mantener su motivación.
 \end{itemize}
 
 En conjunto, estas estrategias buscan crear una experiencia donde los usuarios se sientan capaces, reconocidos y motivados, equilibrando el deseo de superación personal con el disfrute del proceso.
@@ -336,7 +363,7 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
 \begin{enumerate}
     \item Para la paleta de colores se han seleccionado 8 colores distintos: 3 tonos azules originarios de \aer, donde sirven para indicar selecciones, títulos o menús, un tono claro y un tono oscuro que pueden servir para color del fondo de la página y color de la letra o viceversa según qué tema se esté utilizando, y 3 tonos rojos obtenidos a partir de los tonos azules para representar situaciones de peligro o como color de resalte. 
     \item La tipografía es la misma que en \aer: Open Sans\footnote{\url{https://fonts.google.com/specimen/Open+Sans}}, tanto para el texto general como para títulos.
-    \item En cuanto a la iconografía usaremos la versión más moderna de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/icons}}, en específico los paquetes gratuitos con licencia CC-BY 4.0. \aer usa los iconos de Font Awesome en la versión 3.2.1\footnote{\url{https://fontawesome.com/v3/}}, sin embargo, esta versión ya no recibe soporte. De esta manera hemos optado por un balance entre la modernidad y usabilidad a largo plazo (garantizando soporte durante más tiempo), y la coherencia visual con \aer (ya que ambos paquetes de iconos son de la misma compañía y tienen fuertes similitudes). 
+    \item En cuanto a la iconografía usaremos la versión más moderna de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/icons}}, en concreto los paquetes gratuitos con licencia CC-BY 4.0\footnote{\url{https://fontawesome.com/license/Free}}. \aer usa los iconos de Font Awesome en la versión 3.2.1\footnote{\url{https://fontawesome.com/v3/}}, sin embargo, esta versión ya no recibe soporte. De esta manera hemos optado por un balance entre la modernidad y usabilidad a largo plazo (garantizando soporte durante más tiempo), y la coherencia visual con \aer (ya que ambos paquetes de iconos son de la misma compañía y tienen fuertes similitudes). 
 \end{enumerate}
 
 \begin{figure}
@@ -348,9 +375,9 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
 
 % TO DO REFERENCIAR ESTA FIGURA EN ALGUNA PARTE CUANDO TERMINE DE ESCRIBIR ESTA SECCIÓN
 
-En cuanto a los elementos de la interacción humano-máquina, tendremos en cuenta las heurísticas presentadas en \cite{Nielsen_1994}. En específico para nuestra aplicación son importantes la visibilidad del estado del sistema, la equivalencia entre el sistema y el mundo real, y una representación de la información que simplifique el reconocimiento de los usuarios de la información, en vez de apelar a su memoria. 
+En cuanto a los elementos de la interacción humano-máquina, tendremos en cuenta las heurísticas presentadas en \cite{Nielsen_1994}. En concreto para esta aplicación son importantes la visibilidad del estado del sistema, la equivalencia entre el sistema y el mundo real, y una representación de la información que simplifique el reconocimiento de los usuarios de la información, en vez de apelar a su memoria. 
 
-Manteniendo las heurísticas en mente, es hora de definir tanto las pantallas de nuestro sistema como su colocación de elementos para facilitar el uso (UX). Para ello, se han realizado una serie de \textit{wireframes}, una por cada pantalla de la aplicación. Las pantallas de la aplicación son:
+Manteniendo las heurísticas en mente, debemos definir tanto las pantallas del sistema, como su colocación de elementos para facilitar el uso (UX). Para ello, se han realizado una serie de \textit{wireframes}, una por cada pantalla de la aplicación. Las pantallas de la aplicación son:
 \begin{itemize}
     \item Inicio
     \item Estadísticas de usuario
@@ -379,7 +406,7 @@ Tras el análisis comparativo de las tecnologías disponibles, detallado en el c
 
     \item Node.js: Destaca por su arquitectura orientada a eventos, que permite manejar operaciones asíncronas de manera eficiente. Esta característica es fundamental para garantizar un \textit{backend} escalable y capaz de procesar múltiples solicitudes concurrentes sin degradar el rendimiento.
 
-    \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, como la nuestra, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
+    \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
 \end{itemize}
 
 La arquitectura actual de \aer, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.

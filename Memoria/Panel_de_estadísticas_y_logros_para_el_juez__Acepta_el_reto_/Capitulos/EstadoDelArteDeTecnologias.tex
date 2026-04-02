@@ -4,9 +4,11 @@
 
 \section{Introducción}
 
-Las aplicaciones web modernas, en contraste con las páginas estáticas que las precedieron\footnote{En el siguiente artículo se puede leer más sobre el progreso histórico del desarrollo web: \url{https://www.geeksforgeeks.org/blogs/history-and-evolution-of-web-development/}}, se distinguen por su dinamismo, interactividad y capacidad para operar en tiempo real. Su arquitectura se sustenta en una estructura modular, compuesta por dos capas funcionalmente independientes: el \textit{frontend}, encargado de la interacción con el usuario, y el \textit{backend}, responsable de la lógica de negocio y el procesamiento de datos. Además, muchas aplicaciones incorporan una tercera capa dedicada al almacenamiento y gestión de datos, esencial para garantizar la persistencia y disponibilidad de la información relevante para su funcionamiento.
+Las aplicaciones web modernas se caracterizan por su dinamismo, interactividad, y capacidad de operar en tiempo real. Estas propiedades no son completamente nuevas, sino el resultado de una evolución progresiva del desarrollo web\footnote{En el siguiente artículo se puede leer más sobre el progreso histórico del desarrollo web: \url{https://www.geeksforgeeks.org/blogs/history-and-evolution-of-web-development/}}, en la que las páginas estáticas y dinámicas han coexistido y se han complementado desde finales del siglo XX. Mientras que las páginas estáticas siguen siendo adecuadas para ciertos casos de uso, las aplicaciones web actuales tienden a incorporar mecánismos más avanzados de interacción. 
 
-Para cumplir con las expectativas de los usuarios y las exigencias del mercado, las aplicaciones web modernas deben satisfacer una serie de requisitos fundamentales. Entre ellos, destacan el alto rendimiento, la escalabilidad y la mantenibilidad del código. Aunque la seguridad también puede ser una prioridad crítica dependiendo del contexto de la aplicación, estos tres primeros requisitos son universales en el desarrollo web actual.
+En sus inicios, la web estaba concebida como un sistema de documentos estáticos interconectados mediante enlaces: el servidor enviaba archivos HTML que el cliente (navegador) simplemente renderizaba. En este sentido, el modelo original puede entenderse como una extensión del intercambio de documentos. Con el tiempo, este modelo básico se amplió mediante dos avances fundamentales. Por un lado, la generación dinámica de contenido en el servidor permitió construir HTML bajo demanda en función de las peticiones del usuario. Por otro lado, la ejecución de código en el lado del cliente introdujo la posibilidad de modificar la interfaz y el comportamiento de la aplicación sin necesidad de nuevas comunicaciones con el servidor. Estas dos mejoras sentaron las bases de la separación conceptual entre cliente y servidor, que posteriormente daría lugar a los términos \textit{frontend} y \textit{backend}, entendidos como los componentes que se ejecutan en cada uno de estos lados.
+
+Para cumplir con las expectativas de los usuarios y las exigencias del mercado, las aplicaciones web deben satisfacer una serie de requisitos fundamentales. Entre ellos, destacan el alto rendimiento, la escalabilidad y la mantenibilidad del código. Aunque la seguridad también puede ser una prioridad crítica dependiendo del contexto de la aplicación, estos tres primeros requisitos son universales en el desarrollo web actual.
 
 En lo que respecta al rendimiento, las aplicaciones deben operar con rapidez y eficiencia. En 2016, la mitad de los usuarios de la web esperaban que una página se cargase en menos de dos segundos\footnote{\url{https://blog.google/products/admanager/the-need-for-mobile-speed/}}, lo que subraya la importancia de optimizar los tiempos de respuesta. Asimismo, la actualización constante y relevancia de los datos es crucial; de lo contrario, la aplicación podría perder utilidad y credibilidad.
 
@@ -14,7 +16,7 @@ Por otro lado, la escalabilidad y la mantenibilidad son cualidades que garantiza
 
 La arquitectura modular antes mencionada ofrece ventajas significativas para alcanzar estos objetivos. Por ejemplo, permite realizar modificaciones en una capa sin afectar a las demás. Esto significa que es posible actualizar una interfaz de usuario obsoleta en el \textit{frontend} sin alterar la lógica de negocio subyacente en el \textit{backend}, o incluso migrar a un sistema de base de datos más eficiente sin impactar la experiencia del usuario final.
 
-A lo largo de los años, el desarrollo web se ha beneficiado de la aparición de \textit{frameworks} y librerías especializadas, diseñadas para simplificar la implementación, mejorar el rendimiento y facilitar el mantenimiento de las aplicaciones. Estas herramientas suelen estar orientadas no solo a una capa específica de la aplicación, sino también a nichos tecnológicos o tipos de aplicaciones particulares, como plataformas de comercio electrónico, redes sociales o sistemas de gestión de contenido.
+A lo largo de los años, el desarrollo web se ha beneficiado de la aparición de \textit{frameworks} y librerías especializados, diseñados para simplificar la implementación, mejorar el rendimiento y facilitar el mantenimiento de las aplicaciones. Estas herramientas suelen estar orientadas no solo a una capa específica de la aplicación, sino también a nichos tecnológicos o tipos de aplicaciones particulares, como plataformas de comercio electrónico, redes sociales o sistemas de gestión de contenido.
 
 En los siguientes apartados, se analizarán las diferentes tecnologías disponibles para el desarrollo web, comparando sus especializaciones, puntos fuertes y posibles limitaciones, con el objetivo de ofrecer una visión crítica que permita seleccionar las herramientas más adecuadas según los requisitos del proyecto más adelante.
 
@@ -24,27 +26,32 @@ La capa \textit{frontend} desempeña un papel fundamental al ser la responsable 
 
 La elección de las tecnologías \textit{frontend} adecuadas es un aspecto crítico en el desarrollo de aplicaciones web, ya que influye directamente en el rendimiento, la escalabilidad y la mantenibilidad del proyecto. Según la encuesta de desarrolladores de Stack Overflow en 2024\footnote{\url{https://survey.stackoverflow.co/2024/technology}}, las tecnologías \textit{frontend} más utilizadas incluyen React, jQuery, Angular y Vue.js. Sin embargo, la selección de una u otra depende de múltiples factores, como las características del proyecto, las habilidades del equipo de desarrollo y los requisitos de escalabilidad. En este sentido, el estudio comparativo realizado por \cite{Sekhar_Emmanni_2023}, destaca la importancia de evaluar estas tecnologías en función de sus ventajas técnicas y su alineación con los objetivos del proyecto. 
 
-React\footnote{\url{https://react.dev/}}, desarrollado por Meta, es una librería de JavaScript centrada en la construcción de interfaces de usuario mediante componentes reutilizables. Su enfoque en la modularidad y el uso de un DOM virtual permite optimizar el rendimiento, reduciendo los tiempos de carga y mejorando la eficiencia, como se evidencia en el estudio de \cite{Sekhar_Emmanni_2023}. Esto significa que es una \textit{framework} ideal para las aplicaciones de alto rendimiento, o aquellas con un manejo de estados complejo.
+En primer lugar, jQuery\footnote{\url{https://jquery.com/}} es una librería de JavaScript orientada a simplificar la manipulación del DOM, la gestión de eventos y las llamadas asíncronas. Su enfoque es transversal y de bajo nivel en comparación con otras soluciones más modernas, ya que no impone una arquitectura de aplicación ni un modelo de componentes. Aunque su uso ha disminuido en aplicaciones complejas, sigue siendo relevante en proyectos pequeños o usada en conjunto con \textit{frameworks}.
 
-Angular\footnote{\url{https://angular.dev/}}, desarrollado y mantenido por Google, es un \textit{framework} completo basado en el patrón MVC (Modelo-Vista-Controlador). Aunque su rendimiento puede ser ligeramente inferior en comparación con otras tecnologías modernas, su principal fortaleza radica en las herramientas integradas que ofrece para enrutamiento y gestión de formularios. Su sincronización entre la capa de datos y vista la aventaja en las aplicaciones donde la muestra de datos en tiempo real es necesaria. Se usa principalmente en aplicaciones empresariales a gran escala y aplicaciones de contenido dinámico. 
+Por otro lado, React\footnote{\url{https://react.dev/}}, Angular\footnote{\url{https://angular.dev/}} y Vue.js\footnote{\url{https://vuejs.org/}} pertenecen a una generación posterior de herramientas centradas en la construcción de interfaces de usuario mediante componentes reutilizables y en la gestión del estado de la aplicación.
 
-Vue.js\footnote{\url{https://vuejs.org/}} es un \textit{framework} de JavaScript que destaca por su simplicidad y facilidad de integración en proyectos existentes. Estas características junto con su suave curva de aprendizaje, la han convertido en una herramienta ideal para el desarrollo de prototipados y extensiones a aplicaciones existentes. 
+React, desarrollado por Meta, es una librería de JavaScript centrada en la construcción de interfaces de usuario mediante componentes. Su enfoque en la modularidad y el uso de un DOM virtual permite optimizar el rendimiento, reduciendo los tiempos de carga y mejorando la eficiencia, como se evidencia en el estudio de \cite{Sekhar_Emmanni_2023}. Su flexibilidad ha favorecido su adopción en aplicaciones complejas en la gestión del estado.
 
-Finalmente, JQuery\footnote{\url{https://jquery.com/}} es una librería para JavaScript que simplifica la manipulación de la página y el manejo de eventos. Aunque no es una \textit{framework} a toda regla, sigue siendo muy popular para proyectos más pequeños y simples, o usada en conjunto con \textit{frameworks}. 
+Angular, desarrollado y mantenido por Google, es un \textit{framework} completo basado en el patrón MVC (Modelo-Vista-Controlador). Aunque su rendimiento puede ser ligeramente inferior en comparación con otras tecnologías similares, su principal fortaleza radica en las herramientas integradas que ofrece para enrutamiento y gestión de formularios. Esta aproximación lo hace especialmente adecuado para aplicaciones empresariales de gran escala. 
 
-En la tabla \ref{tab:frontend_technologies} se puede ver un resumen de la comparativa entre las diferentes tecnologías \textit{frontend} que hemos analizado.
+Vue.js es un \textit{framework} de JavaScript que destaca por su simplicidad y facilidad de integración en proyectos existentes. Estas características junto con su suave curva de aprendizaje, la han convertido en una herramienta ideal para el desarrollo de prototipados y extensiones a aplicaciones existentes. 
+
+La Tabla \ref{tab:frontend_technologies} clasifica estas tecnologías según su nivel de abstracción y su enfoque arquitectónico, diferenciando entre herramientas de manipulación directa del DOM y soluciones basadas en componentes.
 
 \begin{table}[h!]
 \centering
 \small
 \begin{tabularx}{\textwidth}{X X X p{4.5cm}}
 \toprule
-\textbf{Tecnología} & \textbf{Tipo} & \textbf{Características} & \textbf{Uso típico} \\
+\textbf{Tecnología} & \textbf{Tipo} & \textbf{Nivel de abstracción / enfoque} & \textbf{Uso típico} \\
 \midrule
-React & Librería & Componentes reutilizables, DOM virtual, modularidad, alto rendimiento. & Aplicaciones de alto rendimiento, manejo de estados complejos. \\
-Angular & \textit{Framework} completo & Basado en MVC, herramientas integradas para enrutamiento y gestión de formularios, sincronización de datos en tiempo real. & Aplicaciones empresariales a gran escala, contenido dinámico. \\
-Vue.js & \textit{Framework} & Simplicidad, facilidad de integración, curva de aprendizaje suave. & Prototipado, extensiones a aplicaciones existentes. \\
-jQuery & Librería & Simplificación de manipulación de página y manejo de eventos. & Proyectos pequeños y simples, uso conjunto con \textit{frameworks}. \\
+jQuery & Librería & Manipulación directa del DOM, gestión de eventos y AJAX. No impone arquitectura ni modelo de componentes. & Proyectos pequeños, mantenimiento de código legacy, soporte puntual en aplicaciones existentes. \\
+\midrule
+React & Librería & Basado en componentes, DOM virtual, enfoque declarativo para la interfaz. & Aplicaciones complejas con gestión avanzada del estado y alta interactividad. \\
+\midrule
+Angular & \textit{Framework} completo & Arquitectura estructurada (basada en componentes y servicios), herramientas integradas (routing, formularios). & Aplicaciones empresariales de gran escala con necesidades estructurales claras. \\
+\midrule
+Vue.js & \textit{Framework} progresivo & Basado en componentes, integración gradual, enfoque flexible y ligero. & Prototipado, aplicaciones progresivas, integración en proyectos existentes. \\
 \bottomrule
 \end{tabularx}
 \caption{Comparativa de tecnologías \textit{frontend}}
@@ -54,7 +61,7 @@ jQuery & Librería & Simplificación de manipulación de página y manejo de eve
 
 \section{\textit{Backend}}
 
-El \textit{backend} representa la columna vertebral de las aplicaciones web modernas, asumiendo la responsabilidad de implementar la lógica de negocio, procesar datos y facilitar la comunicación con servicios externos. A diferencia del \textit{frontend}, que se ejecuta en el navegador del usuario, el \textit{backend} opera en el servidor, donde gestiona operaciones críticas como la autenticación de usuarios, la validación y procesamiento de datos, la interacción con bases de datos y la integración con APIs de terceros. El diseño y la eficiencia de esta capa son factores determinantes para asegurar el rendimiento óptimo, la escalabilidad y la seguridad de las aplicaciones.
+El \textit{backend} representa la columna vertebral de las aplicaciones web dinámicas, asumiendo la responsabilidad de implementar la lógica de negocio, procesar datos y facilitar la comunicación con servicios externos. A diferencia del \textit{frontend}, que se ejecuta en el navegador del usuario, el \textit{backend} opera en el servidor, donde gestiona operaciones críticas como la autenticación de usuarios, la validación y procesamiento de datos, la interacción con bases de datos y la integración con APIs de terceros. El diseño y la eficiencia de esta capa son factores determinantes para asegurar el rendimiento óptimo, la escalabilidad y la seguridad de las aplicaciones.
 
 De acuerdo con los resultados de la encuesta de desarrolladores de Stack Overflow anteriormente mencionada, las tecnologías \textit{backend} más utilizadas en la actualidad incluyen Node.js, Express, Flask y Django. Cada una de estas tecnologías presenta características distintivas que las hacen adecuadas para diferentes tipos de proyectos. Además, como se detalla en el estudio comparativo de \textit{Frameworks} populares para \textit{backend} realizado por \cite{Buljic_Kadusic_Cvijanovic_Hadzajlic_Zivic_2025}, estos \textit{frameworksf} se basan en lenguajes de programación y tecnologías distintas, lo que influye en su rendimiento (medido en términos de latencia y throughput) y, por tanto, en su idoneidad para distintos escenarios de aplicación.
 
@@ -66,7 +73,7 @@ Aunque Next.js\footnote{\url{https://nextjs.org/}} es reconocido principalmente 
 
 En el ecosistema de Python, tanto Django\footnote{\url{https://www.djangoproject.com/}} como Flask\footnote{\url{https://flask.palletsprojects.com/en/stable/}} son \textit{frameworks} ampliamente utilizados para el desarrollo de aplicaciones web. Sin embargo, presentan diferencias significativas en cuanto a su enfoque y funcionalidades. Django es un \textit{framework} robusto y completo, que incluye una amplia gama de herramientas integradas, lo que lo hace especialmente adecuado para el desarrollo de sistemas empresariales complejos. En contraste, Flask se caracteriza por su ligereza y flexibilidad, siendo una opción preferida para proyectos más pequeños o aquellos que requieren una mayor personalización.
 
-En la tabla \ref{tab:backend_technologies} se puede ver un resumen de la comparativa entre las diferentes tecnologías \textit{backend} que hemos analizado.
+En la tabla \ref{tab:backend_technologies} se puede ver un resumen de la comparativa entre las diferentes tecnologías \textit{backend} que analizadas.
 
 \begin{table}[h!]
 \centering
@@ -76,9 +83,13 @@ En la tabla \ref{tab:backend_technologies} se puede ver un resumen de la compara
 \textbf{Framework} & \textbf{Lenguaje} & \textbf{Tipo} & \textbf{Características} & \textbf{Uso típico} \\
 \midrule
 Node.js & JavaScript & Entorno de ejecución & Arquitectura basada en eventos, E/S no bloqueante, escalable, ecosistema npm. & Aplicaciones en tiempo real, APIs. \\
+\midrule
 Express & JavaScript & \textit{Framework} minimalista & Minimalista, fácil configuración, ideal para APIs y servidores web. & APIs RESTful, aplicaciones web ligeras. \\
+\midrule
 Next.js & JavaScript / TypeScript & \textit{Framework} full-stack & SSR, rutas API, integración con React. & Aplicaciones full-stack, SSR. \\
+\midrule
 Django & Python & \textit{Framework} completo & Baterías incluidas, ORM, panel de administración, seguridad integrada. & Sistemas empresariales. \\
+\midrule
 Flask & Python & Micro-\textit{framework} & Ligero, flexible, fácil de extender. & Proyectos pequeños, APIs. \\
 \bottomrule
 \end{tabularx}
@@ -90,4 +101,4 @@ Flask & Python & Micro-\textit{framework} & Ligero, flexible, fácil de extender
 
 El cambio de paradigma en el desarrollo web actual está impulsado por la necesidad de crear aplicaciones más rápidas, interactivas y eficientes. En este contexto, surge una clara necesidad de adoptar tecnologías que no solo agilicen la creación de aplicaciones, sino que también permitan una fácil reutilización, integración y escalabilidad a largo plazo.
 
-Por ello, los \textit{frameworks} y librerías modernos han demostrado ser herramientas esenciales para los desarrolladores. Permiten construir aplicaciones con una gran funcionalidad de manera rápida y eficiente, proporcionando herramientas listas para usar que reducen considerablemente el tiempo de desarrollo. Además, están altamente especializados, lo que significa que existen opciones adaptadas a prácticamente todas las necesidades, y nos basta con conocer nuestras opciones, nuestra aplicación y nuestro entorno de desarrollo para elegir una solución potente y adaptada. 
+Por ello, los \textit{frameworks} y librerías modernos han demostrado ser herramientas esenciales para los desarrolladores. Permiten construir aplicaciones con una gran funcionalidad de manera rápida y eficiente, proporcionando herramientas listas para usar que reducen considerablemente el tiempo de desarrollo. Además, están altamente especializados, lo que significa que existen opciones adaptadas a prácticamente todas las necesidades, y basta con conocer las opciones, la aplicación y el entorno de desarrollo, para elegir una solución potente y adaptada. 
