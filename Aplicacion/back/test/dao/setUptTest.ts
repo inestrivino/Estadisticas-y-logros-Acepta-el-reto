@@ -1,7 +1,7 @@
 import { beforeAll, afterAll, beforeEach } from 'vitest';
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { createClient } from 'redis';
-import DAO from '../DAO.js';
+import DAO from '../../src/dao/DAO.js';
 
 let container: StartedRedisContainer;
 let redis: ReturnType<typeof createClient>;
