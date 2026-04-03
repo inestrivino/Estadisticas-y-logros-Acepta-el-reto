@@ -10,11 +10,11 @@ export default function PruebaSocketComponent() {
             "usuario": "user8",
             "problema": "problema1",
             "resultado": resultado,
-            "lenguaje": "cpp",
+            "lenguaje": "c",
             "tiempo": 0.936,
             "memoria": 4258,
             "pos": 62,
-            "fecha": "2024-05-05"
+            "fecha": "2024-05-05T02:00"
         }
 
         const body = JSON.stringify(aux);

@@ -7,7 +7,8 @@ export const EventType = {
   DIAGRAMA_LENGUAJES: "reload-resultadosLenguajes",
 
   //LOGROS USUARIO
-  LOGROS_USUARIO: "reload-logrosUsuario"
+  LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
+  LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria"
 } as const;
 
 export function formatProblemEvent(problema: string, eventType: EventTypes): string {

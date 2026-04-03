@@ -22,7 +22,7 @@ export default function GrupoLogros(props: {
                 {props.datos.logros.map((logro, idx) => (
                     <Logro
                         key={idx}
-                        evento={formatProblemEvent(usuario as string, EventType.LOGROS_USUARIO)}
+                        evento={formatProblemEvent(usuario as string, EventType.LOGROS_USUARIO_CATEGORIA)}
                         dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
                         datos={logro}
                         idx={idx}

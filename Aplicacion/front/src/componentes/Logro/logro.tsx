@@ -32,7 +32,7 @@ export default function Logro(props: {
             </>
         )
     } else {
-        return(<></>)
+        return (<></>)
     }
 
 }

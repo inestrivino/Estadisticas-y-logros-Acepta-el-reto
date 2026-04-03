@@ -247,34 +247,3 @@ function* simularEnvios(): Generator<Envio> {
     }
 }
 */
-
-/*
-var channel: Channel;
-
-async function createChannel() {
-    const connection = await amqp.connect("amqp://localhost");
-    channel = await connection.createChannel();
-}
-
-async function consumeMessage() {
-    if(!channel) {
-        createChannel();
-    }    
-    const exchangeName = "nuevoEnvio";
-
-    await channel.assertExchange(exchangeName, "direct");
-
-    const q = await channel.assertQueue("NuevoEnvioQueue");
-
-    //nombre de la queue, nombre del exchange, pattern (en caso de exchange tipo direct es el routing key)
-    await channel.bindQueue(q.queue, exchangeName, "envio");
-
-    channel.consume(q.queue, (msg) => {
-        if(!msg)
-            return;
-
-        const data = JSON.parse(msg.content.toString());
-        console.log("Recivido: " + data);
-        channel.ack(msg);
-    })
-}*/
