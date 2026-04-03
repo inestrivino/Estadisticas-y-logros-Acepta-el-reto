@@ -1,6 +1,6 @@
 export type EstadoUsuario = {
     numEnvios: number, // total de envios
-    numEnviosAC: number, // envios con resultado AC
+    numProblemasResueltos: number, // envios con resultado AC
     lenguajesProblemasResueltos: Map<string, number>, // cantidad de problemas resueltos por cada lenguaje
     lenguajes: Set<string>, // lenguajes que se han usado en los envios
     logros: Set<string>, // logros conseguidos por el usuario

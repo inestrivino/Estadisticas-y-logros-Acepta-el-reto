@@ -1,4 +1,10 @@
+import { EnvioProcesado } from "../Envios.js";
 import { EstadoUsuario } from "../estado/EstadoUsuario.js";
+import UsuarioDAO from "src/dao/usuarioDAO.js";
+import ProblemaDAO from "src/dao/problemaDAO.js";
+
+const DAOUsuario = new UsuarioDAO();
+const DAOProblema = new ProblemaDAO();
 
 // TODO poner esto de otra manera
 const CATEGORIAS_PROBLEMAS = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
@@ -27,7 +33,9 @@ export type Logro = {
   categoria: CategoriaLogro;
   nivel: NivelLogro;
   sorpresa: boolean;
-  condicion: (estado: EstadoUsuario) => boolean;
+  trigger: "siempre" | "AC",
+  condicionCargaInicial: (estado: EstadoUsuario) => boolean;
+  condicion: (envio: EnvioProcesado) => Promise<boolean>
 };
 
 export const logros: Logro[] = [
@@ -39,17 +47,26 @@ export const logros: Logro[] = [
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,
-    condicion: (estado) => true 
+    trigger: "siempre",
+    condicionCargaInicial: (estado) => true, //TODO supongo que si estamos comprobando lo estamos haciendo en un usuario que existe, y por tanto se habra hecho cuenta
+    condicion: async (envio) => true
   },
   {
     id: 1,
     nombre: "logro2",
-    descripcion: "Realización del primer envío", 
+    descripcion: "Realización del primer envío", //TODO mirar si esto se refiere a un envio a secas o a uno AC
     imagen: "logro_placeholder.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,
-    condicion: (estado) => estado.numEnvios > 0
+    trigger: "siempre",
+
+    condicionCargaInicial: (estado) => estado.numEnvios > 0,
+
+    condicion: async (envio) => {
+      const envios = await DAOUsuario.getNumEnvios(envio.usuario);
+      return envios === 1;
+    }
   },
   {
     id: 1,
@@ -59,7 +76,16 @@ export const logros: Logro[] = [
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.PROBLEMAS,
     sorpresa: false,
-    condicion: (estado) => estado.numEnviosAC >= 10
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => {
+      return estado.numProblemasResueltos >= 10
+    },
+
+    condicion: async (envio) => {
+      const numProblemasResueltos = await DAOUsuario.getNumProblemasResueltos(envio.usuario);
+      return numProblemasResueltos === 10;
+    }
   },
   {
     id: 1,
@@ -69,7 +95,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.PROBLEMAS,
     sorpresa: false,
-    condicion: (estado) => estado.numEnviosAC >= 50
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => estado.numProblemasResueltos >= 50,
+
+    condicion: async (envio) => {
+      const numProblemasResueltos = await DAOUsuario.getNumProblemasResueltos(envio.usuario);
+      return numProblemasResueltos === 50;
+    }
   },
   {
     id: 1,
@@ -79,7 +112,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.PROBLEMAS,
     sorpresa: false,
-    condicion: (estado) => estado.numEnviosAC >= 100
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => estado.numProblemasResueltos >= 100,
+
+    condicion: async (envio) => {
+      const numProblemasResueltos = await DAOUsuario.getNumProblemasResueltos(envio.usuario);
+      return numProblemasResueltos === 100;
+    }
   },
   {
     id: 1,
@@ -89,7 +129,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.PROBLEMAS,
     sorpresa: false,
-    condicion: (estado) => estado.numEnviosAC >= 500
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => estado.numProblemasResueltos >= 500,
+
+    condicion: async (envio) => {
+      const numProblemasResueltos = await DAOUsuario.getNumProblemasResueltos(envio.usuario);
+      return numProblemasResueltos === 500;
+    }
   },
   {
     id: 1,
@@ -99,7 +146,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.LENGUAJES,
     sorpresa: false,
-    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("c")?? 0) >= 25
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => (estado.lenguajesProblemasResueltos.get("c") ?? 0) >= 25,
+
+    condicion: async (envio) => {
+      const numProblemas = await DAOUsuario.getNumProblemasLenguaje(envio.usuario, "c");
+      return numProblemas === 25;
+    }
   },
   {
     id: 1,
@@ -108,8 +162,15 @@ export const logros: Logro[] = [
     imagen: "logro_placeholder.png",
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.LENGUAJES,
-    sorpresa: false, 
-    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("cpp")?? 0) >= 25
+    sorpresa: false,
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => (estado.lenguajesProblemasResueltos.get("cpp") ?? 0) >= 25,
+
+    condicion: async (envio) => {
+      const numProblemas = await DAOUsuario.getNumProblemasLenguaje(envio.usuario, "cpp");
+      return numProblemas === 25;
+    }
   },
   {
     id: 1,
@@ -119,7 +180,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.LENGUAJES,
     sorpresa: false,
-    condicion: (estado) => (estado.lenguajesProblemasResueltos.get("java")?? 0) >= 25
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => (estado.lenguajesProblemasResueltos.get("java") ?? 0) >= 25,
+
+    condicion: async (envio) => {
+      const numProblemas = await DAOUsuario.getNumProblemasLenguaje(envio.usuario, "java");
+      return numProblemas === 25;
+    }
   },
   {
     id: 1,
@@ -129,7 +197,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.LENGUAJES,
     sorpresa: false,
-    condicion: (estado) => estado.lenguajesProblemasResueltos.size >= 3
+    trigger: "siempre",
+
+    condicionCargaInicial: (estado) => estado.lenguajes.size >= 3,
+
+    condicion: async (envio) => {
+      const numLenguajes = await DAOUsuario.getNumLenguajesUsados(envio.usuario);
+      return numLenguajes === 3;
+    }
   },
   {
     id: 1,
@@ -139,7 +214,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.RACHAS,
     sorpresa: false,
-    condicion: (estado) => (estado.rachaEnviosACMax?? 0) >= 5
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => (estado.rachaEnviosACMax ?? 0) >= 5,
+
+    condicion: async (envio) => {
+      const racha = await DAOUsuario.getRachaMaximaEnviosCorrectos(envio.usuario);
+      return racha === 5;
+    }
   },
   {
     id: 1,
@@ -149,7 +231,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.RACHAS,
     sorpresa: false,
-    condicion: (estado) => (estado.rachaDiasEnvioMax?? 0) >= 7
+    trigger: "siempre",
+
+    condicionCargaInicial: (estado) => (estado.rachaDiasEnvioMax ?? 0) >= 7,
+
+    condicion: async (envio) => {
+      const racha = await DAOUsuario.getRachaMaximaDiasConEnvio(envio.usuario);
+      return racha === 7;
+    }
   },
   {
     id: 1,
@@ -159,7 +248,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,
-    condicion: (estado) => false //TODO no esta hecho
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => false, //TODO no esta hecho
+
+    condicion: async (envio) => {
+      const numEnvios = await DAOProblema.getNumEnvios(envio.problema);
+      return numEnvios === 1;
+    }
   },
   {
     id: 1,
@@ -169,7 +265,11 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,
-    condicion: (estado) => false //TODO no esta hecho
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => false, //TODO no esta hecho
+
+    condicion: async (envio) => false //TODO no esta hecho
   },
   {
     id: 1,
@@ -179,7 +279,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CATEGORIAS,
     sorpresa: false,
-    condicion: (estado) => estado.categoriaProblemasResueltos.size === NUM_CATEGORIAS
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => estado.categoriaProblemasResueltos.size === NUM_CATEGORIAS,
+
+    condicion: async (envio) => {
+      const numCategorias = await DAOUsuario.getNumCategoriasProblemasResueltos(envio.usuario);
+      return numCategorias === NUM_CATEGORIAS;
+    }
   },
   {
     id: 1,
@@ -189,7 +296,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: true,
-    condicion: (estado) => false //TODO no esta hecho
+    trigger: "AC",
+
+    condicionCargaInicial: (estado) => false, //TODO no esta hecho
+
+    condicion: async (envio) => {
+      const mejorTiempo = await DAOProblema.getMejorTiempo(envio.problema);
+      return envio.tiempo <= mejorTiempo;
+    }
   },
   {
     id: 1,
@@ -199,7 +313,14 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.CATEGORIAS,
     sorpresa: true,
-    condicion: (estado) => estado.franjasHorarias.size === 24
+    trigger: "siempre",
+
+    condicionCargaInicial: (estado) => estado.franjasHorarias.size === 24,
+
+    condicion: async (envio) => {
+      const numFranjasHorarias = await DAOUsuario.getNumFranjasHorariasConEnvio(envio.usuario);
+      return numFranjasHorarias === 24;
+    }
   },
   {
     id: 1,
@@ -209,7 +330,10 @@ export const logros: Logro[] = [
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,
-    condicion: (estado) => estado.logros.size >= 5
+    trigger: "siempre",
+
+    condicionCargaInicial: (estado) => estado.logros.size >= 5,
+    condicion: async (envio) => false
   }
 ];
 

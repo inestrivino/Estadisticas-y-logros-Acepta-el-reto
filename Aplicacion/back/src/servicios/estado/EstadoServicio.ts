@@ -17,7 +17,7 @@ class EstadoServicio {
     private initEstado(): EstadoUsuario {
         return {
             numEnvios: 0,
-            numEnviosAC: 0,
+            numProblemasResueltos: 0,
             lenguajesProblemasResueltos: new Map<string, number>(),
             lenguajes: new Set(),
             logros: new Set(),
@@ -26,6 +26,10 @@ class EstadoServicio {
             categoriaProblemasResueltos: new Set(),
             franjasHorarias: new Set()
         }
+    }
+
+    clear() {
+        this.estados.clear();
     }
 }
 
