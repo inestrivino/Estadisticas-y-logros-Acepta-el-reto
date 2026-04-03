@@ -9,6 +9,8 @@ setUpTestFile(usuarioDAO);
 const dato = {
     envioId: 1,
     usuario: "user1",
+    problema: "problema1",
+    categoria: "grafos",
     resultado: "AC",
     lenguaje: "Cpp",
     fecha: {
@@ -41,8 +43,8 @@ describe("Registrar datos de usuario", () => {
         expect(consulta[364].timeStamp).toBe(timeFin);
         expect(consulta.length).toBe(365);
         expect(consulta).toStrictEqual(res);
-    });*/
-
+    });
+    */
     test("coge bien los dias un anio bisiesto", async () => {
         await usuarioDAO.registrarDirecto(dato);
         const fin = new Date(2024, 2, 16);

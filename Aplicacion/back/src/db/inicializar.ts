@@ -2,6 +2,7 @@ import fs from 'fs';
 import redisClient from '../redis/redisClient.js';
 import { cargarEnvio, cargarBloqueEnvios } from './cargarDatos.js';
 import ServicioLogro from "src/servicios/logros/ServicioLogro.js";
+import EstadoServicio from 'src/servicios/estado/EstadoServicio.js';
 
 type Envio = {
     envioId: number
@@ -16,18 +17,16 @@ type Envio = {
     fecha: string
 };
 
-const CATEGORIAS_PROBLEMAS = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
-
 export default async function inicializar() {
 
     //Hace las peticiones para obtener los envios
     //TODO . . . 
     //Ahora mismo se simula la obtencion de envios
-    
+
     //si ya tiene datos la base de datos
     //TODO aqui habria que poner que mire el ultimo envio que hay y hasta cual tiene
     const keys = await redisClient.keys('*');
-    if (keys.length > 0 && false) {
+    if (keys.length > 0/* && false*/) {
         console.log(" * Envios ya cargados");
         return;
     }
@@ -67,8 +66,9 @@ export default async function inicializar() {
         await cargarBloqueEnvios(bloque);
         console.log(" - Bloque " + numBloque + " cargado");
     }
-    
+
     await ServicioLogro.calcularYGuardarLogros();
+    EstadoServicio.clear();
 }
 
 
@@ -79,8 +79,8 @@ function* simularEnvios(): Generator<Envio> {
     const resultados = ["AC","PE","WA","CE","RTE","TLE","MLE","OLE","RF","IQ","IE"];
     const lenguajes = ["c", "cpp", "java"];
     const categorias = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
-    const usuarios = Array.from({length: 10000}, (_, i) => `user${i + 1}`);
-    const problemas = Array.from({length: 300}, (_, i) => `problema${i + 1}`);
+    const usuarios = Array.from({length: 1}, (_, i) => `user${i + 1}`);
+    const problemas = Array.from({length: 3}, (_, i) => `problema${i + 1}`);
 
     for (let i = 1; i <= 1000000; i++) {
         yield {
@@ -98,17 +98,50 @@ function* simularEnvios(): Generator<Envio> {
         };
     }
 }
+
+/*
+| Usuario           | Objetivo                                   |
+| ----------------- | ------------------------------------------ |
+| `user_basico`     | onboarding básico (logro1, logro2)         |
+| `user_10`         | 10 problemas                               |
+| `user_50`         | 50 problemas                               |
+| `user_100`        | 100 problemas                              |
+| `user_500`        | 500 problemas                              |
+| `user_lenguajes`  | 25 problemas en C, C++, Java + 3 lenguajes |
+| `user_racha_ac`   | racha de 5 AC seguidos                     |
+| `user_racha_dias` | 7 días consecutivos                        |
+| `user_categorias` | todas las categorías                       |
+| `user_franjas`    | 24 horas                                   |
+| `user_top_tiempo` | mejor tiempo                               |
+| `user_5_logros`   | al menos 5 logros                          |
+
+*/
+
 /*
 function* simularEnvios(): Generator<Envio> {
-    const lenguajes = ["c", "cpp", "java"];
-    const problemas = Array.from({ length: 10 }, (_, i) => `problema${i + 1}`);
 
-    let id = 1;
+    const categorias = [
+        "construccion de programacion",
+        "estructuras de datos",
+        "algoritmia",
+        "matematicas",
+        "grafos",
+        "geometria"
+    ];
 
-    // Helper
-    function crearEnvio(usuario: string, problema: string, categoria: string, resultado: string, lenguaje: string, fecha: Date, tiempo = 1.0): Envio {
+    let envioId = 1;
+
+    function crearEnvio(
+        usuario: string,
+        problema: string,
+        resultado: string,
+        lenguaje: string,
+        categoria: string,
+        fecha: Date,
+        tiempo = 1
+    ): Envio {
         return {
-            envioId: id++,
+            envioId: envioId++,
             usuario,
             problema,
             categoria,
@@ -116,97 +149,103 @@ function* simularEnvios(): Generator<Envio> {
             lenguaje,
             tiempo,
             memoria: 1000,
-            pos: Math.floor(1 + Math.random() * 100),
-            fecha: fecha.toISOString().slice(0, 13)
+            pos: 1,
+            fecha: fecha.toISOString()
         };
     }
 
-    // =========================
-    // USER 1 → ONBOARDING + CALIDAD BÁSICA
-    // =========================
-    // Logros:
-    // - creación cuenta
-    // - primer envío
-    // - AC a la primera
-    yield crearEnvio("user1", "problema1", "grafos", "AC", "c", new Date(2024, 0, 1));
+    const baseDate = new Date(2024, 0, 1);
 
     // =========================
-    // USER 2 → VOLUMEN (10, 50, 100)
+    // 1. USER BASICO
+    // logro1, logro2
+    yield crearEnvio("user_basico", "p1", "WA", "c", categorias[0], baseDate);
+
     // =========================
-    // Logros:
-    // - 10, 50, 100 problemas
+    // 2. USER 10 PROBLEMAS
+    // logro4
+    for (let i = 0; i < 10; i++) {
+        yield crearEnvio("user_10", `p${i}`, "AC", "c", categorias[0], baseDate);
+    }
+
+    // =========================
+    // 3. USER 50 PROBLEMAS
+    // logro5
+    for (let i = 0; i < 50; i++) {
+        yield crearEnvio("user_50", `p${i}`, "AC", "cpp", categorias[1], baseDate);
+    }
+
+    // =========================
+    // 4. USER 100 PROBLEMAS
+    // logro6
     for (let i = 0; i < 100; i++) {
-        yield crearEnvio("user2", problemas[i % problemas.length], "grafos", "AC", "cpp", new Date(2024, 0, 1));
+        yield crearEnvio("user_100", `p${i}`, "AC", "java", categorias[2], baseDate);
     }
 
     // =========================
-    // USER 3 → LENGUAJES
-    // =========================
-    // Logros:
-    // - 25 problemas en C, C++, Java
-    // - usar 3 lenguajes
-    for (const lang of lenguajes) {
-        for (let i = 0; i < 25; i++) {
-            yield crearEnvio("user3", problemas[i % problemas.length], "grafos", "AC", lang, new Date(2024, 1, 1));
-        }
-    }
-
-    // =========================
-    // USER 4 → RACHAS
-    // =========================
-    // Logros:
-    // - 5 AC seguidos
-    // - 7 días consecutivos
-    let fechaBase = new Date(2024, 2, 1);
-
-    // 7 días consecutivos
-    for (let i = 0; i < 7; i++) {
-        yield crearEnvio("user4", "problema1", "grafos", "AC", "c", new Date(fechaBase.getFullYear(), fechaBase.getMonth(), fechaBase.getDate() + i));
-    }
-
-    // racha de 5 AC seguidos
-    for (let i = 0; i < 5; i++) {
-        yield crearEnvio("user4", "problema2", "grafos", "AC", "c", new Date(2024, 3, 1));
-    }
-
-    // =========================
-    // USER 5 → CALIDAD
-    // =========================
-    // Logros:
-    // - rápido (top 25%)
-    // - récord
-    // - primer intento
-    yield crearEnvio("user5", "problema1", "grafos", "AC", "java", new Date(2024, 4, 1), 0.1); // muy rápido
-    yield crearEnvio("user5", "problema2", "grafos", "WA", "java", new Date(2024, 4, 1));
-    yield crearEnvio("user5", "problema2", "grafos", "AC", "java", new Date(2024, 4, 1), 0.05); // récord
-
-    // =========================
-    // USER 6 → EXTREMOS + CATEGORÍAS
-    // =========================
-    // Logros:
-    // - 500 problemas
-    // - una categoría de cada tipo (simulado con problemas distintos)
-    // - franjas horarias
+    // 5. USER 500 PROBLEMAS
+    // logro7
     for (let i = 0; i < 500; i++) {
-        yield crearEnvio("user6", problemas[i % problemas.length], CATEGORIAS_PROBLEMAS[i % CATEGORIAS_PROBLEMAS.length], "AC", "cpp", new Date(2024, 5, (i % 28) + 1));
+        yield crearEnvio("user_500", `p${i}`, "AC", "c", categorias[3], baseDate);
     }
 
-    // simular franjas horarias (aunque ahora no tienes hora real)
+    // =========================
+    // 6. USER LENGUAJES
+    // logros 8,9,10,11
     for (let i = 0; i < 24; i++) {
-        yield crearEnvio("user6", problemas[i], "grafos", "AC", "c", new Date(2024, 6, 1, i));
+        yield crearEnvio("user_lenguajes", `pc${i}`, "AC", "c", categorias[0], baseDate);
+        yield crearEnvio("user_lenguajes", `pcpp${i}`, "AC", "cpp", categorias[1], baseDate);
+        yield crearEnvio("user_lenguajes", `pjava${i}`, "AC", "java", categorias[2], baseDate);
+    }
+
+    // =========================
+    // 7. RACHA AC (5 seguidos)
+    // logro12
+    for (let i = 0; i < 5; i++) {
+        yield crearEnvio("user_racha_ac", `p${i}`, "AC", "c", categorias[0], baseDate);
+    }
+
+    // =========================
+    // 8. RACHA DIAS (7 días)
+    // logro13
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(baseDate);
+        d.setDate(d.getDate() + i);
+        yield crearEnvio("user_racha_dias", `p${i}`, "WA", "c", categorias[0], d);
+    }
+
+    // =========================
+    // 9. CATEGORIAS
+    // logro16
+    for (let i = 0; i < categorias.length; i++) {
+        const cat = categorias[i];
+        yield crearEnvio("user_categorias", `p${i}`, "AC", "c", cat, baseDate);
+    }
+
+    // =========================
+    // 10. FRANJAS HORARIAS
+    // logro18
+    for (let h = 0; h < 24; h++) {
+        const d = new Date(baseDate);
+        d.setHours(h);
+        yield crearEnvio("user_franjas", `p${h}`, "WA", "c", categorias[0], d);
+    }
+
+    // =========================
+    // 11. MEJOR TIEMPO
+    // logro17
+    yield crearEnvio("user_top_tiempo", "p1", "AC", "c", categorias[0], baseDate, 0.001);
+
+    // =========================
+    // 12. USER 5 LOGROS
+    // logro3
+    for (let i = 0; i < 10; i++) {
+        yield crearEnvio("user_5_logros", `p${i}`, "AC", "c", categorias[i % categorias.length], baseDate);
+    }
+    for (let i = 0; i < 5; i++) {
+        yield crearEnvio("user_5_logros", `extra${i}`, "AC", "cpp", categorias[0], baseDate);
     }
 }
-*/
-/*
-| Usuario | Objetivo principal                                  |
-| ------- | --------------------------------------------------- |
-| `user1` | Onboarding + primeros logros básicos                |
-| `user2` | Volumen (10, 50, 100 problemas)                     |
-| `user3` | Lenguajes                                           |
-| `user4` | Rachas                                              |
-| `user5` | Calidad                                             |
-| `user6` | Categorías + extremos (500 problemas, récord, etc.) |
-
 */
 
 /*

@@ -3,6 +3,7 @@ import ProblemaDAO from "src/dao/problemaDAO.js";
 import redisClient from '../redis/redisClient.js';
 import EstadoServicio from "src/servicios/estado/EstadoServicio.js";
 import { EstadoUsuario } from "src/servicios/estado/EstadoUsuario.js";
+import ServicioLogro from "src/servicios/logros/ServicioLogro.js";
 
 type Envio = {
     envioId: number,
@@ -49,7 +50,7 @@ export async function cargarBloqueEnvios(envios: Envio[]) {
         const estado = EstadoServicio.getEstado(envio.usuario);
         actualizarEstado(estado, envio);
 
-        await procesarEnvio(envio, pipeline);
+        await procesarEnvio(envio, pipeline, "cargaIni");
     }
 
     //ejecuta el pipeline
@@ -58,7 +59,7 @@ export async function cargarBloqueEnvios(envios: Envio[]) {
 
 export async function cargarEnvio(envio: Envio) {
     const envioProcesado = parseEnvio(envio);
-    await procesarEnvio(envioProcesado);
+    await procesarEnvio(envioProcesado, undefined, "tiempoReal");
 }
 
 function parseEnvio(envio: Envio): EnvioProcesado {
@@ -87,7 +88,7 @@ function parseEnvio(envio: Envio): EnvioProcesado {
     return envioProcesado;
 }
 
-async function procesarEnvio(envio: EnvioProcesado, pipeline?: any) {
+async function procesarEnvio(envio: EnvioProcesado, pipeline?: any, modo: "cargaIni" | "tiempoReal" = "tiempoReal") {
     const problemaDAO = new ProblemaDAO();
     const usuarioDAO = new UsuarioDAO();
 
@@ -109,12 +110,19 @@ async function procesarEnvio(envio: EnvioProcesado, pipeline?: any) {
         {
             envioId: envio.envioId,
             usuario: envio.usuario,
+            problema: envio.problema,
+            categoria: envio.categoria,
             resultado: envio.resultado,
             lenguaje: envio.lenguaje,
             fecha: envio.fecha
         },
         pipeline
     );
+
+    if(modo === "tiempoReal") {
+        const logrosNuevos = await ServicioLogro.procesarLogrosTiempoReal(envio);
+        usuarioDAO.guardarLogros(envio.usuario, logrosNuevos);
+    }
 }
 
 // Para la parte de actualizacion de los logros en la carga inicial, primero se guardara la informacion necesaria
@@ -130,22 +138,21 @@ function actualizarEstado(estado: EstadoUsuario, envio: EnvioProcesado) {
         const [dia, mes, anio] = estado.ultimoDiaEnvio?.split('-').map(Number) || [1, 1, 1]; //TODO mirar esto mejor
         const fechaAnterior = new Date(anio, mes - 1, dia);
         const fechaEnvio = new Date(envio.fecha.anio, envio.fecha.mes - 1, envio.fecha.dia);
-        const timepoEntreFechas = fechaEnvio.getTime() - fechaAnterior.getTime();
+        const timepoEntreFechas = (fechaEnvio.valueOf() - fechaAnterior.valueOf()) / 1000;
         
-        if (timepoEntreFechas === 86400000) { // si las fechas son de dias consecutivos aumentamos la racha
+        if (timepoEntreFechas === 86400) { // si las fechas son de dias consecutivos aumentamos la racha
             estado.rachaDiasEnvio++;
             const rachaMax = estado.rachaDiasEnvioMax || 0;
             if (estado.rachaDiasEnvio > rachaMax) {
                 estado.rachaDiasEnvioMax = estado.rachaDiasEnvio;
             }
-        } else if (timepoEntreFechas > 86400000) { //si la diferencia es mayor significa que se ha perdido la racha de dias
+        } else if (timepoEntreFechas > 86400) { //si la diferencia es mayor significa que se ha perdido la racha de dias
             estado.rachaDiasEnvio = 1;
         }
         estado.ultimoDiaEnvio = strFecha;
 
     }
     if (envio.resultado === "AC") {
-        estado.numEnviosAC++;
         estado.rachaEnviosAC++;
         const rachaMax = estado.rachaEnviosACMax || 0;
         if (estado.rachaEnviosAC > rachaMax) {
