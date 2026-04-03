@@ -74,6 +74,7 @@ export default class UsuarioDAO extends DAO {
             pipeline.sAdd(`usuario:${dato.usuario}:categoriasAC`, dato.categoria);
             pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajesAC`, dato.lenguaje, 1);
         } else {
+            pipeline.sAdd(`usuario:${dato.usuario}:problemasNoAC`, dato.problema);
             pipeline.set(`usuario:${dato.usuario}:rachaEnviosAC`, "0");
         }
     }
@@ -243,10 +244,13 @@ export default class UsuarioDAO extends DAO {
     }
 
     async getNumProblemasResueltos(usuario: string): Promise<number> {
-        const a = await this.redis.sMembers(`usuario:${usuario}:problemasAC`);
         const numProblemasResueltos = await this.redis.sCard(`usuario:${usuario}:problemasAC`);
         return numProblemasResueltos;
+    }
 
+    async tieneProblemaEnvioIncorrecto(usuario: string, problema: string): Promise<boolean> {
+        const tieneEnvioIncorrecto = await this.redis.sIsMember(`usuario:${usuario}:problemasNoAC`, problema);
+        return Boolean(tieneEnvioIncorrecto);
     }
 
     async getNumProblemasLenguaje(usuario: string, lenguaje: string): Promise<number> {

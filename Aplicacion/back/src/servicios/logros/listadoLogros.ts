@@ -253,8 +253,8 @@ export const logros: Logro[] = [
     condicionCargaInicial: (estado) => false, //TODO no esta hecho
 
     condicion: async (envio) => {
-      const numEnvios = await DAOProblema.getNumEnvios(envio.problema);
-      return numEnvios === 1;
+      const tieneEnvioIncorrecto = await DAOUsuario.tieneProblemaEnvioIncorrecto(envio.usuario, envio.problema);
+      return !tieneEnvioIncorrecto;
     }
   },
   {
