@@ -9,12 +9,14 @@ setUpTestFile(usuarioDAO);
 const dato = {
     envioId: 1,
     usuario: "user1",
+    problema: "p1",
     resultado: "AC",
     lenguaje: "Cpp",
     fecha: {
         dia: 17,
         mes: 2, //marzo
-        anio: 2025
+        anio: 2025,
+        hora: 10
     }
 };
 
@@ -27,12 +29,14 @@ describe("Registrar datos de usuario", () => {
             const dato = {
                 envioId: i + 1,
                 usuario: "user1",
+                problema: "p1",
                 resultado: "AC",
                 lenguaje: "Cpp",
                 fecha: {
                     dia: fecha.getDate(),
                     mes: fecha.getMonth(),
-                    anio: fecha.getFullYear()
+                    anio: fecha.getFullYear(),
+                    hora: fecha.getHours()
                 }
             };
 

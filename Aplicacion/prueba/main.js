@@ -11,7 +11,7 @@ async function main() {
         "tiempo": 1,
         "memoria": 1,
         "pos": 1,
-        "fecha": "2026-04-04"
+        "fecha": "2025-04-03T10"
     });
 
     console.log("Mensaje enviado correctamente");

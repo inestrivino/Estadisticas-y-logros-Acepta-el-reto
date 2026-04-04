@@ -29,4 +29,51 @@ export default class UsuarioService {
 
         return datos;
     }
+
+    //TODO adaptarlo al modo servicio, por ejemplo que sea el servicio el que ponga el formato de salida de la clasificaicion y no el dao
+    async getLogrosUsuario(usuario: string, clasificacion: string) {
+        return usuarioDAO.getLogrosUsuario(usuario, clasificacion);
+    }
+
+    //TODO creo que este no tiene que estar aqui
+    async guardarLogros(usuario: string, logros: string[], pipeline?: any) {
+        return usuarioDAO.guardarLogros(usuario, logros, pipeline)
+    }
+
+    //TODO IMPORTANTE mirar si necesito poner await para todos estos
+    async getNumEnvios(usuario: string): Promise<number> {
+        return usuarioDAO.getNumEnvios(usuario);
+    }
+
+    async getNumProblemasResueltos(usuario: string): Promise<number> {
+        return usuarioDAO.getNumProblemasResueltos(usuario);
+    }
+
+    async tieneProblemaEnvioIncorrecto(usuario: string, problema: string): Promise<boolean> {
+        return usuarioDAO.tieneProblemaEnvioIncorrecto(usuario, problema);
+    }
+
+    async getNumProblemasLenguaje(usuario: string, lenguaje: string): Promise<number> {
+        return usuarioDAO.getNumProblemasLenguaje(usuario, lenguaje);
+    }
+
+    async getNumLenguajesUsados(usuario: string): Promise<number> {
+        return usuarioDAO.getNumLenguajesUsados(usuario);
+    }
+
+    async getRachaMaximaEnviosCorrectos(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaMaximaEnviosCorrectos(usuario);
+    }
+
+    async getRachaMaximaDiasConEnvio(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaMaximaDiasConEnvio(usuario);
+    }
+
+    async getNumCategoriasProblemasResueltos(usuario: string): Promise<number> {
+        return this.getNumCategoriasProblemasResueltos(usuario);
+    }
+
+    async getNumFranjasHorariasConEnvio(usuario: string): Promise<number> {
+        return this.getNumFranjasHorariasConEnvio(usuario);
+    }
 }

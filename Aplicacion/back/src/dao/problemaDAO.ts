@@ -35,7 +35,7 @@ export default class ProblemaDAO extends DAO {
     }
 
     //Devuelve el mejor tiempo o 0 si no hay ninguno
-    async getMejorTiempo(problema: string):Promise<number|null> {
+    async getMejorTiempo(problema: string):Promise<number> {
         //const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
         const aux = await this.redis.zRangeWithScores(`problema:${problema}:tiemposEnvios`, 0, 0);
         if (aux.length === 0)
