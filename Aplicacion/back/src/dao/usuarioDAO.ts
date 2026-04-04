@@ -1,5 +1,4 @@
 import DAO from "./DAO.js";
-import logros from "../transfers/logros.js";
 import dateToTimestamp from "../utils/fecha.js";
 
 type datosUsuario = {
@@ -207,25 +206,8 @@ export default class UsuarioDAO extends DAO {
         await this.redis.del(`timestamp:${timeStamp}`);
     }
 
-    async getLogrosUsuario(usuario: string, clasificacion: string) {
-        const setLogros = new Set(await this.redis.sMembers(`usuario:${usuario}:logros`));
-
-        //agrega el etributo de si el usuario tiene ese logro o no
-        const logrosUsuario = logros.map(logro => ({ ...logro, obtenido: setLogros.has(logro.nombre) }));
-
-        //agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
-        const gruposMap = new Map();
-        for (const logro of logrosUsuario) {
-            const key = clasificacion === "nivel" ? logro.nivel : logro.categoria;
-            if (!gruposMap.has(key)) {
-                gruposMap.set(key, []);
-            }
-            gruposMap.get(key).push(logro);
-        }
-
-        //transforma el map a una estructura similar a la del tipo TGrupoLogros 
-        const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
-        return { clasificacion, grupos };
+    async getLogros(usuario: string) {
+        return await this.redis.sMembers(`usuario:${usuario}:logros`);
     }
 
     async guardarLogros(usuario: string, logros: string[], pipeline?: any) {

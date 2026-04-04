@@ -48,13 +48,13 @@ export const logros: Logro[] = [
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,
     trigger: "siempre",
-    condicionCargaInicial: (estado) => true, //TODO supongo que si estamos comprobando lo estamos haciendo en un usuario que existe, y por tanto se habra hecho cuenta
+    condicionCargaInicial: (estado) => true,
     condicion: async (envio) => true
   },
   {
     id: 1,
     nombre: "logro2",
-    descripcion: "Realización del primer envío", //TODO mirar si esto se refiere a un envio a secas o a uno AC
+    descripcion: "Realización del primer envío",
     imagen: "logro_placeholder.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
