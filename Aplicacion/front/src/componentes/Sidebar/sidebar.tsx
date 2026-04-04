@@ -47,30 +47,30 @@ export default function Sidebar() {
 
   const links = (
     <>
-      <Nav.Link as={NavLink} to="/usuarios/user1/estadisticas"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
-      <Nav.Link as={NavLink} to="/usuarios/usuario1/logros"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
-      <Nav.Link as={NavLink} to="/usuarios/ranking"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
-      <Nav.Link as={NavLink} to="/problemas/problema1"><FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
-      <Nav.Link as={NavLink} to="/pruebaSocket"><FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/estadisticas"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/logros"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/problemas/problema1"><FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/pruebaSocket"><FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>
     </>
   );
 
   return (
     <>
       {/*navbar superior para pantallas pequeñas*/}
-      <Navbar className="d-lg-none fixed-top px-3">
+      <Navbar className="d-lg-none fixed-top px-3 app-navbar-top">
         <Button variant="outline-primary" onClick={handleShow}>
           <FontAwesomeIcon icon={faBars} />
         </Button>
 
-        <Navbar.Brand className="ms-2">
+        <Navbar.Brand className="ms-2 app-navbar-titulo">
           {getTitulo()}
         </Navbar.Brand>
       </Navbar>
 
       {/*Sidebar fija en pantallas grandes*/}
       <div className="sidebar d-none d-lg-flex flex-column p-3">
-        <Navbar.Brand className="mb-5">
+        <Navbar.Brand className="mb-5 app-navbar-titulo">
           <FontAwesomeIcon icon={faLightbulb} className="me-2" />
           ¡Acepta el reto!
         </Navbar.Brand>
@@ -81,15 +81,15 @@ export default function Sidebar() {
       </div>
 
       {/*sidebar desplegada para pantallas pequeñas (con offcanvas) */}
-      <Offcanvas show={show} onHide={handleClose} placement="start">
+      <Offcanvas show={show} onHide={handleClose} placement="start" className="app-offcanvas">
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>
+          <Offcanvas.Title className="app-offcanvas-titulo">
             <FontAwesomeIcon icon={faLightbulb} className="me-2" />
             ¡Acepta el reto!
           </Offcanvas.Title>
         </Offcanvas.Header>
 
-        <Offcanvas.Body>
+        <Offcanvas.Body className="app-offcanvas-body">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
         </Offcanvas.Body>
       </Offcanvas>
