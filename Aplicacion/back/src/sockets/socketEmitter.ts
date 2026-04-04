@@ -12,6 +12,7 @@ type Envio = {
     envioId: number,
     usuario: string,
     problema: string,
+    //categoria: string //TODO categorias problemas
     resultado: string,
     lenguaje: string,
     tiempo: number,
@@ -40,4 +41,8 @@ export default async function routerEmitter(envio:Envio) {
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_RESULTADOS), await usuarioService.getResultados(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_LENGUAJES), await usuarioService.getLenguajes(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(envio.usuario));
+
+    //se actualizan los logros del usuario
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await usuarioService.getLogrosUsuario(envio.usuario, "nivel"));
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await usuarioService.getLogrosUsuario(envio.usuario, "categoria"));
 }

@@ -20,4 +20,10 @@ router.get("/:usuario/enviosAnio", async (req, res) => {
     return res.json(datos);
 });
 
+router.get("/:usuario/logros", async (req, res) => {
+    const { usuario } = req.params;
+    const {clasificacion} = req.query;
+    return res.json(await usuarioService.getLogrosUsuario(usuario, clasificacion as string));
+});
+
 export default router;
