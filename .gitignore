@@ -3,7 +3,6 @@ dist*
 .env
 .env.*
 data
-package-lock.json
 test-report
 
 .vscode/*

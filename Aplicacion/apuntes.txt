@@ -47,6 +47,9 @@
       proxy_set_header Connection "upgrade";
   }
 
+- AMQP es el protocolo que usa rabbit mq para enviar y recibir mensajes, estaría bien que se comentara
+  en la memoria que este es el proceso que usa
+
 ======================================================================================================
 
 * Recordaatorios:

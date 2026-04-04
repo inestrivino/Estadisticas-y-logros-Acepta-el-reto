@@ -49,6 +49,7 @@ export async function cargarBloqueEnvios(envios: Envio[]) {
 }
 
 export async function cargarEnvio(envio: Envio) {
+    console.log("Carga un envio individual");
     const envioProcesado = parseEnvio(envio);
     await procesarEnvio(envioProcesado);
 }

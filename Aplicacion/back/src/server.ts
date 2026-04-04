@@ -4,7 +4,8 @@ import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
 import { initSocket } from './sockets/socketInit.js';
-import inicializar from './db/inicializar.js';
+import inicializar from './servicios/inicializarService.js';
+import initConsumer from "./consumer/cosumer.js";
 //routers
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
@@ -22,15 +23,7 @@ await redisClient.connect();
 //inicializo la base de datos de redis con los datos historicos
 await inicializar();
 
-//TODO quitar esto
-//import UsuarioDAO from 'src/dao/usuarioDAO.js';
-//const usuarioDAO = new UsuarioDAO();
-//const hoy = new Date;
-//hoy.setHours(0, 0, 0, 0);
-//const timeFin = hoy.valueOf() / 1000; // timeStamp en segundos
-//let timeIni = timeFin - 31536000 // 365 * 24 * 60 * 60;
-//timeIni += 86400; // 86400 = 24 * 60 * 60
-//usuarioDAO.getEnviosUsuario('user1', timeIni, timeFin);
+await initConsumer();
 
 //incializo el socket
 initSocket(app);

@@ -29,8 +29,11 @@ services:
       - "9229:9229"
     environment:
       - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./.env
     depends_on:
       - redis
+      - rabbitmq
     volumes:
       - ./back:/app/back
       - /app/back/node_modules
@@ -41,6 +44,16 @@ services:
       - redis_data:/data
     ports:
       - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - ./.env
 
 volumes:
   redis_data:

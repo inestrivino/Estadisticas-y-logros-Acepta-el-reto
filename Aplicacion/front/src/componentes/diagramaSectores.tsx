@@ -1,4 +1,4 @@
-import { socket } from "../services/socket.ts";
+import { socket } from "../services/socket.js";
 import { PieChart, Pie, ResponsiveContainer, Tooltip } from "recharts";
 import { useEffect, useState } from "react";
 

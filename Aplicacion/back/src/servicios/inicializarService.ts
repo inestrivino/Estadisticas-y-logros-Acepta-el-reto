@@ -1,6 +1,5 @@
-import fs from 'fs';
 import redisClient from '../redis/redisClient.js';
-import { cargarEnvio, cargarBloqueEnvios } from './cargarDatos.js';
+import { cargarBloqueEnvios } from './procesarEnviosService.js';
 
 type Envio = {
     envioId: number

@@ -1,6 +1,6 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
-import { cargarEnvio } from "../db/cargarDatos.js";
+//import { cargarEnvio } from "../db/cargarDatos.js";
 import ProblemaDAO from "../dao/problemaDAO.js";
 import UsuarioService from "../servicios/usuarioService.js";
 
@@ -24,11 +24,10 @@ type Envio = {
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
 export default async function routerEmitter(envio:Envio) {
+    console.log("Emite eventos para recargar los componentes");
+
     //se obtiene el socket para emitir los eventos
     const io = getIO();
-
-    //se procesa el envio y se guarda en la base de datos
-    await cargarEnvio(envio);
 
     //se actualizan los diagramas de estadisticas de problemas
     io.emit(formatEvent(envio.problema, EventType.PROBLEMA_RESULTADOS), await problemaDAO.getResultados(envio.problema));
