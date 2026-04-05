@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import EstadisticasProblema from "./pages/EstadisticasProblema.js"
-import PruebaSocket from "./pages/PruebaSocket.tsx"
+import EstadisticasProblema from "./pages/EstadisticasProblema/EstadisticasProblema.js"
+import PruebaSocket from "./pages/PruebaSocket"
 import Layout from "./pages/Layout/Layout.js"
-import EstadisticasUsuario from "./pages/EstadisticasUsuario.tsx"
-import LogrosUsuario from "./pages/LogrosUsuario/LogrosUsuario.tsx"
+import EstadisticasUsuario from "./pages/EstadisticasUsuario"
+import LogrosUsuario from "./pages/LogrosUsuario/LogrosUsuario"
 
 export default function App() {
   return (

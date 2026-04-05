@@ -5,8 +5,8 @@ import { EventType, formatEvent } from "shared";
 import "./estadisticasProblema.css";
 
 //COMPONENTES
-import DatoNumerico from "../componentes/datoNumerico"
-import DiagramaSectores from "../componentes/diagramaSectores";
+import DatoNumerico from "../../componentes/datoNumerico"
+import DiagramaSectores from "../../componentes/diagramaSectores";
 
 export default function EstadisticasProblema() {
 
