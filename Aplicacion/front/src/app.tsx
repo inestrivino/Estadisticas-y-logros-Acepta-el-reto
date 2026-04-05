@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import EstadisticasProblema from "./pages/EstadisticasProblema.tsx"
+import EstadisticasProblema from "./pages/EstadisticasProblema/EstadisticasProblema.js"
 import PruebaSocket from "./pages/PruebaSocket.tsx"
-import Layout from "./pages/Layout.tsx"
+import Layout from "./pages/Layout/Layout.js"
 import EstadisticasUsuario from "./pages/EstadisticasUsuario.tsx"
 import LogrosUsuario from "./pages/LogrosUsuario/LogrosUsuario.tsx"
 

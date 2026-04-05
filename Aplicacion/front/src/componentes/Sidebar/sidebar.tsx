@@ -1,6 +1,6 @@
 import { Navbar, Nav, Offcanvas, Button } from "react-bootstrap";
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { NavLink, useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faXmark } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
@@ -10,7 +10,9 @@ export default function Sidebar() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  
+  const location = useLocation();
+  const { problema, usuario } = useParams();
+
   const getTitulo = () => {
     if (location.pathname.startsWith("/problemas"))
       return "Estadísticas ejercicios";
@@ -30,28 +32,19 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
-  /*
-  const titles = {
-    "/": "Usuario usuario2",
-    "/pruebaSocket": "Ajustes"
-  };
-
-  const location = useLocation();
-  const getTitle = () => {
-    if (location.pathname.startsWith("/problemas"))
-      return "Estadísticas ejercicios";
-
-    return titles[location.pathname] || "¡Acepta el reto!";
-  };
-  */
-
+  //TODO cambiar el valor por defecto
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/estadisticas"><FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/user1/logros"><FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking"><FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/problemas/problema1"><FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/pruebaSocket"><FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/${usuario || "user1"}/estadisticas`}>
+        <FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/${usuario || "user1"}/logros`}>
+        <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
+        <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/problemas/${problema || "problema1"}`}>
+        <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
+      <Nav.Link as={NavLink} className="app-nav-link" to="/pruebaSocket">
+        <FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>
     </>
   );
 

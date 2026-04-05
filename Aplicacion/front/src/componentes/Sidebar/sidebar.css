@@ -1,14 +1,15 @@
 /* navbar barra superior en pantallas pequeñas */
 .app-navbar-top {
   background-color: #446E9B;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 0.5rem !important;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between !important;
+  align-items: center;
 }
 
 /* boton para desplegar navbar en pantallas pequeñas */
 .app-navbar-top button {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: #F5F5F5;
   border: none;
 }
@@ -29,11 +30,18 @@
 /* titulo navbar */
 .app-navbar-titulo {
   color: #F5F5F5;
-  font-size: 1.7rem;
+  font-size: 1.6rem !important;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.app-navbar-titulo:active,
+.app-navbar-titulo:focus,
+.app-navbar-titulo:hover {
+  color: #F5F5F5;
+  text-decoration: none;
 }
 
 /* sidebar (pantalla grande) */
