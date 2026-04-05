@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatEvent } from "shared";
-import "./estadisticasProblema.css";
+import "./EstadisticasProblema.css";
 
 //COMPONENTES
 import DatoNumerico from "../../componentes/datoNumerico"
