@@ -1,5 +1,5 @@
 import UsuarioDAO from '../dao/usuarioDAO.js';
-import logros from "../transfers/logros.js";
+import logros from "./logros/listadoLogros.js";
 
 const usuarioDAO = new UsuarioDAO();
 
@@ -36,7 +36,15 @@ export default class UsuarioService {
         const setLogros = new Set(await usuarioDAO.getLogros(usuario));
 
         //agrega el etributo de si el usuario tiene ese logro o no
-        const logrosUsuario = logros.map(logro => ({ ...logro, obtenido: setLogros.has(logro.nombre) }));
+        const logrosUsuario = logros.map(logro => ({
+            nombre: logro.nombre,
+            descripcion: logro.descripcion,
+            imagen: logro.imagen,
+            nivel: logro.nivel,
+            categoria: logro.categoria,
+            sorpresa: logro.sorpresa,
+            obtenido: setLogros.has(logro.nombre)
+        }));
 
         //agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
         const gruposMap = new Map();

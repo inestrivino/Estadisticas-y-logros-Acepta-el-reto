@@ -14,6 +14,10 @@ export default function GrupoLogros(props: {
 
     const { usuario } = useParams();
 
+    if(props.datos.logros.length === 0) {
+        return(<></>);
+    }
+
     return (
         <div style={{ width: "100%", maxWidth: "1100px", border: "3px solid " + props.color, borderRadius: "7px" }}
             className="mb-3">

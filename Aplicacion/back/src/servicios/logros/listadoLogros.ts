@@ -269,7 +269,14 @@ export const logros: Logro[] = [
 
     condicionCargaInicial: (estado) => false, //TODO no esta hecho
 
-    condicion: async (envio) => false //TODO no esta hecho
+    condicion: async (envio) => {
+      const rank = await DAOProblema.getRankEnvioProblema(envio.problema, envio.envioId);
+      const numAC = await DAOProblema.getNumEnviosAC(envio.problema);
+      console.log("------------------------rank: " + rank + " numAC: " + numAC);
+      if (rank === -1 || numAC === 0) 
+        return false;
+      return rank < numAC * 0.25;
+    }
   },
   /* //TODO categorias problemas
   {
@@ -313,7 +320,7 @@ export const logros: Logro[] = [
     descripcion: "Realización de envíos en cada franja horaria",
     imagen: "logro_placeholder.png",
     nivel: NivelLogro.PLATA,
-    categoria: CategoriaLogro.CATEGORIAS,
+    categoria: CategoriaLogro.RACHAS,
     sorpresa: true,
     trigger: "siempre",
 
