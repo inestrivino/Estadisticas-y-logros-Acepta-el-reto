@@ -4,37 +4,7 @@ import redisClient from '../redis/redisClient.js';
 import EstadoServicio from "../servicios/estado/EstadoServicio.js";
 import { EstadoUsuario } from "../servicios/estado/EstadoUsuario.js";
 import ServicioLogro from "../servicios/logros/ServicioLogro.js";
-
-type Envio = {
-    envioId: number,
-    usuario: string,
-    problema: string,
-    //categoria: string, //TODO categorias problemas
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: string
-};
-
-type EnvioProcesado = {
-    envioId: number,
-    usuario: string,
-    problema: string,
-    //categoria: string, //TODO categorias problemas
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: {
-        dia: number,
-        mes: number,
-        anio: number,
-        hora: number
-    }
-};
+import { Envio, EnvioProcesado } from "../types/envio.js";
 
 export async function cargarBloqueEnvios(envios: Envio[]) {
 

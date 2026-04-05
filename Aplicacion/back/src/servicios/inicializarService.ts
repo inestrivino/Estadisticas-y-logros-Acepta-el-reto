@@ -2,19 +2,7 @@ import redisClient from '../redis/redisClient.js';
 import { cargarBloqueEnvios } from './procesarEnviosService.js';
 import ServicioLogro from "../servicios/logros/ServicioLogro.js";
 import EstadoServicio from '../servicios/estado/EstadoServicio.js';
-
-type Envio = {
-    envioId: number
-    usuario: string,
-    problema: string,
-    //categoria: string, //TODO categorias problemas
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: string
-};
+import { Envio } from "../types/envio.js";
 
 export default async function inicializar() {
 

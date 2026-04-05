@@ -1,9 +1,10 @@
 import { EstadoUsuario } from "../estado/EstadoUsuario.js";
 import EstadoServicio from "../estado/EstadoServicio.js";
-import { logros, Logro } from "./listadoLogros.js";
+import { logros } from "./Logros.js";
+import { Logro } from "../../types/logro.js";
 import UsuarioDAO from "../../dao/usuarioDAO.js";
 import redisClient from "../../redis/redisClient.js";
-import { Envio, EnvioProcesado } from "../Envios.js";
+import { EnvioProcesado } from "../../types/envio.js";
 
 const usuarioDAO = new UsuarioDAO();
 

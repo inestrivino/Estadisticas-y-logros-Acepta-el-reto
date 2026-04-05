@@ -1,7 +1,6 @@
-import { EnvioProcesado } from "../Envios.js";
-import { EstadoUsuario } from "../estado/EstadoUsuario.js";
 import UsuarioDAO from "../../dao/usuarioDAO.js";
 import ProblemaDAO from "../../dao/problemaDAO.js";
+import { Logro, NivelLogro, CategoriaLogro } from "../../types/logro.js";
 
 const DAOUsuario = new UsuarioDAO();
 const DAOProblema = new ProblemaDAO();
@@ -10,33 +9,6 @@ const DAOProblema = new ProblemaDAO();
 const CATEGORIAS_PROBLEMAS = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
 const NUM_CATEGORIAS = CATEGORIAS_PROBLEMAS.length;
 
-enum NivelLogro {
-  BRONCE = "Bronce",
-  PLATA = "Plata",
-  ORO = "Oro"
-}
-
-export enum CategoriaLogro {
-  ONBOARDING = "Onboarding",
-  PROBLEMAS = "Número de problemas",
-  LENGUAJES = "Uso de lenguajes",
-  RACHAS = "Rachas",
-  CALIDAD = "Calidad",
-  CATEGORIAS = "Categorías"
-}
-
-export type Logro = {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  imagen: string;
-  categoria: CategoriaLogro;
-  nivel: NivelLogro;
-  sorpresa: boolean;
-  trigger: "siempre" | "AC",
-  condicionCargaInicial: (estado: EstadoUsuario) => boolean;
-  condicion: (envio: EnvioProcesado) => Promise<boolean>
-};
 
 export const logros: Logro[] = [
   {
@@ -272,7 +244,6 @@ export const logros: Logro[] = [
     condicion: async (envio) => {
       const rank = await DAOProblema.getRankEnvioProblema(envio.problema, envio.envioId);
       const numAC = await DAOProblema.getNumEnviosAC(envio.problema);
-      console.log("------------------------rank: " + rank + " numAC: " + numAC);
       if (rank === -1 || numAC === 0) 
         return false;
       return rank < numAC * 0.25;

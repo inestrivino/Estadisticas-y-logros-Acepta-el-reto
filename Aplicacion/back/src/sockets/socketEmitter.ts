@@ -3,23 +3,11 @@ import { EventType, formatEvent } from "shared";
 //import { cargarEnvio } from "../db/cargarDatos.js";
 import ProblemaDAO from "../dao/problemaDAO.js";
 import UsuarioService from "../servicios/usuarioService.js";
+import { Envio } from "../types/envio.js";
 
 //TODO poner aqui el servicio en vez del DAO
 const problemaDAO = new ProblemaDAO();
 const usuarioService = new UsuarioService();
-
-type Envio = {
-    envioId: number,
-    usuario: string,
-    problema: string,
-    //categoria: string //TODO categorias problemas
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: string
-};
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes

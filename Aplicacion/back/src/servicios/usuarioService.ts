@@ -1,5 +1,5 @@
 import UsuarioDAO from '../dao/usuarioDAO.js';
-import logros from "./logros/listadoLogros.js";
+import logros from "./logros/Logros.js";
 
 const usuarioDAO = new UsuarioDAO();
 
