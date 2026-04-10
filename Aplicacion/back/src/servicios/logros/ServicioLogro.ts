@@ -11,7 +11,7 @@ const usuarioDAO = new UsuarioDAO();
 class ServicioLogro {
 
     async calcularYGuardarLogros() {
-        const estados = EstadoServicio.getEstados();
+        const estados = EstadoServicio.getEstadosUsuarios();
         const pipeline = redisClient.multi();
 
         for (const [usuario, estado] of estados) {
@@ -24,21 +24,20 @@ class ServicioLogro {
     }
 
     procesarLogrosCargaInicial(usuario: EstadoUsuario): string[] {
-        const nuevos: string[] = [];
-
+        
         for (const logro of logros) {
             if (logro.condicionCargaInicial(usuario)) {
-                nuevos.push(logro.nombre);
+                usuario.logros.add(logro.nombre);
                 usuario.logros.add(logro.nombre);
             }
         }
 
-        return nuevos;
+        return Array.from(usuario.logros);
     }
 
     async procesarLogrosTiempoReal(envio: EnvioProcesado): Promise<string[]> {
         const nuevos: string[] = [];
-        const logrosUsuario = new Set(await redisClient.sMembers(`usuario:${envio.usuario}:logros`));
+        const logrosUsuario = new Set(await usuarioDAO.getLogros(envio.usuario));
         const logrosFiltrados = this.filtrarPorTrigger(envio.resultado);
 
         for (const logro of logrosFiltrados) {

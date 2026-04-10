@@ -1,17 +1,26 @@
+import { EstadoProblema } from "./estadoProblema.js";
 import { EstadoUsuario } from "./EstadoUsuario.js";
 
 class EstadoServicio {
-    private estados = new Map<string, EstadoUsuario>();
+    private estadosUsuarios = new Map<string, EstadoUsuario>();
+    private estadosProblemas = new Map<string, EstadoProblema>();
 
-    getEstados(): [string, EstadoUsuario][] {
-        return Array.from(this.estados.entries());
+    getEstadosUsuarios(): [string, EstadoUsuario][] {
+        return Array.from(this.estadosUsuarios.entries());
+    }
+    
+    getEstadoUsuario(usuario: string): EstadoUsuario {
+        if (!this.estadosUsuarios.has(usuario)) {
+            this.estadosUsuarios.set(usuario, this.initEstado());
+        }
+        return this.estadosUsuarios.get(usuario)!;
     }
 
-    getEstado(usuario: string): EstadoUsuario {
-        if (!this.estados.has(usuario)) {
-            this.estados.set(usuario, this.initEstado());
+    getEstadoProblema(problema: string): EstadoProblema {
+        if (!this.estadosProblemas.has(problema)) {
+            this.estadosProblemas.set(problema, {});
         }
-        return this.estados.get(usuario)!;
+        return this.estadosProblemas.get(problema)!;
     }
 
     private initEstado(): EstadoUsuario {
@@ -29,7 +38,8 @@ class EstadoServicio {
     }
 
     clear() {
-        this.estados.clear();
+        this.estadosUsuarios.clear();
+        this.estadosProblemas.clear();
     }
 }
 

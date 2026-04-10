@@ -62,13 +62,11 @@ export default class UsuarioDAO extends DAO {
             pipeline.sAdd(`usuario:${dato.usuario}:problemasAC`, dato.problema);
             //Añade el problemas resuelto al listado del lenguaje con el que se ha resuelto
             pipeline.sAdd(`usuario:${dato.usuario}:lenguaje:${dato.lenguaje}`, dato.problema);
-            pipeline.incr(`usuario:${dato.usuario}:enviosAC`);
-            pipeline.incr(`usuario:${dato.usuario}:rachaEnviosAC`);
+            //pipeline.incr(`usuario:${dato.usuario}:enviosAC`); //TODO borrar
             //pipeline.sAdd(`usuario:${dato.usuario}:categoriasAC`, dato.categoria); //TODO categorias problemas
             pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajesAC`, dato.lenguaje, 1);
         } else {
             pipeline.sAdd(`usuario:${dato.usuario}:problemasNoAC`, dato.problema);
-            pipeline.set(`usuario:${dato.usuario}:rachaEnviosAC`, "0");
         }
     }
 
@@ -90,14 +88,14 @@ export default class UsuarioDAO extends DAO {
             pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvio`, 1);
             rachaDiasEnvio = 1;
         }
-
         const rachaDiasEnvioMaxStr = await this.redis.get(`usuario:${dato.usuario}:rachaDiasEnvioMax`);
         const rachaDiasEnvioMax = rachaDiasEnvioMaxStr ? Number(rachaDiasEnvioMaxStr) : 0;
         if (rachaDiasEnvio > rachaDiasEnvioMax) {
             pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
         }
 
-        if (dato.resultado === "AC") {
+        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) { 
+            pipeline.incr(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosACStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
             const rachaEnviosACMaxStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosACMax`);
@@ -105,6 +103,8 @@ export default class UsuarioDAO extends DAO {
             if (rachaEnviosAC > rachaEnviosACMax) {
                 pipeline.set(`usuario:${dato.usuario}:rachaEnviosACMax`, String(rachaEnviosAC));
             }
+        } else {
+            pipeline.set(`usuario:${dato.usuario}:rachaEnviosAC`, "0");
         }
     }
 
@@ -207,7 +207,8 @@ export default class UsuarioDAO extends DAO {
     }
 
     async getLogros(usuario: string) {
-        return await this.redis.sMembers(`usuario:${usuario}:logros`);
+        const logros = await this.redis.sMembers(`usuario:${usuario}:logros`);
+        return logros;
     }
 
     async guardarLogros(usuario: string, logros: string[], pipeline?: any) {

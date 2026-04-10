@@ -187,8 +187,8 @@ export const logros: Logro[] = [
     categoria: CategoriaLogro.RACHAS,
     sorpresa: false,
     trigger: "AC",
-
-    condicionCargaInicial: (estado) => (estado.rachaEnviosACMax ?? 0) >= 5,
+    
+    condicionCargaInicial: (estado) => false, 
 
     condicion: async (envio) => {
       const racha = await DAOUsuario.getRachaMaximaEnviosCorrectos(envio.usuario);
@@ -278,7 +278,7 @@ export const logros: Logro[] = [
     sorpresa: true,
     trigger: "AC",
 
-    condicionCargaInicial: (estado) => false, //TODO no esta hecho
+    condicionCargaInicial: (estado) => false, //Se comprueba en tiempo real
 
     condicion: async (envio) => {
       const mejorTiempo = await DAOProblema.getMejorTiempo(envio.problema);
