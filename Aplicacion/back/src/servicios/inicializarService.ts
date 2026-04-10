@@ -1,17 +1,8 @@
 import redisClient from '../redis/redisClient.js';
 import { cargarBloqueEnvios } from './procesarEnviosService.js';
-
-type Envio = {
-    envioId: number
-    usuario: string,
-    problema: string,
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: string
-};
+import ServicioLogro from "../servicios/logros/ServicioLogro.js";
+import EstadoServicio from '../servicios/estado/EstadoServicio.js';
+import { Envio } from "../types/envio.js";
 
 export default async function inicializar() {
 
@@ -62,6 +53,9 @@ export default async function inicializar() {
         await cargarBloqueEnvios(bloque);
         console.log(" - Bloque " + numBloque + " cargado");
     }
+
+    await ServicioLogro.calcularYGuardarLogros();
+    EstadoServicio.clear();
 }
 
 
@@ -70,6 +64,7 @@ export default async function inicializar() {
 function* simularEnvios(): Generator<Envio> {
     const resultados = ["AC","PE","WA","CE","RTE","TLE","MLE","OLE","RF","IQ","IE"];
     const lenguajes = ["c", "cpp", "java"];
+    //const categorias = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];
     const usuarios = Array.from({length: 1}, (_, i) => `user${i + 1}`);
     const problemas = Array.from({length: 3}, (_, i) => `problema${i + 1}`);
 
@@ -78,13 +73,14 @@ function* simularEnvios(): Generator<Envio> {
             envioId: i,
             usuario: usuarios[Math.floor(Math.random() * usuarios.length)],
             problema: problemas[Math.floor(Math.random() * problemas.length)],
+            //categoria: categorias[Math.floor(Math.random() * categorias.length)], //TODO categorias problemas
             resultado: resultados[Math.floor(Math.random() * resultados.length)],
             lenguaje: lenguajes[Math.floor(Math.random() * lenguajes.length)],
             tiempo: +(Math.random() * 2 + 0.001).toFixed(3),
             memoria: Math.floor(500 + Math.random() * 4000),
             pos: Math.floor(1 + Math.random() * 100),
-            fecha: new Date(2025, Math.floor(Math.random() * 12), Math.floor(1 + Math.random() * 28))
-                .toISOString().split("T")[0]
+            fecha: new Date(2025, Math.floor(Math.random() * 12), Math.floor(1 + Math.random() * 28), 
+                Math.floor(1 + Math.random() * 24)).toISOString()
         };
     }
 }

@@ -10,6 +10,10 @@ export const EventType = {
   USUARIO_RESULTADOS: "reload-resultadosUsuario",
   USUARIO_LENGUAJES: "reload-lenguajesUsuario",
   USUARIO_PARTICIPACION: "reload-participacionUsuario",
+
+  //LOGROS USUARIO
+  LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
+  LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria"
 } as const;
 
 //Aux para formatear el evento con un string adicional (ejemplo: id del problema o usuario)

@@ -3,22 +3,11 @@ import { EventType, formatEvent } from "shared";
 //import { cargarEnvio } from "../db/cargarDatos.js";
 import ProblemaDAO from "../dao/problemaDAO.js";
 import UsuarioService from "../servicios/usuarioService.js";
+import { Envio } from "../types/envio.js";
 
 //TODO poner aqui el servicio en vez del DAO
 const problemaDAO = new ProblemaDAO();
 const usuarioService = new UsuarioService();
-
-type Envio = {
-    envioId: number,
-    usuario: string,
-    problema: string,
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-    memoria: number,
-    pos: number,
-    fecha: string
-};
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
@@ -40,4 +29,8 @@ export default async function routerEmitter(envio:Envio) {
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_RESULTADOS), await usuarioService.getResultados(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_LENGUAJES), await usuarioService.getLenguajes(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(envio.usuario));
+
+    //se actualizan los logros del usuario
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await usuarioService.getLogrosUsuario(envio.usuario, "nivel"));
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await usuarioService.getLogrosUsuario(envio.usuario, "categoria"));
 }

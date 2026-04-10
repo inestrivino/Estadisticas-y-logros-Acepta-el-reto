@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { describe, expect, beforeAll, afterEach, afterAll, vi, test, beforeEach } from "vitest";
 
-import EstadisticasProblema from "../src/pages/EstadisticasProblema.tsx";
+import EstadisticasProblema from "../src/pages/EstadisticasProblema/EstadisticasProblema.js";
 
 //HANDLERS PARA LOS ENDPOINTS
 export const handlers = [

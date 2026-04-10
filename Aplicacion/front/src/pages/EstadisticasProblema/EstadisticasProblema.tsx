@@ -2,11 +2,11 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatEvent } from "shared";
-import "./estadistucasProblema.css";
+import "./EstadisticasProblema.css";
 
 //COMPONENTES
-import DatoNumerico from "../componentes/datoNumerico.tsx"
-import DiagramaSectores from "../componentes/diagramaSectores.tsx";
+import DatoNumerico from "../../componentes/datoNumerico"
+import DiagramaSectores from "../../componentes/diagramaSectores";
 
 export default function EstadisticasProblema() {
 
