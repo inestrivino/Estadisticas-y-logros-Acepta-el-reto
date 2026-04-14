@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import UsuarioDAO from '../../src/dao/usuarioDAO.js';
 import setUpTestFile from './setUptTest.ts';
+import dateToTimestamp from '../../src/utils/fecha.ts';
 
 let usuarioDAO = new UsuarioDAO();
 
@@ -44,10 +45,9 @@ describe("Registrar datos de usuario", () => {
 
             fecha.setDate(fecha.getDate() + 7);
         }
-
-        const fin = new Date(2026, 2, 16);
-        const timeFin = fin.valueOf() / 1000; // (16 de abril de 2026)
-        const timeIni = timeFin - 31449600; //364 * 24 * 60 * 60 (17 de marzo de 2025)
+        
+        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
+        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
@@ -73,10 +73,9 @@ describe("Registrar datos de usuario", () => {
     });
 
     test("coge bien los dias un anio bisiesto", async () => {
-        await usuarioDAO.registrarDirecto(dato);
-        const fin = new Date(2024, 2, 16);
-        const timeFin = fin.valueOf() / 1000;
-        const timeIni = timeFin - 31449600; //364 * 24 * 60 * 60
+        
+        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2024});
+        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2025});
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
@@ -106,9 +105,9 @@ describe("Lecturas vacias", () => {
 
     test("coge bien lo dias", async () => {
         await usuarioDAO.registrarDirecto(dato);
-        const fin = new Date(2026, 2, 16);
-        const timeFin = fin.valueOf() / 1000;
-        const timeIni = timeFin - 31449600; //364 * 24 * 60 * 60
+
+        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
+        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
