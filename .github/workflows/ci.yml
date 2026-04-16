@@ -1,12 +1,13 @@
 on: [push, pull_request]
 
-concurrency:
-  group: deploy-reports-${{ github.ref }}
-  cancel-in-progress: false
+
 
 jobs:
   ci-back:
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-reports-${{ github.ref }}
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: Aplicacion/back
@@ -26,6 +27,9 @@ jobs:
 
   ci-front:
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-reports-${{ github.ref }}
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: Aplicacion/front
