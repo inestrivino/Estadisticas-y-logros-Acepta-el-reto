@@ -4,7 +4,7 @@ import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
 import { initSocket } from './sockets/socketInit.js';
-import InicializarService from './servicios/inicializarService.js';
+import inicializarService from './servicios/inicializarService.js';
 import initConsumer from "./consumer/cosumer.js";
 //routers
 import rutasProblemas from "./api/problemas.js";
@@ -33,7 +33,6 @@ await redisClient.connect();
 initSocket(app);
 
 //inicializo la base de datos de redis con los datos historicos
-const inicializarService = new InicializarService();
 await inicializarService.inicializar();
 
 //una vez estan cargados los datos historicos se empiezan a escuchar los nuevos

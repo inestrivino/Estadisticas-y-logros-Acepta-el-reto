@@ -8,6 +8,7 @@ import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 import { EstadoProblema } from "./estado/estadoProblema.js";
 import gestionDAO from "../dao/gestionDAO.js";
+import { conjuntoEmitter } from "../sockets/socketEmitter.js";
 
 export async function cargarBloqueEnvios(bloque: {envio: EnvioSinProcesar, numPagina: number}[]) {
 
@@ -17,18 +18,29 @@ export async function cargarBloqueEnvios(bloque: {envio: EnvioSinProcesar, numPa
         enviosProcesados.push(parseEnvio(data.envio));
     }
 
+    //conjunto de usuarios y problemas que se han modificado
+    const problemas:Set<string> = new Set<string>();
+    const usuarios:Set<string> = new Set<string>();
+
     //mete todas las operaciones en el pipeline
     const pipeline = redisClient.multi();
     for (const envio of enviosProcesados) {
+        
         const estadoUsuario = EstadoServicio.getEstadoUsuario(envio.usuario);
         const estadoProblema = EstadoServicio.getEstadoProblema(envio.problema);
         await actualizarEstado(estadoUsuario, estadoProblema, envio);
+
+        problemas.add(envio.problema);
+        usuarios.add(envio.usuario);
 
         await procesarEnvio(envio, pipeline, "cargaInicial");
     }
 
     //ejecuta el pipeline
     await pipeline.exec();
+
+    //avisa a los diagramas para que se actualicen
+    conjuntoEmitter(problemas, usuarios);
 
     //marca cual es ahora el ultimo envio procesado y la ultima pagina donde estaba
     await gestionDAO.setUltimoEnvio(enviosProcesados[enviosProcesados.length - 1].envioId);

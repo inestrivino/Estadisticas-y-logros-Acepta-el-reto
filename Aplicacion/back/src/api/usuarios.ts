@@ -1,7 +1,5 @@
 import express from 'express';
-import UsuarioService from '../servicios/usuarioService.js';
-
-const usuarioService = new UsuarioService();
+import usuarioService from '../servicios/usuarioService.js';
 const router = express.Router();
 
 router.get("/:usuario/resultados", async (req, res) => {

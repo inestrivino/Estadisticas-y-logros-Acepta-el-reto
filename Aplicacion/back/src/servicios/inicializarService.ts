@@ -4,7 +4,7 @@ import EstadoServicio from '../servicios/estado/EstadoServicio.js';
 import gestionDAO from '../dao/gestionDAO.js';
 import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
 
-export default class InicializarService {
+class InicializarService {
 
     //CONSTANTES
     private tamanioBloque = 50; //numero de paginas que se acumularan antes de mandar los datos a la base de datos
@@ -407,3 +407,5 @@ export default class InicializarService {
         return recuperados;
     }
 }
+
+export default new InicializarService();
