@@ -1,51 +1,33 @@
 import DAO from "./DAO.js";
-import dateToTimestamp from "../utils/fecha.js";
+import { EnvioProcesado } from "../types/envioProcesado.js";
 
-type datosUsuario = {
-    envioId: number,
-    usuario: string,
-    problema: string,
-    resultado: string,
-    lenguaje: string,
-    //categoria: string, //TODO categorias problemas
-    fecha: {
-        dia: number,
-        mes: number,
-        anio: number,
-        hora: number
-    }
-};
-
-export default class UsuarioDAO extends DAO {
+class UsuarioDAO extends DAO {
 
     //Funcion para introducir solo 1 datos
-    async registrarDirecto(dato: datosUsuario): Promise<void> {
+    async registrarDirecto(dato: EnvioProcesado): Promise<void> {
         const pipeline = this.redis.multi();
         await this.agregarAlPipeline(dato, pipeline);
         await this.procesosFueraDelPipeline(dato, pipeline);
         await pipeline.exec();
     }
 
-    async agregarAlPipeline(dato: datosUsuario, pipeline: any): Promise<void> {
-        //guardo el timeStamp en segundos
-        const timeStamp = dateToTimestamp(dato.fecha);
-
+    async agregarAlPipeline(dato: EnvioProcesado, pipeline: any): Promise<void> {
         //INCREMENTA LOS ENVIOS DE UN USUARIO
         //primero registra el dia del envio
         pipeline.zAdd(
             `usuario:${dato.usuario}:dias`,
-            [{ value: String(timeStamp), score: timeStamp }]
+            [{ value: String(dato.fecha), score: dato.fecha }]
         );
         //luego suma 1 a los envios de ese dia
         pipeline.hIncrBy(
             `usuario:${dato.usuario}:diasValor`,
-            String(timeStamp),
+            String(dato.fecha),
             1
         );
 
         //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
         pipeline.sAdd(
-            `timestamp:${timeStamp}`,
+            `timestamp:${dato.fecha}`,
             dato.usuario
         )
 
@@ -53,10 +35,10 @@ export default class UsuarioDAO extends DAO {
         pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajes`, dato.lenguaje, 1);
 
         pipeline.incr(`usuario:${dato.usuario}:envios`);
-        pipeline.sAdd(`usuario:${dato.usuario}:franjasHorarias`, String(dato.fecha.hora));
+        pipeline.sAdd(`usuario:${dato.usuario}:franjasHorarias`, String(dato.hora));
 
         //TODO esto se tendría que quitar y usar el timestamp de usuario:${usuario}:dias
-        pipeline.set(`usuario:${dato.usuario}:fechaUltimoEnvio`, String(timeStamp));
+        pipeline.set(`usuario:${dato.usuario}:fechaUltimoEnvio`, String(dato.fecha));
 
         if (dato.resultado === "AC") {
             pipeline.sAdd(`usuario:${dato.usuario}:problemasAC`, dato.problema);
@@ -70,12 +52,11 @@ export default class UsuarioDAO extends DAO {
         }
     }
 
-    async procesosFueraDelPipeline(dato: datosUsuario, pipeline: any) {
+    async procesosFueraDelPipeline(dato: EnvioProcesado, pipeline: any) {
         //TODO cuando se cambie lo de que coja el ulmito elemento de dias tambien hay que cambiarlo aqui
         const fechaUltimoEnvioStr = await this.redis.get(`usuario:${dato.usuario}:fechaUltimoEnvio`);
         const fechaUltimoEnvio = fechaUltimoEnvioStr ? Number(fechaUltimoEnvioStr) : 0;
-        const fechaAux = new Date(dato.fecha.anio, dato.fecha.mes, dato.fecha.dia);
-        const fechaEnvio = fechaAux.valueOf() / 1000;
+        const fechaEnvio = dato.fecha;
         const tiempoEntreEnvios = fechaEnvio - fechaUltimoEnvio;
 
         const rachaDiasEnvioStr = await this.redis.get(`usuario:${dato.usuario}:rachaDiasEnvio`);
@@ -272,3 +253,5 @@ export default class UsuarioDAO extends DAO {
         return numFranjasHorarias;
     }
 }
+
+export default new UsuarioDAO();

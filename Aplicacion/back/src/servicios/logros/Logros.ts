@@ -1,9 +1,9 @@
-import UsuarioDAO from "../../dao/usuarioDAO.js";
-import ProblemaDAO from "../../dao/problemaDAO.js";
+import usuarioDAO from "../../dao/usuarioDAO.js";
+import problemaDAO from "../../dao/problemaDAO.js";
 import { Logro, NivelLogro, CategoriaLogro } from "../../types/logro.js";
 
-const DAOUsuario = new UsuarioDAO();
-const DAOProblema = new ProblemaDAO();
+const DAOUsuario = usuarioDAO;
+const DAOProblema = problemaDAO;
 
 // TODO poner esto de otra manera
 const CATEGORIAS_PROBLEMAS = ["construccion de programacion", "estructuras de datos", "algoritmia", "matematicas", "grafos", "geometria"];

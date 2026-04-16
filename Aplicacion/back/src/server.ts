@@ -4,41 +4,19 @@ import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
 import { initSocket } from './sockets/socketInit.js';
-import inicializar from './servicios/inicializarService.js';
+import InicializarService from './servicios/inicializarService.js';
 import initConsumer from "./consumer/cosumer.js";
 //routers
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
 
-//============== INICIAR EL SERVIDOR ==============
+//============== CONFIGURACION ==============
 const app = express();
 app.use(express.json());
-
-//TODO quitar esto
-//import activarCron from "./db/limpiarDatosAntiguos.js";
-//activarCron();
-
-await redisClient.connect();
-
-//inicializo la base de datos de redis con los datos historicos
-await inicializar();
-
-await initConsumer();
-
-//incializo el socket
-initSocket(app);
 
 //====================== RUTAS ======================
 app.use("/api/problemas", rutasProblemas);
 app.use("/api/usuarios", rutasUsuarios);
-
-//ruta solo para simular nuevas entradas a la base de datos
-import routerSocket from "./sockets/socketEmitter.js";
-app.post("/api/nuevo", (request, response) => {
-    const body = request.body
-    routerSocket(body);
-    response.sendStatus(200);
-});
 
 app.listen(3000, (error) => {
     if (error)
@@ -46,3 +24,17 @@ app.listen(3000, (error) => {
     else
         console.log(" * Corriendo en puerto 3000");
 });
+
+//============== INICIAR EL SERVIDOR ==============
+//se conecta a la base de datos
+await redisClient.connect();
+
+//incializo el socket
+initSocket(app);
+
+//inicializo la base de datos de redis con los datos historicos
+const inicializarService = new InicializarService();
+await inicializarService.inicializar();
+
+//una vez estan cargados los datos historicos se empiezan a escuchar los nuevos
+await initConsumer();

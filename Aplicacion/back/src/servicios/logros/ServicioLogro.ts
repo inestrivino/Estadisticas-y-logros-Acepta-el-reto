@@ -2,11 +2,9 @@ import { EstadoUsuario } from "../estado/EstadoUsuario.js";
 import EstadoServicio from "../estado/EstadoServicio.js";
 import { logros } from "./Logros.js";
 import { Logro } from "../../types/logro.js";
-import UsuarioDAO from "../../dao/usuarioDAO.js";
+import usuarioDAO from "../../dao/usuarioDAO.js";
 import redisClient from "../../redis/redisClient.js";
-import { EnvioProcesado } from "../../types/envio.js";
-
-const usuarioDAO = new UsuarioDAO();
+import { EnvioProcesado } from "../../types/envioProcesado.js";
 
 class ServicioLogro {
 

@@ -1,4 +1,4 @@
-import { EnvioProcesado } from "./envio.js";
+import { EnvioProcesado } from "./envioSinProcesar.js";
 import { EstadoUsuario } from "../servicios/estado/EstadoUsuario.js";
 
 export enum NivelLogro {

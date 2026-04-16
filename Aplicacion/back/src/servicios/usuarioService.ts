@@ -1,7 +1,5 @@
-import UsuarioDAO from '../dao/usuarioDAO.js';
+import usuarioDAO from '../dao/usuarioDAO.js';
 import logros from "./logros/Logros.js";
-
-const usuarioDAO = new UsuarioDAO();
 
 export default class UsuarioService {
 

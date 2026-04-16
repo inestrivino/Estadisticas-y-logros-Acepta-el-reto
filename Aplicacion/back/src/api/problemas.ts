@@ -1,7 +1,6 @@
 import express from 'express';
-import ProblemaDAO from '../dao/problemaDAO.js';
+import problemaDAO from '../dao/problemaDAO.js';
 
-const problemaDAO = new ProblemaDAO();
 const router = express.Router();
 
 router.get("/:problema/envios", async (req, res) => {

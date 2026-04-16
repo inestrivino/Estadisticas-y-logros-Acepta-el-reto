@@ -1,10 +1,8 @@
 
 import cron from 'node-cron';
-import UsuarioDAO from 'src/dao/usuarioDAO.js';
+import usuarioDAO from 'src/dao/usuarioDAO.js';
 
 export default function activarCron() {
-
-    const usuarioDAO = new UsuarioDAO();
 
     cron.schedule('* * * * *', async () => {
         const hoy = new Date;

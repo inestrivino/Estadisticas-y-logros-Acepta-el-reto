@@ -8,7 +8,7 @@ type datosProblema = {
     tiempo: number,
 };
 
-export default class ProblemaDAO extends DAO {
+class ProblemaDAO extends DAO {
 
     //Funcion para introducir solo 1 datos
     async registrarDirecto(dato: datosProblema): Promise<void> {
@@ -93,3 +93,5 @@ export default class ProblemaDAO extends DAO {
         return pos !== null ? Number(pos) : -1;
     }
 }
+
+export default new ProblemaDAO();

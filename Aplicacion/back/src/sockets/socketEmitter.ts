@@ -1,18 +1,17 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
 //import { cargarEnvio } from "../db/cargarDatos.js";
-import ProblemaDAO from "../dao/problemaDAO.js";
+import problemaDAO from "../dao/problemaDAO.js";
 import UsuarioService from "../servicios/usuarioService.js";
-import { Envio } from "../types/envio.js";
+import { EnvioProcesado } from "../types/envioProcesado.js";
 
 //TODO poner aqui el servicio en vez del DAO
-const problemaDAO = new ProblemaDAO();
 const usuarioService = new UsuarioService();
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
-export default async function routerEmitter(envio:Envio) {
+export default async function routerEmitter(envio: EnvioProcesado) {
     console.log("Emite eventos para recargar los componentes");
 
     //se obtiene el socket para emitir los eventos
