@@ -1,9 +1,7 @@
 import { describe, test, expect } from 'vitest';
-import UsuarioDAO from '../../src/dao/usuarioDAO.js';
+import usuarioDAO from '../../src/dao/usuarioDAO.js';
 import setUpTestFile from './setUptTest.ts';
 import dateToTimestamp from '../../src/utils/fecha.ts';
-
-let usuarioDAO = new UsuarioDAO();
 
 setUpTestFile(usuarioDAO);
 

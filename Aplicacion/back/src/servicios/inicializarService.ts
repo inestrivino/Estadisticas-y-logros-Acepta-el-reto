@@ -1,6 +1,5 @@
-import { cargarBloqueEnvios } from './procesarEnviosService.js';
-import ServicioLogro from "../servicios/logros/ServicioLogro.js";
-import EstadoServicio from '../servicios/estado/EstadoServicio.js';
+import procesarEnviosService from './procesarEnviosService.js';
+import logrosService from './logros/logrosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
 import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
 
@@ -16,7 +15,7 @@ class InicializarService {
     public async inicializar() {
 
         //TODO DEBUG
-        //await gestionDAO.flushAll();
+        await gestionDAO.flushAll();
 
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
@@ -36,8 +35,9 @@ class InicializarService {
             referenciaPagina = ultimoEnvioNumber;
         }
 
+        //si habia se busca el siguiente, y se mira que pagina fue la ultima revisada
         else {
-            ultimoEnvio++; //se espera al siguiente del ultimo
+            ultimoEnvio++; 
             referenciaPagina = await gestionDAO.getUltimaPagina();
         }
             
@@ -47,12 +47,9 @@ class InicializarService {
 
         for await (const bloque of this.bloques(ultimoEnvio, referenciaPagina)) {
 
-            await cargarBloqueEnvios(bloque);
+            await procesarEnviosService.procesarBloqueEnvios(bloque);
 
         }
-
-        await ServicioLogro.calcularYGuardarLogros();
-        EstadoServicio.clear();
     }
 
     /**

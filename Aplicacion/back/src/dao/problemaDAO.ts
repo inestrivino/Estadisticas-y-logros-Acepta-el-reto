@@ -1,14 +1,27 @@
 import DAO from "./DAO.js"
-
-type datosProblema = {
-    envioId: number,
-    problema: string,
-    resultado: string,
-    lenguaje: string,
-    tiempo: number,
-};
+import redisClient from '../redis/redisClient.js';
+import { datosProblema } from "../types/datosProblema.js";
 
 class ProblemaDAO extends DAO {
+
+    public async registrarBloqueEnvios(envios: datosProblema[]) {
+
+        const pipeline = redisClient.multi();
+
+        for (const envio of envios) {
+            pipeline.incr(`problema:${envio.problema}:envios`);
+            pipeline.hIncrBy(`problema:${envio.problema}:resultados`, envio.resultado, 1);
+            pipeline.hIncrBy(`problema:${envio.problema}:lenguajes`, envio.lenguaje, 1);
+
+            if (envio.resultado === "AC") {
+                pipeline.incr(`problema:${envio.problema}:enviosAC`);
+                pipeline.incrByFloat(`problema:${envio.problema}:tiempoTotal`, envio.tiempo);
+                pipeline.zAdd(`problema:${envio.problema}:tiemposEnvios`, { score: envio.tiempo, value: String(envio.envioId) });
+            }
+        }
+
+        await pipeline.exec();
+    }
 
     //Funcion para introducir solo 1 datos
     async registrarDirecto(dato: datosProblema): Promise<void> {

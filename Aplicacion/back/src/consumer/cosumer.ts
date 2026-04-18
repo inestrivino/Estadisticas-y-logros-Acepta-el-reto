@@ -1,4 +1,4 @@
-import { cargarEnvio } from "../servicios/procesarEnviosService.js";
+import procesarEnviosService from "../servicios/procesarEnviosService.js";
 import recargarComponentes from "../sockets/socketEmitter.js";
 
 // Librería que implementa el protocolo AMQP para hablar con RabbitMQ
@@ -40,7 +40,7 @@ export default async function iniciarConsumidor(): Promise<void> {
         // msg.content es un Buffer (bytes crudos), lo convertimos a string y parseamos el JSON
         const envio = JSON.parse(msg.content.toString());
 
-        await cargarEnvio(envio);
+        await procesarEnviosService.procesarEnvio(envio);
         await recargarComponentes(envio);
 
         //Se le dice a RabbitMQ que el mensaje se ha procesado correctamente y puede ser eliminado de la cola

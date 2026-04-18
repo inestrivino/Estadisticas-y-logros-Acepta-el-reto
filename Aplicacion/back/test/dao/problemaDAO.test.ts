@@ -1,8 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import ProblemaDAO from '../../src/dao/problemaDAO.js';
+import problemaDAO from '../../src/dao/problemaDAO.js';
 import setUpTestFile from './setUptTest.ts';
-
-let problemaDAO = new ProblemaDAO();
 
 await setUpTestFile(problemaDAO);
 
