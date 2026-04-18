@@ -1,7 +1,58 @@
 import DAO from "./DAO.js";
+import redisClient from '../redis/redisClient.js';
 import { EnvioProcesado } from "../types/envioProcesado.js";
+import { datosUsuario } from "../types/datosUsuario.js";
 
 class UsuarioDAO extends DAO {
+
+    public async registrarBloqueEnvios(envios: datosUsuario[]) {
+
+        const pipeline = redisClient.multi();
+        const ultimoEnvioPorUsuario = new Map<string, number>();
+
+        for (const envio of envios) {
+            //INCREMENTA LOS ENVIOS DE UN USUARIO
+            //primero registra el dia del envio
+            pipeline.zAdd(
+                `usuario:${envio.usuario}:dias`,
+                [{ value: String(envio.fecha), score: envio.fecha }]
+            );
+            //luego suma 1 a los envios de ese dia
+            pipeline.hIncrBy(
+                `usuario:${envio.usuario}:diasValor`,
+                String(envio.fecha),
+                1
+            );
+            //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
+            pipeline.sAdd(
+                `timestamp:${envio.fecha}`,
+                envio.usuario
+            )
+
+            //suma uno a los envios, el resultado devuelto y el idioma usado
+            pipeline.hIncrBy(`usuario:${envio.usuario}:resultados`, envio.resultado, 1);
+            pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajes`, envio.lenguaje, 1);
+            pipeline.incr(`usuario:${envio.usuario}:envios`);
+
+            if (envio.resultado === "AC") {
+                pipeline.sAdd(`usuario:${envio.usuario}:problemasAC`, envio.problema);
+                //Añade el problemas resuelto al listado del lenguaje con el que se ha resuelto
+                pipeline.sAdd(`usuario:${envio.usuario}:lenguaje:${envio.lenguaje}`, envio.problema);
+                //pipeline.incr(`usuario:${dato.usuario}:enviosAC`); //TODO borrar
+                //pipeline.sAdd(`usuario:${dato.usuario}:categoriasAC`, dato.categoria); //TODO categorias problemas
+                pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajesAC`, envio.lenguaje, 1);
+            }
+
+            const fechaActual = ultimoEnvioPorUsuario.get(envio.usuario) ?? 0;
+            if (envio.fecha > fechaActual)
+                ultimoEnvioPorUsuario.set(envio.usuario, envio.fecha);
+        }
+
+        for (const [usuario, fecha] of ultimoEnvioPorUsuario)
+            pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(fecha));
+
+        await pipeline.exec();
+    }
 
     //Funcion para introducir solo 1 datos
     async registrarDirecto(dato: EnvioProcesado): Promise<void> {
@@ -35,7 +86,7 @@ class UsuarioDAO extends DAO {
         pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajes`, dato.lenguaje, 1);
 
         pipeline.incr(`usuario:${dato.usuario}:envios`);
-        pipeline.sAdd(`usuario:${dato.usuario}:franjasHorarias`, String(dato.hora));
+        pipeline.sAdd(`usuario:${dato.usuario}:horas`, String(dato.hora));
 
         //TODO esto se tendría que quitar y usar el timestamp de usuario:${usuario}:dias
         pipeline.set(`usuario:${dato.usuario}:fechaUltimoEnvio`, String(dato.fecha));
@@ -75,7 +126,7 @@ class UsuarioDAO extends DAO {
             pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
         }
 
-        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) { 
+        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) {
             pipeline.incr(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosACStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
@@ -91,12 +142,12 @@ class UsuarioDAO extends DAO {
 
     //TODO poner jdoc
     //Devuelve el resultado ordenado alfabeticamente por nombre
-    async getResultados(usuario: string): Promise<{name: string, value: number}[]> {
+    async getResultados(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:resultados`);
 
-        const formateados: {name: string, value: number}[] = [];
+        const formateados: { name: string, value: number }[] = [];
         for (const aux of Object.entries(datos))
-            formateados.push({name:aux[0], value:Number(aux[1])})
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
 
         formateados.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -105,12 +156,12 @@ class UsuarioDAO extends DAO {
 
     //TODO poner jdoc
     //Devuelve el resultado ordenado alfabeticamente por nombre
-    async getLenguajes(usuario: string): Promise<{name: string, value: number}[]> {
+    async getLenguajes(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:lenguajes`);
 
-        const formateados: {name: string, value: number}[] = [];
+        const formateados: { name: string, value: number }[] = [];
         for (const aux of Object.entries(datos))
-            formateados.push({name:aux[0], value:Number(aux[1])})
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
 
         formateados.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -139,7 +190,7 @@ class UsuarioDAO extends DAO {
             //por si en algun momento se quisiera pedir un intervalo que no llega hasta hoy
             if (timeStamp.score > timeFin)
                 continue;
-            
+
             resultados.push({
                 timeStamp: timeStamp.score,
                 value: Number(valores[timeStamp.value])
@@ -167,6 +218,17 @@ class UsuarioDAO extends DAO {
         return formateados;
     }
 
+    /**
+     * devuelve el timestamp en segundos del ultimo envio realizado por el usuario,
+     * o 0 si el usuario no tiene envios registrados
+     * @param usuario - identificador del usuario
+     * @returns timestamp en segundos del ultimo envio, o 0 si no tiene envios registrados
+     */
+    async getUltimoEnvioUsuario(usuario: string): Promise<number> {
+        const fechaStr = await this.redis.get(`usuario:${usuario}:fechaUltimoEnvio`);
+        return fechaStr ? Number(fechaStr) : 0;
+    }
+
     async eliminarEnviosDia(timeStamp: number) {
 
         const usuarios = await this.redis.sMembers(`timestamp:${timeStamp}`);
@@ -187,22 +249,6 @@ class UsuarioDAO extends DAO {
         await this.redis.del(`timestamp:${timeStamp}`);
     }
 
-    async getLogros(usuario: string) {
-        const logros = await this.redis.sMembers(`usuario:${usuario}:logros`);
-        return logros;
-    }
-
-    async guardarLogros(usuario: string, logros: string[], pipeline?: any) {
-        if (logros.length > 0) {
-            if (pipeline) {
-                pipeline.sAdd(`usuario:${usuario}:logros`, logros);
-            }
-            else {
-                await this.redis.sAdd(`usuario:${usuario}:logros`, logros);
-            }
-        }
-    }
-
     async getNumEnvios(usuario: string): Promise<number> {
         const enviosStr = await this.redis.get(`usuario:${usuario}:envios`);
         const envios = enviosStr ? Number(enviosStr) : 0;
@@ -212,6 +258,10 @@ class UsuarioDAO extends DAO {
     async getNumProblemasResueltos(usuario: string): Promise<number> {
         const numProblemasResueltos = await this.redis.sCard(`usuario:${usuario}:problemasAC`);
         return numProblemasResueltos;
+    }
+
+    async getProblemasResueltos(usuario: string): Promise<string[]> {
+        return await this.redis.sMembers(`usuario:${usuario}:problemasAC`);
     }
 
     async tieneProblemaEnvioIncorrecto(usuario: string, problema: string): Promise<boolean> {
@@ -226,18 +276,22 @@ class UsuarioDAO extends DAO {
         return numProblemas;
     }
 
+    async getProblemasLenguaje(usuario: string, lenguaje: string): Promise<string[]> {
+        return await this.redis.sMembers(`usuario:${usuario}:lenguaje:${lenguaje}`);
+    }
+
     async getNumLenguajesUsados(usuario: string): Promise<number> {
         const numLenguajes = await this.redis.hLen(`usuario:${usuario}:lenguajes`);
         return numLenguajes;
     }
 
-    async getRachaMaximaEnviosCorrectos(usuario: string): Promise<number> {
+    async getRachaEnviosCorrectos(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaEnviosACMax`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
     }
 
-    async getRachaMaximaDiasConEnvio(usuario: string): Promise<number> {
+    async getRachaDiasEnviosConsecutivos(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaDiasEnvioMax`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
@@ -248,9 +302,10 @@ class UsuarioDAO extends DAO {
         return numCategorias;
     }
 
-    async getNumFranjasHorariasConEnvio(usuario: string): Promise<number> {
-        const numFranjasHorarias = await this.redis.sCard(`usuario:${usuario}:franjasHorarias`);
-        return numFranjasHorarias;
+    async getHoras(usuario: string): Promise<number[]> {
+        const horas = await this.redis.sMembers(`usuario:${usuario}:horas`);
+        const valorHoras = horas.map(hora => Number(hora));
+        return valorHoras;
     }
 }
 
