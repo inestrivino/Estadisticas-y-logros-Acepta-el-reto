@@ -1,4 +1,4 @@
-import { logros } from "./definiciones/index.js";
+import { logros } from "./definiciones/logro.js";
 import { EstadoUsuario } from "../../types/estadoUsuario.js";
 import { EstadoProblema } from "../../types/estadoProblema.js";
 import usuarioDAO from "../../dao/usuarioDAO.js";

@@ -12,5 +12,3 @@ export const logros: Logro[] = [
     ...logrosRachas,
     ...logrosCalidad,
 ];
-
-export default logros;
