@@ -1,5 +1,6 @@
 import express from 'express';
 import usuarioService from '../servicios/usuarioService.js';
+import logrosService from '../servicios/logros/logrosService.js';
 const router = express.Router();
 
 router.get("/:usuario/resultados", async (req, res) => {
@@ -21,7 +22,7 @@ router.get("/:usuario/enviosAnio", async (req, res) => {
 router.get("/:usuario/logros", async (req, res) => {
     const { usuario } = req.params;
     const {clasificacion} = req.query;
-    return res.json(await usuarioService.getLogrosUsuario(usuario, clasificacion as string));
+    return res.json(await logrosService.getLogrosUsuario(usuario, clasificacion as string));
 });
 
 export default router;

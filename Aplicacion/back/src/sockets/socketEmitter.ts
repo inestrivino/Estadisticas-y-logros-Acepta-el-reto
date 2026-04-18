@@ -2,6 +2,7 @@ import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
 import problemaDAO from "../dao/problemaDAO.js";
 import usuarioService from "../servicios/usuarioService.js";
+import logrosService from "../servicios/logros/logrosService.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 
 /*
@@ -27,8 +28,8 @@ export default async function routerEmitter(envio: EnvioProcesado) {
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(envio.usuario));
 
     //se actualizan los logros del usuario
-    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await usuarioService.getLogrosUsuario(envio.usuario, "nivel"));
-    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await usuarioService.getLogrosUsuario(envio.usuario, "categoria"));
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(envio.usuario, "nivel"));
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(envio.usuario, "categoria"));
 }
 
 export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>) {
@@ -51,7 +52,7 @@ export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<stri
         io.emit(formatEvent(usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(usuario));
 
         //se actualizan los logros del usuario
-        io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await usuarioService.getLogrosUsuario(usuario, "nivel"));
-        io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_CATEGORIA), await usuarioService.getLogrosUsuario(usuario, "categoria"));
+        io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(usuario, "nivel"));
+        io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(usuario, "categoria"));
     }
 }
