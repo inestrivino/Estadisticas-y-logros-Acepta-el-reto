@@ -1,11 +1,42 @@
 import usuarioDAO from '../dao/usuarioDAO.js';
+import { EnvioProcesado } from '../types/envioProcesado.js';
 
 class UsuarioService {
 
+    /**
+     * Persiste un bloque de envios en el DAO del usuario.
+     * @param envios - Array de envios en formato procesado.
+     */
+    public async registrarBloqueEnvios(envios: EnvioProcesado[]) {
+        await usuarioDAO.registrarBloqueEnvios(
+            envios.map(envio => ({
+                envioId: envio.envioId,
+                usuario: envio.usuario,
+                problema: envio.problema,
+                categoria: "",
+                resultado: envio.resultado,
+                lenguaje: envio.lenguaje,
+                fecha: envio.fecha,
+                hora: envio.hora,
+            }))
+        );
+    }
+
+
+    /**
+     * Devuelve el conteo de cada resultado del usuario ordenado alfabeticamente.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de pares `{ name, value }`.
+     */
     public async getResultados(usuario: string) {
         return await usuarioDAO.getResultados(usuario);
     }
 
+    /**
+     * Devuelve el conteo de envios por lenguaje del usuario ordenado alfabeticamente.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de pares `{ name, value }`.
+     */
     public async getLenguajes(usuario: string) {
         return await usuarioDAO.getLenguajes(usuario);
     }

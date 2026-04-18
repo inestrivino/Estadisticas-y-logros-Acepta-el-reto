@@ -12,7 +12,12 @@ class LogrosService {
     private estadosUsuarios = new Map<string, EstadoUsuario>();
     private estadosProblemas = new Map<string, EstadoProblema>();
 
-    //devuelve todos los logros declarando si el usuario los tiene o no, agrupados segun la clasificacion indicada
+    /**
+     * Devuelve todos los logros indicando si el usuario los tiene o no, agrupados segun la clasificacion.
+     * @param usuario - Identificador del usuario.
+     * @param clasificacion - Criterio de agrupacion: `"nivel"` o `"categoria"`.
+     * @returns Objeto con la clasificacion y los grupos de logros.
+     */
     public async getLogrosUsuario(usuario: string, clasificacion: string) {
         const setLogros = new Set(await logrosDAO.getLogros(usuario));
 
@@ -40,7 +45,13 @@ class LogrosService {
         return { clasificacion, grupos };
     }
 
-    public async procesarBloqueEnvios(envios: EnvioProcesado[]): Promise<datosLogro[]> {
+    /**
+     * Calcula los logros nuevos obtenidos por cada usuario a partir de un bloque de envios.
+     * Carga el estado previo desde Redis, simula el impacto de cada envio y evalua las condiciones.
+     * @param envios - Array de envios procesados del bloque.
+     * @returns Array con los logros nuevos agrupados por usuario.
+     */
+    public async procesarBloqueEnvios(envios: EnvioProcesado[]): Promise<void> {
         //carga desde Redis los datos actuales de los usuarios de este bloque
         for (const usuario of envios.map(envio => envio.usuario)) {
             const estadoUsuario: EstadoUsuario = this.initEstado();
@@ -49,8 +60,16 @@ class LogrosService {
         }
         //carga desde Redis los datos actuales de los problemas de este bloque
         for (const problema of envios.map(envio => envio.problema)) {
-            const estadoProblema: EstadoProblema = {};
+            const estadoProblema: EstadoProblema = {envios: 0, mejorTiempo: Infinity};
+
+            //carga en el estado el mejor tiempo del problema
             estadoProblema.mejorTiempo = await problemaDAO.getMejorTiempo(problema);
+
+            //carga en el estado el numero de envios
+            const numEnvios = await problemaDAO.getNumEnvios(problema);
+            estadoProblema.envios = numEnvios !== 0 ? numEnvios : Infinity;
+
+            //pone en el mapa el estado de este problema
             this.estadosProblemas.set(problema, estadoProblema);
         }
 
@@ -80,9 +99,14 @@ class LogrosService {
             }
         }
 
-        return Array.from(nuevosPorUsuario.entries()).map(([usuario, logros]) => ({ usuario, logros }));
+        const trofeos = Array.from(nuevosPorUsuario.entries()).map(([usuario, logros]) => ({ usuario, logros }));
+        await logrosDAO.guardarBloqueLogros(trofeos);
     }
 
+    /**
+     * Crea un estado de usuario vacio con todos los contadores a cero.
+     * @returns Estado inicial del usuario.
+     */
     private initEstado(): EstadoUsuario {
         return {
             numEnvios: 0,
@@ -98,6 +122,11 @@ class LogrosService {
         }
     }
 
+    /**
+     * Rellena el estado del usuario con los datos actuales almacenados en Redis.
+     * @param usuario - Identificador del usuario.
+     * @param estadoUsuario - Objeto de estado a rellenar.
+     */
     private async cargarEstadoUsuario(usuario: string, estadoUsuario: EstadoUsuario) {
         //numero de envios
         estadoUsuario.numEnvios = (await usuarioDAO.getNumEnvios(usuario));
@@ -125,6 +154,14 @@ class LogrosService {
 
     }
 
+    /**
+     * Evalua las condiciones de los logros filtrados por modo y devuelve los que se cumplen por primera vez.
+     * @param enTiempoReal - Si `true`, evalua logros por envio; si `false`, logros de estado global.
+     * @param estadoUsuario - Estado actual del usuario.
+     * @param estadoProblema - Estado actual del problema (solo en modo tiempo real).
+     * @param envio - Envio que desencadena la evaluacion (solo en modo tiempo real).
+     * @returns Array con los nombres de los logros recien obtenidos.
+     */
     private comprobarLogros(enTiempoReal: boolean, estadoUsuario: EstadoUsuario, estadoProblema?: EstadoProblema, envio?: EnvioProcesado): string[] {
         const nuevos: string[] = [];
         const logrosFiltrados = logros.filter(logro => logro.enTiempoReal === enTiempoReal);
@@ -143,6 +180,12 @@ class LogrosService {
         return nuevos;
     }
 
+    /**
+     * Aplica el impacto de un envio sobre los estados del usuario y del problema.
+     * @param estadoUsuario - Estado del usuario a actualizar.
+     * @param estadoProblema - Estado del problema a actualizar.
+     * @param envio - Envio que genera el cambio de estado.
+     */
     private actualizarEstado(estadoUsuario: EstadoUsuario, estadoProblema: EstadoProblema, envio: EnvioProcesado) {
 
         //se incrementa el total de envios del usuario

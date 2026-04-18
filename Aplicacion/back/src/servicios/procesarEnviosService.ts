@@ -1,14 +1,17 @@
-import usuarioDAO from "../dao/usuarioDAO.js";
-import problemaDAO from "../dao/problemaDAO.js";
+import problemaService from "./problemaService.js";
+import usuarioService from "./usuarioService.js";
 import logrosService from "./logros/logrosService.js";
 import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 import gestionDAO from "../dao/gestionDAO.js";
-import logrosDAO from "../dao/logrosDAO.js";
 import { conjuntoEmitter } from "../sockets/socketEmitter.js";
 
 class ProcesarEnviosService {
 
+    /**
+     * Procesa y persiste un bloque de envios, calcula logros nuevos y notifica al frontend.
+     * @param bloque - Array de envios sin procesar junto con su numero de pagina de origen.
+     */
     public async procesarBloqueEnvios(bloque: { envio: EnvioSinProcesar, numPagina: number }[]) {
 
         //pongo cada envio del bloque con el formato correcto
@@ -25,13 +28,8 @@ class ProcesarEnviosService {
             problemas.add(envio.problema);
         }
         
-        //le pide a logrosService los logros que se han conseguido con este bloque de envios
-        const nuevosPorUsuario = await logrosService.procesarBloqueEnvios(enviosProcesados);
-
-        await this.cargarBloqueEnvios(enviosProcesados);
-
-        //guarda en Redis los logros nuevos conseguidos en este bloque
-        await logrosDAO.guardarBloqueLogros(nuevosPorUsuario);
+        await logrosService.procesarBloqueEnvios(enviosProcesados);
+        await this.cargarEnvios(enviosProcesados);
 
         //avisa a los diagramas para que se actualicen
         conjuntoEmitter(problemas, usuarios);
@@ -42,12 +40,22 @@ class ProcesarEnviosService {
         console.log(" + Bloque insertado en la base de datos\n");
     }
 
+    /**
+     * Procesa y persiste un unico envio recibido en tiempo real.
+     * @param envio - Envio sin procesar recibido desde el consumer.
+     */
     public async procesarEnvio(envio: EnvioSinProcesar) {
-        console.log("Carga un envio individual");
         const envioProcesado = this.parseEnvio(envio);
-        await this.cargarEnvio(envioProcesado, undefined);
+
+        await logrosService.procesarBloqueEnvios([envioProcesado]);
+        await this.cargarEnvios([envioProcesado]);
     }
 
+    /**
+     * Convierte un envio en el formato crudo de la API al formato interno procesado.
+     * @param envio - Envio en formato sin procesar.
+     * @returns Envio transformado al formato interno.
+     */
     private parseEnvio(envio: EnvioSinProcesar): EnvioProcesado {
 
         //si el envio no tiene usuario se pone este por defecto
@@ -76,63 +84,9 @@ class ProcesarEnviosService {
         return envioProcesado;
     }
 
-    private async cargarBloqueEnvios(envios: EnvioProcesado[]) {
-
-        //actualiza la informacion del problema
-        await problemaDAO.registrarBloqueEnvios(
-            envios.map(envio => ({
-                envioId: envio.envioId,
-                problema: envio.problema,
-                resultado: envio.resultado,
-                lenguaje: envio.lenguaje,
-                tiempo: envio.tiempo
-            }))
-        );
-
-        //actualiza la informacion del usuario
-        //TODO poner aqui tambien el pipeline
-        await usuarioDAO.registrarBloqueEnvios(
-            envios.map(envio => ({
-                envioId: envio.envioId,
-                usuario: envio.usuario,
-                problema: envio.problema,
-                categoria: "", //TODO categorias problemas
-                resultado: envio.resultado,
-                lenguaje: envio.lenguaje,
-                fecha: envio.fecha
-            }))
-        );
-    }
-
-    private async cargarEnvio(envio: EnvioProcesado, pipeline?: any) {
-
-        //actualiza la informacion del problema
-        await problemaDAO.registrarDato(
-            {
-                envioId: envio.envioId,
-                problema: envio.problema,
-                resultado: envio.resultado,
-                lenguaje: envio.lenguaje,
-                tiempo: envio.tiempo
-            },
-            pipeline,
-        );
-
-        //actualiza la informacion del usuario
-        //TODO poner aqui tambien el pipeline
-        await usuarioDAO.registrarDato(
-            {
-                envioId: envio.envioId,
-                usuario: envio.usuario,
-                problema: envio.problema,
-                //categoria: envio.categoria, //TODO categorias problemas
-                resultado: envio.resultado,
-                lenguaje: envio.lenguaje,
-                fecha: envio.fecha
-            },
-            pipeline
-        );
-
+    private async cargarEnvios(envios: EnvioProcesado[]) {
+        await problemaService.registrarBloqueEnvios(envios);
+        await usuarioService.registrarBloqueEnvios(envios);
     }
 }
 
