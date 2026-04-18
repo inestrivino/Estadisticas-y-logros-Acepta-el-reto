@@ -1,147 +1,89 @@
 import DAO from "./DAO.js";
 import redisClient from '../redis/redisClient.js';
-import { EnvioProcesado } from "../types/envioProcesado.js";
 import { datosUsuario } from "../types/datosUsuario.js";
 
 class UsuarioDAO extends DAO {
 
-    public async registrarBloqueEnvios(envios: datosUsuario[]) {
-
-        const pipeline = redisClient.multi();
-        const ultimoEnvioPorUsuario = new Map<string, number>();
-
+    /**
+     * Registra en Redis un bloque de envios de usuario usando un pipeline para minimizar llamadas.
+     * @param envios - Array de envios procesados a registrar.
+     */
+    public async registrarBloqueEnvios(envios: datosUsuario[]): Promise<void> {
+        const pipeline = this.redis.multi();
         for (const envio of envios) {
-            //INCREMENTA LOS ENVIOS DE UN USUARIO
-            //primero registra el dia del envio
             pipeline.zAdd(
                 `usuario:${envio.usuario}:dias`,
                 [{ value: String(envio.fecha), score: envio.fecha }]
             );
-            //luego suma 1 a los envios de ese dia
             pipeline.hIncrBy(
                 `usuario:${envio.usuario}:diasValor`,
                 String(envio.fecha),
                 1
             );
-            //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
+            //mete el usuario en ese timestamp (para no iterar por los usuarios al borrar)
             pipeline.sAdd(
                 `timestamp:${envio.fecha}`,
                 envio.usuario
-            )
+            );
 
-            //suma uno a los envios, el resultado devuelto y el idioma usado
             pipeline.hIncrBy(`usuario:${envio.usuario}:resultados`, envio.resultado, 1);
             pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajes`, envio.lenguaje, 1);
             pipeline.incr(`usuario:${envio.usuario}:envios`);
+            pipeline.sAdd(`usuario:${envio.usuario}:horas`, String(envio.hora));
+
+            //TODO quitar cuando se use el timestamp de usuario:${envio.usuario}:dias
+            pipeline.set(`usuario:${envio.usuario}:fechaUltimoEnvio`, String(envio.fecha));
 
             if (envio.resultado === "AC") {
                 pipeline.sAdd(`usuario:${envio.usuario}:problemasAC`, envio.problema);
-                //Añade el problemas resuelto al listado del lenguaje con el que se ha resuelto
+                //Añade el problema resuelto al listado del lenguaje con el que se ha resuelto
                 pipeline.sAdd(`usuario:${envio.usuario}:lenguaje:${envio.lenguaje}`, envio.problema);
-                //pipeline.incr(`usuario:${dato.usuario}:enviosAC`); //TODO borrar
-                //pipeline.sAdd(`usuario:${dato.usuario}:categoriasAC`, dato.categoria); //TODO categorias problemas
+                //pipeline.incr(`usuario:${envio.usuario}:enviosAC`); //TODO borrar
+                //pipeline.sAdd(`usuario:${envio.usuario}:categoriasAC`, envio.categoria); //TODO categorias problemas
                 pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajesAC`, envio.lenguaje, 1);
+            } else {
+                pipeline.sAdd(`usuario:${envio.usuario}:problemasNoAC`, envio.problema);
             }
 
-            const fechaActual = ultimoEnvioPorUsuario.get(envio.usuario) ?? 0;
-            if (envio.fecha > fechaActual)
-                ultimoEnvioPorUsuario.set(envio.usuario, envio.fecha);
+            //TODO cuando se cambie lo de que coja el ultimo elemento de dias tambien hay que cambiarlo aqui
+            const fechaUltimoEnvioStr = await this.redis.get(`usuario:${envio.usuario}:fechaUltimoEnvio`);
+            const tiempoEntreEnvios = envio.fecha - (fechaUltimoEnvioStr ? Number(fechaUltimoEnvioStr) : 0);
+
+            const rachaDiasEnvioStr = await this.redis.get(`usuario:${envio.usuario}:rachaDiasEnvio`);
+            let rachaDiasEnvio = rachaDiasEnvioStr ? Number(rachaDiasEnvioStr) : 0;
+
+            if (tiempoEntreEnvios === 86400) { //un dia
+                pipeline.incr(`usuario:${envio.usuario}:rachaDiasEnvio`);
+                rachaDiasEnvio += 1;
+            } else if (tiempoEntreEnvios !== 86400) {
+                pipeline.set(`usuario:${envio.usuario}:rachaDiasEnvio`, 1);
+                rachaDiasEnvio = 1;
+            }
+            const rachaDiasEnvioMaxStr = await this.redis.get(`usuario:${envio.usuario}:rachaDiasEnvioMax`);
+            const rachaDiasEnvioMax = rachaDiasEnvioMaxStr ? Number(rachaDiasEnvioMaxStr) : 0;
+            if (rachaDiasEnvio > rachaDiasEnvioMax)
+                pipeline.set(`usuario:${envio.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
+
+            if (envio.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(envio.usuario, envio.problema))) {
+                pipeline.incr(`usuario:${envio.usuario}:rachaEnviosAC`);
+                const rachaEnviosACStr = await this.redis.get(`usuario:${envio.usuario}:rachaEnviosAC`);
+                const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
+                const rachaEnviosACMaxStr = await this.redis.get(`usuario:${envio.usuario}:rachaEnviosACMax`);
+                const rachaEnviosACMax = rachaEnviosACMaxStr ? Number(rachaEnviosACMaxStr) : 0;
+                if (rachaEnviosAC > rachaEnviosACMax)
+                    pipeline.set(`usuario:${envio.usuario}:rachaEnviosACMax`, String(rachaEnviosAC));
+            } else {
+                pipeline.set(`usuario:${envio.usuario}:rachaEnviosAC`, "0");
+            }
         }
-
-        for (const [usuario, fecha] of ultimoEnvioPorUsuario)
-            pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(fecha));
-
         await pipeline.exec();
     }
 
-    //Funcion para introducir solo 1 datos
-    async registrarDirecto(dato: EnvioProcesado): Promise<void> {
-        const pipeline = this.redis.multi();
-        await this.agregarAlPipeline(dato, pipeline);
-        await this.procesosFueraDelPipeline(dato, pipeline);
-        await pipeline.exec();
-    }
-
-    async agregarAlPipeline(dato: EnvioProcesado, pipeline: any): Promise<void> {
-        //INCREMENTA LOS ENVIOS DE UN USUARIO
-        //primero registra el dia del envio
-        pipeline.zAdd(
-            `usuario:${dato.usuario}:dias`,
-            [{ value: String(dato.fecha), score: dato.fecha }]
-        );
-        //luego suma 1 a los envios de ese dia
-        pipeline.hIncrBy(
-            `usuario:${dato.usuario}:diasValor`,
-            String(dato.fecha),
-            1
-        );
-
-        //mete el usuario en ese timestamp (para no iterar por los usuario al borrar)
-        pipeline.sAdd(
-            `timestamp:${dato.fecha}`,
-            dato.usuario
-        )
-
-        pipeline.hIncrBy(`usuario:${dato.usuario}:resultados`, dato.resultado, 1);
-        pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajes`, dato.lenguaje, 1);
-
-        pipeline.incr(`usuario:${dato.usuario}:envios`);
-        pipeline.sAdd(`usuario:${dato.usuario}:horas`, String(dato.hora));
-
-        //TODO esto se tendría que quitar y usar el timestamp de usuario:${usuario}:dias
-        pipeline.set(`usuario:${dato.usuario}:fechaUltimoEnvio`, String(dato.fecha));
-
-        if (dato.resultado === "AC") {
-            pipeline.sAdd(`usuario:${dato.usuario}:problemasAC`, dato.problema);
-            //Añade el problemas resuelto al listado del lenguaje con el que se ha resuelto
-            pipeline.sAdd(`usuario:${dato.usuario}:lenguaje:${dato.lenguaje}`, dato.problema);
-            //pipeline.incr(`usuario:${dato.usuario}:enviosAC`); //TODO borrar
-            //pipeline.sAdd(`usuario:${dato.usuario}:categoriasAC`, dato.categoria); //TODO categorias problemas
-            pipeline.hIncrBy(`usuario:${dato.usuario}:lenguajesAC`, dato.lenguaje, 1);
-        } else {
-            pipeline.sAdd(`usuario:${dato.usuario}:problemasNoAC`, dato.problema);
-        }
-    }
-
-    async procesosFueraDelPipeline(dato: EnvioProcesado, pipeline: any) {
-        //TODO cuando se cambie lo de que coja el ulmito elemento de dias tambien hay que cambiarlo aqui
-        const fechaUltimoEnvioStr = await this.redis.get(`usuario:${dato.usuario}:fechaUltimoEnvio`);
-        const fechaUltimoEnvio = fechaUltimoEnvioStr ? Number(fechaUltimoEnvioStr) : 0;
-        const fechaEnvio = dato.fecha;
-        const tiempoEntreEnvios = fechaEnvio - fechaUltimoEnvio;
-
-        const rachaDiasEnvioStr = await this.redis.get(`usuario:${dato.usuario}:rachaDiasEnvio`);
-        let rachaDiasEnvio = rachaDiasEnvioStr ? Number(rachaDiasEnvioStr) : 0;
-
-        if (tiempoEntreEnvios === 86400) { //un dia
-            pipeline.incr(`usuario:${dato.usuario}:rachaDiasEnvio`);
-            rachaDiasEnvio += 1;
-        } else if (tiempoEntreEnvios !== 86400) {
-            pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvio`, 1);
-            rachaDiasEnvio = 1;
-        }
-        const rachaDiasEnvioMaxStr = await this.redis.get(`usuario:${dato.usuario}:rachaDiasEnvioMax`);
-        const rachaDiasEnvioMax = rachaDiasEnvioMaxStr ? Number(rachaDiasEnvioMaxStr) : 0;
-        if (rachaDiasEnvio > rachaDiasEnvioMax) {
-            pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
-        }
-
-        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) {
-            pipeline.incr(`usuario:${dato.usuario}:rachaEnviosAC`);
-            const rachaEnviosACStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosAC`);
-            const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
-            const rachaEnviosACMaxStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosACMax`);
-            const rachaEnviosACMax = rachaEnviosACMaxStr ? Number(rachaEnviosACMaxStr) : 0;
-            if (rachaEnviosAC > rachaEnviosACMax) {
-                pipeline.set(`usuario:${dato.usuario}:rachaEnviosACMax`, String(rachaEnviosAC));
-            }
-        } else {
-            pipeline.set(`usuario:${dato.usuario}:rachaEnviosAC`, "0");
-        }
-    }
-
-    //TODO poner jdoc
-    //Devuelve el resultado ordenado alfabeticamente por nombre
+    /**
+     * Devuelve el conteo de cada resultado del usuario ordenado alfabeticamente.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de pares `{ name, value }` ordenado por nombre.
+     */
     async getResultados(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:resultados`);
 
@@ -154,8 +96,11 @@ class UsuarioDAO extends DAO {
         return formateados;
     }
 
-    //TODO poner jdoc
-    //Devuelve el resultado ordenado alfabeticamente por nombre
+    /**
+     * Devuelve el conteo de envios por lenguaje del usuario ordenado alfabeticamente.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de pares `{ name, value }` ordenado por nombre.
+     */
     async getLenguajes(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:lenguajes`);
 
@@ -229,6 +174,10 @@ class UsuarioDAO extends DAO {
         return fechaStr ? Number(fechaStr) : 0;
     }
 
+    /**
+     * Elimina de Redis todos los registros de envios del dia indicado.
+     * @param timeStamp - Timestamp en segundos correspondiente al dia a eliminar.
+     */
     async eliminarEnviosDia(timeStamp: number) {
 
         const usuarios = await this.redis.sMembers(`timestamp:${timeStamp}`);
@@ -249,26 +198,53 @@ class UsuarioDAO extends DAO {
         await this.redis.del(`timestamp:${timeStamp}`);
     }
 
+    /**
+     * Devuelve el numero total de envios del usuario, o 0 si no tiene ninguno.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de envios.
+     */
     async getNumEnvios(usuario: string): Promise<number> {
         const enviosStr = await this.redis.get(`usuario:${usuario}:envios`);
         const envios = enviosStr ? Number(enviosStr) : 0;
         return envios;
     }
 
+    /**
+     * Devuelve el numero de problemas resueltos correctamente por el usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de problemas con resultado AC.
+     */
     async getNumProblemasResueltos(usuario: string): Promise<number> {
         const numProblemasResueltos = await this.redis.sCard(`usuario:${usuario}:problemasAC`);
         return numProblemasResueltos;
     }
 
+    /**
+     * Devuelve el listado de identificadores de problemas resueltos por el usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Array con los identificadores de los problemas resueltos.
+     */
     async getProblemasResueltos(usuario: string): Promise<string[]> {
         return await this.redis.sMembers(`usuario:${usuario}:problemasAC`);
     }
 
+    /**
+     * Indica si el usuario tiene algun envio incorrecto previo para el problema dado.
+     * @param usuario - Identificador del usuario.
+     * @param problema - Identificador del problema.
+     * @returns `true` si existe al menos un envio incorrecto, `false` en caso contrario.
+     */
     async tieneProblemaEnvioIncorrecto(usuario: string, problema: string): Promise<boolean> {
         const tieneEnvioIncorrecto = await this.redis.sIsMember(`usuario:${usuario}:problemasNoAC`, problema);
         return Boolean(tieneEnvioIncorrecto);
     }
 
+    /**
+     * Devuelve el numero de problemas resueltos por el usuario usando el lenguaje indicado.
+     * @param usuario - Identificador del usuario.
+     * @param lenguaje - Nombre del lenguaje de programacion.
+     * @returns Numero de problemas resueltos con ese lenguaje.
+     */
     async getNumProblemasLenguaje(usuario: string, lenguaje: string): Promise<number> {
         const a = await this.redis.hKeys(`usuario:${usuario}:lenguajes`);
         const problemasResueltos = await this.redis.sCard(`usuario:${usuario}:lenguaje:${lenguaje}`);
@@ -276,32 +252,63 @@ class UsuarioDAO extends DAO {
         return numProblemas;
     }
 
+    /**
+     * Devuelve el listado de problemas resueltos por el usuario con el lenguaje indicado.
+     * @param usuario - Identificador del usuario.
+     * @param lenguaje - Nombre del lenguaje de programacion.
+     * @returns Array con los identificadores de los problemas resueltos.
+     */
     async getProblemasLenguaje(usuario: string, lenguaje: string): Promise<string[]> {
         return await this.redis.sMembers(`usuario:${usuario}:lenguaje:${lenguaje}`);
     }
 
+    /**
+     * Devuelve el numero de lenguajes distintos usados por el usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de lenguajes distintos.
+     */
     async getNumLenguajesUsados(usuario: string): Promise<number> {
         const numLenguajes = await this.redis.hLen(`usuario:${usuario}:lenguajes`);
         return numLenguajes;
     }
 
+    /**
+     * Devuelve la racha maxima de envios correctos consecutivos del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha maxima de envios correctos.
+     */
     async getRachaEnviosCorrectos(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaEnviosACMax`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
     }
 
+    /**
+     * Devuelve la racha maxima de dias consecutivos con envios del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha maxima de dias consecutivos.
+     */
     async getRachaDiasEnviosConsecutivos(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaDiasEnvioMax`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
     }
 
+    /**
+     * Devuelve el numero de categorias distintas de problemas resueltos por el usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de categorias distintas.
+     */
     async getNumCategoriasProblemasResueltos(usuario: string): Promise<number> {
         const numCategorias = await this.redis.sCard(`usuario:${usuario}:categoriasAC`);
         return numCategorias;
     }
 
+    /**
+     * Devuelve el listado de horas del dia (0-23) en las que el usuario ha hecho envios.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de horas sin repeticion.
+     */
     async getHoras(usuario: string): Promise<number[]> {
         const horas = await this.redis.sMembers(`usuario:${usuario}:horas`);
         const valorHoras = horas.map(hora => Number(hora));
