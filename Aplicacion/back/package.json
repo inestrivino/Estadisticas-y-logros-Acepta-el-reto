@@ -9,7 +9,7 @@
     "minify": "npx esbuild ./dist-server/server.js --bundle --minify --platform=node --format=esm --packages=external --outfile=dist-server/server.min.js",
     
     "test": "vitest run",
-    "graph": "madge src/ --extensions ts,tsx --image graph.svg"
+    "graph": "madge src/servicios --extensions ts,tsx --image graph.svg"
   },
   "dependencies": {
     "amqplib": "^1.0.3",

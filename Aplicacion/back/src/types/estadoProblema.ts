@@ -1,3 +1,4 @@
 export type EstadoProblema = {
-    mejorTiempo?: number    // mejor tiempo de ejecucion registrado entre todos los envios AC del problema
+    envios: number
+    mejorTiempo: number    // mejor tiempo de ejecucion registrado entre todos los envios AC del problema
 }

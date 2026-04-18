@@ -6,4 +6,5 @@ export type datosUsuario = {
     resultado: string,
     lenguaje: string,
     fecha: number,
+    hora: number,
 };

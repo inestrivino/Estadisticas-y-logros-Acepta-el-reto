@@ -7,17 +7,11 @@ export default abstract class DAO {
         this.redis = redisClient;
     }
 
+    /**
+     * Sustituye el cliente Redis por uno de prueba.
+     * @param redisClientTest - Cliente Redis alternativo para tests.
+     */
     public setRedis(redisClientTest: typeof redisClient) {
         this.redis = redisClientTest;
     }
-
-    public async registrarDato(dato: any, pipeline?:any) {
-        if (pipeline !== undefined)
-            await this.agregarAlPipeline(dato, pipeline);
-        else
-            await this.registrarDirecto(dato);
-    }
-
-    abstract registrarDirecto(dato: any): Promise<void>;
-    abstract agregarAlPipeline(dato:any, pipeline: any): Promise<void>;
 }
