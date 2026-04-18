@@ -1,5 +1,4 @@
 import procesarEnviosService from './procesarEnviosService.js';
-import logrosService from './logros/logrosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
 import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
 
@@ -12,10 +11,14 @@ class InicializarService {
     private expected = -1; //numero de envio que se espera
 
 
+    /**
+     * Arranca la carga inicial de envios desde la API, retomando desde donde se quedo en
+     * el ultimo arranque gracias al ultimo envio y la ultima pagina almacenados en Redis.
+     */
     public async inicializar() {
 
         //TODO DEBUG
-        await gestionDAO.flushAll();
+        //await gestionDAO.flushAll();
 
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();

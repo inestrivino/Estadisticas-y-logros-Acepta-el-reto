@@ -30,7 +30,7 @@ export const logrosRachas: Logro[] = [
   {
     id: 1,
     nombre: "logro18",
-    descripcion: "Realización de envíos en cada franja horaria",
+    descripcion: "Realización de envíos en cada hora del día",
     imagen: "logro_placeholder.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.RACHAS,
