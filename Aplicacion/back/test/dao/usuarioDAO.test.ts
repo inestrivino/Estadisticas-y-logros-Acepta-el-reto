@@ -9,41 +9,33 @@ const dato = {
     envioId: 1,
     usuario: "user1",
     problema: "p1",
+    categoria: "",
     resultado: "AC",
     lenguaje: "Cpp",
-    fecha: {
-        dia: 17,
-        mes: 2, //marzo
-        anio: 2025,
-        hora: 10
-    }
+    fecha: dateToTimestamp({ dia: 17, mes: 2, anio: 2025 }),
+    hora: 10
 };
 
 describe("Registrar datos de usuario", () => {
 
     test("Un envio cada lunes", async () => {
-        //mete un envio cada lunes durante un anio 
+        //mete un envio cada lunes durante un anio
         const fecha = new Date(2025, 2, 17);
         for (let i = 0; i < 53; i++) {
-            const dato = {
+            await usuarioDAO.registrarBloqueEnvios([{
                 envioId: i + 1,
                 usuario: "user1",
                 problema: "p1",
+                categoria: "",
                 resultado: "AC",
                 lenguaje: "Cpp",
-                fecha: {
-                    dia: fecha.getDate(),
-                    mes: fecha.getMonth(),
-                    anio: fecha.getFullYear(),
-                    hora: fecha.getHours()
-                }
-            };
-
-            await usuarioDAO.registrarDirecto(dato);
+                fecha: dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() }),
+                hora: fecha.getHours()
+            }]);
 
             fecha.setDate(fecha.getDate() + 7);
         }
-        
+
         const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
         const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
 
@@ -71,7 +63,7 @@ describe("Registrar datos de usuario", () => {
     });
 
     test("coge bien los dias un anio bisiesto", async () => {
-        
+
         const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2024});
         const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2025});
 
@@ -102,7 +94,7 @@ describe("Lecturas vacias", () => {
     });
 
     test("coge bien lo dias", async () => {
-        await usuarioDAO.registrarDirecto(dato);
+        await usuarioDAO.registrarBloqueEnvios([dato]);
 
         const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
         const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
