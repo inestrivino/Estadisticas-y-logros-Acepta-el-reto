@@ -159,6 +159,31 @@
 }
 
 
+/* barra de carga */
+.barra-carga {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  padding: 10px 6px;
+  color: #F5F5F5;
+  font-size: 1.3rem;
+  background-color: #72acd3a2;
+}
+
+.barra-carga-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #72acd3a2;
+  transition: width 0.5s ease;
+}
+
+.barra-carga-texto {
+  position: relative;
+  z-index: 1;
+}
+
 /* links en pantallas peuqeñas */
 @media (max-width: 991px) {
 

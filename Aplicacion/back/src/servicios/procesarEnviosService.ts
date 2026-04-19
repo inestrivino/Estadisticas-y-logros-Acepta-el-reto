@@ -27,17 +27,22 @@ class ProcesarEnviosService {
             usuarios.add(envio.usuario);
             problemas.add(envio.problema);
         }
-        
+
         await logrosService.procesarBloqueEnvios(enviosProcesados);
         await this.cargarEnvios(enviosProcesados);
-
-        //avisa a los diagramas para que se actualicen
-        conjuntoEmitter(problemas, usuarios);
 
         //marca cual es ahora el ultimo envio procesado y la ultima pagina donde estaba
         await gestionDAO.setUltimoEnvio(enviosProcesados[enviosProcesados.length - 1].envioId);
         await gestionDAO.setUltimaPagina(bloque[bloque.length - 1].numPagina);
         console.log(" + Bloque insertado en la base de datos\n");
+
+        //saca cuanto porcentaje lleva procesado y lo persiste
+        const primeraPagina = await gestionDAO.getPrimeraPagina();
+        const porcentaje = Math.round((primeraPagina - bloque[bloque.length - 1].numPagina) / primeraPagina * 100);
+        await gestionDAO.setPorcentajeCarga(porcentaje);
+
+        //avisa a los diagramas para que se actualicen
+        conjuntoEmitter(problemas, usuarios, porcentaje);
     }
 
     /**

@@ -1,17 +1,32 @@
 import { Navbar, Nav, Offcanvas, Button } from "react-bootstrap";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faXmark } from "@fortawesome/free-solid-svg-icons";
+import BarraCarga from "./barraCarga.tsx";
 import "./sidebar.css";
+import { EventType } from "shared/EventTypes.ts";
 
 export default function Sidebar() {
+  
+  //porcentaje de carga inicial para la barra
+  const [porcentajeCarga, setPorcentajeCarga] = useState(0);
+  useEffect(() => {
+    fetch("/api/gestion/porcentajeCarga")
+      .then(res => res.json())
+      .then(data => setPorcentajeCarga(data));
+  }, []);
+  
+  //estado del offcanvas en pantallas pequeñas
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const location = useLocation();
+  //ruta actual y parametros de la url
   const { problema, usuario } = useParams();
+  
+  //titulo que se muestra en la navbar de pantallas pequeñas segun la ruta
+  const location = useLocation();
 
   const getTitulo = () => {
     if (location.pathname.startsWith("/problemas"))
@@ -71,6 +86,10 @@ export default function Sidebar() {
         <Nav className="flex-column gap-3 sidebar-links">
           {links}
         </Nav>
+
+        <div className="mt-auto">
+          {porcentajeCarga && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+        </div>
       </div>
 
       {/*sidebar desplegada para pantallas pequeñas (con offcanvas) */}
@@ -82,8 +101,11 @@ export default function Sidebar() {
           </Offcanvas.Title>
         </Offcanvas.Header>
 
-        <Offcanvas.Body className="app-offcanvas-body">
+        <Offcanvas.Body className="app-offcanvas-body d-flex flex-column">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
+          <div className="mt-auto pt-3">
+            {porcentajeCarga !== undefined && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+          </div>
         </Offcanvas.Body>
       </Offcanvas>
     </>

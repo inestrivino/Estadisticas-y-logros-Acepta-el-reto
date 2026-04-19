@@ -32,9 +32,12 @@ export default async function routerEmitter(envio: EnvioProcesado) {
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(envio.usuario, "categoria"));
 }
 
-export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>) {
+export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>, porcentaje: number) {
     
     const io = getIO();
+
+    //para actualizar la barra de carga que te dice el porcentaje de envios que han cargado
+    io.emit(EventType.CARGA_ENVIOS, porcentaje);
     
     for (const problema of problemas) {
         //se actualizan los diagramas de estadisticas de problemas

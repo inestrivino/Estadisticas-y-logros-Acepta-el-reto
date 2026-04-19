@@ -13,7 +13,10 @@ export const EventType = {
 
   //LOGROS USUARIO
   LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
-  LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria"
+  LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria",
+
+  //PARA AVISAR DE QUE SE HAN CARGADO MAS ENVIOS DE LA CARGA INICIAL
+  CARGA_ENVIOS: "reload-cargaEnvios"
 } as const;
 
 //Aux para formatear el evento con un string adicional (ejemplo: id del problema o usuario)

@@ -9,6 +9,7 @@ import initConsumer from "./consumer/cosumer.js";
 //routers
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
+import rutasGestion from "./api/gestion.js";
 
 //============== CONFIGURACION ==============
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 //====================== RUTAS ======================
 app.use("/api/problemas", rutasProblemas);
 app.use("/api/usuarios", rutasUsuarios);
+app.use("/api/gestion", rutasGestion);
 
 app.listen(3000, (error) => {
     if (error)

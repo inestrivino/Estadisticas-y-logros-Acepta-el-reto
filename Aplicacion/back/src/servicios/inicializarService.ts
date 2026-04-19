@@ -43,12 +43,22 @@ class InicializarService {
             ultimoEnvio++; 
             referenciaPagina = await gestionDAO.getUltimaPagina();
         }
-            
+
+        //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
+        const { ini, fin } = await this.buscarPrimerIntervalo(ultimoEnvio, referenciaPagina);
+
+        //se hace una busqueda binaria en el intervalo encontrado para encontrar la pagina con el envio
+        const firstPagina = await this.bucarEnIntervalo(ultimoEnvio, ini, fin);
+
+        //si es la primera pagina que se carga se marca cual es
+        if (ultimoEnvio === 1)
+            await gestionDAO.setPrimeraPagina(firstPagina);
 
         //ultimoEnvio = 1114759; //TODO forzado para que pueda terminar
-        //referenciaPagina = 1;        
+        //referenciaPagina = 1;
 
-        for await (const bloque of this.bloques(ultimoEnvio, referenciaPagina)) {
+        //se comienza a hacer las peticones para traer los bloques de envios
+        for await (const bloque of this.bloques(firstPagina, ultimoEnvio)) {
 
             await procesarEnviosService.procesarBloqueEnvios(bloque);
 
@@ -62,13 +72,7 @@ class InicializarService {
      * procesados en orden.
      * @yields Bloque de envios procesados.
      */
-    private async * bloques(firstEnvio: number, referenciaPagina: number): AsyncGenerator<{ envio: EnvioSinProcesar; numPagina: number }[]> {
-
-        //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
-        const { ini, fin } = await this.buscarPrimerIntervalo(firstEnvio, referenciaPagina);
-
-        //se hace una busqueda binaria en el intervalo encontrado para encontrar la pagina con el envio
-        const firstPagina = await this.bucarEnIntervalo(firstEnvio, ini, fin);
+    private async * bloques(firstPagina: number, firstEnvio: number): AsyncGenerator<{ envio: EnvioSinProcesar; numPagina: number }[]> {
 
         //se marca cual va a ser el primer envio a procesar
         this.expected = firstEnvio;
