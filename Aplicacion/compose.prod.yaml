@@ -25,9 +25,10 @@ services:
       dockerfile: ./back/Dockerfile.prod
     ports:
       - "8080:8080"
-      - "9229:9229"
     environment:
       - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./.env
     depends_on:
       - redis
   
