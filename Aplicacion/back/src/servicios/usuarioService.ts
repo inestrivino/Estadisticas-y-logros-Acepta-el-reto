@@ -60,6 +60,36 @@ export default class UsuarioService {
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
+    async getUsuariosRanking(pag: number, tam: number, nivel: string) {
+        const ini = (pag - 1) * tam;
+        const fin = pag * tam - 1;
+        if (nivel === "") {
+            const usuarios = await usuarioDAO.getUsuariosRankingPorRango(ini, fin);
+            return usuarios.map(u => ({
+                nombre: u.value,
+                xp: u.score,
+                nivel: this.getNivelFromXP(u.score)
+            }));
+        }
+        else {
+            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+            const usuarios = usuarioDAO.getUsuariosRankingPorRangoYNivel(ini, fin, iniXP, finXP)
+            return (await usuarios).map(u => ({
+                nombre: u.value,
+                xp: u.score
+            }))
+        }
+    }
+
+    async getNumUsuarios(nivel: string): Promise<number> {
+        if(nivel === "") {
+            return usuarioDAO.getNumUsuarios();
+        }
+        else {
+            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+            return usuarioDAO.getNumUsuariosEnRango(iniXP, finXP);
+        }
+    }
 
     async getNumEnvios(usuario: string): Promise<number> {
         return usuarioDAO.getNumEnvios(usuario);
@@ -95,5 +125,27 @@ export default class UsuarioService {
 
     async getNumFranjasHorariasConEnvio(usuario: string): Promise<number> {
         return usuarioDAO.getNumFranjasHorariasConEnvio(usuario);
+    }
+
+    getNivelFromXP(xp: number) {
+        if (xp !== -1) {
+            if (xp <= 100) return "Aprendiz"
+            if (xp <= 500) return "Competente"
+            if (xp <= 1000) return "Hábil"
+            if (xp <= 2000) return "Especialista"
+            return "Maestro"
+        }
+        return "";
+    }
+
+    getXPRangeFromNivel(nivel: string): { iniXP: number, finXP: number } {
+        switch (nivel) {
+            case "Aprendiz": return { iniXP: 0, finXP: 100 };
+            case "Competente": return { iniXP: 101, finXP: 500 };
+            case "Hábil": return { iniXP: 501, finXP: 1000 };
+            case "Especialista": return { iniXP: 1001, finXP: 2000 };
+            case "Maestro": return { iniXP: 2001, finXP: Number.MAX_VALUE };
+            default: return { iniXP: Number.MIN_VALUE, finXP: Number.MAX_VALUE };
+        }
     }
 }

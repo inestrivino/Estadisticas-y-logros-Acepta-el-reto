@@ -94,7 +94,7 @@ export default class UsuarioDAO extends DAO {
             pipeline.set(`usuario:${dato.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
         }
 
-        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) { 
+        if (dato.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(dato.usuario, dato.problema))) {
             pipeline.incr(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosACStr = await this.redis.get(`usuario:${dato.usuario}:rachaEnviosAC`);
             const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
@@ -110,12 +110,12 @@ export default class UsuarioDAO extends DAO {
 
     //TODO poner jdoc
     //Devuelve el resultado ordenado alfabeticamente por nombre
-    async getResultados(usuario: string): Promise<{name: string, value: number}[]> {
+    async getResultados(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:resultados`);
 
-        const formateados: {name: string, value: number}[] = [];
+        const formateados: { name: string, value: number }[] = [];
         for (const aux of Object.entries(datos))
-            formateados.push({name:aux[0], value:Number(aux[1])})
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
 
         formateados.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -124,12 +124,12 @@ export default class UsuarioDAO extends DAO {
 
     //TODO poner jdoc
     //Devuelve el resultado ordenado alfabeticamente por nombre
-    async getLenguajes(usuario: string): Promise<{name: string, value: number}[]> {
+    async getLenguajes(usuario: string): Promise<{ name: string, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:lenguajes`);
 
-        const formateados: {name: string, value: number}[] = [];
+        const formateados: { name: string, value: number }[] = [];
         for (const aux of Object.entries(datos))
-            formateados.push({name:aux[0], value:Number(aux[1])})
+            formateados.push({ name: aux[0], value: Number(aux[1]) })
 
         formateados.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -158,7 +158,7 @@ export default class UsuarioDAO extends DAO {
             //por si en algun momento se quisiera pedir un intervalo que no llega hasta hoy
             if (timeStamp.score > timeFin)
                 continue;
-            
+
             resultados.push({
                 timeStamp: timeStamp.score,
                 value: Number(valores[timeStamp.value])
@@ -270,5 +270,43 @@ export default class UsuarioDAO extends DAO {
     async getNumFranjasHorariasConEnvio(usuario: string): Promise<number> {
         const numFranjasHorarias = await this.redis.sCard(`usuario:${usuario}:franjasHorarias`);
         return numFranjasHorarias;
+    }
+
+    // Devuelve los usuarios que se encuentran entre las posiciones ini y fin del ranking
+    async getUsuariosRankingPorRango(ini: number, fin: number): Promise<{ value: string; score: number }[]> {
+        const usuarios = await this.redis.zRangeWithScores(`usuario:ranking`, ini, fin, { REV: true });
+        return usuarios;
+    }
+
+    // Devuelve los usuarios del nivel correspondiente al rango de xp [iniNivel, finNivel] que se encuentran entre
+    //  las posiciones ini y fin (dentro del propio nivel)
+    async getUsuariosRankingPorRangoYNivel(ini: number, fin: number, iniNivel: number, finNivel: number):
+        Promise<{ value: string; score: number }[]> {
+
+        const usuarios = await this.redis.zRangeWithScores(`usuario:ranking`, finNivel, iniNivel,
+            { BY: 'SCORE', REV: true, LIMIT: { offset: ini, count: fin - ini + 1, } });
+
+        return (usuarios ?? []) as { value: string; score: number }[];
+    }
+
+    async getPosUsuarioEnRanking(usuario: string): Promise<number> {
+        const pos = await this.redis.zRevRank(`usuario:ranking`, usuario);
+        return pos !== null ? pos + 1 : -1;
+    }
+
+    //TODO tener en cuenta que aqui saldran solo los que han realizado por lo menos un envio, y por tanto tienen algo de xp
+    async getNumUsuarios(): Promise<number> {
+        const numUsuarios = await this.redis.zCard(`usuario:ranking`);
+        return numUsuarios;
+    }
+
+    async getNumUsuariosEnRango(ini: number, fin: number): Promise<number> {
+        const numUsuarios = await this.redis.zCount(`usuario:ranking`, ini, fin);
+        return numUsuarios;
+    }
+
+    async getXPUsuario(usuario: string): Promise<number> {
+        const xp = await this.redis.zScore(`usuario:ranking`, usuario);
+        return xp !== null ? xp : -1
     }
 }

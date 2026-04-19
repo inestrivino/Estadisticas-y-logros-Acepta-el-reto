@@ -13,12 +13,13 @@ class ServicioLogro {
     async calcularYGuardarLogros() {
         const estados = EstadoServicio.getEstadosUsuarios();
         const pipeline = redisClient.multi();
-
+        let i = 0;
         for (const [usuario, estado] of estados) {
             await this.cargarDatosAEstado(usuario, estado);
             const logros = this.procesarLogrosCargaInicial(estado);
             usuarioDAO.guardarLogros(usuario, logros, pipeline)
-            this.persistirEstado(usuario, estado, pipeline);
+            this.persistirEstado(usuario, estado, pipeline, i);
+            i++;
         }
         await pipeline.exec();
     }
@@ -27,7 +28,6 @@ class ServicioLogro {
         
         for (const logro of logros) {
             if (logro.condicionCargaInicial(usuario)) {
-                usuario.logros.add(logro.nombre);
                 usuario.logros.add(logro.nombre);
             }
         }
@@ -59,12 +59,14 @@ class ServicioLogro {
     }
 
     //TODO comprobar que estos sean los unicos necesarios
-    private persistirEstado(usuario: string, estado: EstadoUsuario, pipeline: any) {
+    private persistirEstado(usuario: string, estado: EstadoUsuario, pipeline: any, cont: number) {
         const rachaDiasEnvioMax = estado.rachaDiasEnvioMax ? estado.rachaDiasEnvioMax : 0;
-        pipeline.set(`usuario${usuario}:rachaDiasEnvioMax`, rachaDiasEnvioMax);
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`, rachaDiasEnvioMax);
 
         const rachaEnviosACMax = estado.rachaEnviosACMax ? estado.rachaEnviosACMax : 0;
-        pipeline.set(`usuario${usuario}:rachaEnviosACMax`, rachaEnviosACMax);
+        pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, rachaEnviosACMax);
+
+        pipeline.zIncrBy(`usuario:ranking`, cont, usuario);
     }
 
     private async cargarDatosAEstado(usuario: string, estado: EstadoUsuario) {
