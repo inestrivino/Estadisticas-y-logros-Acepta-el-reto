@@ -4,15 +4,19 @@ import { formatEvent } from "shared/EventTypes.ts";
 import { useParams } from "react-router-dom";
 
 //COMPONENTES
-import PanelParticipacion from "../componentes/panelParticipacion.js";
+import PanelParticipacion from "./panelParticipacion.js";
 
-import DiagramaSectores from "../componentes/diagramaSectores.tsx";
-import DatoNumerico from "../componentes/datoNumerico.tsx";
+import DiagramaSectores from "./diagramaSectores.tsx";
+import DatoNumerico from "./datoNumerico.tsx";
 
-export default function EstadisticasUsuario() {
+export default function EstadisticasUsuario(props: {
+    usuario: string
+}) {
 
-    //parametros de la url
-    const { usuario } = useParams();
+    const [usuario, setUsuario] = useState<string>("");
+    useEffect(() => {
+        setUsuario(props.usuario);
+    }, [props.usuario]);
 
     //ENVIOS
     const [envios, setEnvios] = useState<{ timeStamp: number, value: number }[]>([]);

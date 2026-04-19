@@ -1,19 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import EstadisticasProblema from "./pages/EstadisticasProblema/EstadisticasProblema.js"
 import PruebaSocket from "./pages/PruebaSocket"
 import Layout from "./pages/Layout/Layout.js"
-import EstadisticasUsuario from "./pages/EstadisticasUsuario"
 import LogrosUsuario from "./pages/LogrosUsuario/LogrosUsuario"
+import Inicio from "./pages/Inicio.js"
+import Estadisticas from "./pages/Estadisticas.js"
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<PruebaSocket />} />
-          <Route path="/problemas/:problema" element={<EstadisticasProblema />} />
+          <Route path="/" element={<Inicio />} />
+          <Route path="/problemas" element={<Estadisticas tipo={"problema"} />} />
+          <Route path="/problemas/:problema" element={<Estadisticas tipo={"problema"} />} />
           <Route path="/pruebaSocket" element={<PruebaSocket />} />
-          <Route path="/usuarios/:usuario/estadisticas" element={<EstadisticasUsuario />} />
+          <Route path="/usuarios/estadisticas" element={<Estadisticas tipo="usuario" />} />
+          <Route path="/usuarios/:usuario/estadisticas" element={<Estadisticas tipo="usuario" />} />
           <Route path="/usuarios/:usuario/logros" element={<LogrosUsuario />} />
           <Route path="/usuarios/ranking" element={<PruebaSocket />} />
         </Route>

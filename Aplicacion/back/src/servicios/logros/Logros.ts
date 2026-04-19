@@ -24,7 +24,7 @@ export const logros: Logro[] = [
     condicion: async (envio) => true
   },
   {
-    id: 1,
+    id: 2,
     nombre: "logro2",
     descripcion: "Realización del primer envío",
     imagen: "logro_placeholder.png",
@@ -41,7 +41,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 3,
     nombre: "logro4",
     descripcion: "Resolución de 10 problemas",
     imagen: "logro_placeholder.png",
@@ -60,7 +60,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 4,
     nombre: "logro5",
     descripcion: "Resolución de 50 problemas",
     imagen: "logro_placeholder.png",
@@ -77,7 +77,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 5,
     nombre: "logro6",
     descripcion: "Resolución de 100 problemas",
     imagen: "logro_placeholder.png",
@@ -94,7 +94,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 6,
     nombre: "logro7",
     descripcion: "Resolución de 500 problemas",
     imagen: "logro_placeholder.png",
@@ -111,7 +111,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 7,
     nombre: "logro8",
     descripcion: "Resolución de 25 problemas en C",
     imagen: "logro_placeholder.png",
@@ -128,7 +128,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 8,
     nombre: "logro9",
     descripcion: "Resolución de 25 problemas en C++",
     imagen: "logro_placeholder.png",
@@ -145,7 +145,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 9,
     nombre: "logro10",
     descripcion: "Resolución de 25 problemas en Java",
     imagen: "logro_placeholder.png",
@@ -162,7 +162,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 10,
     nombre: "logro11",
     descripcion: "Haber realizado envíos con 3 lenguajes diferentes",
     imagen: "logro_placeholder.png",
@@ -179,7 +179,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 11,
     nombre: "logro12",
     descripcion: "Consecución de una racha de 5 envíos aceptados a la primera",
     imagen: "logro_placeholder.png",
@@ -196,7 +196,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 12,
     nombre: "logro13",
     descripcion: "Realización de envíos en 7 días consecutivos",
     imagen: "logro_placeholder.png",
@@ -213,7 +213,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 13,
     nombre: "logro14",
     descripcion: "Resolución de un problema en el primer intento",
     imagen: "logro_placeholder.png",
@@ -230,7 +230,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 14,
     nombre: "logro15",
     descripcion: "Envío correcto dentro del 25% de soluciones más rápidas para un problema",
     imagen: "logro_placeholder.png",
@@ -251,7 +251,7 @@ export const logros: Logro[] = [
   },
   /* //TODO categorias problemas
   {
-    id: 1,
+    id: 15,
     nombre: "logro16",
     descripcion: "Resolución de un problema de cada categoría",
     imagen: "logro_placeholder.png",
@@ -269,7 +269,7 @@ export const logros: Logro[] = [
   },
   */
   {
-    id: 1,
+    id: 16,
     nombre: "logro17",
     descripcion: "Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema",
     imagen: "logro_placeholder.png",
@@ -286,7 +286,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 17,
     nombre: "logro18",
     descripcion: "Realización de envíos en cada franja horaria",
     imagen: "logro_placeholder.png",
@@ -303,7 +303,7 @@ export const logros: Logro[] = [
     }
   },
   {
-    id: 1,
+    id: 18,
     nombre: "logro3",
     descripcion: "Obtención de 5 logros",
     imagen: "logro_placeholder.png",
