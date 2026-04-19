@@ -15,9 +15,9 @@ export default function App() {
           <Route path="/problemas/:problema" element={<Estadisticas tipo={"problema"} />} />
           <Route path="/pruebaSocket" element={<PruebaSocket />} />
           <Route path="/usuarios/estadisticas" element={<Estadisticas tipo="usuario" />} />
-          <Route path="/usuarios/:usuario/estadisticas" element={<Estadisticas tipo="usuario" />} />
-          <Route path="/usuarios/:usuario/logros" element={<LogrosUsuario />} />
           <Route path="/usuarios/ranking" element={<PruebaSocket />} />
+          <Route path="/usuarios/estadisticas/:usuario" element={<Estadisticas tipo="usuario" />} />
+          <Route path="/usuarios/logros/:usuario" element={<LogrosUsuario />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -41,7 +41,7 @@ export default function Sidebar() {
         <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
         <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/${usuario || "user1"}/logros`}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/${usuario || "user1"}`}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>

@@ -20,7 +20,7 @@ function Buscador(props: {
         if(props.tipo === "problema") {
             navigate(`/problemas/${elem}`);
         } else {
-            navigate(`/usuarios/${elem}/estadisticas`);
+            navigate(`/usuarios/estadisticas/${elem}`);
         }
         
     };
