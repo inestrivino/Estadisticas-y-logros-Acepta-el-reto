@@ -12,8 +12,8 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Inicio />} />
-          <Route path="/problemas" element={<Estadisticas tipo={"problema"} />} />
-          <Route path="/problemas/:problema" element={<Estadisticas tipo={"problema"} />} />
+          <Route path="/problemas" element={<Estadisticas tipo="problema" />} />
+          <Route path="/problemas/:problema" element={<Estadisticas tipo="problema" />} />
           <Route path="/pruebaSocket" element={<PruebaSocket />} />
           <Route path="/usuarios/estadisticas" element={<Estadisticas tipo="usuario" />} />
           <Route path="/usuarios/estadisticas/:usuario" element={<Estadisticas tipo="usuario" />} />

@@ -5,7 +5,6 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import { useState, useEffect } from "react"
 
 type datoUsuario = {
-    //pos: number,
     nombre: string,
     nivel?: string,
     xp: number
@@ -86,25 +85,15 @@ export default function TablaDeClasificacion(props: {
 
                 <div className="aligne-items-center">
                     <Pagination>
-                        <Pagination.Prev
-                            onClick={() => setPag(pag - 1)}
-                            disabled={pag === 1}
-                        />
-                        {<Pagination.Ellipsis disabled={pag === 1}/>}
-
-                        <Pagination.Item
-                            key={pag}
-                            active={true}
-                            onClick={() => setPag(pag)}
-                        >
+                        <Pagination.Prev onClick={() => setPag(pag - 1)} disabled={pag === 1} />
+                        <Pagination.Ellipsis disabled={pag === 1} />
+                        
+                        <Pagination.Item key={pag} active={true} onClick={() => setPag(pag)}>
                             {pag}
                         </Pagination.Item>
 
-                        {<Pagination.Ellipsis disabled={pag === totalPags}/>}
-                        <Pagination.Next
-                            onClick={() => setPag(pag + 1)}
-                            disabled={pag === totalPags}
-                        />
+                        <Pagination.Ellipsis disabled={pag === totalPags}/>
+                        <Pagination.Next onClick={() => setPag(pag + 1)} disabled={pag === totalPags} />
                     </Pagination>
                 </div>
 

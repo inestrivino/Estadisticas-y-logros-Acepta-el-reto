@@ -5,25 +5,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
 
+type Params = {
+  problema?: string;
+  usuario?: string;
+};
+
 export default function Sidebar() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const location = useLocation();
-  const { problema, usuario } = useParams();
+  const params = useParams<Params>();
 
   const getTitulo = () => {
     if (location.pathname.startsWith("/problemas"))
       return "Estadísticas ejercicios";
 
-    if (location.pathname.includes("estadisticas"))
+    if (location.pathname.startsWith("/usuarios/estadisticas"))
       return "Estadísticas usuario";
 
-    if (location.pathname.includes("logros"))
+    if (location.pathname.startsWith("/usuarios/logros"))
       return "Logros de usuario";
 
-    if (location.pathname.includes("ranking"))
+    if (location.pathname.startsWith("/usuarios/ranking"))
       return "Ranking usuarios";
 
     if (location.pathname === "/pruebaSocket")
@@ -37,11 +42,11 @@ export default function Sidebar() {
     <>
       <Nav.Link as={NavLink} className="app-nav-link" to="/">
         <FontAwesomeIcon icon={faHouseChimney} />Inicio</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/problemas">
+      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas" + (params.problema ? `/${params.problema}` : ``)}>
         <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas` + (params.usuario ? `/${params.usuario}` : ``)}>
         <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/${usuario || "user1"}`}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/` + (params.usuario ? `/${params.usuario}` : ``)}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>

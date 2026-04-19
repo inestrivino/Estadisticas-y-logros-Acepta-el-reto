@@ -127,7 +127,7 @@ export default class UsuarioService {
         return usuarioDAO.getNumFranjasHorariasConEnvio(usuario);
     }
 
-    getNivelFromXP(xp: number) {
+    private getNivelFromXP(xp: number) {
         if (xp !== -1) {
             if (xp <= 100) return "Aprendiz"
             if (xp <= 500) return "Competente"
@@ -138,7 +138,7 @@ export default class UsuarioService {
         return "";
     }
 
-    getXPRangeFromNivel(nivel: string): { iniXP: number, finXP: number } {
+    private getXPRangeFromNivel(nivel: string): { iniXP: number, finXP: number } {
         switch (nivel) {
             case "Aprendiz": return { iniXP: 0, finXP: 100 };
             case "Competente": return { iniXP: 101, finXP: 500 };
