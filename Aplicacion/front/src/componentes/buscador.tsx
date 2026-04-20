@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+
+import { AppContecxtType, useAppContext } from "../contexto/contextos";
+
 import "./buscador.css";
 
 function Buscador(props: {
@@ -11,6 +14,8 @@ function Buscador(props: {
     const [elem, setElem] = useState(""); //dependiendo de la vista representara el problema o el usuario
     const navigate = useNavigate();
 
+    const appContext = useAppContext();
+
     const handleSearch = (e: any) => {
         e.preventDefault();
 
@@ -18,8 +23,10 @@ function Buscador(props: {
             return;
 
         if(props.tipo === "problema") {
+            appContext?.setProblemaActual(elem);
             navigate(`/problemas/${elem}`);
         } else {
+            appContext?.setUsuarioActual(elem);
             navigate(`/usuarios/estadisticas/${elem}`);
         }
         

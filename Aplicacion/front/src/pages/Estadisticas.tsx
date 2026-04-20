@@ -1,7 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Buscador from "../componentes/buscador";
 import EstadisticasProblema from "../componentes/EstadisticasProblema/EstadisticasProblema";
 import EstadisticasUsuario from "../componentes/EstadisticasUsuario";
+import { useAppContext } from "../contexto/contextos";
+import { useEffect } from "react";
+
 
 type Params = {
     problema?: string;
@@ -18,8 +21,25 @@ export default function Estadisticas(props: {
     tipo: string
 }) {
 
+    const appContext = useAppContext();
+
     const params = useParams<Params>();
-    const id = (props.tipo === "problema" ? params.problema : params.usuario) || "";
+    const id = (props.tipo === "problema" ? params.problema || appContext?.problemaActual : params.usuario) || appContext?.usuarioActual;
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (props.tipo === "problema") {
+            if (!params.problema && appContext?.problemaActual) {
+                navigate(`/problemas/${appContext.problemaActual}`, { replace: true });
+            }
+        }
+        else {
+            if (!params.usuario && appContext?.usuarioActual) {
+                navigate(`/usuarios/estadisticas/${appContext.usuarioActual}`, { replace: true });
+            }
+        }
+    }, [props.tipo, params.problema, params.usuario, appContext?.problemaActual, appContext?.usuarioActual, navigate]);
 
     const { tituloBusqueda, tituloResultado, descripcion } = initEstado(props.tipo);
 

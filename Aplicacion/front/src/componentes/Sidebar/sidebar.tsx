@@ -1,14 +1,11 @@
 import { Navbar, Nav, Offcanvas, Button } from "react-bootstrap";
-import { useState, useEffect, useRef } from "react";
-import { NavLink, useLocation, useParams } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faHouseChimney } from "@fortawesome/free-solid-svg-icons";
+import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
 
-type Params = {
-  problema?: string;
-  usuario?: string;
-};
+import { useAppContext } from "../../contexto/contextos";
 
 export default function Sidebar() {
   const [show, setShow] = useState(false);
@@ -16,7 +13,7 @@ export default function Sidebar() {
   const handleShow = () => setShow(true);
 
   const location = useLocation();
-  const params = useParams<Params>();
+  const appContext = useAppContext();
 
   const getTitulo = () => {
     if (location.pathname.startsWith("/problemas"))
@@ -37,19 +34,23 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
-  //TODO cambiar el valor por defecto
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/">
+      <Nav.Link as={NavLink} className="app-nav-link"  to="/">
         <FontAwesomeIcon icon={faHouseChimney} />Inicio</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas" + (params.problema ? `/${params.problema}` : ``)}>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas"}>
         <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas` + (params.usuario ? `/${params.usuario}` : ``)}>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
         <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/` + (params.usuario ? `/${params.usuario}` : ``)}>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/` + (appContext?.usuarioActual ? `/${appContext?.usuarioActual}` : ``)}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
+
     </>
   );
 

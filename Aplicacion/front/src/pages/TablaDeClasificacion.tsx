@@ -2,7 +2,8 @@ import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
 import Spinner from "react-bootstrap/Spinner";
 import ToggleButton from 'react-bootstrap/ToggleButton';
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import { useAppContext } from "../contexto/contextos";
 
 type datoUsuario = {
     nombre: string,
@@ -22,6 +23,8 @@ export default function TablaDeClasificacion(props: {
 
     const pagSize = 10;
 
+    const appContext = useAppContext();
+
     useEffect(() => {
         fetchRanking(pag);
     }, [pag, porNivel]);
@@ -29,7 +32,7 @@ export default function TablaDeClasificacion(props: {
     const fetchRanking = async (pag: number) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel? "&nivel=Aprendiz" : ""));
+            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel? `&usuario=${appContext?.usuarioActual}` : ""));
             const data = await res.json();
 
             setUsers(data.usuarios);

@@ -60,10 +60,10 @@ export default class UsuarioService {
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
-    async getUsuariosRanking(pag: number, tam: number, nivel: string) {
+    async getUsuariosRanking(pag: number, tam: number, usuario: string) {
         const ini = (pag - 1) * tam;
         const fin = pag * tam - 1;
-        if (nivel === "") {
+        if (usuario === "") {
             const usuarios = await usuarioDAO.getUsuariosRankingPorRango(ini, fin);
             return usuarios.map(u => ({
                 nombre: u.value,
@@ -72,6 +72,8 @@ export default class UsuarioService {
             }));
         }
         else {
+            const xp = await usuarioDAO.getXPUsuario(usuario);
+            const nivel = this.getNivelFromXP(xp);
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             const usuarios = usuarioDAO.getUsuariosRankingPorRangoYNivel(ini, fin, iniXP, finXP)
             return (await usuarios).map(u => ({
@@ -82,7 +84,7 @@ export default class UsuarioService {
     }
 
     async getNumUsuarios(nivel: string): Promise<number> {
-        if(nivel === "") {
+        if (nivel === "") {
             return usuarioDAO.getNumUsuarios();
         }
         else {

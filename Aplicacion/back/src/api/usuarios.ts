@@ -27,10 +27,10 @@ router.get("/:usuario/logros", async (req, res) => {
 });
 
 router.get("/ranking", async (req, res) => {
-    const { pag, tam, nivel } = req.query;
+    const { pag, tam, usuario } = req.query;
     
-    const usuarios = await usuarioService.getUsuariosRanking(Number(pag), Number(tam), (nivel !== undefined? String(nivel) : ""));
-    const totalUsuarios = await usuarioService.getNumUsuarios((nivel !== undefined? String(nivel) : ""));
+    const usuarios = await usuarioService.getUsuariosRanking(Number(pag), Number(tam), (usuario !== undefined? String(usuario) : ""));
+    const totalUsuarios = await usuarioService.getNumUsuarios((usuario !== undefined? String(usuario) : ""));
     return res.json({usuarios, totalUsuarios});
 })
 
