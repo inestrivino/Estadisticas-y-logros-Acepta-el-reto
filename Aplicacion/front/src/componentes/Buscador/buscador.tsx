@@ -4,12 +4,12 @@ import { Form, Button, InputGroup } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
-import { AppContecxtType, useAppContext } from "../contexto/contextos";
+import { useAppContext } from "../../contexto/contextos";
 
 import "./buscador.css";
 
 function Buscador(props: {
-    tipo: string, /* o problemas o usuarios*/
+    tipo: string,
     ruta: string
 }) {
     const [elem, setElem] = useState(""); //dependiendo de la vista representara el problema o el usuario

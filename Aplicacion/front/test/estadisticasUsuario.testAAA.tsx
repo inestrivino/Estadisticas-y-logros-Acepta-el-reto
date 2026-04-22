@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { describe, expect, beforeAll, afterEach, afterAll, vi, test, beforeEach } from "vitest";
 
-import Estadisticas from "../src/pages/Estadisticas"
+import EstadisticasUsuario from "../src/pages/EstadisticasUsuario"
 
 //HANDLERS PARA LOS ENDPOINTS
 export const handlers = [
@@ -56,7 +56,7 @@ function renderWithRouter(usuario: string) {
   return render(
     <MemoryRouter initialEntries={[`/usuarios/${usuario}`]}>
       <Routes>
-        <Route path="/usuarios/:usuario" element={<Estadisticas tipo={"usuario"} />} />
+        <Route path="/usuarios/:usuario" element={<EstadisticasUsuario />} />
       </Routes>
     </MemoryRouter>
   );

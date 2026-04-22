@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useEffect } from "react";
 import { useAppContext } from "../contexto/contextos"
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
-import Buscador from "../componentes/buscador";
+import Buscador from "../componentes/Buscador/buscador";
 import EstadisticasProblemaComp from "../componentes/EstadisticasProblemaComp/estadisticasProblemaComp";
 
 export default function EstadisticasProblema() {

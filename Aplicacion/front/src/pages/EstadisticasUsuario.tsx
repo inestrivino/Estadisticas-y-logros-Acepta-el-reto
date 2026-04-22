@@ -4,7 +4,7 @@ import Badge from 'react-bootstrap/Badge';
 
 import { useAppContext } from "../contexto/contextos";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
-import Buscador from "../componentes/buscador";
+import Buscador from "../componentes/Buscador/buscador";
 import EstadisticasUsuarioComp from "../componentes/estadisticasUsuarioComp";
 
 export default function EstadisticasUsuario() {
