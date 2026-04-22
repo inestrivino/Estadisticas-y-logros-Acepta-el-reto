@@ -23,7 +23,16 @@ jobs:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
           external_repository: N3STOR173/Reportes-Estadisticas-Logros
           publish_dir: Aplicacion/back/test-report
-          destination_dir: back/${{ github.ref_name }}
+          destination_dir: back/${{ github.ref_name }}/report
+
+      - name: Subir coverage
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.REPORTS_TOKEN }}
+          external_repository: N3STOR173/Reportes-Estadisticas-Logros
+          publish_dir: Aplicacion/back/coverage
+          destination_dir: back/${{ github.ref_name }}/coverage
 
   ci-front:
     runs-on: ubuntu-latest

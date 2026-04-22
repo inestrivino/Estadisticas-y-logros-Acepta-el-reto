@@ -5,7 +5,7 @@ export default defineConfig({
         coverage: {
             provider: 'istanbul',
             reporter: 'html',
-            reportsDirectory: './test-report/coverage',
+            reportsDirectory: './coverage',
             include: ['src/**']
         },
         reporters: [
