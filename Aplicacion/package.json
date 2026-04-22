@@ -1,7 +1,8 @@
 {
   "name": "tfg",
   "scripts": {
-    "start": "docker compose down -v && docker compose up --build",
+    "start": "npm run clean-volumes || docker compose up --build",
+    "clean-volumes": "docker volume rm app-dev_front_node_modules app-dev_back_node_modules",
     "start-local": "docker start redis || docker run --name redis -p 6379:6379 redis:alpine",
     "casos": "node back/scripts/generarProblemas.js",
 

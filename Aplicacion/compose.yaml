@@ -16,7 +16,7 @@ services:
       - back
     volumes:
       - ./front:/app/front
-      - /app/front/node_modules
+      - front_node_modules:/app/front/node_modules
 
   back:
     image: app-back-dev
@@ -36,7 +36,7 @@ services:
       - rabbitmq
     volumes:
       - ./back:/app/back
-      - /app/back/node_modules
+      - back_node_modules:/app/back/node_modules
   
   redis:
     image: "redis:alpine"
@@ -73,3 +73,5 @@ services:
 
 volumes:
   redis_data:
+  front_node_modules:
+  back_node_modules:
