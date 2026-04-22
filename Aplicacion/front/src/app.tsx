@@ -22,7 +22,7 @@ export default function App() {
             <Route path="/usuarios/estadisticas/:usuario" element={<EstadisticasUsuario />} />
             <Route path="/usuarios/logros/" element={<LogrosUsuario />} />
             <Route path="/usuarios/logros/:usuario" element={<LogrosUsuario />} />
-            <Route path="/usuarios/ranking" element={<TablaDeClasificacion usuario="user1" />} />
+            <Route path="/usuarios/ranking" element={<TablaDeClasificacion />} />
           </Route>
         </Routes>
       </BrowserRouter>

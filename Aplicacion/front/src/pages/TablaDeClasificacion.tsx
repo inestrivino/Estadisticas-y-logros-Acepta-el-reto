@@ -11,9 +11,7 @@ type datoUsuario = {
     xp: number
 };
 
-export default function TablaDeClasificacion(props: {
-    usuario? : string
-}) {
+export default function TablaDeClasificacion() {
 
     const [porNivel, setPorNivel] = useState(false);
     const [users, setUsers] = useState<datoUsuario[]>([]);
@@ -25,6 +23,8 @@ export default function TablaDeClasificacion(props: {
 
     const appContext = useAppContext();
 
+    const usuario = appContext?.usuarioActual;
+
     useEffect(() => {
         fetchRanking(pag);
     }, [pag, porNivel]);
@@ -32,7 +32,7 @@ export default function TablaDeClasificacion(props: {
     const fetchRanking = async (pag: number) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel? `&usuario=${appContext?.usuarioActual}` : ""));
+            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel? `&usuario=${usuario}` : ""));
             const data = await res.json();
 
             setUsers(data.usuarios);
@@ -50,7 +50,7 @@ export default function TablaDeClasificacion(props: {
             </h1>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {props.usuario && <ToggleButton
+                {usuario && <ToggleButton
                     className="mb-2"
                     id="toggle-check"
                     type="checkbox"
@@ -74,12 +74,12 @@ export default function TablaDeClasificacion(props: {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map((usuario: datoUsuario, index) => (
-                                <tr key={usuario.nombre}>
+                            {users.map((u: datoUsuario, index) => (
+                                <tr key={u.nombre}>
                                     <td>{(pag - 1) * pagSize + index + 1}</td>
-                                    <td>{usuario.nombre}</td>
-                                    {!porNivel && <td>{usuario.nivel}</td>}
-                                    <td>{usuario.xp}</td>
+                                    <td>{u.nombre}</td>
+                                    {!porNivel && <td>{u.nivel}</td>}
+                                    <td>{u.xp}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -60,13 +60,13 @@ export default class UsuarioService {
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
-    
+
     /**
      * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
      * @param pag - Numero de la pagina.
      * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
-     * @param usuario - Identificador del usuario o "" dependiendo de si se quiere filtrar por nivel o no
-     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado
+     * @param usuario - Identificador del usuario o "" dependiendo de si se quiere filtrar por nivel o no.
+     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
      */
     async getUsuariosRanking(pag: number, tam: number, usuario: string) {
         const ini = (pag - 1) * tam;
@@ -91,16 +91,28 @@ export default class UsuarioService {
         }
     }
 
-    async getNumUsuarios(nivel: string): Promise<number> {
-        if (nivel === "") {
+    /**
+     * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica, 
+     * se devuelve el numero de usuario que pertenecen al mismo nivel (de xp) que este.
+     * @param usuario - Identificador del usuario o "" en caso de no querer limitar por nivel.
+     * @returns Numero de usuario a partir de lo especificado.
+     */
+    async getNumUsuarios(usuario: string): Promise<number> {
+        if (usuario === "") {
             return usuarioDAO.getNumUsuarios();
         }
         else {
+            const nivel = await this.getNivelUsuario(usuario);
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             return usuarioDAO.getNumUsuariosEnRango(iniXP, finXP);
         }
     }
 
+    /**
+     * Devuelve el nivel al que pertenece el usuario a partir del xp que tiene.
+     * @param usuario - Identificador del usuario.
+     * @returns String del nombre del nivel al que pertenece.
+     */
     async getNivelUsuario(usuario: string) {
         const xp = await usuarioDAO.getXPUsuario(usuario);
         return this.getNivelFromXP(xp);
@@ -142,6 +154,12 @@ export default class UsuarioService {
         return usuarioDAO.getNumFranjasHorariasConEnvio(usuario);
     }
 
+    //TODO a lo mejor esto se tendria que cambiar a xpService
+    /**
+     * Devuelve el nivel al que corresponde esa cantidad de xp.
+     * @param xp - Cantidad de xp.
+     * @returns String correspondiente al nivel.
+     */
     private getNivelFromXP(xp: number) {
         if (xp !== -1) {
             if (xp <= 100) return "Aprendiz"
@@ -153,6 +171,11 @@ export default class UsuarioService {
         return "";
     }
 
+    /**
+     * Devuelve el rango de xp que corresponde a cada nivel.
+     * @param nivel - String correspondiente al nivel.
+     * @returns Valores de inicio y fin que marcan el rango de xp que corresponden al nivel (ambos incluidos).
+     */
     private getXPRangeFromNivel(nivel: string): { iniXP: number, finXP: number } {
         switch (nivel) {
             case "Aprendiz": return { iniXP: 0, finXP: 100 };
