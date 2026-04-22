@@ -47,8 +47,10 @@
       proxy_set_header Connection "upgrade";
   }
 
-- AMQP es el protocolo que usa rabbit mq para enviar y recibir mensajes, estaría bien que se comentara
+- AMQP es el protocolo que usa rabbitMq para enviar y recibir mensajes, estaría bien que se comentara
   en la memoria que este es el proceso que usa
+
+- Para conectarse al panel de rabbitMq es en el localhost:15672
 
 ======================================================================================================
 
