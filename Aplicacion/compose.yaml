@@ -55,5 +55,21 @@ services:
     env_file:
       - ./.env
 
+  adapter:
+    image: app-adapter-dev
+    container_name: app-adapter-dev
+    build: 
+      context: .
+      dockerfile: ./adapter/Dockerfile.dev
+    ports:
+      - "9230:9229"
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./adapter:/app/adapter
+      - /app/adapter/node_modules
+
 volumes:
   redis_data:

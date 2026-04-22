@@ -1,7 +1,7 @@
 {
   "name": "tfg",
   "scripts": {
-    "start": "docker compose up --build",
+    "start": "docker compose down -v && docker compose up --build",
     "start-local": "docker start redis || docker run --name redis -p 6379:6379 redis:alpine",
     "casos": "node back/scripts/generarProblemas.js",
 
