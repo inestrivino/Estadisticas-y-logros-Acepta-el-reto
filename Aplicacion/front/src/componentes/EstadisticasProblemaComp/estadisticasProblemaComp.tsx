@@ -15,7 +15,7 @@ export default function EstadisticasProblemaComp(props: {
     const problema = props.problema;
 
     //ENVIOS
-    const [envios, setEnvios] = useState<number>(0);
+    const [envios, setEnvios] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/envios`)
             .then(response => response.json())
@@ -23,7 +23,7 @@ export default function EstadisticasProblemaComp(props: {
     }, [problema]);
 
     //MEJOR TIEMPO
-    const [mejorTiempo, setMejorTiempo] = useState<number>(0);
+    const [mejorTiempo, setMejorTiempo] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/mejorTiempo`)
             .then(response => response.json())
@@ -31,7 +31,7 @@ export default function EstadisticasProblemaComp(props: {
     }, [problema]);
 
     //TIEMPO PROMEDIO
-    const [tiempoPromedio, setTiempoPromedio] = useState<number>(0);
+    const [tiempoPromedio, setTiempoPromedio] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/tiempoPromedio`)
             .then(response => response.json())
@@ -62,35 +62,32 @@ export default function EstadisticasProblemaComp(props: {
                 {/* Fila de datos numéricos - responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
 
-                    {envios && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: envios, description: "Envios" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={envios === null}
+                            evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: envios ?? 0, description: "Envios" }}
+                        />
+                    </div>
 
-                    {mejorTiempo && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: mejorTiempo, description: "Mejor tiempo" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={mejorTiempo === null}
+                            evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: mejorTiempo ?? 0, description: "Mejor tiempo" }}
+                        />
+                    </div>
 
-                    {tiempoPromedio && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: tiempoPromedio, description: "Tiempo Promedio" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={tiempoPromedio === null}
+                            evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: tiempoPromedio ?? 0, description: "Tiempo Promedio" }}
+                        />
+                    </div>
                 </div>
 
                 {/* Fila de diagramas - responsive */}

@@ -81,7 +81,12 @@ export default function Sidebar() {
       <div className="sidebar d-none d-lg-flex flex-column p-3">
         <Navbar.Brand className="mb-5 app-navbar-titulo">
           <FontAwesomeIcon icon={faLightbulb} className="me-2" />
-          ¡Acepta el reto!
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            ¡Acepta el reto!
+            <span style={{ fontSize: "0.8rem", fontWeight: 400, color: "#ffffff", letterSpacing: "0.05em" }}>
+              Estadísticas y Logros
+            </span>
+          </div>
         </Navbar.Brand>
 
         <Nav className="flex-column gap-3 sidebar-links">
@@ -89,7 +94,7 @@ export default function Sidebar() {
         </Nav>
 
         <div className="mt-auto">
-          {porcentajeCarga && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+          <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>
         </div>
       </div>
 
@@ -98,14 +103,19 @@ export default function Sidebar() {
         <Offcanvas.Header closeButton>
           <Offcanvas.Title className="app-offcanvas-titulo">
             <FontAwesomeIcon icon={faLightbulb} className="me-2" />
-            ¡Acepta el reto!
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              ¡Acepta el reto!
+              <span style={{ fontSize: "0.8rem", fontWeight: 400, color: "#ffffff", letterSpacing: "0.05em" }}>
+                Estadísticas y Logros
+              </span>
+            </div>
           </Offcanvas.Title>
         </Offcanvas.Header>
 
         <Offcanvas.Body className="app-offcanvas-body d-flex flex-column">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
           <div className="mt-auto pt-3">
-            {porcentajeCarga !== undefined && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+            {porcentajeCarga >= 0 && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
           </div>
         </Offcanvas.Body>
       </Offcanvas>

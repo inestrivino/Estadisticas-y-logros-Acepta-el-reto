@@ -11,10 +11,16 @@ interface Props {
 export default function BarraCarga({ evento, progresoInicial }: Props) {
 
     //progreso de carga, se inicializa con el valor persistido en redis
-    const [progreso, setProgreso] = useState(progresoInicial);
+    const [progreso, setProgreso] = useState(0);
 
     //estado para mostrar el tooltip al pasar el raton
     const [hover, setHover] = useState(false);
+
+    //sincroniza cuando llega el valor inicial desde el fetch del padre
+    useEffect(() => {
+        if (progresoInicial !== undefined)
+            setProgreso(progresoInicial);
+    }, [progresoInicial]);
 
     //actualiza el progreso cuando llega un nuevo valor por socket
     useEffect(() => {
