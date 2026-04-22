@@ -5,10 +5,9 @@ import Badge from 'react-bootstrap/Badge';
 import { useAppContext } from "../contexto/contextos";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
-import EstadisticasUsuarioComp from "../componentes/estadisticasUsuarioComp";
+import LogrosUsuarioComp from "../componentes/LogrosUsuarioComp/logrosUsuarioComp";
 
-export default function EstadisticasUsuario() {
-
+export default function LogrosUsuario() {
     const appContext = useAppContext();
     const params = useParams();
 
@@ -16,7 +15,7 @@ export default function EstadisticasUsuario() {
 
     const navigate = useNavigate();
     useEffect(() => {
-        navigate(`/usuarios/estadisticas/${usuario}`, { replace: true });
+        navigate(`/usuarios/logros/${usuario}`, { replace: true });
     }, [usuario, navigate]);
 
     // NIVEL
@@ -30,15 +29,15 @@ export default function EstadisticasUsuario() {
     return (
         <PlantillaBusqueda
             hasResult={!!usuario}
-            tituloBusqueda="Estadísticas de usuarios"
-            descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus estadísticas"
+            tituloBusqueda="Logros de usuarios"
+            descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus logros alcanzados"
             tituloResultado={
-                <>
-                    Estadisticas usuario <b>{usuario}</b> <Badge bg="secondary">{nivel}</Badge>
-                </>
+                <h1>
+                    Logros usuario <b>{usuario}</b> <Badge bg="secondary">{nivel}</Badge>
+                </h1>
             }
-            buscador={<Buscador tipo="usuario_estadistica" ruta={`/usuarios/estadisticas/${usuario}`} />}
-            children={usuario && <EstadisticasUsuarioComp key={usuario} usuario={usuario} />}
+            buscador={<Buscador tipo="usuario_logro" ruta={`/usuarios/logros/${usuario}`} />}
+            children={usuario && <LogrosUsuarioComp key={usuario} usuario={usuario} />}
         />
     )
 }

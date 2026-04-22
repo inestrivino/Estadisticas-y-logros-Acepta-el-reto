@@ -2,16 +2,17 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatEvent } from "shared";
-import "./EstadisticasProblema.css";
+import "./estadisticasProblemaComp.css";
 
 //COMPONENTES
-import DatoNumerico from "../../componentes/datoNumerico"
-import DiagramaSectores from "../../componentes/diagramaSectores";
+import DatoNumerico from "../datoNumerico"
+import DiagramaSectores from "../diagramaSectores";
 
-export default function EstadisticasProblema() {
+export default function EstadisticasProblemaComp(props: {
+    problema: string
+}) {
 
-    //parametros de la url
-    const { problema } = useParams();
+    const problema = props.problema;
 
     //ENVIOS
     const [envios, setEnvios] = useState<number>(0);
@@ -55,12 +56,8 @@ export default function EstadisticasProblema() {
 
     return (
         <>
-            <h1 className="p-4 text-3xl font-bold">
-                Estadísticas problema <span className="font-bold">{problema}</span>
-            </h1>
-
             {/* Contenedor principal */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div className="w-full mt-4">
 
                 {/* Fila de datos numéricos - responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">

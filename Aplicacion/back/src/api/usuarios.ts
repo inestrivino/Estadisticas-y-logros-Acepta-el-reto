@@ -21,8 +21,21 @@ router.get("/:usuario/enviosAnio", async (req, res) => {
 
 router.get("/:usuario/logros", async (req, res) => {
     const { usuario } = req.params;
-    const {clasificacion} = req.query;
-    return res.json(await logrosService.getLogrosUsuario(usuario, clasificacion as string));
+    const { clasificacion } = req.query;
+    return res.json(await usuarioService.getLogrosUsuario(usuario, clasificacion as string));
 });
+
+router.get("/ranking", async (req, res) => {
+    const { pag, tam, usuario } = req.query;
+    const usuarios = await usuarioService.getUsuariosRanking(Number(pag), Number(tam), usuario ? String(usuario) : "");
+    const totalUsuarios = await usuarioService.getNumUsuarios((usuario ? String(usuario) : ""));
+    return res.json({ usuarios, totalUsuarios });
+});
+
+router.get("/:usuario/nivel", async (req, res) => {
+    const { usuario } = req.params;
+    const nivel = await usuarioService.getNivelUsuario(usuario);
+    return res.json(nivel);
+})
 
 export default router;
