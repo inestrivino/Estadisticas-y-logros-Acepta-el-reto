@@ -8,7 +8,7 @@ import { EnvioProcesado } from "../types/envioProcesado.js";
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
-export default async function routerEmitter(envio: EnvioProcesado) {
+export async function routerEmitter(envio: EnvioProcesado) {
     
     console.log("Emite eventos para recargar los componentes");
 

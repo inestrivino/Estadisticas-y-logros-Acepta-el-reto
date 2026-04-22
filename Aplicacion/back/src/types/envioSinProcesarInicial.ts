@@ -1,4 +1,4 @@
-export type EnvioSinProcesar = {
+export type EnvioSinProcesarInicial = {
     executionTime : number,
     language : string,
     memoryUser : number,
