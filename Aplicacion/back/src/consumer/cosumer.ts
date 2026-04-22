@@ -1,72 +1,102 @@
 import procesarEnviosService from "../servicios/procesarEnviosService.js";
-import recargarComponentes from "../sockets/socketEmitter.js";
+import { EnvioSinProcesarEvent } from "../types/envioSinProcesarEvent.js";
+import { setTimeout } from "timers/promises";
+import amqp from "amqplib"; //Libreria que implementa el protocolo AMQP para hablar con RabbitMQ
 
-// Librería que implementa el protocolo AMQP para hablar con RabbitMQ
-import amqp from "amqplib";
-
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
-const QUEUE_NAME = process.env.QUEUE_NAME;
 const RETRY_DELAY_MS = 5000;
 
-export default async function iniciarConsumidor(): Promise<void> {
+/**
+ * Inicia el consumidor de RabbitMQ y comienza a escuchar la cola de envios.
+ * @param ultimoEnvio - Id del ultimo envio ya procesado, para ignorar duplicados.
+ */
+export default function iniciarConsumidor(ultimoEnvio: number): Promise<void> {
+
+  const RABBITMQ_URL = process.env.RABBITMQ_URL!;
+  const QUEUE_NAME = process.env.QUEUE_NAME!;
 
   if (!RABBITMQ_URL || !QUEUE_NAME) {
     console.error("Faltan variables de entorno RABBITMQ_URL o QUEUE_NAME");
-    return;
+    return Promise.resolve();
   }
 
+  //primer intento de conexion
+  return intento(ultimoEnvio, RABBITMQ_URL, QUEUE_NAME);
+}
+
+/**
+ * Intenta conectarse a RabbitMQ y suscribirse a la cola. Si falla, reintenta tras un delay.
+ * @param ultimoEnvio - Id del ultimo envio procesado.
+ * @param rabbitMqUrl - URL de conexion a RabbitMQ.
+ * @param cola - Nombre de la cola a consumir.
+ */
+async function intento(ultimoEnvio: number, rabbitMqUrl: string, cola: string) {
   try {
-    //Se abre la conexión TCP con RabbitMQ
-    const conexion = await amqp.connect(RABBITMQ_URL);
+    const conexion = await amqp.connect(rabbitMqUrl);
+    const canal = await configurarCanal(conexion, cola);
 
-    //Se crea un canal virutal dentro de la conexion
-    const canal = await conexion.createChannel();
+    console.log(` * Escuchando cola "${cola}" de RabbitMQ`);
 
-    //Se declara la cola, durable true hace que la cola sobreviva a reinicios de RabbitMQ
-    await canal.assertQueue(QUEUE_NAME, { durable: true });
-
-    //Limita a procesar 1 mensaje a la vez
-    canal.prefetch(1);
-
-    console.log(` * Escuchando cola "${QUEUE_NAME} de RabbitMQ`);
-
-    // Se suscribe a la cola. El callback se ejecuta cada vez que llega un mensaje.
-    canal.consume(QUEUE_NAME, async (msg) => {
-
-      if (!msg) 
+    canal.consume(cola, async (msg: string) => {
+      if (msg === undefined || msg === null)
         return;
 
       try {
-        // msg.content es un Buffer (bytes crudos), lo convertimos a string y parseamos el JSON
-        const envio = JSON.parse(msg.content.toString());
-
-        await procesarEnviosService.procesarEnvio(envio);
-        await recargarComponentes(envio);
-
-        //Se le dice a RabbitMQ que el mensaje se ha procesado correctamente y puede ser eliminado de la cola
+        ultimoEnvio = await procesarMensaje(msg, ultimoEnvio);
         canal.ack(msg);
-      } 
+      }
       catch (err) {
         console.error(" - Error procesando mensaje:", (err as Error).message);
         canal.nack(msg, false, false);
       }
     });
 
-    //Si la conexion falla por un error intenta volver a conectarse
-    conexion.on("error", (err) => {
+    conexion.on("error", async (err) => {
       console.error(" - Error de conexion con RabbitMQ:", err.message);
-      setTimeout(iniciarConsumidor, RETRY_DELAY_MS);
+      await setTimeout(RETRY_DELAY_MS);
+      return await intento(ultimoEnvio, rabbitMqUrl, cola);
     });
 
-    //Lo mismo pero si se reinicia el servidor RabbitMQ
-    conexion.on("close", () => {
+    conexion.on("close", async () => {
       console.warn(" - Reiniciando consumidor:");
-      setTimeout(iniciarConsumidor, RETRY_DELAY_MS);
+      await setTimeout(RETRY_DELAY_MS);
+      return await intento(ultimoEnvio, rabbitMqUrl, cola);
     });
 
-  } 
+  }
   catch (err) {
     console.error(" - No se pudo conectar a RabbitMQ:", (err as Error).message);
-    setTimeout(iniciarConsumidor, RETRY_DELAY_MS);
+    await setTimeout(RETRY_DELAY_MS);
+    return await intento(ultimoEnvio, rabbitMqUrl, cola);
   }
+}
+
+/**
+ * Crea y configura el canal virtual de RabbitMQ.
+ * @param conexion - Conexion TCP activa con RabbitMQ.
+ * @param cola - Nombre de la cola a declarar.
+ * @returns Canal listo para consumir mensajes.
+ */
+async function configurarCanal(conexion: any, cola: string) {
+  const canal = await conexion.createChannel();
+  await canal.assertQueue(cola, { durable: true });
+  canal.prefetch(1);
+  return canal;
+}
+
+/**
+ * Parsea y procesa un mensaje de RabbitMQ, ignorando envios ya procesados.
+ * @param msg - Mensaje recibido de RabbitMQ.
+ * @param ultimoEnvio - Id del ultimo envio procesado.
+ * @returns Id del ultimo envio procesado tras manejar el mensaje.
+ */
+async function procesarMensaje(msg: any, ultimoEnvio: number): Promise<number> {
+  const bloque: EnvioSinProcesarEvent[] = JSON.parse(msg.content.toString());
+  const bloqueNuevo = bloque.filter(e => e.envio.sid > ultimoEnvio);
+
+  if (bloqueNuevo.length > 0) {
+    await procesarEnviosService.procesarBloqueEnviosEvent(bloqueNuevo);
+    return bloqueNuevo[bloqueNuevo.length - 1].envio.sid;
+  }
+
+  return ultimoEnvio;
 }

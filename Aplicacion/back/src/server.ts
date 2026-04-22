@@ -5,6 +5,7 @@ import 'dotenv/config'
 import redisClient from './redis/redisClient.js';
 import { initSocket } from './sockets/socketInit.js';
 import inicializarService from './servicios/inicializarService.js';
+import gestionService from './servicios/gestionService.js';
 import initConsumer from "./consumer/cosumer.js";
 //routers
 import rutasProblemas from "./api/problemas.js";
@@ -37,5 +38,8 @@ initSocket(app);
 //inicializo la base de datos de redis con los datos historicos
 await inicializarService.inicializar();
 
+//se saca el id del ultimo envio procesado
+const ultimoEnvio = await gestionService.getUltimoEnvio();
+
 //una vez estan cargados los datos historicos se empiezan a escuchar los nuevos
-await initConsumer();
+await initConsumer(ultimoEnvio);
