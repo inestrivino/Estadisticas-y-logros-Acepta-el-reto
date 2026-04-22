@@ -22,7 +22,7 @@ jobs:
         with:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
           external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/back/
+          publish_dir: Aplicacion/back/test-report
           destination_dir: back/${{ github.ref_name }}
 
   ci-front:
@@ -44,5 +44,5 @@ jobs:
         with:
           personal_token: ${{ secrets.REPORTS_TOKEN }}
           external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/front/
+          publish_dir: Aplicacion/front/test-report
           destination_dir: front/${{ github.ref_name }}
