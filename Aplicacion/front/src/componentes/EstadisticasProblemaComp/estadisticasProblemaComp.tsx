@@ -2,13 +2,13 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatEvent } from "shared";
-import "./EstadisticasProblema.css";
+import "./estadisticasProblemaComp.css";
 
 //COMPONENTES
 import DatoNumerico from "../datoNumerico"
 import DiagramaSectores from "../diagramaSectores";
 
-export default function EstadisticasProblema(props: {
+export default function EstadisticasProblemaComp(props: {
     problema: string
 }) {
 

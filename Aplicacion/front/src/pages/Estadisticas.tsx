@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Buscador from "../componentes/buscador";
-import EstadisticasProblema from "../componentes/EstadisticasProblema/EstadisticasProblema";
-import EstadisticasUsuario from "../componentes/EstadisticasUsuario";
+import EstadisticasProblema from "../componentes/EstadisticasProblemaComp/estadisticasProblemaComp";
+import EstadisticasUsuario from "../componentes/estadisticasUsuarioComp";
 import { useAppContext } from "../contexto/contextos";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Badge from 'react-bootstrap/Badge';
 
 
 type Params = {
@@ -13,7 +14,7 @@ type Params = {
 
 type Textos = {
     tituloBusqueda: string;
-    tituloResultado: (id: string) => string;
+    tituloResultado: (id: string, nivel?: string) => React.ReactNode;
     descripcion: string;
 };
 
@@ -40,6 +41,17 @@ export default function Estadisticas(props: {
             }
         }
     }, [props.tipo, params.problema, params.usuario, appContext?.problemaActual, appContext?.usuarioActual, navigate]);
+
+    // NIVEL
+    const [nivel, setNivel] = useState<string>("");
+    useEffect(() => {
+        if (props.tipo === "usuario") {
+            fetch(`/api/usuarios/${id}/nivel`)
+                .then(response => response.json())
+                .then(data => setNivel(data));
+        } else
+            setNivel("");
+    }, [id]);
 
     const { tituloBusqueda, tituloResultado, descripcion } = initEstado(props.tipo);
 
@@ -76,7 +88,7 @@ export default function Estadisticas(props: {
                             </div>
 
                             <h1 className="text-3xl font-bold mb-4">
-                                {tituloResultado(id)}
+                                {tituloResultado(id, nivel)}
                             </h1>
 
                             {props.tipo === "problema" ? (
@@ -98,13 +110,21 @@ function initEstado(tipo: string): Textos {
     if (tipo === "problema") {
         return {
             tituloBusqueda: "Estadísticas problemas",
-            tituloResultado: (id) => `Estadísticas problema ${id}`,
+            tituloResultado: (id) => (
+                <h1>
+                    Estadisticas problema <b>{id}</b>
+                </h1>
+            ),
             descripcion: "Aquí podrás buscar cualquier problema de ¡Acepta el reto! y observar sus estadísticas"
         };
     } else {
         return {
             tituloBusqueda: "Estadísticas usuarios",
-            tituloResultado: (id) => `Estadísticas de ${id}`,
+            tituloResultado: (id, nivel) => (
+                <h1>
+                    Estadisticas usuario <b>{id}</b> <Badge bg="secondary">{nivel}</Badge>
+                </h1>
+            ),
             descripcion: "Aquí podrás buscar cualquier usuario y observar sus estadísticas"
         };
     }

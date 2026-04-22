@@ -9,7 +9,8 @@ import { AppContecxtType, useAppContext } from "../contexto/contextos";
 import "./buscador.css";
 
 function Buscador(props: {
-    tipo: string /* o problemas o usuarios*/
+    tipo: string, /* o problemas o usuarios*/
+    ruta: string
 }) {
     const [elem, setElem] = useState(""); //dependiendo de la vista representara el problema o el usuario
     const navigate = useNavigate();
@@ -22,12 +23,15 @@ function Buscador(props: {
         if (!elem.trim()) 
             return;
 
-        if(props.tipo === "problema") {
+        if(props.tipo === "problema_estadistica") {
             appContext?.setProblemaActual(elem);
             navigate(`/problemas/${elem}`);
-        } else {
+        } else if (props.tipo === "usuario_estadistica") {
             appContext?.setUsuarioActual(elem);
             navigate(`/usuarios/estadisticas/${elem}`);
+        } else if (props.tipo === "usuario_logro") {
+            appContext?.setUsuarioActual(elem);
+            navigate(`/usuarios/logros/${elem}`);
         }
         
     };

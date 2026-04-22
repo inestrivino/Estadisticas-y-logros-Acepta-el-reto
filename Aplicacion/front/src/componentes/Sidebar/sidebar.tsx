@@ -45,7 +45,7 @@ export default function Sidebar() {
       <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
         <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros/` + (appContext?.usuarioActual ? `/${appContext?.usuarioActual}` : ``)}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros`}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
 
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">

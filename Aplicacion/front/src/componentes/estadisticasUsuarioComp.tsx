@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { EventType } from "shared/EventTypes.ts";
-import { formatEvent } from "shared/EventTypes.ts";
+import { EventType } from "shared/EventTypes.js";
+import { formatEvent } from "shared/EventTypes.js";
 import { useParams } from "react-router-dom";
 
 //COMPONENTES
 import PanelParticipacion from "./panelParticipacion.js";
 
-import DiagramaSectores from "./diagramaSectores.tsx";
-import DatoNumerico from "./datoNumerico.tsx";
+import DiagramaSectores from "./diagramaSectores.js";
+import DatoNumerico from "./datoNumerico.js";
 
-export default function EstadisticasUsuario(props: {
+export default function EstadisticasUsuarioComp(props: {
     usuario: string
 }) {
 

@@ -60,10 +60,18 @@ export default class UsuarioService {
         const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
         return { clasificacion, grupos };
     }
+    
+    /**
+     * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
+     * @param pag - Numero de la pagina.
+     * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
+     * @param usuario - Identificador del usuario o "" dependiendo de si se quiere filtrar por nivel o no
+     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado
+     */
     async getUsuariosRanking(pag: number, tam: number, usuario: string) {
         const ini = (pag - 1) * tam;
         const fin = pag * tam - 1;
-        if (usuario === "") {
+        if (!usuario) {
             const usuarios = await usuarioDAO.getUsuariosRankingPorRango(ini, fin);
             return usuarios.map(u => ({
                 nombre: u.value,
@@ -91,6 +99,11 @@ export default class UsuarioService {
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             return usuarioDAO.getNumUsuariosEnRango(iniXP, finXP);
         }
+    }
+
+    async getNivelUsuario(usuario: string) {
+        const xp = await usuarioDAO.getXPUsuario(usuario);
+        return this.getNivelFromXP(xp);
     }
 
     async getNumEnvios(usuario: string): Promise<number> {

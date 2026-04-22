@@ -6,15 +6,20 @@ import { socket } from "../../services/socket.js";
 
 import { ListadoLogros } from "shared/LogroTypes";
 import { CategoriaLogro, NivelLogro } from "shared/LogroConsts";
-import "./LogrosUsuario.css";
+import "./logrosUsuarioComp.css";
 
 // COMPONENTES
-import GrupoLogro from "../../componentes/Logro/grupoLogros";
+import GrupoLogro from "../Logro/grupoLogros.js";
 
 
-export default function LogrosUsuario() {
+export default function LogrosUsuarioComp(props: {
+    usuario: string
+}) {
 
-    const { usuario } = useParams();
+    const [usuario, setUsuario] = useState<string>("");
+    useEffect(() => {
+        setUsuario(props.usuario);
+    }, [props.usuario]);
 
     const [key, setKey] = useState('categoria');
 
@@ -48,7 +53,7 @@ export default function LogrosUsuario() {
 
     return (
         <>
-            <h1 className="p-4 titulo">Logros de <b>{usuario}</b></h1>
+            {/*<h1 className="p-4 titulo">Logros de <b>{usuario}</b></h1>*/}
             <Container fluid="md" className="d-flex justify-content-center">
                 <div className="mt-2" style={{
                     width: "100%", maxWidth: "1100px",
