@@ -59,36 +59,6 @@ class UsuarioService {
         return datos;
     }
 
-    //Devuelve todos los logros declarando si el usuario los tiene o no y ordenados dependiendo del tipo de clasificacion marcado
-    async getLogrosUsuario(usuario: string, clasificacion: string) {
-        const setLogros = new Set(await usuarioDAO.getLogros(usuario));
-
-        //agrega el etributo de si el usuario tiene ese logro o no
-        const logrosUsuario = logros.map(logro => ({
-            nombre: logro.nombre,
-            descripcion: logro.descripcion,
-            imagen: logro.imagen,
-            nivel: logro.nivel,
-            categoria: logro.categoria,
-            sorpresa: logro.sorpresa,
-            obtenido: setLogros.has(logro.nombre)
-        }));
-
-        //agrupa todos los logros en los grupos correspondientes segun la clasificacion seleccionada
-        const gruposMap = new Map();
-        for (const logro of logrosUsuario) {
-            const key = clasificacion === "nivel" ? logro.nivel : logro.categoria;
-            if (!gruposMap.has(key)) {
-                gruposMap.set(key, []);
-            }
-            gruposMap.get(key).push(logro);
-        }
-
-        //transforma el map a una estructura similar a la del tipo TGrupoLogros 
-        const grupos = Array.from(gruposMap.entries()).map(([grupo, logros]) => ({ grupo, logros }));
-        return { clasificacion, grupos };
-    }
-
     /**
      * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
      * @param pag - Numero de la pagina.
@@ -203,3 +173,5 @@ class UsuarioService {
         }
     }
 }
+
+export default new UsuarioService();
