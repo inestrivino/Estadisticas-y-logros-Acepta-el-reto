@@ -18,21 +18,25 @@ jobs:
 
       - name: Subir reporte
         if: always()
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          personal_token: ${{ secrets.REPORTS_TOKEN }}
-          external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/back/test-report
-          destination_dir: back/${{ github.ref_name }}/report
+          token: ${{ secrets.REPORTS_TOKEN }}
+          repository-name: N3STOR173/Reportes-Estadisticas-Logros
+          branch: gh-pages
+          folder: Aplicacion/back/test-report
+          target-folder: back/${{ github.ref_name }}/report
+          clean: true
 
       - name: Subir coverage
         if: always()
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          personal_token: ${{ secrets.REPORTS_TOKEN }}
-          external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/back/coverage
-          destination_dir: back/${{ github.ref_name }}/coverage
+          token: ${{ secrets.REPORTS_TOKEN }}
+          repository-name: N3STOR173/Reportes-Estadisticas-Logros
+          branch: gh-pages
+          folder: Aplicacion/back/coverage
+          target-folder: back/${{ github.ref_name }}/coverage
+          clean: true
 
   ci-front:
     runs-on: ubuntu-latest
