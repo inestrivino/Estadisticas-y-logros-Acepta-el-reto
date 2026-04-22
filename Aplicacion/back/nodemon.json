@@ -1,7 +1,0 @@
-{
-  "watch": ["src"],
-  "ext": "ts",
-  "ignore": ["dist", "node_modules"],
-  "legacyWatch": true,
-  "exec": "tsc && node --inspect=0.0.0.0:9229 dist-server/server.js"
-}

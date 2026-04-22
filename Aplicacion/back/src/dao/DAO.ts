@@ -1,9 +1,17 @@
 import redisClient from '../redis/redisClient.js';
 
-export default class DAO {
+export default abstract class DAO {
     protected redis;
 
-    constructor(redisClientTest?: typeof redisClient) {
-        this.redis = redisClientTest ?? redisClient;
+    constructor() {
+        this.redis = redisClient;
+    }
+
+    /**
+     * Sustituye el cliente Redis por uno de prueba.
+     * @param redisClientTest - Cliente Redis alternativo para tests.
+     */
+    public setRedis(redisClientTest: typeof redisClient) {
+        this.redis = redisClientTest;
     }
 }

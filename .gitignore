@@ -3,8 +3,9 @@ dist*
 .env
 .env.*
 data
-package-lock.json
 test-report
+coverage
+graph.svg
 
 .vscode/*
 !.vscode/launch.json 
