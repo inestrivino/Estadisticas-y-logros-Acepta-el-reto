@@ -6,6 +6,7 @@ import logrosDAO from "../../dao/logrosDAO.js";
 import { datosLogro } from "../../types/datosLogro.js";
 import problemaDAO from "../../dao/problemaDAO.js";
 import { EnvioProcesado } from "../../types/envioProcesado.js";
+import { Logro } from "../../types/logro.js";
 
 class LogrosService {
 
@@ -45,13 +46,17 @@ class LogrosService {
         return { clasificacion, grupos };
     }
 
+    public getLogroByName(logro: string): Logro | undefined {
+        return logros.find(l => l.nombre === logro);
+    }
+
     /**
      * Calcula los logros nuevos obtenidos por cada usuario a partir de un bloque de envios.
      * Carga el estado previo desde Redis, simula el impacto de cada envio y evalua las condiciones.
      * @param envios - Array de envios procesados del bloque.
      * @returns Array con los logros nuevos agrupados por usuario.
      */
-    public async procesarBloqueEnvios(envios: EnvioProcesado[]): Promise<void> {
+    public async procesarBloqueEnvios(envios: EnvioProcesado[]): Promise<datosLogro[]> {
         //carga desde Redis los datos actuales de los usuarios de este bloque
         for (const usuario of envios.map(envio => envio.usuario)) {
             const estadoUsuario: EstadoUsuario = this.initEstado();
@@ -101,6 +106,7 @@ class LogrosService {
 
         const trofeos = Array.from(nuevosPorUsuario.entries()).map(([usuario, logros]) => ({ usuario, logros }));
         await logrosDAO.guardarBloqueLogros(trofeos);
+        return trofeos;
     }
 
     /**

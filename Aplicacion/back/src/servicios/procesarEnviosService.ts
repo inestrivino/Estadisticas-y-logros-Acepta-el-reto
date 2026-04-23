@@ -6,6 +6,7 @@ import { EnvioSinProcesarEvent } from "../types/envioSinProcesarEvent.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 import gestionDAO from "../dao/gestionDAO.js";
 import { conjuntoEmitter, routerEmitter } from "../sockets/socketEmitter.js";
+import xpService from "./xpService.js";
 
 class ProcesarEnviosService {
 
@@ -27,7 +28,8 @@ class ProcesarEnviosService {
         }
 
         //actualiza la informacion
-        await logrosService.procesarBloqueEnvios(enviosProcesados);
+        const nuevosLogros = await logrosService.procesarBloqueEnvios(enviosProcesados);
+        await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
         await problemaService.registrarBloqueEnvios(enviosProcesados);
         await usuarioService.registrarBloqueEnvios(enviosProcesados);
 
@@ -54,7 +56,8 @@ class ProcesarEnviosService {
         const enviosProcesados = bloque.map(e => this.parseEnvioEvent(e));
 
         //actualiza la informacion
-        await logrosService.procesarBloqueEnvios(enviosProcesados);
+        const nuevosLogros = await logrosService.procesarBloqueEnvios(enviosProcesados);
+        await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
         await problemaService.registrarBloqueEnvios(enviosProcesados);
         await usuarioService.registrarBloqueEnvios(enviosProcesados);
 

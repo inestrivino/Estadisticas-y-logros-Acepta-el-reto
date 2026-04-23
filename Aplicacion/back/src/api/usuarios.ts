@@ -1,6 +1,7 @@
 import express from 'express';
 import usuarioService from '../servicios/usuarioService.js';
 import logrosService from '../servicios/logros/logrosService.js';
+import xpService from '../servicios/xpService.js';
 const router = express.Router();
 
 router.get("/:usuario/resultados", async (req, res) => {
@@ -27,14 +28,14 @@ router.get("/:usuario/logros", async (req, res) => {
 
 router.get("/ranking", async (req, res) => {
     const { pag, tam, usuario } = req.query;
-    const usuarios = await usuarioService.getUsuariosRanking(Number(pag), Number(tam), usuario ? String(usuario) : "");
-    const totalUsuarios = await usuarioService.getNumUsuarios((usuario ? String(usuario) : ""));
+    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), usuario ? String(usuario) : "");
+    const totalUsuarios = await xpService.getNumUsuarios((usuario ? String(usuario) : ""));
     return res.json({ usuarios, totalUsuarios });
 });
 
 router.get("/:usuario/nivel", async (req, res) => {
     const { usuario } = req.params;
-    const nivel = await usuarioService.getNivelUsuario(usuario);
+    const nivel = await xpService.getNivelUsuario(usuario);
     return res.json(nivel);
 })
 

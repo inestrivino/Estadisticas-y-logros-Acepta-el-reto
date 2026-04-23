@@ -1,7 +1,7 @@
 import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
 import Spinner from "react-bootstrap/Spinner";
-import ToggleButton from 'react-bootstrap/ToggleButton';
+import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
 import { useAppContext } from "../contexto/contextos";
 
@@ -32,7 +32,7 @@ export default function TablaDeClasificacion() {
     const fetchRanking = async (pag: number) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel? `&usuario=${usuario}` : ""));
+            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel ? `&usuario=${usuario}` : ""));
             const data = await res.json();
 
             setUsers(data.usuarios);
@@ -50,17 +50,15 @@ export default function TablaDeClasificacion() {
             </h1>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {usuario && <ToggleButton
+                {usuario && <Form.Check
                     className="mb-2"
+                    type="switch"
                     id="toggle-check"
-                    type="checkbox"
-                    variant="outline-primary"
+                    dir="rtl"
+                    label="Filtrar por nivel"
                     checked={porNivel}
-                    value="1"
-                    onChange={(e) => {setPorNivel(e.currentTarget.checked); setPag(1)}}
-                >
-                    Filtrar por nivel
-                </ToggleButton>}
+                    onChange={(e) => { setPorNivel(e.currentTarget.checked); setPag(1) }}
+                />}
                 {loading ? (
                     <Spinner animation="border" />
                 ) : (
@@ -69,7 +67,7 @@ export default function TablaDeClasificacion() {
                             <tr>
                                 <th>#</th>
                                 <th>Usuario</th>
-                                {!porNivel && <th>Nivel</th>}
+                                <th>Nivel</th>
                                 <th>XP</th>
                             </tr>
                         </thead>
@@ -78,7 +76,7 @@ export default function TablaDeClasificacion() {
                                 <tr key={u.nombre}>
                                     <td>{(pag - 1) * pagSize + index + 1}</td>
                                     <td>{u.nombre}</td>
-                                    {!porNivel && <td>{u.nivel}</td>}
+                                    <td>{u.nivel}</td>
                                     <td>{u.xp}</td>
                                 </tr>
                             ))}
@@ -89,13 +87,13 @@ export default function TablaDeClasificacion() {
                 <div className="aligne-items-center">
                     <Pagination>
                         <Pagination.Prev onClick={() => setPag(pag - 1)} disabled={pag === 1} />
-                        <Pagination.Ellipsis disabled={pag === 1} />
-                        
+                        {pag !== 1 && <Pagination.Ellipsis />}
+
                         <Pagination.Item key={pag} active={true} onClick={() => setPag(pag)}>
                             {pag}
                         </Pagination.Item>
 
-                        <Pagination.Ellipsis disabled={pag === totalPags}/>
+                        {pag !== totalPags && <Pagination.Ellipsis />}
                         <Pagination.Next onClick={() => setPag(pag + 1)} disabled={pag === totalPags} />
                     </Pagination>
                 </div>

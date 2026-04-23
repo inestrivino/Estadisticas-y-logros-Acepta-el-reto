@@ -34,7 +34,7 @@ class InicializarService {
             const res = await fetch(url);
             const text = await res.text();
             const json = await JSON.parse(text);
-            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20;
+            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20 + 1;
 
             referenciaPagina = ultimoEnvioNumber;
         }
@@ -43,6 +43,7 @@ class InicializarService {
         else {
             ultimoEnvio++;
             referenciaPagina = await gestionDAO.getUltimaPagina();
+            referenciaPagina = Math.round(await gestionDAO.getUltimaPagina() / 20) * 20 + 1;
         }
 
         //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
