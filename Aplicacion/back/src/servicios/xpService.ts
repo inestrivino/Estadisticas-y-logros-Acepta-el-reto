@@ -52,13 +52,14 @@ class XPService {
          * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
          * @param pag - Numero de la pagina.
          * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
-         * @param usuario - Identificador del usuario o "" dependiendo de si se quiere filtrar por nivel o no.
+         * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
+         * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
          * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
          */
-    async getUsuariosRanking(pag: number, tam: number, usuario: string) {
+    async getUsuariosRanking(pag: number, tam: number, filtrarPorNivel: boolean, usuario: string) {
         const ini = (pag - 1) * tam;
         const fin = pag * tam - 1;
-        if (!usuario) {
+        if (!filtrarPorNivel) {
             const usuarios = await xpDAO.getUsuariosRankingPorRango(ini, fin);
             return usuarios.map(u => ({
                 nombre: u.value,
@@ -83,10 +84,11 @@ class XPService {
      * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica, 
      * se devuelve el numero de usuario que pertenecen al mismo nivel (de xp) que este.
      * @param usuario - Identificador del usuario o "" en caso de no querer limitar por nivel.
+     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
      * @returns Numero de usuario a partir de lo especificado.
      */
-    async getNumUsuarios(usuario: string): Promise<number> {
-        if (usuario === "") {
+    async getNumUsuarios(filtrarPorNivel: boolean, usuario: string): Promise<number> {
+        if (!filtrarPorNivel) {
             return xpDAO.getNumUsuarios();
         }
         else {

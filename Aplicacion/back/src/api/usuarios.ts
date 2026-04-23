@@ -28,8 +28,9 @@ router.get("/:usuario/logros", async (req, res) => {
 
 router.get("/ranking", async (req, res) => {
     const { pag, tam, usuario } = req.query;
-    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), usuario ? String(usuario) : "");
-    const totalUsuarios = await xpService.getNumUsuarios((usuario ? String(usuario) : ""));
+    const existeUsuario = usuario ? true : false;
+    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), existeUsuario , usuario ? String(usuario) : "");
+    const totalUsuarios = await xpService.getNumUsuarios(existeUsuario, (usuario ? String(usuario) : ""));
     return res.json({ usuarios, totalUsuarios });
 });
 
