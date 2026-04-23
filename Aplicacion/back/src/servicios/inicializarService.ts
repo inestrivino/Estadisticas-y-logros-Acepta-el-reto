@@ -42,8 +42,10 @@ class InicializarService {
         //si habia se busca el siguiente, y se mira que pagina fue la ultima revisada
         else {
             ultimoEnvio++;
-            referenciaPagina = await gestionDAO.getUltimaPagina();
+            referenciaPagina = Math.round(await gestionDAO.getUltimaPagina() / 20) * 20 + 1;
         }
+
+        ultimoEnvio = 1;
 
         //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
         const { ini, fin } = await this.buscarPrimerIntervalo(ultimoEnvio, referenciaPagina);
