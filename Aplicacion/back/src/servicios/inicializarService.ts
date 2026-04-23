@@ -19,7 +19,7 @@ class InicializarService {
     public async inicializar() {
 
         //TODO DEBUG
-        //await gestionDAO.flushAll();
+        await gestionDAO.flushAll();
 
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
@@ -34,7 +34,7 @@ class InicializarService {
             const res = await fetch(url);
             const text = await res.text();
             const json = await JSON.parse(text);
-            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20;
+            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20 + 1;
 
             referenciaPagina = ultimoEnvioNumber;
         }
