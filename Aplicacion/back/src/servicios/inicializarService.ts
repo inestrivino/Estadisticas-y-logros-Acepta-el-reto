@@ -185,7 +185,7 @@ class InicializarService {
 
             //avanza el inicio del intervalo a la mitad del actual 
             if (current.submission.length === 0 || current.submission[0].num < envio)
-                ini = Math.trunc((ini + (fin - ini) / 2) / 20) * 20;
+                ini = Math.trunc((ini + (fin - ini) / 2) / 20) * 20 + 1;
 
             //se ha pasado del inicio
             else if (current.submission[current.submission.length - 1].num > envio)

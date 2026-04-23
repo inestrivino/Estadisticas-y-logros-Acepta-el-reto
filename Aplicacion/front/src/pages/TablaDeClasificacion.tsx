@@ -1,7 +1,7 @@
 import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
 import Spinner from "react-bootstrap/Spinner";
-import ToggleButton from 'react-bootstrap/ToggleButton';
+import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
 import { useAppContext } from "../contexto/contextos";
 
@@ -50,17 +50,15 @@ export default function TablaDeClasificacion() {
             </h1>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {usuario && <ToggleButton
+                {usuario && <Form.Check
                     className="mb-2"
+                    type="switch"
                     id="toggle-check"
-                    type="checkbox"
-                    variant="outline-primary"
+                    dir="rtl"
+                    label="Filtrar por nivel"
                     checked={porNivel}
-                    value="1"
                     onChange={(e) => {setPorNivel(e.currentTarget.checked); setPag(1)}}
-                >
-                    Filtrar por nivel
-                </ToggleButton>}
+                />}
                 {loading ? (
                     <Spinner animation="border" />
                 ) : (
