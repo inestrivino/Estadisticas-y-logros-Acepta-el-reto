@@ -10,6 +10,13 @@ class XPService {
 
     private xpUsuarios = new Map<string, number>();
 
+    /**
+     * Calcula los xp obtenidos por cada usuario a partir de un bloque de envios. Primero recorre los envios para calcular los
+     *  puntos a partir del resultado obtenido en cada envio (acierto o no). Luego calcula los puntos obtenidos a partir de
+     *  los logros alcanzados por cada usuario.
+     * @param envios - Array de envios procesados del bloque.
+     * @param listadoLogros - Array de logros procesados del bloque.
+     */
     public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
         for (const envio of envios) {
             if (!this.xpUsuarios.has(envio.usuario))
@@ -27,6 +34,11 @@ class XPService {
         await XPDAO.registrarBloqueXP(puntos);
     }
 
+    /**
+     * Devuelve los xp correspondientes al conjunto de logros que se pasa.
+     * @param nombreLogros - Listado de identificadores (nombres) de los logros.
+     * @returns Numero entero positivo.
+     */
     private calcularXPDeLogros(nombreLogros: string[]): number {
         let xp = 0;
         for (const logro of nombreLogros.map(l => logrosService.getLogroByName(l))) {
@@ -36,10 +48,20 @@ class XPService {
         return xp;
     }
 
+    /**
+     * Devuelve los xp correspondientes al resultado obtenido del envio.
+     * @param resultado - Identificador del resultado.
+     * @returns Numero entero positivo.
+     */
     private getXPPorResultadoEnvio(resultado: string): number {
         return resultado === "AC" ? 15 : 1;
     }
 
+    /**
+     * Devuelve los xp correspondientes al nivel de logro obtenido.
+     * @param nivel - Identificador del nivel.
+     * @returns Numero entero positivo.
+     */
     private getXPPorNivelLogro(nivel: NivelLogro): number {
         switch (nivel) {
             case NivelLogro.BRONCE: return 20;
@@ -49,13 +71,13 @@ class XPService {
     }
 
     /**
-         * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
-         * @param pag - Numero de la pagina.
-         * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
-         * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
-         * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
-         * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
-         */
+     * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
+     * @param pag - Numero de la pagina.
+     * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
+     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
+     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
+     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
+     */
     async getUsuariosRanking(pag: number, tam: number, filtrarPorNivel: boolean, usuario: string) {
         const ini = (pag - 1) * tam;
         const fin = pag * tam - 1;
