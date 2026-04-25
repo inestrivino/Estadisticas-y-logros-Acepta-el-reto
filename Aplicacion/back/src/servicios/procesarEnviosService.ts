@@ -29,7 +29,7 @@ class ProcesarEnviosService {
 
         //actualiza la informacion
         const nuevosLogros = await logrosService.procesarBloqueEnvios(enviosProcesados);
-        await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
+        const actualizacionesRanking = await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
         await problemaService.registrarBloqueEnvios(enviosProcesados);
         await usuarioService.registrarBloqueEnvios(enviosProcesados);
 
@@ -44,7 +44,7 @@ class ProcesarEnviosService {
         await gestionDAO.setPorcentajeCarga(porcentaje);
 
         //avisa a los diagramas para que se actualicen
-        conjuntoEmitter(problemas, usuarios, porcentaje);
+        conjuntoEmitter(problemas, usuarios, porcentaje, actualizacionesRanking);
     }
 
     /**
@@ -57,10 +57,11 @@ class ProcesarEnviosService {
 
         //actualiza la informacion
         const nuevosLogros = await logrosService.procesarBloqueEnvios(enviosProcesados);
-        await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
+        const actualizacionesRanking = await xpService.procesarBloqueEnvios(enviosProcesados, nuevosLogros);
         await problemaService.registrarBloqueEnvios(enviosProcesados);
         await usuarioService.registrarBloqueEnvios(enviosProcesados);
 
+        //TODO falta poner como se actualiza el ranking con el socket
         //avisa a los diagramas para que se actualicen
         for (const envioProcesado of enviosProcesados)
             routerEmitter(envioProcesado);

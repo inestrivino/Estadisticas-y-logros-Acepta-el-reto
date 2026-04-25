@@ -4,13 +4,27 @@ import Spinner from "react-bootstrap/Spinner";
 import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
 import { useAppContext } from "../contexto/contextos";
+import { socket } from "../services/socket.ts";
+import { EventType } from "shared";
 
 type datoUsuario = {
     nombre: string,
-    nivel?: string,
+    nivel: string,
     xp: number,
-    pos?: number
+    pos: number
 };
+
+type ActualizacionesRanking = {
+    usuario: string,
+    oldPos: number,
+    newPos: number
+}
+
+type InfoActualizacionesRanking = {
+    updates: ActualizacionesRanking[],
+    minPos: number, //primera posicion del ranking afectada
+    maxPos: number //ultima possicion del ranking afectada
+}
 
 export default function TablaDeClasificacion() {
 
@@ -28,6 +42,10 @@ export default function TablaDeClasificacion() {
     const [rows, setRows] = useState(usuario ? pagSize - 1 : pagSize);
     const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
     useEffect(() => {
+        fetchInfoUsuario();
+    }, [usuario, porNivel]);
+
+    const fetchInfoUsuario = async() => {
         if (usuario) {
             setRows(pagSize - 1);
             fetch(`/api/usuarios/${usuario}?filtrarNivel=${porNivel}`).then(response => response.json()).then(data => setInfoUsuario(data));
@@ -35,7 +53,7 @@ export default function TablaDeClasificacion() {
         else {
             setRows(pagSize);
         }
-    }, [usuario, porNivel]);
+    }
 
     useEffect(() => {
         fetchRanking(pag);
@@ -54,6 +72,25 @@ export default function TablaDeClasificacion() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        socket.on(EventType.ACTUALIZACION_RANKING, (data) => {
+            handleRankingUpdate(data);
+            fetchInfoUsuario();
+        });
+
+        return () => {
+            socket.off(EventType.ACTUALIZACION_RANKING);
+        };
+    }, [pag, porNivel, rows, usuario]);
+
+    const handleRankingUpdate = async (data: InfoActualizacionesRanking) => {
+        const pagIni = (pag - 1) * rows + 1;
+        const pagFin = pag + rows;
+        if(data.minPos <= pagFin)
+            fetchRanking(pag)
+
+    }
 
     return (
         <div>
@@ -84,16 +121,16 @@ export default function TablaDeClasificacion() {
                             </tr>
                         </thead>
                         <tbody>
-                            {infoUsuario && 
-                            <tr key={1} className="table-dark">
-                                <td>{infoUsuario.pos}</td>
-                                <td>{infoUsuario.nombre}</td>
-                                <td>{infoUsuario.nivel}</td>
-                                <td>{infoUsuario.xp}</td>
-                            </tr>}
+                            {infoUsuario &&
+                                <tr key={1} className="table-dark">
+                                    <td>{infoUsuario.pos}</td>
+                                    <td>{infoUsuario.nombre}</td>
+                                    <td>{infoUsuario.nivel}</td>
+                                    <td>{infoUsuario.xp}</td>
+                                </tr>}
                             {users.map((u: datoUsuario, index) => (
                                 <tr key={u.nombre} className={u.nombre === usuario ? "table-dark" : ""}>
-                                    <td>{(pag - 1) * rows + index + 1}</td>
+                                    <td>{u.pos}</td>
                                     <td>{u.nombre}</td>
                                     <td>{u.nivel}</td>
                                     <td>{u.xp}</td>
