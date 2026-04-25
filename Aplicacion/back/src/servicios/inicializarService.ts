@@ -18,9 +18,6 @@ class InicializarService {
      */
     public async inicializar() {
 
-        //TODO DEBUG
-        await gestionDAO.flushAll();
-
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
         let referenciaPagina: number = -1;
@@ -44,8 +41,6 @@ class InicializarService {
             ultimoEnvio++;
             referenciaPagina = Math.round(await gestionDAO.getUltimaPagina() / 20) * 20 + 1;
         }
-
-        ultimoEnvio = 1;
 
         //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
         const { ini, fin } = await this.buscarPrimerIntervalo(ultimoEnvio, referenciaPagina);
