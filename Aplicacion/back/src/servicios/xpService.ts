@@ -49,25 +49,41 @@ class XPService {
     }
 
     /**
-     * Devuelve los xp correspondientes al resultado obtenido del envio.
-     * @param resultado - Identificador del resultado.
-     * @returns Numero entero positivo.
+     * Devuelve la informacion del usuario asociada a los xp y su ranking.
+     * @param filtrarPorNivel - Indica si la informacion es respecto al ranking global o al perteneciente al nivel del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns El nombre, el nivel, los xp y la posicion del usuario en el ranking (varia si es con respecto al ranking global 
+     *  o solo de su nivel).
      */
-    private getXPPorResultadoEnvio(resultado: string): number {
-        return resultado === "AC" ? 15 : 1;
+    async getInfoUsuarioRanking(usuario: string, filtrarNivel: boolean) {
+        const nivel = await this.getNivelUsuario(usuario);
+        const xp = await xpDAO.getXPUsuario(usuario);
+        
+        const pos = 
+            filtrarNivel ? 
+            await this.getPosUsuarioEnRankingPorNivel(usuario, nivel) : 
+            await xpDAO.getPosUsuarioEnRanking(usuario);
+        
+        return { nombre: usuario, nivel, xp, pos };
     }
 
     /**
-     * Devuelve los xp correspondientes al nivel de logro obtenido.
-     * @param nivel - Identificador del nivel.
-     * @returns Numero entero positivo.
+     * Devuelve la posicion del usuario en el ranking de su nivel.
+     * @param nivel - Identificador del nivel del usuario
+     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
+     * @returns Entero positivo. //TODO lanzar error en caso de que la posicion sea negativa
      */
-    private getXPPorNivelLogro(nivel: NivelLogro): number {
-        switch (nivel) {
-            case NivelLogro.BRONCE: return 20;
-            case NivelLogro.PLATA: return 40;
-            case NivelLogro.ORO: return 60;
-        }
+    private async getPosUsuarioEnRankingPorNivel(usuario: string, nivel: string) {
+        // rango de xp correspondiente al nivel del usuario
+        const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+        // primer usuario en el ranking que pertenece a ese nivel
+        const primerUsuarioNivel = (await xpDAO.getUsuariosRankingPorRangoYNivel(0, 1, iniXP, finXP))[0];
+        // posicion del ranking global en la que se encuentra el primer usuario que pertenece a ese nivel
+        const posPrimerUsuario = await xpDAO.getPosUsuarioEnRanking(primerUsuarioNivel.value);
+        // posicion del ranking global en la que se encuentra el usuario
+        const posGlobalUsuario = await xpDAO.getPosUsuarioEnRanking(usuario);
+        
+        return posGlobalUsuario - posPrimerUsuario + 1;
     }
 
     /**
@@ -117,6 +133,28 @@ class XPService {
             const nivel = await this.getNivelUsuario(usuario);
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             return xpDAO.getNumUsuariosEnRango(iniXP, finXP);
+        }
+    }
+
+    /**
+     * Devuelve los xp correspondientes al resultado obtenido del envio.
+     * @param resultado - Identificador del resultado.
+     * @returns Numero entero positivo.
+     */
+    private getXPPorResultadoEnvio(resultado: string): number {
+        return resultado === "AC" ? 15 : 1;
+    }
+
+    /**
+     * Devuelve los xp correspondientes al nivel de logro obtenido.
+     * @param nivel - Identificador del nivel.
+     * @returns Numero entero positivo.
+     */
+    private getXPPorNivelLogro(nivel: NivelLogro): number {
+        switch (nivel) {
+            case NivelLogro.BRONCE: return 20;
+            case NivelLogro.PLATA: return 40;
+            case NivelLogro.ORO: return 60;
         }
     }
 

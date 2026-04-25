@@ -8,7 +8,8 @@ import { useAppContext } from "../contexto/contextos";
 type datoUsuario = {
     nombre: string,
     nivel?: string,
-    xp: number
+    xp: number,
+    pos?: number
 };
 
 export default function TablaDeClasificacion() {
@@ -24,6 +25,17 @@ export default function TablaDeClasificacion() {
     const appContext = useAppContext();
 
     const usuario = appContext?.usuarioActual;
+    const [rows, setRows] = useState(usuario ? pagSize - 1 : pagSize);
+    const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
+    useEffect(() => {
+        if (usuario) {
+            setRows(pagSize - 1);
+            fetch(`/api/usuarios/${usuario}?filtrarNivel=${porNivel}`).then(response => response.json()).then(data => setInfoUsuario(data));
+        }
+        else {
+            setRows(pagSize);
+        }
+    }, [usuario, porNivel]);
 
     useEffect(() => {
         fetchRanking(pag);
@@ -32,11 +44,11 @@ export default function TablaDeClasificacion() {
     const fetchRanking = async (pag: number) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel ? `&usuario=${usuario}` : ""));
+            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${rows}` + (porNivel ? `&usuario=${usuario}` : ""));
             const data = await res.json();
 
             setUsers(data.usuarios);
-            setTotalPags(Math.ceil(data.totalUsuarios / pagSize));
+            setTotalPags(Math.ceil(data.totalUsuarios / rows));
         } catch (err) {
             console.error(err);
         }
@@ -72,9 +84,16 @@ export default function TablaDeClasificacion() {
                             </tr>
                         </thead>
                         <tbody>
+                            {infoUsuario && 
+                            <tr key={1} className="table-dark">
+                                <td>{infoUsuario.pos}</td>
+                                <td>{infoUsuario.nombre}</td>
+                                <td>{infoUsuario.nivel}</td>
+                                <td>{infoUsuario.xp}</td>
+                            </tr>}
                             {users.map((u: datoUsuario, index) => (
-                                <tr key={u.nombre}>
-                                    <td>{(pag - 1) * pagSize + index + 1}</td>
+                                <tr key={u.nombre} className={u.nombre === usuario ? "table-dark" : ""}>
+                                    <td>{(pag - 1) * rows + index + 1}</td>
                                     <td>{u.nombre}</td>
                                     <td>{u.nivel}</td>
                                     <td>{u.xp}</td>
