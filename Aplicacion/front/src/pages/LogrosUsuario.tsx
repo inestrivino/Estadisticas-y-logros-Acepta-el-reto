@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Badge from 'react-bootstrap/Badge';
 
@@ -12,10 +12,14 @@ export default function LogrosUsuario() {
     const params = useParams();
 
     const usuario = params.usuario || appContext?.usuarioActual;
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const navigate = useNavigate();
     useEffect(() => {
-        navigate(`/usuarios/logros/${usuario}`, { replace: true });
+        const clasificacionGuardada = searchParams.get("clasificacion")
+            ?? localStorage.getItem("clasificacion")
+            ?? "nivel";
+        navigate(`/usuarios/logros/${usuario}?clasificacion=${clasificacionGuardada}`, { replace: true });
     }, [usuario, navigate]);
 
     // NIVEL

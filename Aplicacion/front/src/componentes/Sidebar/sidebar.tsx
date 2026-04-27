@@ -6,9 +6,10 @@ import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faH
 import "./sidebar.css";
 import { EventType } from "shared/EventTypes.ts";
 import BarraCarga from "./barraCarga";
+import { useAppContext } from "../../contexto/contextos";
 
 export default function Sidebar() {
-  
+
   //porcentaje de carga inicial para la barra
   const [porcentajeCarga, setPorcentajeCarga] = useState(0);
   useEffect(() => {
@@ -16,12 +17,12 @@ export default function Sidebar() {
       .then(res => res.json())
       .then(data => setPorcentajeCarga(data));
   }, []);
-  
+
   //estado del offcanvas en pantallas pequeñas
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  
+
   //titulo que se muestra en la navbar de pantallas pequeñas segun la ruta
   const location = useLocation();
 
@@ -44,9 +45,14 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
+  const appContext = useAppContext();
+  const rutaRanking = appContext?.usuarioActual
+    ? `/usuarios/ranking?usuarioActual=${appContext.usuarioActual}`
+    : "/usuarios/ranking";
+
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link"  to="/">
+      <Nav.Link as={NavLink} className="app-nav-link" to="/">
         <FontAwesomeIcon icon={faHouseChimney} />Inicio</Nav.Link>
 
       <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas"}>
@@ -58,7 +64,7 @@ export default function Sidebar() {
       <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros`}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
+      <Nav.Link as={NavLink} className="app-nav-link" to={rutaRanking}>
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
 
     </>
@@ -94,7 +100,7 @@ export default function Sidebar() {
         </Nav>
 
         <div className="mt-auto">
-          <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>
+          <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga} />
         </div>
       </div>
 
@@ -115,7 +121,7 @@ export default function Sidebar() {
         <Offcanvas.Body className="app-offcanvas-body d-flex flex-column">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
           <div className="mt-auto pt-3">
-            {porcentajeCarga >= 0 && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+            {porcentajeCarga >= 0 && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga} />}
           </div>
         </Offcanvas.Body>
       </Offcanvas>

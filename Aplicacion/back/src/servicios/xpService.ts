@@ -29,6 +29,7 @@ class XPService {
      * @param listadoLogros - Array de logros procesados del bloque.
      */
     public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]): Promise<InfoActualizacionesRanking> {
+        this.xpUsuarios = new Map();
 
         for (const envio of envios) {
             if (!this.xpUsuarios.has(envio.usuario))

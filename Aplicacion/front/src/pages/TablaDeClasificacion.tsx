@@ -3,9 +3,10 @@ import Pagination from "react-bootstrap/Pagination";
 import Spinner from "react-bootstrap/Spinner";
 import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
-import { useAppContext } from "../contexto/contextos";
 import { socket } from "../services/socket.ts";
 import { EventType } from "shared";
+import { useQueryState } from "../hooks/useQueryState.tsx";
+import { useSearchParams } from "react-router-dom";
 
 type datoUsuario = {
     nombre: string,
@@ -28,24 +29,58 @@ type InfoActualizacionesRanking = {
 
 export default function TablaDeClasificacion() {
 
-    const [porNivel, setPorNivel] = useState(false);
+    // usuarios que se van a mostrar en la tabla
     const [users, setUsers] = useState<datoUsuario[]>([]);
-    const [pag, setPag] = useState(1);
+
+    // numero total de paginas de la tabla
     const [totalPags, setTotalPags] = useState(1);
+
+    // si se estan cargando los datos en la tabla
     const [loading, setLoading] = useState(false);
 
+    // obtiene el usuario de la query, en caso de no tenerlo lo obtendra de localStorage, si no no habra usuario y sera ""
+    const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
+    const usuario = usuarioQuery;
+
+    // obtiene el numero de pagina de la query, en caso de no tenerlo lo obtendra de localStora, si no el default value sera la 1
+    const [pagStr, setPagStr] = useQueryState("pagina", "1");
+    const pag = parseInt(pagStr);
+    const setPag = (val: number) => setPagStr(String(val));
+
+    // obtiene si se quiere filtrar los usuarios de la tabla por el nivel del usuario de la query, sino de localStorage, sino el
+    //  valor sera false 
+    const [porNivelStr, setPorNivelStr] = useQueryState("nivel", "false");
+    const porNivel = porNivelStr === "true" && !!usuario;
+    const setPorNivel = (val: boolean) => {
+        setPorNivelStr(String(val));
+    };
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // se encarga de actualizar la url con los parametros necesarios (nivel, pagina, usuarioActual)
+    useEffect(() => {
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+
+            // si no hay usuario pone el filtrado de nivel a false
+            const nivelFinal = usuario ? (prev.get("nivel") ?? porNivelStr) : "false";
+            if (!prev.get("nivel") || !usuario) next.set("nivel", nivelFinal);
+            if (!prev.get("pagina")) next.set("pagina", pagStr);
+            if (!prev.get("usuarioActual") && usuarioQuery) next.set("usuarioActual", usuarioQuery);
+            return next;
+        }, { replace: true });
+    }, []);
+
+    // cantidad de filas que tiene la tabla
     const pagSize = 10;
 
-    const appContext = useAppContext();
-
-    const usuario = appContext?.usuarioActual;
+    // numero de filas / usuario de los que se hace peticion en cada pagina. Si hay un usuario buscado, la primera fila
+    //  de la tabla pertenece a la informacion de este, y por tanto se necesitara la informacion de pagSize - 1 usuarios 
+    //  para completar la tabla
     const [rows, setRows] = useState(usuario ? pagSize - 1 : pagSize);
-    const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
-    useEffect(() => {
-        fetchInfoUsuario();
-    }, [usuario, porNivel]);
 
-    const fetchInfoUsuario = async() => {
+    // se hace la peticion que devuelve la informacion del usuario actual
+    const fetchInfoUsuario = async () => {
         if (usuario) {
             setRows(pagSize - 1);
             fetch(`/api/usuarios/${usuario}?filtrarNivel=${porNivel}`).then(response => response.json()).then(data => setInfoUsuario(data));
@@ -55,10 +90,8 @@ export default function TablaDeClasificacion() {
         }
     }
 
-    useEffect(() => {
-        fetchRanking(pag);
-    }, [pag, porNivel]);
 
+    // se hace la peticion que devuelve la informacion de los usuario correspondiente a esa pagina, teniendo en cuenta el filtro por nivel
     const fetchRanking = async (pag: number) => {
         setLoading(true);
         try {
@@ -73,10 +106,23 @@ export default function TablaDeClasificacion() {
         setLoading(false);
     };
 
+    // se actualiza la informacion de la tabla cada vez que se cambia de pagina o se cambia el filtro por nivel
+    useEffect(() => {
+        fetchRanking(pag);
+    }, [pag, porNivel]);
+
+    // informacion del usuario buscado
+    const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
+    // se actualiza la informacion cuando cambia el usuario o el filtro por nivel
+    useEffect(() => {
+        fetchInfoUsuario();
+    }, [usuario, porNivel]);
+
+    // maneja la actualizacion de la informacion de la tabla cuando se realizan nuevos envios
     useEffect(() => {
         socket.on(EventType.ACTUALIZACION_RANKING, (data) => {
-            handleRankingUpdate(data);
-            fetchInfoUsuario();
+            handleRankingUpdate(data); // se actualiza la informacion de los usuarios
+            fetchInfoUsuario(); // se actualiza la informacion del usuario
         });
 
         return () => {
@@ -84,12 +130,15 @@ export default function TablaDeClasificacion() {
         };
     }, [pag, porNivel, rows, usuario]);
 
+    //TODO mirar para hacer la actaulizacion si tener que cargar toda la pagina de nuevo
+
+    // se actualiza la informacion de latabla solo si alguno de los usuarios que se muestran actualmente ha sido afectado
+    //  por los nuevos envios
     const handleRankingUpdate = async (data: InfoActualizacionesRanking) => {
         const pagIni = (pag - 1) * rows + 1;
-        const pagFin = pag + rows;
-        if(data.minPos <= pagFin)
-            fetchRanking(pag)
-
+        const pagFin = pag * rows;
+        if (data.minPos <= pagFin)
+            fetchRanking(pag);
     }
 
     return (
@@ -106,7 +155,20 @@ export default function TablaDeClasificacion() {
                     dir="rtl"
                     label="Filtrar por nivel"
                     checked={porNivel}
-                    onChange={(e) => { setPorNivel(e.currentTarget.checked); setPag(1) }}
+                    onChange={(e) => {
+                        // cuando se cambia el filtrado por nivel se actualizan las queries de la url y sus correspondiente valores en 
+                        //  localStorage
+                        if (!usuario) return;
+                        const nuevoNivel = e.currentTarget.checked;
+                        localStorage.setItem("nivel", String(nuevoNivel));
+                        localStorage.setItem("pagina", "1");
+                        setSearchParams(prev => {
+                            const next = new URLSearchParams(prev);
+                            next.set("nivel", String(nuevoNivel));
+                            next.set("pagina", "1");
+                            return next;
+                        }, { replace: true });
+                    }}
                 />}
                 {loading ? (
                     <Spinner animation="border" />
