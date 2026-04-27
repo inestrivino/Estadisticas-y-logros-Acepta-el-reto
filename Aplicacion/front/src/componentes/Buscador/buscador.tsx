@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useSearchParams } from "react-router";
+import { useSearchParams } from "react-router-dom";
 
 import { useAppContext } from "../../contexto/contextos";
 
 import "./buscador.css";
 
-function Buscador(props: {
+export default function Buscador(props: {
     tipo: string,
     ruta: string
 }) {
@@ -66,5 +66,3 @@ function Buscador(props: {
         </Form>
     );
 }
-
-export default Buscador;
