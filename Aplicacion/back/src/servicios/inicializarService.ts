@@ -22,6 +22,9 @@ class InicializarService {
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
         let referenciaPagina: number = -1;
 
+        //TODO quitar esto
+        //gestionDAO.flushAll();
+
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {
             ultimoEnvio = 1;
@@ -55,7 +58,7 @@ class InicializarService {
         //se comienza a hacer las peticones para traer los bloques de envios
         for await (const bloque of this.bloques(firstPagina, ultimoEnvio)) {
 
-            await procesarEnviosService.procesarBloqueEnvios(bloque);
+            await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
 
         }
     }

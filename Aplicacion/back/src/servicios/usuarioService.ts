@@ -1,5 +1,6 @@
 import usuarioDAO from '../dao/usuarioDAO.js';
 import { EnvioProcesado } from '../types/envioProcesado.js';
+import { EstadoUsuario } from '../types/estadoUsuario.js';
 import xpService from './xpService.js';
 
 class UsuarioService {
@@ -8,6 +9,7 @@ class UsuarioService {
      * Persiste un bloque de envios en el DAO del usuario.
      * @param envios - Array de envios en formato procesado.
      */
+    /*
     public async registrarBloqueEnvios(envios: EnvioProcesado[]) {
         await usuarioDAO.registrarBloqueEnvios(
             envios.map(envio => ({
@@ -22,7 +24,11 @@ class UsuarioService {
             }))
         );
     }
+    */
 
+    async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
+        await usuarioDAO.registrarEstadosUsuarios(estadosUsuarios);
+    }
 
     /**
      * Devuelve el conteo de cada resultado del usuario ordenado alfabeticamente.
@@ -68,10 +74,6 @@ class UsuarioService {
         return usuarioDAO.getNumProblemasResueltos(usuario);
     }
 
-    async tieneProblemaEnvioIncorrecto(usuario: string, problema: string): Promise<boolean> {
-        return usuarioDAO.tieneProblemaEnvioIncorrecto(usuario, problema);
-    }
-
     async getNumProblemasLenguaje(usuario: string, lenguaje: string): Promise<number> {
         return usuarioDAO.getNumProblemasLenguaje(usuario, lenguaje);
     }
@@ -82,6 +84,34 @@ class UsuarioService {
 
     async getNumCategoriasProblemasResueltos(usuario: string): Promise<number> {
         return usuarioDAO.getNumCategoriasProblemasResueltos(usuario);
+    }
+
+    async getProblemasResueltos(usuario: string): Promise<string[]> {
+        return usuarioDAO.getProblemasResueltos(usuario);
+    }
+
+    async getRachaEnviosCorrectos(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaEnviosCorrectos(usuario);
+    }
+
+    async getRachaDiasEnviosConsecutivos(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaDiasEnviosConsecutivos(usuario);
+    }
+
+    async getUltimoEnvioUsuario(usuario: string): Promise<number> {
+        return usuarioDAO.getUltimoEnvioUsuario(usuario);
+    }
+
+    async getHoras(usuario: string): Promise<number[]> {
+        return usuarioDAO.getHoras(usuario);
+    }
+
+    async getLenguajesAC(usuario: string): Promise<{ name: string, value: number }[]> {
+        return usuarioDAO.getLenguajesAC(usuario);
+    }
+
+    async getDiasValor(usuario: string): Promise<{ timestamp: number, value: number }[]> {
+        return usuarioDAO.getDiasValor(usuario);
     }
 }
 

@@ -1,22 +1,15 @@
 import problemaDAO from '../dao/problemaDAO.js';
 import { EnvioProcesado } from '../types/envioProcesado.js';
+import { EstadoProblema } from '../types/estadoProblema.js';
 
 class ProblemaService {
-
+   
     /**
-     * Persiste un bloque de envios en el DAO del problema.
-     * @param envios - Array de envios en formato procesado.
+     * Persiste el estado final de un bloque de problemas en Redis.
+     * @param estadosProblemas - Mapa de identificador de problema a su estado final.
      */
-    public async registrarBloqueEnvios(envios: EnvioProcesado[]) {
-        await problemaDAO.registrarBloqueEnvios(
-            envios.map(envio => ({
-                envioId: envio.envioId,
-                problema: envio.problema,
-                resultado: envio.resultado,
-                lenguaje: envio.lenguaje,
-                tiempo: envio.tiempo
-            }))
-        );
+    public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>) {
+        return await problemaDAO.registrarEstadosProblemas(estadosProblemas);
     }
 
     /**
@@ -60,6 +53,30 @@ class ProblemaService {
     public async getLenguajes(problema: string) {
         return await problemaDAO.getLenguajes(problema);
     }
+
+    /**
+     * Devuelve el numero total de envios correctos del problema.
+     * @param problema - Identificador del problema.
+     */
+    public async getNumEnviosAC(problema: string) {
+        return await problemaDAO.getNumEnviosAC(problema);
+    }
+
+    /**
+     * Devuelve la suma de tiempos de ejecucion de los envios correctos del problema.
+     * @param problema - Identificador del problema.
+     */
+    public async getTiempoTotal(problema: string) {
+        return await problemaDAO.getTiempoTotal(problema);
+    }
+
+    /**
+     * Devuelve el array de tiempos de envios correctos ordenado ascendentemente.
+     * @param problema - Identificador del problema.
+     */
+    public async getTiemposOrdenados(problema: string) {
+        return await problemaDAO.getTiemposOrdenados(problema);
+    }   
 }
 
 export default new ProblemaService();

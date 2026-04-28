@@ -1,26 +1,38 @@
 import DAO from "./DAO.js"
 import redisClient from '../redis/redisClient.js';
 import { datosProblema } from "../types/datosProblema.js";
+import { EstadoProblema } from "../types/estadoProblema.js";
 
 class ProblemaDAO extends DAO {
 
     /**
-     * Registra en Redis un bloque de envios usando un pipeline para minimizar el numero de llamadas.
-     * @param envios - Array de datos de envios a registrar.
+     * Persiste en Redis el estado completo de cada problema del mapa usando un pipeline.
+     * Sobreescribe todos los campos calculados durante el procesamiento del bloque.
+     * @param estadosProblemas - Mapa de identificador de problema a su estado final.
      */
-    public async registrarBloqueEnvios(envios: datosProblema[]): Promise<void> {
+    public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
         const pipeline = this.redis.multi();
-        for (const envio of envios) {
-            pipeline.incr(`problema:${envio.problema}:envios`);
-            pipeline.hIncrBy(`problema:${envio.problema}:resultados`, envio.resultado, 1);
-            pipeline.hIncrBy(`problema:${envio.problema}:lenguajes`, envio.lenguaje, 1);
 
-            if (envio.resultado === "AC") {
-                pipeline.incr(`problema:${envio.problema}:enviosAC`);
-                pipeline.incrByFloat(`problema:${envio.problema}:tiempoTotal`, envio.tiempo);
-                pipeline.zAdd(`problema:${envio.problema}:tiemposEnvios`, { score: envio.tiempo, value: String(envio.envioId) });
-            }
+        for (const [problema, estado] of estadosProblemas) {
+
+            pipeline.set(`problema:${problema}:envios`, String(estado.envios));
+            pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
+            pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
+
+            if (estado.resultados.size > 0)
+                pipeline.hSet(`problema:${problema}:resultados`, Object.fromEntries(
+                    Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
+                ));
+
+            if (estado.lenguajes.size > 0)
+                pipeline.hSet(`problema:${problema}:lenguajes`, Object.fromEntries(
+                    Array.from(estado.lenguajes.entries()).map(([k, v]) => [k, String(v)])
+                ));
+
+            for (const [envioId, tiempo] of estado.tiemposEnvios)
+                pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
         }
+
         await pipeline.exec();
     }
 
@@ -43,9 +55,9 @@ class ProblemaDAO extends DAO {
         //const mejorTiempo = await this.redis.get(`problema:${problema}:mejorTiempo`);
         const aux = await this.redis.zRangeWithScores(`problema:${problema}:tiemposEnvios`, 0, 0);
         if (aux.length === 0)
-            return 0;
+            return Infinity;
         const mejorTiempo = aux[0].score;
-        return mejorTiempo ? Number(mejorTiempo) : 0;
+        return mejorTiempo ? Number(mejorTiempo) : Infinity;
     }
 
     /**
@@ -113,9 +125,19 @@ class ProblemaDAO extends DAO {
      * @param envioId - Id del envio cuya posicion se quiere consultar.
      * @returns Posicion en el ranking (0-indexed), o -1 si no se encuentra.
      */
-    async getRankEnvioProblema(problema: string, envioId: number): Promise<number> {
-        const pos = await this.redis.zRank(`problema:${problema}:tiemposEnvios`, String(envioId));
-        return pos !== null ? Number(pos) : -1;
+    async getTiemposOrdenados(problema: string): Promise<number[]> {
+        const tiempos = await this.redis.zRange(`problema:${problema}:tiemposEnvios`, 0, -1);
+        return tiempos.map(Number);
+    }
+
+    /**
+     * Devuelve el numero de envios con resultado AC del problema, o 0 si no hay ninguno.
+     * @param problema - Identificador del problema.
+     * @returns Numero de envios correctos.
+     */
+    async getTiempoTotal(problema: string): Promise<number> {
+        const tiempoTotal = await this.redis.get(`problema:${problema}:tiempoTotal`);
+        return tiempoTotal ? Number(tiempoTotal) : 0;
     }
 }
 
