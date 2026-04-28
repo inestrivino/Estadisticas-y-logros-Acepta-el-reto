@@ -9,10 +9,7 @@ services:
       context: .
       dockerfile: ./front/Dockerfile.prod
     ports:
-      - "3000:80"
-    environment:
-      - BACKEND_URL=http://back:3000
-      - SOCKETS_URL=http://back:8080
+      - "3000:3000"
     depends_on:
       - back
 
@@ -20,35 +17,26 @@ services:
     image: app-back-prod
     container_name: app-back-prod
     restart: unless-stopped
-    build: 
+    build:
       context: .
       dockerfile: ./back/Dockerfile.prod
-    ports:
-      - "8080:8080"
-    environment:
-      - REDIS_URL=redis://redis:6379
     env_file:
-      - ./.env
+      - ./.env.back
     depends_on:
       - redis
       - rabbitmq
-  
+
   redis:
     image: "redis:alpine"
     restart: unless-stopped
     volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
+      - ./redis_data:/data
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4
     restart: unless-stopped
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     env_file:
-      - ./.env
+      - ./.env.rabbitmq
 
   adapter:
     image: app-adapter-prod
@@ -58,9 +46,6 @@ services:
       context: .
       dockerfile: ./adapter/Dockerfile.prod
     env_file:
-      - ./.env
+      - ./.env.adapter
     depends_on:
       - rabbitmq
-
-volumes:
-  redis_data:

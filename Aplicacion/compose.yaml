@@ -21,49 +21,45 @@ services:
   back:
     image: app-back-dev
     container_name: app-back-dev
-    build: 
+    build:
       context: .
       dockerfile: ./back/Dockerfile.dev
     ports:
-      - "8080:8080"
       - "9229:9229"
     environment:
       - REDIS_URL=redis://redis:6379
     env_file:
-      - ./.env
+      - ./.env.back
     depends_on:
       - redis
       - rabbitmq
     volumes:
       - ./back:/app/back
       - back_node_modules:/app/back/node_modules
-  
+
   redis:
     image: "redis:alpine"
     volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
+      - ./redis_data:/data
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
     restart: unless-stopped
     ports:
-      - "5672:5672"
       - "15672:15672"
     env_file:
-      - ./.env
+      - ./.env.rabbitmq
 
   adapter:
     image: app-adapter-dev
     container_name: app-adapter-dev
-    build: 
+    build:
       context: .
       dockerfile: ./adapter/Dockerfile.dev
     ports:
       - "9230:9229"
     env_file:
-      - ./.env
+      - ./.env.adapter
     depends_on:
       - rabbitmq
     volumes:
@@ -71,6 +67,5 @@ services:
       - /app/adapter/node_modules
 
 volumes:
-  redis_data:
   front_node_modules:
   back_node_modules:
