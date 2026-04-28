@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import usuarioDAO from '../../src/dao/usuarioDAO.js';
+import { EstadoUsuario } from '../../src/types/estadoUsuario.js';
 import setUpTestFile from './setUptTest.ts';
 import dateToTimestamp from '../../src/utils/fecha.ts';
 
@@ -21,20 +22,34 @@ describe("Registrar datos de usuario", () => {
     test("Un envio cada lunes", async () => {
         //mete un envio cada lunes durante un anio
         const fecha = new Date(2025, 2, 17);
-        for (let i = 0; i < 53; i++) {
-            await usuarioDAO.registrarBloqueEnvios([{
-                envioId: i + 1,
-                usuario: "user1",
-                problema: "p1",
-                categoria: "",
-                resultado: "AC",
-                lenguaje: "Cpp",
-                fecha: dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() }),
-                hora: fecha.getHours()
-            }]);
+        const diasValor = new Map<number, number>();
 
+        for (let i = 0; i < 53; i++) {
+            const timestamp = dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() });
+            diasValor.set(timestamp, (diasValor.get(timestamp) ?? 0) + 1);
             fecha.setDate(fecha.getDate() + 7);
         }
+
+        const estado: EstadoUsuario = {
+            numEnvios: 53,
+            problemasAC: new Set(["p1"]),
+            problemasNoAC: new Set(),
+            resultados: new Map([["AC", 53]]),
+            lenguajes: new Set(["Cpp"]),
+            lenguajesConteo: new Map([["Cpp", 53]]),
+            lenguajesAC: new Map([["Cpp", 53]]),
+            lenguajesProblemasResueltos: new Map([["Cpp", new Set(["p1"])]]),
+            diasValor,
+            rachaEnviosAC: 53,
+            rachaEnviosACMax: 53,
+            rachaDiasEnvio: 0,
+            rachaDiasEnvioMax: 0,
+            ultimoDiaEnvio: dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() }),
+            horas: new Set([0]),
+            logros: new Set(),
+        };
+
+        await usuarioDAO.registrarEstadosUsuarios(new Map([["user1", estado]]));
 
         const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
         const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
@@ -94,7 +109,24 @@ describe("Lecturas vacias", () => {
     });
 
     test("coge bien lo dias", async () => {
-        await usuarioDAO.registrarBloqueEnvios([dato]);
+        await usuarioDAO.registrarEstadosUsuarios(new Map([[dato.usuario, {
+            numEnvios: 1,
+            problemasAC: new Set([dato.problema]),
+            problemasNoAC: new Set(),
+            resultados: new Map([[dato.resultado, 1]]),
+            lenguajes: new Set([dato.lenguaje]),
+            lenguajesConteo: new Map([[dato.lenguaje, 1]]),
+            lenguajesAC: new Map([[dato.lenguaje, 1]]),
+            lenguajesProblemasResueltos: new Map([[dato.lenguaje, new Set([dato.problema])]]),
+            diasValor: new Map([[dato.fecha, 1]]),
+            rachaEnviosAC: 1,
+            rachaEnviosACMax: 1,
+            rachaDiasEnvio: 1,
+            rachaDiasEnvioMax: 1,
+            ultimoDiaEnvio: dato.fecha,
+            horas: new Set([dato.hora]),
+            logros: new Set(),
+        }]]));
 
         const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
         const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
