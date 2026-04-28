@@ -59,7 +59,7 @@
 
 .sidebar .app-navbar-titulo {
   margin-top: 30px;
-  margin-bottom: 65px;
+  margin-bottom: 85px !important;
   font-size: 1.6rem;
 }
 

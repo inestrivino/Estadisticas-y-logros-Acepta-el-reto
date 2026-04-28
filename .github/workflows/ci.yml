@@ -18,12 +18,14 @@ jobs:
 
       - name: Subir reporte
         if: always()
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          personal_token: ${{ secrets.REPORTS_TOKEN }}
-          external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/back/
-          destination_dir: back/${{ github.ref_name }}
+          token: ${{ secrets.REPORTS_TOKEN }}
+          repository-name: N3STOR173/Reportes-Estadisticas-Logros
+          branch: gh-pages
+          folder: Aplicacion/back/test-report
+          target-folder: back/${{ github.ref_name }}
+          clean: true
 
   ci-front:
     runs-on: ubuntu-latest
@@ -40,9 +42,11 @@ jobs:
 
       - name: Subir reporte
         if: always()
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          personal_token: ${{ secrets.REPORTS_TOKEN }}
-          external_repository: N3STOR173/Reportes-Estadisticas-Logros
-          publish_dir: Aplicacion/front/
-          destination_dir: front/${{ github.ref_name }}
+          token: ${{ secrets.REPORTS_TOKEN }}
+          repository-name: N3STOR173/Reportes-Estadisticas-Logros
+          branch: gh-pages
+          folder: Aplicacion/front/test-report
+          target-folder: front/${{ github.ref_name }}
+          clean: true

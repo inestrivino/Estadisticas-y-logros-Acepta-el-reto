@@ -1,24 +1,27 @@
 import problemaService from "./problemaService.js";
 import usuarioService from "./usuarioService.js";
+import { EstadoUsuario } from "../types/estadoUsuario.js";
+import { EstadoProblema } from "../types/estadoProblema.js";
 import logrosService from "./logros/logrosService.js";
-import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
+import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
+import { EnvioSinProcesarEvent } from "../types/envioSinProcesarEvent.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 import gestionDAO from "../dao/gestionDAO.js";
-import { conjuntoEmitter } from "../sockets/socketEmitter.js";
+import { conjuntoEmitter, routerEmitter } from "../sockets/socketEmitter.js";
+import xpService from "./xpService.js";
+import estadosService from "./estadosService.js";
 
 class ProcesarEnviosService {
 
     /**
-     * Procesa y persiste un bloque de envios, calcula logros nuevos y notifica al frontend.
+     * Parsea, procesa y persiste un bloque de envios de carga historica.
+     * Actualiza el progreso de carga (ultimo envio, pagina y porcentaje) y notifica al frontend.
      * @param bloque - Array de envios sin procesar junto con su numero de pagina de origen.
      */
-    public async procesarBloqueEnvios(bloque: { envio: EnvioSinProcesar, numPagina: number }[]) {
+    public async procesarBloqueEnviosInicial(bloque: { envio: EnvioSinProcesarInicial, numPagina: number }[]) {
 
-        //pongo cada envio del bloque con el formato correcto
-        const enviosProcesados: EnvioProcesado[] = [];
-        for (const data of bloque) {
-            enviosProcesados.push(this.parseEnvio(data.envio));
-        }
+        //cada elemento del bloque se parsea
+        const enviosProcesados = bloque.map(e => this.parseEnvioInicial(e.envio));
 
         //conjunto de problemas y usuarios que se han modificado para luego recargar el front
         const problemas: Set<string> = new Set<string>();
@@ -28,8 +31,7 @@ class ProcesarEnviosService {
             problemas.add(envio.problema);
         }
 
-        await logrosService.procesarBloqueEnvios(enviosProcesados);
-        await this.cargarEnvios(enviosProcesados);
+        await this.procesarBloqueEnvios(enviosProcesados, usuarios, problemas);
 
         //marca cual es ahora el ultimo envio procesado y la ultima pagina donde estaba
         await gestionDAO.setUltimoEnvio(enviosProcesados[enviosProcesados.length - 1].envioId);
@@ -46,29 +48,74 @@ class ProcesarEnviosService {
     }
 
     /**
-     * Procesa y persiste un unico envio recibido en tiempo real.
-     * @param envio - Envio sin procesar recibido desde el consumer.
+     * Parsea, procesa y persiste un bloque de envios recibidos en tiempo real.
+     * Notifica al frontend por cada envio individualmente via routerEmitter.
+     * @param bloque - Array de envios sin procesar recibidos desde el consumer.
      */
-    public async procesarEnvio(envio: EnvioSinProcesar) {
-        const envioProcesado = this.parseEnvio(envio);
+    public async procesarBloqueEnviosEvent(bloque: EnvioSinProcesarEvent[]) {
+        //cada elemento del bloque se parsea
+        const enviosProcesados = bloque.map(e => this.parseEnvioEvent(e));
+        
+        const problemas: Set<string> = new Set<string>();
+        const usuarios: Set<string> = new Set<string>();
+        for (const envio of enviosProcesados) {
+            usuarios.add(envio.usuario);
+            problemas.add(envio.problema);
+        }
+        this.procesarBloqueEnvios(enviosProcesados, usuarios, problemas);
 
-        await logrosService.procesarBloqueEnvios([envioProcesado]);
-        await this.cargarEnvios([envioProcesado]);
+        //avisa a los diagramas para que se actualicen
+        for (const envioProcesado of enviosProcesados)
+            routerEmitter(envioProcesado);
     }
 
     /**
-     * Convierte un envio en el formato crudo de la API al formato interno procesado.
-     * @param envio - Envio en formato sin procesar.
-     * @returns Envio transformado al formato interno.
+     * Calcula logros y XP, y persiste las estadisticas de un bloque de envios ya procesados.
+     * @param enviosProcesados - Array de envios en formato interno.
+     * @param usuarios - Conjunto de identificadores de usuario presentes en el bloque.
+     * @param problemas - Conjunto de identificadores de problema presentes en el bloque.
      */
-    private parseEnvio(envio: EnvioSinProcesar): EnvioProcesado {
+    private async procesarBloqueEnvios(enviosProcesados: EnvioProcesado[], usuarios: Set<string>, problemas: Set<string>) {
+
+        //de los estados que van a cambiar se saca el estado actual de la base de datos
+        const {estadosUsuariosInicial, estadosProblemasInicial} = await estadosService.initEstados(enviosProcesados);
+
+        //se procesa cada estado después de cada envío para procesar los trofeos que dependen del estado de las estadisticas
+        //en un momento concreto (ejemplo: rachas, tiempos relativos a los de otros usuario etc)
+        let envio: EnvioProcesado;
+        let estadosUsuarios: Map<string, EstadoUsuario> = estadosUsuariosInicial;
+        let estadosProblemas: Map<string, EstadoProblema> = estadosProblemasInicial;
+        for await ({ estadosUsuarios, estadosProblemas, envio } of estadosService.getEstados(enviosProcesados)) {
+            logrosService.procesarEstado(
+                estadosUsuarios.get(envio.usuario) as EstadoUsuario, 
+                estadosProblemas!.get(envio.problema) as EstadoProblema, 
+                envio
+            );
+        }
+
+        //se procesan los trofeos que no dependen de estadisticas de un momento concreto
+        //(ejemplo: trofeos por resolver cantidades de problemas, por usar lenguajes etc)
+        //y se guardan todos los trofeos en la base de datos
+        await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas);
+
+        //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
+        await xpService.procesarBloqueEstados(estadosUsuariosInicial, estadosUsuarios);
+
+        //se persisten los estados de usuarios y problemas resultantes del bloque
+        await usuarioService.registrarEstadosUsuarios(estadosUsuarios);
+        await problemaService.registrarEstadosProblemas(estadosProblemas);
+    }
+
+    /**
+     * Convierte un envio de carga inicial al formato interno procesado.
+     * @param envio - Envio en formato plano devuelto por la API de historico.
+     * @returns Envio transformado a EnvioProcesado.
+     */
+    private parseEnvioInicial(envio: EnvioSinProcesarInicial): EnvioProcesado {
 
         //si el envio no tiene usuario se pone este por defecto
         if (!envio.user)
             envio.user = { id: 0, name: "N0USER173", nick: "N0USER173", avatar: "https://aceptaelreto.com/pub/user/noavatar.jpg" };
-
-        if (!envio.submissionDate)
-            console.log("aaa");
 
         const fecha = new Date(envio.submissionDate);
 
@@ -89,9 +136,33 @@ class ProcesarEnviosService {
         return envioProcesado;
     }
 
-    private async cargarEnvios(envios: EnvioProcesado[]) {
-        await problemaService.registrarBloqueEnvios(envios);
-        await usuarioService.registrarBloqueEnvios(envios);
+    /**
+     * Convierte un evento en tiempo real al formato interno procesado.
+     * @param evento - Evento recibido del consumer con el envio y datos del problema anidados.
+     * @returns Envio transformado a EnvioProcesado.
+     */
+    private parseEnvioEvent(evento: EnvioSinProcesarEvent): EnvioProcesado {
+
+        const envio = evento.envio;
+        const problema = evento.problema;
+
+        const fecha = new Date(envio.sbt * 1000);
+
+        const envioProcesado: EnvioProcesado = {
+            envioId: envio.sid,
+            usuario: envio.nick,
+            problema: problema.title,
+            //categoria: envio.categoria, //TODO categorias problemas
+            resultado: envio.ver,
+            lenguaje: envio.lan,
+            tiempo: envio.run / 1000,
+            memoria: envio.mem, //TODO diria que esto no lo usamos en ningun momento
+            pos: envio.rank, //TODO diria que esto tampoco
+            fecha: envio.sbt,
+            hora: fecha.getHours()
+        };
+
+        return envioProcesado;
     }
 }
 

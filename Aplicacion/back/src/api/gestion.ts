@@ -3,7 +3,8 @@ import gestionDAO from '../dao/gestionDAO.js';
 const router = express.Router();
 
 router.get("/porcentajeCarga", async (_req, res) => {
-    return res.json(await gestionDAO.getPorcentajeCarga());
+const aux = await gestionDAO.getPorcentajeCarga();
+    return res.json(aux);
 });
 
 export default router;

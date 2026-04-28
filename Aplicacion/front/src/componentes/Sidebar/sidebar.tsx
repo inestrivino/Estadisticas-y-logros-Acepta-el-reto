@@ -1,11 +1,11 @@
 import { Navbar, Nav, Offcanvas, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { NavLink, useLocation, useParams } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faGear, faXmark } from "@fortawesome/free-solid-svg-icons";
-import BarraCarga from "./barraCarga.tsx";
+import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
 import { EventType } from "shared/EventTypes.ts";
+import BarraCarga from "./barraCarga";
 
 export default function Sidebar() {
   
@@ -21,9 +21,6 @@ export default function Sidebar() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
-  //ruta actual y parametros de la url
-  const { problema, usuario } = useParams();
   
   //titulo que se muestra en la navbar de pantallas pequeñas segun la ruta
   const location = useLocation();
@@ -32,13 +29,13 @@ export default function Sidebar() {
     if (location.pathname.startsWith("/problemas"))
       return "Estadísticas ejercicios";
 
-    if (location.pathname.includes("estadisticas"))
+    if (location.pathname.startsWith("/usuarios/estadisticas"))
       return "Estadísticas usuario";
 
-    if (location.pathname.includes("logros"))
+    if (location.pathname.startsWith("/usuarios/logros"))
       return "Logros de usuario";
 
-    if (location.pathname.includes("ranking"))
+    if (location.pathname.startsWith("/usuarios/ranking"))
       return "Ranking usuarios";
 
     if (location.pathname === "/pruebaSocket")
@@ -47,19 +44,23 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
-  //TODO cambiar el valor por defecto
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/${usuario || "user1"}/estadisticas`}>
-        <FontAwesomeIcon icon={faChartLine} />Mis estadísticas</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/${usuario || "user1"}/logros`}>
+      <Nav.Link as={NavLink} className="app-nav-link"  to="/">
+        <FontAwesomeIcon icon={faHouseChimney} />Inicio</Nav.Link>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas"}>
+        <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
+        <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
+
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros`}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
+
       <Nav.Link as={NavLink} className="app-nav-link" to="/usuarios/ranking">
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/problemas/${problema || "problema1"}`}>
-        <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/pruebaSocket">
-        <FontAwesomeIcon icon={faGear} />Prueba socket</Nav.Link>
+
     </>
   );
 
@@ -80,7 +81,12 @@ export default function Sidebar() {
       <div className="sidebar d-none d-lg-flex flex-column p-3">
         <Navbar.Brand className="mb-5 app-navbar-titulo">
           <FontAwesomeIcon icon={faLightbulb} className="me-2" />
-          ¡Acepta el reto!
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            ¡Acepta el reto!
+            <span style={{ fontSize: "0.8rem", fontWeight: 400, color: "#ffffff", letterSpacing: "0.05em" }}>
+              Estadísticas y Logros
+            </span>
+          </div>
         </Navbar.Brand>
 
         <Nav className="flex-column gap-3 sidebar-links">
@@ -88,7 +94,7 @@ export default function Sidebar() {
         </Nav>
 
         <div className="mt-auto">
-          {porcentajeCarga && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+          <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>
         </div>
       </div>
 
@@ -97,14 +103,19 @@ export default function Sidebar() {
         <Offcanvas.Header closeButton>
           <Offcanvas.Title className="app-offcanvas-titulo">
             <FontAwesomeIcon icon={faLightbulb} className="me-2" />
-            ¡Acepta el reto!
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              ¡Acepta el reto!
+              <span style={{ fontSize: "0.8rem", fontWeight: 400, color: "#ffffff", letterSpacing: "0.05em" }}>
+                Estadísticas y Logros
+              </span>
+            </div>
           </Offcanvas.Title>
         </Offcanvas.Header>
 
         <Offcanvas.Body className="app-offcanvas-body d-flex flex-column">
           <Nav className="flex-column gap-3 sidebar-links">{links}</Nav>
           <div className="mt-auto pt-3">
-            {porcentajeCarga !== undefined && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
+            {porcentajeCarga >= 0 && <BarraCarga evento={EventType.CARGA_ENVIOS} progresoInicial={porcentajeCarga}/>}
           </div>
         </Offcanvas.Body>
       </Offcanvas>

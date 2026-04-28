@@ -1,6 +1,6 @@
 import procesarEnviosService from './procesarEnviosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
-import { EnvioSinProcesar } from "../types/envioSinProcesar.js";
+import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
 
 class InicializarService {
 
@@ -14,34 +14,35 @@ class InicializarService {
     /**
      * Arranca la carga inicial de envios desde la API, retomando desde donde se quedo en
      * el ultimo arranque gracias al ultimo envio y la ultima pagina almacenados en Redis.
+     * @returns el numero del ultimo envio procesado.
      */
     public async inicializar() {
-
-        //TODO DEBUG
-        //await gestionDAO.flushAll();
 
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
         let referenciaPagina: number = -1;
 
+        //TODO quitar esto
+        //gestionDAO.flushAll();
+
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {
             ultimoEnvio = 1;
-            
+
             //se hace una primera peticion para ver el numero del ultimo envio
             const url = this.generarUrl(1);
             const res = await fetch(url);
             const text = await res.text();
             const json = await JSON.parse(text);
-            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20;
+            const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20 + 1;
 
             referenciaPagina = ultimoEnvioNumber;
         }
 
         //si habia se busca el siguiente, y se mira que pagina fue la ultima revisada
         else {
-            ultimoEnvio++; 
-            referenciaPagina = await gestionDAO.getUltimaPagina();
+            ultimoEnvio++;
+            referenciaPagina = Math.round(await gestionDAO.getUltimaPagina() / 20) * 20 + 1;
         }
 
         //se busca a partir de la referencia un intervalo en el que dentro este el envio buscado
@@ -54,13 +55,10 @@ class InicializarService {
         if (ultimoEnvio === 1)
             await gestionDAO.setPrimeraPagina(firstPagina);
 
-        //ultimoEnvio = 1114759; //TODO forzado para que pueda terminar
-        //referenciaPagina = 1;
-
         //se comienza a hacer las peticones para traer los bloques de envios
         for await (const bloque of this.bloques(firstPagina, ultimoEnvio)) {
 
-            await procesarEnviosService.procesarBloqueEnvios(bloque);
+            await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
 
         }
     }
@@ -72,7 +70,7 @@ class InicializarService {
      * procesados en orden.
      * @yields Bloque de envios procesados.
      */
-    private async * bloques(firstPagina: number, firstEnvio: number): AsyncGenerator<{ envio: EnvioSinProcesar; numPagina: number }[]> {
+    private async * bloques(firstPagina: number, firstEnvio: number): AsyncGenerator<{ envio: EnvioSinProcesarInicial; numPagina: number }[]> {
 
         //se marca cual va a ser el primer envio a procesar
         this.expected = firstEnvio;
@@ -112,11 +110,11 @@ class InicializarService {
         const json = await JSON.parse(text);
         if (json.submission.length === 0 || json.submission[json.submission.length - 1].num < firstEnvio)
             haciaAbajo = true;
-        if (!haciaAbajo && json.submission[0].num < firstEnvio) //se encuentra directamente en la primera pagina
+        if (haciaAbajo && json.submission.length !== 0 && json.submission[0].num > firstEnvio) //se encuentra directamente en la primera pagina
             return { ini: firstPagina, fin: firstPagina }
 
         //se comienza la busqueda teniendo en cuenta ese envio como referencia
-        let salto = 20;
+        let saltoAux = this.salto;
         let pagina = firstPagina;
         let prevPagina = firstPagina;
 
@@ -125,21 +123,21 @@ class InicializarService {
 
             prevPagina = pagina;
             if (haciaAbajo) {
-                pagina = firstPagina - salto;
+                pagina = firstPagina - saltoAux;
 
                 //esta es la primera pagina y no tiene sentido ir mas abajo 
                 if (pagina < 1)
                     pagina = 1;
             }
             else
-                pagina = firstPagina + salto;
+                pagina = firstPagina + saltoAux;
 
             url = this.generarUrl(pagina);
             const response = await fetch(url);
             const text = await response.text();
             const current = await JSON.parse(text);
 
-            salto *= 2;
+            saltoAux *= 2;
             console.log(`Pagina ${pagina}`);
 
             if (haciaAbajo && current.submission.length !== 0 && current.submission[current.submission.length - 1].num >= firstEnvio)
@@ -174,7 +172,7 @@ class InicializarService {
 
         while (!encontrado) {
             //se hace la peticion a la mitad del nuevo intervalo
-            const mitad = Math.round((ini + (fin - ini) / 2) / 20) * 20;
+            const mitad = Math.round((ini + (fin - ini) / 2) / 20) * 20 + 1;
             const url = this.generarUrl(mitad);
 
             const response = await fetch(url);
@@ -185,7 +183,7 @@ class InicializarService {
 
             //avanza el inicio del intervalo a la mitad del actual 
             if (current.submission.length === 0 || current.submission[0].num < envio)
-                ini = Math.trunc((ini + (fin - ini) / 2) / 20) * 20;
+                ini = Math.trunc((ini + (fin - ini) / 2) / 20) * 20 + 1;
 
             //se ha pasado del inicio
             else if (current.submission[current.submission.length - 1].num > envio)
@@ -248,7 +246,7 @@ class InicializarService {
 
         yield this.procesarBloque(firstEnvio, contadorBloque, promesasBloque);
 
-        console.log("\nProcesamiento completado");
+        console.log(" * Procesamiento completado");
     }
 
     /**
@@ -343,7 +341,7 @@ class InicializarService {
                     primerProcesadoIdx = envio.num + 1;
                     continue;
                 }
-                    
+
 
                 //si el que llega es mayor al que se esperaba nos hemos saltado alguno
                 else if (this.expected < envio.num) {
@@ -362,7 +360,7 @@ class InicializarService {
                     //los que se encuentran se encuentran se meten en el array de procesados
                     for (const envioRecuperado of recuperados) {
                         console.log(` - Recuperado ${envioRecuperado.num}`);
-                        datosProcesados.push({envio: envioRecuperado, numPagina});
+                        datosProcesados.push({ envio: envioRecuperado, numPagina });
                     }
                     this.expected = envio.num + 1;
                 }

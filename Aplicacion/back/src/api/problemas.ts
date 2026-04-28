@@ -4,7 +4,7 @@ import problemaService from '../servicios/problemaService.js';
 const router = express.Router();
 
 router.get("/:problema/envios", async (req, res) => {
-    const { problema } = req.params;
+const { problema } = req.params;
     return res.json(await problemaService.getNumEnvios(problema));
 });
 

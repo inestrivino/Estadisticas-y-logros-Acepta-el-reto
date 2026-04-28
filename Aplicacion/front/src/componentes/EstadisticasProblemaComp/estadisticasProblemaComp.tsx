@@ -2,19 +2,20 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { EventType, formatEvent } from "shared";
-import "./EstadisticasProblema.css";
+import "./estadisticasProblemaComp.css";
 
 //COMPONENTES
-import DatoNumerico from "../../componentes/datoNumerico"
-import DiagramaSectores from "../../componentes/diagramaSectores";
+import DatoNumerico from "../datoNumerico"
+import DiagramaSectores from "../diagramaSectores";
 
-export default function EstadisticasProblema() {
+export default function EstadisticasProblemaComp(props: {
+    problema: string
+}) {
 
-    //parametros de la url
-    const { problema } = useParams();
+    const problema = props.problema;
 
     //ENVIOS
-    const [envios, setEnvios] = useState<number>(0);
+    const [envios, setEnvios] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/envios`)
             .then(response => response.json())
@@ -22,7 +23,7 @@ export default function EstadisticasProblema() {
     }, [problema]);
 
     //MEJOR TIEMPO
-    const [mejorTiempo, setMejorTiempo] = useState<number>(0);
+    const [mejorTiempo, setMejorTiempo] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/mejorTiempo`)
             .then(response => response.json())
@@ -30,7 +31,7 @@ export default function EstadisticasProblema() {
     }, [problema]);
 
     //TIEMPO PROMEDIO
-    const [tiempoPromedio, setTiempoPromedio] = useState<number>(0);
+    const [tiempoPromedio, setTiempoPromedio] = useState<number | null>(null);
     useEffect(() => {
         fetch(`/api/problemas/${problema}/tiempoPromedio`)
             .then(response => response.json())
@@ -55,45 +56,38 @@ export default function EstadisticasProblema() {
 
     return (
         <>
-            <h1 className="p-4 text-3xl font-bold">
-                Estadísticas problema <span className="font-bold">{problema}</span>
-            </h1>
-
             {/* Contenedor principal */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div className="w-full mt-4">
 
                 {/* Fila de datos numéricos - responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
 
-                    {envios && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: envios, description: "Envios" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={envios === null}
+                            evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: envios ?? 0, description: "Envios" }}
+                        />
+                    </div>
 
-                    {mejorTiempo && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: mejorTiempo, description: "Mejor tiempo" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={mejorTiempo === null}
+                            evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: mejorTiempo ?? 0, description: "Mejor tiempo" }}
+                        />
+                    </div>
 
-                    {tiempoPromedio && (
-                        <div className="flex justify-center">
-                            <DatoNumerico
-                                evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
-                                dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: tiempoPromedio, description: "Tiempo Promedio" }}
-                            />
-                        </div>
-                    )}
+                    <div className="flex justify-center">
+                        <DatoNumerico
+                            loading={tiempoPromedio === null}
+                            evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
+                            dimensiones={{ width: 200, height: 100 }}
+                            dato={{ value: tiempoPromedio ?? 0, description: "Tiempo Promedio" }}
+                        />
+                    </div>
                 </div>
 
                 {/* Fila de diagramas - responsive */}

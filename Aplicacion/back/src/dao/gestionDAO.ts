@@ -71,6 +71,7 @@ class GestionDAO extends DAO {
     }
 
     //DEBUG
+    //TODO
     /** Elimina todos los datos de Redis. Solo para uso en depuracion. */
     public async flushAll() {
         await this.redis.flushAll();

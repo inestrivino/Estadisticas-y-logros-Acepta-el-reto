@@ -4,11 +4,21 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "Adjuntar debugger",
+            "name": "Adjuntar debugger al back",
             "cwd": "${workspaceFolder}/Aplicacion/back",
             "localRoot": "${workspaceFolder}/Aplicacion/back",
             "remoteRoot": "/app/back",
             "port": 9229,
+            "restart": true,
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Adjuntar debugger al adapter",
+            "cwd": "${workspaceFolder}/Aplicacion/adapter",
+            "localRoot": "${workspaceFolder}/Aplicacion/adapter",
+            "remoteRoot": "/app/adapter",
+            "port": 9230,
             "restart": true,
         },
         {
@@ -21,6 +31,9 @@
                 "dev-local"
             ],
             "cwd": "${workspaceFolder}/Aplicacion/back",
+            "env": {
+                "REDIS_URL": "redis://localhost:6379"
+            }
         },
         {
             "type": "chrome",
