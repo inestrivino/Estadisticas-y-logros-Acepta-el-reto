@@ -4,36 +4,30 @@
   "scripts": {
     "dev-local": "tsx watch --clear-screen=false src/server.ts",
     "dev": "cross-env CHOKIDAR_USEPOLLING=true tsx watch --clear-screen=false --inspect=0.0.0.0:9229 src/server.ts",
-    
     "build": "tsc",
     "minify": "npx esbuild ./dist-server/server.js --bundle --minify --platform=node --format=esm --packages=external --outfile=dist-server/server.min.js",
-    
     "test": "vitest run --coverage",
     "graph": "madge src --extensions ts,tsx --image graph.svg"
   },
   "dependencies": {
     "amqplib": "^1.0.3",
-    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-cron": "^4.2.1",
-    "react": "^19.2.0",
     "redis": "^5.8.3",
     "shared": "file:../shared",
-    "socket.io": "^4.8.3",
-    "tsx": "^4.21.0"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "@testcontainers/redis": "^11.12.0",
+    "@testcontainers/redis": "^11.14.0",
     "@types/amqplib": "^0.10.8",
     "@types/express": "^5.0.3",
     "@types/node": "^24.10.9",
-    "@types/ws": "^8.18.1",
     "@vitest/coverage-istanbul": "^4.1.2",
     "@vitest/ui": "^4.0.18",
     "esbuild": "^0.27.2",
     "madge": "^8.0.0",
-    "rimraf": "^6.1.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
