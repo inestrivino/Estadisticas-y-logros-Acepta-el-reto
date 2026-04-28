@@ -1,6 +1,7 @@
 import { datosLogro } from "../types/datosLogro.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 import { Logro, NivelLogro } from "../types/logro.js";
+import { EstadoUsuario } from "../types/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
@@ -18,6 +19,7 @@ class XPService {
      * @param listadoLogros - Array de logros procesados del bloque.
      */
     public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
+        
         for (const envio of envios) {
             if (!this.xpUsuarios.has(envio.usuario))
                 this.xpUsuarios.set(envio.usuario, 0);
@@ -27,6 +29,39 @@ class XPService {
 
         for (const { usuario, logros } of listadoLogros) {
             const xp = (this.xpUsuarios.has(usuario) ? this.xpUsuarios.get(usuario) : 0) as number + this.calcularXPDeLogros(logros);
+            this.xpUsuarios.set(usuario, xp);
+        }
+
+        const puntos = Array.from(this.xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
+        await XPDAO.registrarBloqueXP(puntos);
+        return puntos;
+    }
+
+    /**
+     * Calcula los xp obtenidos por cada usuario a partir de la diferencia entre su estado inicial y final en el bloque.
+     * Los xp por envios se derivan del incremento en numEnvios y resultados AC. Los xp por logros se derivan de los
+     * logros nuevos que aparecen en el estado final pero no en el inicial.
+     * @param estadosIniciales - Mapa de estados de usuario antes de procesar el bloque.
+     * @param estadosFinales - Mapa de estados de usuario despues de procesar el bloque.
+     */
+    public async procesarBloqueEstados(
+        estadosIniciales: Map<string, EstadoUsuario>,
+        estadosFinales: Map<string, EstadoUsuario>
+    ) {
+        this.xpUsuarios = new Map<string, number>();
+
+        for (const [usuario, estadoFinal] of estadosFinales) {
+            const estadoInicial = estadosIniciales.get(usuario);
+
+            const acFinal = estadoFinal.resultados.get("AC") ?? 0;
+            const acInicial = estadoInicial?.resultados.get("AC") ?? 0;
+            const enviosAC = acFinal - acInicial;
+            const totalEnvios = estadoFinal.numEnvios - (estadoInicial?.numEnvios ?? 0);
+            const enviosNoAC = totalEnvios - enviosAC;
+
+            const logrosNuevos = [...estadoFinal.logros].filter(l => !estadoInicial?.logros.has(l));
+
+            const xp = enviosAC * 15 + enviosNoAC * 1 + this.calcularXPDeLogros(logrosNuevos);
             this.xpUsuarios.set(usuario, xp);
         }
 

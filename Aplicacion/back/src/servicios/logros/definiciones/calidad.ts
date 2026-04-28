@@ -28,7 +28,7 @@ export const logrosCalidad: Logro[] = [
     
     condicion: (estadoUsuario, estadoProblema, envio) => {
       const esAcierto = envio!.resultado === "AC";
-      const esRapido = false; //TODO requiere el rank del envio, no disponible en el estado
+      const esRapido = estadoProblema!.posUltimoEnvio < Math.floor(0.25 * estadoProblema!.envios);
       const cienEnvios = estadoProblema!.envios >= 100;
       return esAcierto && esRapido && cienEnvios;
     }
