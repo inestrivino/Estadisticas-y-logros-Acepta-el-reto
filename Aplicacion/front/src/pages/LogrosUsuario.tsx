@@ -1,21 +1,34 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Badge from 'react-bootstrap/Badge';
 
-import { useAppContext } from "../contexto/contextos";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import LogrosUsuarioComp from "../componentes/LogrosUsuarioComp/logrosUsuarioComp";
 
 export default function LogrosUsuario() {
-    const appContext = useAppContext();
     const params = useParams();
 
-    const usuario = params.usuario || appContext?.usuarioActual;
+    const usuario = params.usuario || localStorage.getItem("usuarioActual") || "";
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
+    useEffect(() => {
+        if (!usuario) return;
+
+        fetch(`/api/usuarios/${usuario}`)
+            .then(res => res.json())
+            .then(data => {
+                setUsuarioExiste(data.existe);
+            });
+    }, [usuario]);
 
     const navigate = useNavigate();
     useEffect(() => {
-        navigate(`/usuarios/logros/${usuario}`, { replace: true });
+        const clasificacionGuardada = searchParams.get("clasificacion")
+            ?? localStorage.getItem("clasificacion")
+            ?? "nivel";
+        navigate(`/usuarios/logros/${usuario}?clasificacion=${clasificacionGuardada}`, { replace: true });
     }, [usuario, navigate]);
 
     // NIVEL
@@ -28,7 +41,8 @@ export default function LogrosUsuario() {
 
     return (
         <PlantillaBusqueda
-            hasResult={!!usuario}
+            hasResult={usuarioExiste === true}
+            mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
             tituloBusqueda="Logros de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus logros alcanzados"
             tituloResultado={

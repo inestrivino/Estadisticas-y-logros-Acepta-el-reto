@@ -10,6 +10,7 @@ import "./logrosUsuarioComp.css";
 
 // COMPONENTES
 import GrupoLogro from "../Logro/grupoLogros.js";
+import { useQueryState } from "../../hooks/useQueryState.js";
 
 
 export default function LogrosUsuarioComp(props: {
@@ -21,10 +22,10 @@ export default function LogrosUsuarioComp(props: {
         setUsuario(props.usuario);
     }, [props.usuario]);
 
-    const [key, setKey] = useState('categoria');
+    const [key, setKey] = useQueryState("clasificacion", "nivel");
 
     const [logros, setLogros] = useState<ListadoLogros>();
-    useEffect(() => { //TODO al inicializar la vista de logros ver si recordamos de la ultima vez visitada o no
+    useEffect(() => {
         fetch(`/api/usuarios/${usuario}/logros?clasificacion=${key}`)
             .then(response => response.json())
             .then(data => { setLogros(data); });

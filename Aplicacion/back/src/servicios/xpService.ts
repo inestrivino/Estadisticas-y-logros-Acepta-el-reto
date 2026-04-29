@@ -5,7 +5,18 @@ import { EstadoUsuario } from "../types/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
-import usuarioService from "./usuarioService.js";
+
+type ActualizacionesRanking = {
+    usuario: string,
+    oldPos: number,
+    newPos: number
+}
+
+type InfoActualizacionesRanking = {
+    updates: ActualizacionesRanking[],
+    minPos: number, //primera posicion del ranking afectada
+    maxPos: number //ultima possicion del ranking afectada
+}
 
 class XPService {
 
@@ -18,8 +29,9 @@ class XPService {
      * @param envios - Array de envios procesados del bloque.
      * @param listadoLogros - Array de logros procesados del bloque.
      */
-    public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
-        
+    public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]): Promise<InfoActualizacionesRanking> {
+        this.xpUsuarios = new Map();
+
         for (const envio of envios) {
             if (!this.xpUsuarios.has(envio.usuario))
                 this.xpUsuarios.set(envio.usuario, 0);
@@ -67,6 +79,9 @@ class XPService {
 
         const puntos = Array.from(this.xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
         await XPDAO.registrarBloqueXP(puntos);
+
+        const cambiosRanking = await this.getNewData(oldData);
+        return cambiosRanking;
     }
 
     /**
@@ -81,6 +96,124 @@ class XPService {
                 xp += this.getXPPorNivelLogro(logro.nivel)
         }
         return xp;
+    }
+
+    private async getOldData(): Promise<{ usuario: string, oldPos: number }[]> {
+        const usuariosAfectados = Array.from(this.xpUsuarios.keys());
+        let oldData = [];
+        for (const usuario of usuariosAfectados) {
+            const oldPos = await xpDAO.getPosUsuarioEnRanking(usuario);
+            oldData.push({ usuario, oldPos })
+        }
+        return oldData;
+    }
+
+    private async getNewData(oldData: { usuario: string, oldPos: number }[]): Promise<InfoActualizacionesRanking> {
+        let newData: ActualizacionesRanking[] = [];
+        for (const { usuario, oldPos } of oldData) {
+            const newPos = await xpDAO.getPosUsuarioEnRanking(usuario);
+            newData.push({ usuario, oldPos, newPos })
+        }
+
+        const minPos = Math.min(...newData.map(u =>
+            Math.min(u.oldPos, u.newPos)
+        ));
+
+        const maxPos = Math.max(...newData.map(u =>
+            Math.max(u.oldPos, u.newPos)
+        ));
+
+        return { updates: newData, minPos, maxPos };
+    }
+
+    /**
+     * Devuelve la informacion del usuario asociada a los xp y su ranking.
+     * @param filtrarPorNivel - Indica si la informacion es respecto al ranking global o al perteneciente al nivel del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns El nombre, el nivel, los xp y la posicion del usuario en el ranking (varia si es con respecto al ranking global 
+     *  o solo de su nivel).
+     */
+    async getInfoUsuarioRanking(usuario: string, filtrarNivel: boolean) {
+        const nivel = await this.getNivelUsuario(usuario);
+        const xp = await xpDAO.getXPUsuario(usuario);
+
+        const pos =
+            filtrarNivel ?
+                await this.getPosUsuarioEnRankingPorNivel(usuario, nivel) :
+                await xpDAO.getPosUsuarioEnRanking(usuario);
+
+        return { nombre: usuario, nivel, xp, pos };
+    }
+
+    /**
+     * Devuelve la posicion del usuario en el ranking de su nivel.
+     * @param nivel - Identificador del nivel del usuario
+     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
+     * @returns Entero positivo. //TODO lanzar error en caso de que la posicion sea negativa
+     */
+    private async getPosUsuarioEnRankingPorNivel(usuario: string, nivel: string) {
+        // rango de xp correspondiente al nivel del usuario
+        const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+        // primer usuario en el ranking que pertenece a ese nivel
+        const primerUsuarioNivel = (await xpDAO.getUsuariosRankingPorRangoYNivel(0, 1, iniXP, finXP))[0];
+        // posicion del ranking global en la que se encuentra el primer usuario que pertenece a ese nivel
+        const posPrimerUsuario = await xpDAO.getPosUsuarioEnRanking(primerUsuarioNivel.value);
+        // posicion del ranking global en la que se encuentra el usuario
+        const posGlobalUsuario = await xpDAO.getPosUsuarioEnRanking(usuario);
+
+        return posGlobalUsuario - posPrimerUsuario + 1;
+    }
+
+    /**
+     * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
+     * @param pag - Numero de la pagina.
+     * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
+     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
+     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
+     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
+     */
+    async getUsuariosRanking(pag: number, tam: number, filtrarPorNivel: boolean, usuario: string) {
+        const ini = (pag - 1) * tam;
+        const fin = pag * tam - 1;
+        if (!filtrarPorNivel) {
+            const usuarios = await xpDAO.getUsuariosRankingPorRango(ini, fin);
+            return usuarios.map((u, i) => ({
+                nombre: u.value,
+                xp: u.score,
+                nivel: this.getNivelFromXP(u.score),
+                pos: ini + i + 1
+            }));
+        }
+        else {
+            const xp = await xpDAO.getXPUsuario(usuario);
+            const nivel = this.getNivelFromXP(xp);
+            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+            const usuarios = await xpDAO.getUsuariosRankingPorRangoYNivel(ini, fin, iniXP, finXP)
+            return usuarios.map((u, i) => ({
+                nombre: u.value,
+                xp: u.score,
+                nivel: nivel,
+                pos: ini + i + 1
+            }))
+        }
+    }
+
+    /**
+     * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica, 
+     * se devuelve el numero de usuario que pertenecen al mismo nivel (de xp) que este.
+     * @param usuario - Identificador del usuario o "" en caso de no querer limitar por nivel.
+     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
+     * @returns Numero de usuario a partir de lo especificado.
+     */
+    async getNumUsuarios(filtrarPorNivel: boolean, usuario: string): Promise<number> {
+        if (!filtrarPorNivel) {
+            return xpDAO.getNumUsuarios();
+        }
+        else {
+            const nivel = await this.getNivelUsuario(usuario);
+            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+            return xpDAO.getNumUsuariosEnRango(iniXP, finXP);
+        }
     }
 
     /**
@@ -102,56 +235,6 @@ class XPService {
             case NivelLogro.BRONCE: return 20;
             case NivelLogro.PLATA: return 40;
             case NivelLogro.ORO: return 60;
-        }
-    }
-
-    /**
-     * Devuelve los usuarios correspondientes a la pagina indicada, respecto al ranking global de usuarios ordenados por xp.
-     * @param pag - Numero de la pagina.
-     * @param tam - Tamaño de la pagina, que corresponde al numero de usuarios que se van a devolver.
-     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
-     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
-     * @returns Array de nombre y xp o nombre, xp y nivel de los usuarios que se encuentran en el rango indicado.
-     */
-    async getUsuariosRanking(pag: number, tam: number, filtrarPorNivel: boolean, usuario: string) {
-        const ini = (pag - 1) * tam;
-        const fin = pag * tam - 1;
-        if (!filtrarPorNivel) {
-            const usuarios = await xpDAO.getUsuariosRankingPorRango(ini, fin);
-            return usuarios.map(u => ({
-                nombre: u.value,
-                xp: u.score,
-                nivel: this.getNivelFromXP(u.score)
-            }));
-        }
-        else {
-            const xp = await xpDAO.getXPUsuario(usuario);
-            const nivel = this.getNivelFromXP(xp);
-            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
-            const usuarios = await xpDAO.getUsuariosRankingPorRangoYNivel(ini, fin, iniXP, finXP)
-            return usuarios.map(u => ({
-                nombre: u.value,
-                xp: u.score,
-                nivel: nivel
-            }))
-        }
-    }
-
-    /**
-     * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica, 
-     * se devuelve el numero de usuario que pertenecen al mismo nivel (de xp) que este.
-     * @param usuario - Identificador del usuario o "" en caso de no querer limitar por nivel.
-     * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
-     * @returns Numero de usuario a partir de lo especificado.
-     */
-    async getNumUsuarios(filtrarPorNivel: boolean, usuario: string): Promise<number> {
-        if (!filtrarPorNivel) {
-            return xpDAO.getNumUsuarios();
-        }
-        else {
-            const nivel = await this.getNivelUsuario(usuario);
-            const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
-            return xpDAO.getNumUsuariosEnRango(iniXP, finXP);
         }
     }
 

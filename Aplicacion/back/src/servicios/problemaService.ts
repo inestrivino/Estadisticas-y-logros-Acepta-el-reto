@@ -13,6 +13,14 @@ class ProblemaService {
     }
 
     /**
+     * Devuelve si el problema existe en la bd o no.
+     * @param problema - Identificador del problema.
+     */
+    public async existeProblema(problema: string): Promise<boolean> {
+        return await problemaDAO.existeProblema(problema);
+    }
+
+    /**
      * Devuelve el numero total de envios del problema.
      * @param problema - Identificador del problema.
      */

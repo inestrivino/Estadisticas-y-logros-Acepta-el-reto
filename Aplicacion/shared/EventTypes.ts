@@ -15,6 +15,9 @@ export const EventType = {
   LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
   LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria",
 
+  //RANKING USUARIOS
+  ACTUALIZACION_RANKING: "reload-rankingUsuarios",
+
   //PARA AVISAR DE QUE SE HAN CARGADO MAS ENVIOS DE LA CARGA INICIAL
   CARGA_ENVIOS: "reload-cargaEnvios"
 } as const;

@@ -113,6 +113,14 @@ class UsuarioService {
     async getDiasValor(usuario: string): Promise<{ timestamp: number, value: number }[]> {
         return usuarioDAO.getDiasValor(usuario);
     }
+
+    /**
+     * Devuelve si el usuario existe en la bd o no.
+     * @param usuario - Identificador del usuario.
+     */
+    public async existeUsuario(usuario: string): Promise<boolean> {
+        return await usuarioDAO.existeUsuario(usuario);
+    }
 }
 
 export default new UsuarioService();

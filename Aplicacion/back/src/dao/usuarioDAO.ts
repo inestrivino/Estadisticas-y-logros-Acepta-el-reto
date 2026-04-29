@@ -17,8 +17,7 @@ class UsuarioDAO extends DAO {
         const pipeline = this.redis.multi();
 
         for (const envio of envios) {
-
-            //se mete el dia del envio en un sorted set para luego sacar los envios por dia
+            pipeline.sAdd("usuarios", envio.usuario);
             pipeline.zAdd(
                 `usuario:${envio.usuario}:dias`,
                 [{ value: String(envio.fecha), score: envio.fecha }]
@@ -383,6 +382,11 @@ class UsuarioDAO extends DAO {
     public async getDiasValor(usuario: string): Promise<{ timestamp: number, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
         return Object.entries(datos).map(([timestamp, value]) => ({ timestamp: Number(timestamp), value: Number(value) }));
+    }
+
+    async existeUsuario(usuario: string): Promise<boolean> {
+        const existe = await this.redis.sIsMember("usuarios", usuario);
+        return existe === 1;
     }
 }
 

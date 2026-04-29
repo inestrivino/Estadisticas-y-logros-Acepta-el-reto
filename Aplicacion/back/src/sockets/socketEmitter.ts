@@ -5,6 +5,18 @@ import usuarioService from "../servicios/usuarioService.js";
 import logrosService from "../servicios/logros/logrosService.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
 
+type ActualizacionesRanking = {
+    usuario: string,
+    oldPos: number,
+    newPos: number
+}
+
+type InfoActualizacionesRanking = {
+    updates: ActualizacionesRanking[],
+    minPos: number, //primera posicion del ranking afectada
+    maxPos: number //ultima possicion del ranking afectada
+}
+
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
@@ -32,12 +44,13 @@ export async function routerEmitter(envio: EnvioProcesado) {
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(envio.usuario, "categoria"));
 }
 
-export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>, porcentaje: number) {
+export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>, porcentaje: number, actualizacionRanking: InfoActualizacionesRanking) {
     
     const io = getIO();
 
     //para actualizar la barra de carga que te dice el porcentaje de envios que han cargado
     io.emit(EventType.CARGA_ENVIOS, porcentaje);
+    io.emit(EventType.ACTUALIZACION_RANKING, actualizacionRanking);
     
     for (const problema of problemas) {
         //se actualizan los diagramas de estadisticas de problemas

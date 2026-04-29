@@ -2,17 +2,26 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Badge from 'react-bootstrap/Badge';
 
-import { useAppContext } from "../contexto/contextos";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import EstadisticasUsuarioComp from "../componentes/estadisticasUsuarioComp";
 
 export default function EstadisticasUsuario() {
 
-    const appContext = useAppContext();
     const params = useParams();
 
-    const usuario = params.usuario || appContext?.usuarioActual;
+    const usuario = params.usuario || localStorage.getItem("usuarioActual") || "";
+
+    const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
+    useEffect(() => {
+        if (!usuario) return;
+
+        fetch(`/api/usuarios/${usuario}`)
+            .then(res => res.json())
+            .then(data => {
+                setUsuarioExiste(data.existe);
+            });
+    }, [usuario]);
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -29,7 +38,8 @@ export default function EstadisticasUsuario() {
 
     return (
         <PlantillaBusqueda
-            hasResult={!!usuario}
+            hasResult={usuarioExiste === true}
+            mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
             tituloBusqueda="Estadísticas de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus estadísticas"
             tituloResultado={
