@@ -9,6 +9,9 @@ import EstadisticasUsuario from "../src/pages/EstadisticasUsuario"
 
 //HANDLERS PARA LOS ENDPOINTS
 export const handlers = [
+  http.get("/api/problemas/:problema", () =>
+    HttpResponse.json({ existe: true })
+  ),
   http.get("/api/problemas/:problema/envios", () =>
     HttpResponse.json(100000)
   ),
@@ -46,8 +49,8 @@ vi.mock("../src/services/socket", () => ({
 const server = setupServer();
 beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
 beforeEach(() => {
-    cleanup();
-    vi.clearAllMocks();
+  cleanup();
+  vi.clearAllMocks();
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
