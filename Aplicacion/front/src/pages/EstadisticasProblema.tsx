@@ -1,16 +1,25 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect } from "react";
-import { useAppContext } from "../contexto/contextos"
+import { useEffect, useState } from "react";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import EstadisticasProblemaComp from "../componentes/EstadisticasProblemaComp/estadisticasProblemaComp";
 
 export default function EstadisticasProblema() {
 
-    const appContext = useAppContext();
     const params = useParams();
 
-    const problema = params.problema || appContext?.problemaActual;
+    const problema = params.problema || localStorage.getItem("problemaActual") || "";
+
+    const [problemaExiste, setProblemaExiste] = useState<boolean | null>(null);
+    useEffect(() => {
+        if (!problema) return;
+
+        fetch(`/api/problemas/${problema}`)
+            .then(res => res.json())
+            .then(data => {
+                setProblemaExiste(data.existe);
+            });
+    }, [problema]);
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -19,7 +28,8 @@ export default function EstadisticasProblema() {
 
     return (
         <PlantillaBusqueda
-            hasResult={!!problema}
+            hasResult={problemaExiste === true}
+            mensajeDeNoEncontrado={!problemaExiste && problema !== "" ? `El problema "${problema}" no existe` : ""}
             tituloBusqueda="Estadísticas de problemas"
             descripcion="Aquí podrás buscar cualquier problema de ¡Acepta el reto! y observar sus estadísticas"
             tituloResultado={

@@ -65,6 +65,8 @@ export default function TablaDeClasificacion() {
             // si no hay usuario pone el filtrado de nivel a false
             const nivelFinal = usuario ? (prev.get("nivel") ?? porNivelStr) : "false";
             if (!prev.get("nivel") || !usuario) next.set("nivel", nivelFinal);
+
+            //if (!prev.get("nivel")) next.set("nivel", usuario ? porNivelStr : "false");
             if (!prev.get("pagina")) next.set("pagina", pagStr);
             if (!prev.get("usuarioActual") && usuarioQuery) next.set("usuarioActual", usuarioQuery);
             return next;
@@ -77,19 +79,7 @@ export default function TablaDeClasificacion() {
     // numero de filas / usuario de los que se hace peticion en cada pagina. Si hay un usuario buscado, la primera fila
     //  de la tabla pertenece a la informacion de este, y por tanto se necesitara la informacion de pagSize - 1 usuarios 
     //  para completar la tabla
-    const [rows, setRows] = useState(usuario ? pagSize - 1 : pagSize);
-
-    // se hace la peticion que devuelve la informacion del usuario actual
-    const fetchInfoUsuario = async () => {
-        if (usuario) {
-            setRows(pagSize - 1);
-            fetch(`/api/usuarios/${usuario}?filtrarNivel=${porNivel}`).then(response => response.json()).then(data => setInfoUsuario(data));
-        }
-        else {
-            setRows(pagSize);
-        }
-    }
-
+    const [rows, setRows] = useState(pagSize);
 
     // se hace la peticion que devuelve la informacion de los usuario correspondiente a esa pagina, teniendo en cuenta el filtro por nivel
     const fetchRanking = async (pag: number) => {
@@ -109,20 +99,68 @@ export default function TablaDeClasificacion() {
     // se actualiza la informacion de la tabla cada vez que se cambia de pagina o se cambia el filtro por nivel
     useEffect(() => {
         fetchRanking(pag);
-    }, [pag, porNivel]);
+    }, [pag, porNivel, rows]);
 
     // informacion del usuario buscado
     const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
     // se actualiza la informacion cuando cambia el usuario o el filtro por nivel
     useEffect(() => {
-        fetchInfoUsuario();
-    }, [usuario, porNivel]);
+        if (!usuario) {
+            setUsuarioExiste(false);
+            setInfoUsuario(undefined);
+            setRows(pagSize);
+            return;
+        }
+
+        fetch(`/api/usuarios/${usuario}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.existe) {
+                    // si el usuario no existe, se limpiar todo
+                    setUsuarioExiste(false);
+                    setInfoUsuario(undefined);
+                    setRows(pagSize);
+                    setUsuarioQuery("");
+                    setPorNivelStr("false");
+                    localStorage.removeItem("usuarioActual");
+                    localStorage.removeItem("nivel");
+                    setSearchParams(prev => {
+                        const next = new URLSearchParams(prev);
+                        next.delete("usuarioActual");
+                        next.set("nivel", "false");
+                        return next;
+                    }, { replace: true });
+                } else {
+                    // si el usuario existe, se obtiene su info en el ranking
+                    setUsuarioExiste(true);
+                    fetch(`/api/usuarios/ranking/${usuario}?filtrarNivel=${porNivel}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.pos === -1) {
+                                setInfoUsuario(undefined);
+                                setRows(pagSize);
+                            } else {
+                                setInfoUsuario(data);
+                                setRows(pagSize - 1);
+                            }
+                        });
+                }
+            });
+    }, [usuario, porNivel]); // porNivel porque la posición del usuario cambia con el filtro
 
     // maneja la actualizacion de la informacion de la tabla cuando se realizan nuevos envios
     useEffect(() => {
         socket.on(EventType.ACTUALIZACION_RANKING, (data) => {
             handleRankingUpdate(data); // se actualiza la informacion de los usuarios
-            fetchInfoUsuario(); // se actualiza la informacion del usuario
+            // se actualiza la informacion del usuario
+            if (usuario && usuarioExiste) {
+                fetch(`/api/usuarios/ranking/${usuario}?filtrarNivel=${porNivel}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.pos !== -1) 
+                            setInfoUsuario(data);
+                    });
+            }
         });
 
         return () => {
@@ -148,7 +186,7 @@ export default function TablaDeClasificacion() {
             </h1>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {usuario && <Form.Check
+                {usuarioExiste && <Form.Check
                     className="mb-2"
                     type="switch"
                     id="toggle-check"
@@ -158,7 +196,7 @@ export default function TablaDeClasificacion() {
                     onChange={(e) => {
                         // cuando se cambia el filtrado por nivel se actualizan las queries de la url y sus correspondiente valores en 
                         //  localStorage
-                        if (!usuario) return;
+                        if (!usuarioExiste) return;
                         const nuevoNivel = e.currentTarget.checked;
                         localStorage.setItem("nivel", String(nuevoNivel));
                         localStorage.setItem("pagina", "1");

@@ -11,6 +11,7 @@ class UsuarioDAO extends DAO {
     public async registrarBloqueEnvios(envios: datosUsuario[]): Promise<void> {
         const pipeline = this.redis.multi();
         for (const envio of envios) {
+            pipeline.sAdd("usuarios", envio.usuario);
             pipeline.zAdd(
                 `usuario:${envio.usuario}:dias`,
                 [{ value: String(envio.fecha), score: envio.fecha }]
@@ -314,6 +315,11 @@ class UsuarioDAO extends DAO {
         const horas = await this.redis.sMembers(`usuario:${usuario}:horas`);
         const valorHoras = horas.map(hora => Number(hora));
         return valorHoras;
+    }
+
+    async existeUsuario(usuario: string): Promise<boolean> {
+        const existe = await this.redis.sIsMember("usuarios", usuario);
+        return existe === 1;
     }
 }
 

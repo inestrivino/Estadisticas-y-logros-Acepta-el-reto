@@ -83,6 +83,14 @@ class UsuarioService {
     async getNumCategoriasProblemasResueltos(usuario: string): Promise<number> {
         return usuarioDAO.getNumCategoriasProblemasResueltos(usuario);
     }
+
+    /**
+     * Devuelve si el usuario existe en la bd o no.
+     * @param usuario - Identificador del problema.
+     */
+    public async existeUsuario(usuario: string): Promise<boolean> {
+        return await usuarioDAO.existeUsuario(usuario);
+    }
 }
 
 export default new UsuarioService();

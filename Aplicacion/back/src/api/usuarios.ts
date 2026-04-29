@@ -40,12 +40,18 @@ router.get("/:usuario/nivel", async (req, res) => {
     return res.json(nivel);
 });
 
-router.get("/:usuario", async (req, res) => {
+router.get("/ranking/:usuario", async (req, res) => {
     const { usuario } = req.params;
     const { filtrarNivel } = req.query;
     const filtrar = filtrarNivel === 'true';
     const info = await xpService.getInfoUsuarioRanking(usuario, filtrar);
     return res.json(info);
 });
+
+router.get("/:usuario", async (req, res) => {
+    const { usuario } = req.params;
+    const existe = await usuarioService.existeUsuario(usuario);
+    return res.json({ existe });
+})
 
 export default router;

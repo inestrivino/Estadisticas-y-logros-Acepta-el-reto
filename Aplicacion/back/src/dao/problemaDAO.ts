@@ -11,6 +11,7 @@ class ProblemaDAO extends DAO {
     public async registrarBloqueEnvios(envios: datosProblema[]): Promise<void> {
         const pipeline = this.redis.multi();
         for (const envio of envios) {
+            pipeline.sAdd("problemas", envio.problema);
             pipeline.incr(`problema:${envio.problema}:envios`);
             pipeline.hIncrBy(`problema:${envio.problema}:resultados`, envio.resultado, 1);
             pipeline.hIncrBy(`problema:${envio.problema}:lenguajes`, envio.lenguaje, 1);
@@ -22,6 +23,11 @@ class ProblemaDAO extends DAO {
             }
         }
         await pipeline.exec();
+    }
+
+    async existeProblema(problema: string): Promise<boolean> {
+        const existe = await this.redis.sIsMember("problemas", problema);
+        return existe === 1;
     }
 
     /**

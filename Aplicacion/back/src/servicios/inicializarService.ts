@@ -19,7 +19,7 @@ class InicializarService {
     public async inicializar() {
 
         //TODO DEBUG
-        await gestionDAO.flushAll();
+        //await gestionDAO.flushAll();
 
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();

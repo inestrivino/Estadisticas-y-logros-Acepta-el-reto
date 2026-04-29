@@ -1,5 +1,8 @@
+import { Alert } from "react-bootstrap";
+
 type Props = {
     hasResult: boolean;
+    mensajeDeNoEncontrado: string;
     tituloBusqueda: string;
     descripcion: string;
     tituloResultado?: React.ReactNode;
@@ -9,6 +12,7 @@ type Props = {
 
 export default function PlantillaBusqueda({
     hasResult,
+    mensajeDeNoEncontrado,
     tituloBusqueda,
     descripcion,
     tituloResultado,
@@ -38,6 +42,12 @@ export default function PlantillaBusqueda({
                     {buscador}
                 </div>
 
+                {mensajeDeNoEncontrado && (
+                    <Alert variant="danger" className="mt-2">
+                        {mensajeDeNoEncontrado}
+                    </Alert>
+                )}
+
                 {hasResult && <h1 className="mt-4 w-full text-left">{tituloResultado}</h1>}
 
                 <div className={`
@@ -46,7 +56,7 @@ export default function PlantillaBusqueda({
                 `}>
                     {children}
                 </div>
-                
+
 
             </div>
         </div>

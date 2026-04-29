@@ -6,7 +6,6 @@ import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faH
 import "./sidebar.css";
 import { EventType } from "shared/EventTypes.ts";
 import BarraCarga from "./barraCarga";
-import { useAppContext } from "../../contexto/contextos";
 
 export default function Sidebar() {
 
@@ -45,9 +44,9 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
-  const appContext = useAppContext();
-  const rutaRanking = appContext?.usuarioActual
-    ? `/usuarios/ranking?usuarioActual=${appContext.usuarioActual}`
+  const usuario = localStorage.getItem("usuarioActual");
+  const rutaRanking = usuario
+    ? `/usuarios/ranking?usuarioActual=${usuario}`
     : "/usuarios/ranking";
 
   const links = (
