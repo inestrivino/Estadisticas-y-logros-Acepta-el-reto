@@ -29,7 +29,7 @@ class XPService {
      * @param envios - Array de envios procesados del bloque.
      * @param listadoLogros - Array de logros procesados del bloque.
      */
-    public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]): Promise<InfoActualizacionesRanking> {
+    public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
         this.xpUsuarios = new Map();
 
         for (const envio of envios) {
@@ -79,9 +79,6 @@ class XPService {
 
         const puntos = Array.from(this.xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
         await XPDAO.registrarBloqueXP(puntos);
-
-        const cambiosRanking = await this.getNewData(oldData);
-        return cambiosRanking;
     }
 
     /**

@@ -95,7 +95,8 @@ class UsuarioDAO extends DAO {
         const pipeline = this.redis.multi();
 
         for (const [usuario, estado] of estadosUsuarios) {
-
+            pipeline.sAdd(`usuarios`, usuario);
+            
             pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
             pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
             pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));

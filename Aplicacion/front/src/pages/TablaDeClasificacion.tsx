@@ -151,14 +151,14 @@ export default function TablaDeClasificacion() {
 
     // maneja la actualizacion de la informacion de la tabla cuando se realizan nuevos envios
     useEffect(() => {
-        socket.on(EventType.ACTUALIZACION_RANKING, (data) => {
-            handleRankingUpdate(data); // se actualiza la informacion de los usuarios
+        socket.on(EventType.ACTUALIZACION_RANKING, () => {
+            handleRankingUpdate(); // se actualiza la informacion de los usuarios
             // se actualiza la informacion del usuario
             if (usuario && usuarioExiste) {
                 fetch(`/api/usuarios/ranking/${usuario}?filtrarNivel=${porNivel}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.pos !== -1) 
+                        if (data.pos !== -1)
                             setInfoUsuario(data);
                     });
             }
@@ -173,13 +173,17 @@ export default function TablaDeClasificacion() {
 
     // se actualiza la informacion de latabla solo si alguno de los usuarios que se muestran actualmente ha sido afectado
     //  por los nuevos envios
+    const handleRankingUpdate = async () => {
+        fetchRanking(pag);
+    }
+    /*
     const handleRankingUpdate = async (data: InfoActualizacionesRanking) => {
         const pagIni = (pag - 1) * rows + 1;
         const pagFin = pag * rows;
         if (data.minPos <= pagFin)
             fetchRanking(pag);
     }
-
+    */
     return (
         <div>
             <h1 className="p-4 text-3xl font-bold">

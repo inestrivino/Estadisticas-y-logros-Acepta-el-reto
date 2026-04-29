@@ -14,7 +14,8 @@ class ProblemaDAO extends DAO {
         const pipeline = this.redis.multi();
 
         for (const [problema, estado] of estadosProblemas) {
-            pipeline.sAdd("problemas", problema);
+            pipeline.sAdd(`problemas`, problema);
+            
             pipeline.set(`problema:${problema}:envios`, String(estado.envios));
             pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
             pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
