@@ -41,6 +41,7 @@ export default function TablaDeClasificacion() {
     // obtiene el usuario de la query, en caso de no tenerlo lo obtendra de localStorage, si no no habra usuario y sera ""
     const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
     const usuario = usuarioQuery;
+    const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
 
     // obtiene el numero de pagina de la query, en caso de no tenerlo lo obtendra de localStora, si no el default value sera la 1
     const [pagStr, setPagStr] = useQueryState("pagina", "1");
@@ -103,7 +104,7 @@ export default function TablaDeClasificacion() {
 
     // informacion del usuario buscado
     const [infoUsuario, setInfoUsuario] = useState<datoUsuario>();
-    // se actualiza la informacion cuando cambia el usuario o el filtro por nivel
+    // Comprueba que el usuario de la url existe y en ese caso se actualiza la informacion cuando cambia el usuario o el filtro por nivel
     useEffect(() => {
         if (!usuario) {
             setUsuarioExiste(false);
