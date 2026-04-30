@@ -3,6 +3,7 @@ import express from 'express';
 import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
+import redisLoading from './redis/redisLoading.js';
 import { initSocket } from './sockets/socketInit.js';
 import inicializarService from './servicios/inicializarService.js';
 import gestionService from './servicios/gestionService.js';
@@ -31,6 +32,7 @@ app.listen(3000, (error) => {
 //============== INICIAR EL SERVIDOR ==============
 //se conecta a la base de datos
 await redisClient.connect();
+await redisLoading();
 
 //incializo el socket
 initSocket(app);
