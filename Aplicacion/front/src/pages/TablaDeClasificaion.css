@@ -1,0 +1,10 @@
+.usuario-link {
+  color: inherit; /* mismo color que texto normal */
+  text-decoration: none; /* sin subrayado */
+  font-weight: bold;     
+}
+
+.usuario-link:hover {
+  color: #446E9B;
+  text-decoration: underline;
+}

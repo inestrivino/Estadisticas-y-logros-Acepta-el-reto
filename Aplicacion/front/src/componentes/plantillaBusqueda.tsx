@@ -20,43 +20,50 @@ export default function PlantillaBusqueda({
     children
 }: Props) {
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8 mt-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col" style={{ minHeight: "calc(100dvh - 75px)" }}>
 
-            <div className={
-                `transition-all duration-700 ease-in-out flex flex-col items-center
-                ${hasResult ? "justify-start pt-4" : "justify-center min-h-[80vh]"}
-            `}>
+                {/* titulo y buscador */}
+                <div className={`
+                    flex flex-col items-center flex-shrink-0 w-full transition-all duration-1000 ease-in-out
+                    ${hasResult ? "" : "mt-[calc(50dvh-155px)]"}
+                `}>
+                    <div className={`
+                        transition-all duration-1000 ease-in-out text-center overflow-hidden
+                        ${hasResult
+                            ? "opacity-0 max-h-0 mb-0 pointer-events-none"
+                            : "opacity-100 max-h-40 mb-4"
+                        }
+                    `}>
+                        <h1 className="text-3xl font-bold">{tituloBusqueda}</h1>
+                        <p className="mt-3 text-muted">{descripcion}</p>
+                    </div>
 
-                {!hasResult && <div className={`text-center transition-all duration-700 ${hasResult ? "mb-6" : "mb-4"}`}>
-                    <h1 className="text-3xl font-bold">
-                        {tituloBusqueda}
-                    </h1>
+                    <div className={`w-full max-w-md ${hasResult ? "mt-6" : ""}`}>
+                        {buscador}
+                    </div>
 
-                    <p className="mt-3 text-muted">
-                        {descripcion}
-                    </p>
+                    {mensajeDeNoEncontrado && (
+                        <Alert variant="danger" className="mt-2">
+                            {mensajeDeNoEncontrado}
+                        </Alert>
+                    )}
 
-                </div>}
-
-                <div className={`w-full max-w-md transition-all duration-700`}>
-                    {buscador}
+                    {hasResult && (
+                        <h1 className="mt-4 w-full text-left">{tituloResultado}</h1>
+                    )}
                 </div>
 
-                {mensajeDeNoEncontrado && (
-                    <Alert variant="danger" className="mt-2">
-                        {mensajeDeNoEncontrado}
-                    </Alert>
-                )}
-
-                {hasResult && <h1 className="mt-4 w-full text-left">{tituloResultado}</h1>}
-
+                {/* componente de informacion despues de la busqueda */}
                 <div className={`
-                    w-full mt-8 transition-all duration-700 ease-in-out
-                    ${hasResult ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none h-0 overflow-hidden"}
+                    transition-all duration-1000 ease-in-out
+                    ${hasResult
+                        ? "opacity-100 translate-y-0 mt-2"
+                        : "opacity-0 translate-y-12 pointer-events-none h-0 overflow-hidden"
+                    }
                 `}>
                     {children}
                 </div>
-
 
             </div>
         </div>

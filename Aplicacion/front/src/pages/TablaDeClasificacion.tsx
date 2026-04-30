@@ -6,7 +6,9 @@ import { useState, useEffect } from "react";
 import { socket } from "../services/socket.ts";
 import { EventType } from "shared";
 import { useQueryState } from "../hooks/useQueryState.tsx";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import "./TablaDeClasificaion.css";
+import { Badge } from "react-bootstrap";
 
 type datoUsuario = {
     nombre: string,
@@ -55,6 +57,14 @@ export default function TablaDeClasificacion() {
     const setPorNivel = (val: boolean) => {
         setPorNivelStr(String(val));
     };
+
+    // NIVEL
+    const [nivel, setNivel] = useState<string>("");
+    useEffect(() => {
+        fetch(`/api/usuarios/${usuario}/nivel`)
+            .then(response => response.json())
+            .then(data => setNivel(data));
+    }, [usuario]);
 
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -196,7 +206,11 @@ export default function TablaDeClasificacion() {
                     type="switch"
                     id="toggle-check"
                     dir="rtl"
-                    label="Filtrar por nivel"
+                    label={
+                        <span>
+                            Filtrar por nivel <Badge bg="secondary">{nivel}</Badge>
+                        </span>
+                    }
                     checked={porNivel}
                     onChange={(e) => {
                         // cuando se cambia el filtrado por nivel se actualizan las queries de la url y sus correspondiente valores en 
@@ -229,14 +243,22 @@ export default function TablaDeClasificacion() {
                             {infoUsuario &&
                                 <tr key={1} className="table-dark">
                                     <td>{infoUsuario.pos}</td>
-                                    <td>{infoUsuario.nombre}</td>
+                                    <td>
+                                        <Link to={`/usuarios/estadisticas/${infoUsuario.nombre}`} className="usuario-link">
+                                            {infoUsuario.nombre}
+                                        </Link>
+                                    </td>
                                     <td>{infoUsuario.nivel}</td>
                                     <td>{infoUsuario.xp}</td>
                                 </tr>}
                             {users.map((u: datoUsuario, index) => (
                                 <tr key={u.nombre} className={u.nombre === usuario ? "table-dark" : ""}>
                                     <td>{u.pos}</td>
-                                    <td>{u.nombre}</td>
+                                    <td>
+                                        <Link to={`/usuarios/estadisticas/${u.nombre}`} className="usuario-link">
+                                            {u.nombre}
+                                        </Link>
+                                    </td>
                                     <td>{u.nivel}</td>
                                     <td>{u.xp}</td>
                                 </tr>
