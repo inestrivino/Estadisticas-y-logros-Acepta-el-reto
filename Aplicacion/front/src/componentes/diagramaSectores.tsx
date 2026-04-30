@@ -120,7 +120,7 @@ export default function DiagramaSectores(props: {
 
     //se renderiza el diagrama con los datos y colores asignados
     return (
-        <div className="@container w-full" style={{
+        <div className="@container w-full min-h-0 overflow-hidden" style={{
             display: "flex",
             flex: 1,
             flexDirection: "column",
@@ -132,7 +132,7 @@ export default function DiagramaSectores(props: {
             borderRadius: "10px",
             boxShadow: "0 0 10px #43555c66",
         }}>
-            <div className="flex-1 aspect-[1/1] min-h-[60cqw] max-h-[60cqw]">
+            <div className="flex-1 min-h-0 max-h-[60cqw] w-full">
                 {/*Dentro de un ResponsiveContainer para evitar un bug que hay con el tooltip si no se pone*/}
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>

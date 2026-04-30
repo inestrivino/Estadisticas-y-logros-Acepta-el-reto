@@ -32,12 +32,18 @@ export default function EstadisticasUsuario() {
             hasResult={!!usuario}
             tituloBusqueda="Estadísticas de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus estadísticas"
-            tituloResultado={
-                <>
-                    Estadisticas usuario <b>{usuario}</b> <Badge bg="secondary">{nivel}</Badge>
-                </>
+            tituloResultado={null}
+            buscador={
+                <Buscador
+                    tipo="usuario_estadistica"
+                    ruta={`/usuarios/estadisticas/${usuario}`}
+                    valorInicial={usuario}
+                    prefijo={usuario
+                        ? <>Estadísticas de <b className="ms-1">{usuario}</b>{nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}</>
+                        : undefined
+                    }
+                />
             }
-            buscador={<Buscador tipo="usuario_estadistica" ruta={`/usuarios/estadisticas/${usuario}`} />}
             children={usuario && <EstadisticasUsuarioComp key={usuario} usuario={usuario} />}
         />
     )

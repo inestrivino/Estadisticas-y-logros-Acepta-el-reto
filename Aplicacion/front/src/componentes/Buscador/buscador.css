@@ -5,20 +5,34 @@
 
 .buscador-app-group {
     width: 100%;
-    max-width: 600px;
-    border-radius: 50px;
+    max-width: 700px;
+    border-radius: 0;
     overflow: hidden;
-    background: white;
-    border: 1px solid black;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #446e9b;
+}
+
+.buscador-app-prefijo {
+    background: transparent;
+    border: none;
+    padding: 14px 18px;
+    font-size: 35px;
+    color: #446e9b;
+    font-weight: 600;
+    border-radius: 0 !important;
+    white-space: nowrap;
 }
 
 .buscador-app-input {
     border: none !important;
     box-shadow: none !important;
-    padding: 12px 18px;
-    font-size: 16px;
-    border-radius: 50px 0 0 50px !important;
-    color: black;
+    padding: 14px 18px;
+    font-size: 35px;
+    border-radius: 0 !important;
+    color: #446e9b !important;
+    font-weight: 600;
+    background: transparent !important;
 }
 
 .buscador-app-input:focus {
@@ -27,23 +41,23 @@
 }
 
 .buscador-app-input::placeholder {
-    color: black;
+    color: #446e9b;
     opacity: 0.75;
 }
 
 .buscador-app-button {
-    background-color: white !important;
+    background-color: transparent !important;
     border: none !important;
-    color: black;
+    color: #000000;
     padding: 0 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0 50px 50px 0 !important;
+    border-radius: 0 !important;
     cursor: pointer;
 }
 
 .buscador-app-button:hover {
     background-color: #f2f2f2 !important;
-    color: #446E9B;
+    color: #000000;
 }

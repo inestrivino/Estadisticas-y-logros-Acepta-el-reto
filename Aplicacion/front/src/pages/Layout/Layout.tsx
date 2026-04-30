@@ -5,9 +5,9 @@ import "./Layout.css";
 
 export default function Layout() {
     return(
-        <div className="d-flex">
+        <div className="d-flex h-full">
             <Sidebar />
-            <div className="contenido" style={{width: "100%"}}>
+            <div className="contenido h-full overflow-auto" style={{width: "100%", boxSizing: "border-box"}}>
                 <Outlet />
             </div>
         </div>
