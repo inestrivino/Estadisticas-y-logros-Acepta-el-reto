@@ -94,9 +94,14 @@ class UsuarioDAO extends DAO {
     public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [usuario, estado] of estadosUsuarios) {
-            pipeline.sAdd(`usuarios`, usuario);
-            
+        for (const [usuarioAux, estado] of estadosUsuarios) {
+            const usuario = String(usuarioAux).toLowerCase().normalize("NFC").trim();
+
+            pipeline.zAdd(`usuarios`, {
+                score: 0,
+                value: String(usuario).toLowerCase()
+            });
+
             pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
             pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
             pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));
@@ -386,8 +391,13 @@ class UsuarioDAO extends DAO {
     }
 
     async existeUsuario(usuario: string): Promise<boolean> {
-        const existe = await this.redis.sIsMember("usuarios", usuario);
-        return existe === 1;
+        const score = await this.redis.zScore("usuarios", usuario);
+        return score !== null;
+    }
+
+    async getUsuariosSugeridos(patron: string): Promise<string[]> {
+        const usuarios = await this.redis.zRangeByLex(`usuarios`, `[${patron}`, `[${patron}\xff`, { LIMIT: { offset: 0, count: 5 } });
+        return usuarios;
     }
 }
 

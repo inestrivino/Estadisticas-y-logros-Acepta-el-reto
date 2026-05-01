@@ -3,7 +3,7 @@ import { EnvioProcesado } from '../types/envioProcesado.js';
 import { EstadoProblema } from '../types/estadoProblema.js';
 
 class ProblemaService {
-   
+
     /**
      * Persiste el estado final de un bloque de problemas en Redis.
      * @param estadosProblemas - Mapa de identificador de problema a su estado final.
@@ -17,7 +17,13 @@ class ProblemaService {
      * @param problema - Identificador del problema.
      */
     public async existeProblema(problema: string): Promise<boolean> {
-        return await problemaDAO.existeProblema(problema);
+        const p = problema.toLowerCase().normalize("NFC").trim();
+        return await problemaDAO.existeProblema(p);
+    }
+
+    public async getProblemasSugeridos(patron: string): Promise<string[]> {
+        const p = patron.toLowerCase().normalize("NFC").trim();
+        return problemaDAO.getProblemasSugeridos(p);
     }
 
     /**
@@ -84,7 +90,7 @@ class ProblemaService {
      */
     public async getTiemposOrdenados(problema: string) {
         return await problemaDAO.getTiemposOrdenados(problema);
-    }   
+    }
 }
 
 export default new ProblemaService();

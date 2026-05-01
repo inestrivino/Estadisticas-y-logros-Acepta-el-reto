@@ -119,7 +119,13 @@ class UsuarioService {
      * @param usuario - Identificador del usuario.
      */
     public async existeUsuario(usuario: string): Promise<boolean> {
-        return await usuarioDAO.existeUsuario(usuario);
+        const u = usuario.toLowerCase().normalize("NFC").trim();
+        return await usuarioDAO.existeUsuario(u);
+    }
+
+    public async getUsuariosSugeridos(patron: string): Promise<string[]> {
+        const p = patron.toLowerCase().normalize("NFC").trim();
+        return usuarioDAO.getUsuariosSugeridos(p);
     }
 }
 

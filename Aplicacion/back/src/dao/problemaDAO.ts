@@ -13,9 +13,14 @@ class ProblemaDAO extends DAO {
     public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [problema, estado] of estadosProblemas) {
-            pipeline.sAdd(`problemas`, problema);
+        for (const [problemaAux, estado] of estadosProblemas) {
+            const problema = String(problemaAux).toLowerCase().normalize("NFC").trim();
             
+            pipeline.zAdd(`problemas`, {
+                score: 0,
+                value: problema
+            });
+
             pipeline.set(`problema:${problema}:envios`, String(estado.envios));
             pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
             pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
@@ -38,8 +43,13 @@ class ProblemaDAO extends DAO {
     }
 
     async existeProblema(problema: string): Promise<boolean> {
-        const existe = await this.redis.sIsMember("problemas", problema);
-        return existe === 1;
+        const score = await this.redis.zScore(`problemas`, problema);
+        return score !== null;
+    }
+
+    async getProblemasSugeridos(patron: string): Promise<string[]> {
+        const problemas = await this.redis.zRangeByLex(`problemas`, `[${patron}`, `[${patron}\xff`, { LIMIT: { offset: 0, count: 5 } });
+        return problemas;
     }
 
     /**

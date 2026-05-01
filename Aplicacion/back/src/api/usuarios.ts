@@ -54,4 +54,14 @@ router.get("/:usuario", async (req, res) => {
     return res.json({ existe });
 })
 
+router.get("/", async (req, res) => {
+    const { patron } = req.query;
+    if (patron) {
+        const sugerencias = await usuarioService.getUsuariosSugeridos(String(patron));
+        return res.json(sugerencias);
+    } else {
+        return res.json({});
+    }
+})
+
 export default router;
