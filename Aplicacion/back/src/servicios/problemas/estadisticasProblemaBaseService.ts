@@ -1,6 +1,5 @@
-import problemaDAO from '../dao/problemaDAO.js';
-import { EnvioProcesado } from '../types/envioProcesado.js';
-import { EstadoProblema } from '../types/estadoProblema.js';
+import problemaDAO from '../../dao/problemaDAO.js';
+import { EstadoProblema } from '../../types/estadoProblema.js';
 
 class ProblemaService {
    

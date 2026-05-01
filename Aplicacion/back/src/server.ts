@@ -12,6 +12,7 @@ import initConsumer from "./consumer/cosumer.js";
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
 import rutasGestion from "./api/gestion.js";
+import usuarioService from './servicios/usuarios/estadisticasUsuarioBaseService.js';
 
 //============== CONFIGURACION ==============
 const app = express();
@@ -33,6 +34,12 @@ app.listen(3000, (error) => {
 //se conecta a la base de datos
 await redisClient.connect();
 await redisLoading();
+
+//se comprueba si se tiene que volver a procesar los envios
+process.env.dbVersion
+
+//se eliminan los envios anteriores a un año
+await usuarioService.eliminarEnviosAntiguos(); 
 
 //incializo el socket
 initSocket(app);

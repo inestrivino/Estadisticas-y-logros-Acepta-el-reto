@@ -5,91 +5,10 @@ import { EstadoUsuario } from "../types/estadoUsuario.js";
 
 class UsuarioDAO extends DAO {
 
-    //TODO metodo que en vez de iterar de nuevo por los envios mete el estado de un usuario
-
-    /**
-     * Registra en Redis un bloque de envios de usuario usando un pipeline para minimizar llamadas.
-     * @param envios - Array de envios procesados a registrar.
-     */
-    /*
-    public async registrarBloqueEnvios(envios: datosUsuario[]): Promise<void> {
-
-        const pipeline = this.redis.multi();
-
-        for (const envio of envios) {
-
-            //se mete el dia del envio en un sorted set para luego sacar los envios por dia
-            pipeline.zAdd(
-                `usuario:${envio.usuario}:dias`,
-                [{ value: String(envio.fecha), score: envio.fecha }]
-            );
-            //y la cantidad de envios de ese dia en un hash
-            pipeline.hIncrBy(
-                `usuario:${envio.usuario}:diasValor`,
-                String(envio.fecha),
-                1
-            );
-            //mete el usuario en ese timestamp (para no iterar por los usuarios al borrar)
-            pipeline.sAdd(
-                `timestamp:${envio.fecha}`,
-                envio.usuario
-            );
-
-            //se suma 1 al resultado del envio y al lenguaje usado, y se incrementa el numero total de envios
-            pipeline.hIncrBy(`usuario:${envio.usuario}:resultados`, envio.resultado, 1);
-            pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajes`, envio.lenguaje, 1);
-            pipeline.incr(`usuario:${envio.usuario}:envios`);
-
-            //se mete la hora del envio en un set de horas en las que se han hecho envios
-            pipeline.sAdd(`usuario:${envio.usuario}:horas`, String(envio.hora));
-
-            //se actualiza el timestamp del ultimo envio del usuario
-            pipeline.set(`usuario:${envio.usuario}:fechaUltimoEnvio`, String(envio.fecha));
-
-            //si el resultado es cierto
-            if (envio.resultado === "AC") {
-
-                //mete el problema resuelto en un set de problemas resueltos del usuario
-                pipeline.sAdd(`usuario:${envio.usuario}:problemasAC`, envio.problema);
-
-                //mete el problema resuelto al listado del lenguaje con el que se ha resuelto
-                pipeline.sAdd(`usuario:${envio.usuario}:lenguaje:${envio.lenguaje}`, envio.problema);
-
-                //mete la categoria del problema resuelto en un set de categorias de problemas resueltos
-                pipeline.hIncrBy(`usuario:${envio.usuario}:lenguajesAC`, envio.lenguaje, 1);
-            }
-
-            if (tiempoEntreEnvios === 86400) { //un dia
-                pipeline.incr(`usuario:${envio.usuario}:rachaDiasEnvio`);
-                rachaDiasEnvio += 1;
-            } else if (tiempoEntreEnvios !== 86400) {
-                pipeline.set(`usuario:${envio.usuario}:rachaDiasEnvio`, 1);
-                rachaDiasEnvio = 1;
-            }
-            const rachaDiasEnvioMaxStr = await this.redis.get(`usuario:${envio.usuario}:rachaDiasEnvioMax`);
-            const rachaDiasEnvioMax = rachaDiasEnvioMaxStr ? Number(rachaDiasEnvioMaxStr) : 0;
-            if (rachaDiasEnvio > rachaDiasEnvioMax)
-                pipeline.set(`usuario:${envio.usuario}:rachaDiasEnvioMax`, String(rachaDiasEnvio));
-
-            if (envio.resultado === "AC" && !(await this.tieneProblemaEnvioIncorrecto(envio.usuario, envio.problema))) {
-                pipeline.incr(`usuario:${envio.usuario}:rachaEnviosAC`);
-                const rachaEnviosACStr = await this.redis.get(`usuario:${envio.usuario}:rachaEnviosAC`);
-                const rachaEnviosAC = (rachaEnviosACStr ? Number(rachaEnviosACStr) : 0) + 1;
-                const rachaEnviosACMaxStr = await this.redis.get(`usuario:${envio.usuario}:rachaEnviosACMax`);
-                const rachaEnviosACMax = rachaEnviosACMaxStr ? Number(rachaEnviosACMaxStr) : 0;
-                if (rachaEnviosAC > rachaEnviosACMax)
-                    pipeline.set(`usuario:${envio.usuario}:rachaEnviosACMax`, String(rachaEnviosAC));
-            } else {
-                pipeline.set(`usuario:${envio.usuario}:rachaEnviosAC`, "0");
-            }
-        }
-        await pipeline.exec();
-    }
-    */
-
     /**
      * Persiste en Redis el estado completo de cada usuario del mapa usando un pipeline.
-     * Sobreescribe todos los campos calculados durante el procesamiento del bloque.
+     * Sobreescribe todos los campos calculados durante el procesamiento del bloque
+     * porque de antes ya habia cargado los datos que habia previamente.
      * @param estadosUsuarios - Mapa de identificador de usuario a su estado final.
      */
     public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
@@ -132,11 +51,107 @@ class UsuarioDAO extends DAO {
             for (const [timestamp, cantidad] of estado.diasValor) {
                 pipeline.hSet(`usuario:${usuario}:diasValor`, String(timestamp), String(cantidad));
                 pipeline.zAdd(`usuario:${usuario}:dias`, [{ score: timestamp, value: String(timestamp) }]);
-                pipeline.sAdd(`timestamp:${timestamp}`, usuario);
+                pipeline.sAdd(`timestamp:${timestamp}`, String(usuario));
+                pipeline.zAdd(`timestamps`, [{ score: timestamp, value: String(timestamp) }]);
             }
         }
 
         await pipeline.exec();
+    }
+
+    /**
+     * Devuelve los envios dentro de un periodo de tiempo.
+     * @param usuario - usuario del que se quiero hacer la consulta.
+     * @param timeIni - timestamp en segundos de la hora 00:00 del primero dia del intervalo.
+     * @param timeFin - timestamp en segundos de la hora 00:00 del ultimo dia del intervalo.                 
+     * @returns - un array con tantos elementos {timestamp:number, value:number} como dias en el intervalo.
+     */
+    public async getEnviosUsuario(usuario: string, timeIni: number, timeFin: number) {
+
+        //saco los dias (timeStamps) en los que hizo envios y la cantidad (valores)
+        const timeStamps = await this.redis.zRangeWithScores(`usuario:${usuario}:dias`, 0, -1);
+        const valores = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
+
+        //vinculo cada dia con su cantidad
+        let resultados = []
+        for (const timeStamp of timeStamps) {
+            //por si se han quedado datos viejos por algun error solo coge los nuevos
+            if (timeStamp.score < timeIni)
+                continue;
+            //por si en algun momento se quisiera pedir un intervalo que no llega hasta hoy
+            if (timeStamp.score > timeFin)
+                continue;
+
+            resultados.push({
+                timeStamp: timeStamp.score,
+                value: Number(valores[timeStamp.value])
+            });
+        }
+
+        //formateo los datos
+        let formateados = [];
+        let contador = 0;
+        let current = -1;
+        if (resultados.length > 0)
+            current = resultados[0].timeStamp;
+        for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
+            if (i != current) {
+                formateados.push({ timeStamp: i, value: 0 });
+            }
+            else {
+                formateados.push({ timeStamp: i, value: resultados[contador].value });
+                contador++;
+                if (contador != resultados.length)
+                    current = resultados[contador].timeStamp;
+            }
+        }
+
+        return formateados;
+    }
+
+    /**
+     * Elimina de Redis todos los registros de envios del dia indicado y anteriores.
+     * @param timeStamp - Timestamp en segundos del dia mas reciente a eliminar.
+     */
+    public async eliminarEnviosAnterioresDia(timeStamp: number) {
+
+        //se sacan todos lo dias registrados hasta el dia indicado
+        const timestamps = (await this.redis.zRange(`timestamps`, '-inf', timeStamp, { BY: 'SCORE' })).map(Number);
+
+        const pipeline = this.redis.multi();
+        
+        //se itera por los timestamps y se eliminan los datos del usuario y las datos auxiliares
+        for (const ts of timestamps) {
+            await this.eliminarEnviosDia(ts, pipeline);
+            pipeline.del(`timestamp:${ts}`);
+            pipeline.zRem(`timestamps`, String(ts));
+        }
+
+        await pipeline.exec();
+    }
+
+    private async eliminarEnviosDia(timeStamp: number, pipeline: ReturnType<typeof this.redis.multi>) {
+
+        //se sacan los usuarios que hicieron envios en ese dia
+        const usuarios:string[] = await this.redis.sMembers(`timestamp:${timeStamp}`);
+
+        for (const usuario of usuarios) {
+            pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
+            pipeline.hDel(`usuario:${usuario}:diasValor`, String(timeStamp));
+        }
+
+        console.log(` - Eliminados envios del dia ${timeStamp}`);
+    }
+
+    /**
+     * Devuelve el numero total de envios del usuario, o 0 si no tiene ninguno.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de envios.
+     */
+    public async getNumEnvios(usuario: string): Promise<number> {
+        const enviosStr = await this.redis.get(`usuario:${usuario}:envios`);
+        const envios = enviosStr ? Number(enviosStr) : 0;
+        return envios;
     }
 
     /**
@@ -172,58 +187,7 @@ class UsuarioDAO extends DAO {
 
         return formateados;
     }
-
-    /**
-     * Devuelve los envios dentro de un periodo de tiempo
-     * @param usuario - usuario del que se quiero hacer la consulta
-     * @param timeIni - timestamp en segundos de la hora 00:00 del primero dia del intervalo
-     * @param timeFin - timestamp en segundos de la hora 00:00 del ultimo dia del intervalo                 
-     * @returns - un array con tantos elementos {timestamp:number, value:number} como dias en el intervalo
-     */
-    public async getEnviosUsuario(usuario: string, timeIni: number, timeFin: number) {
-
-        //saco los dias (timeStamps) en los que hizo envios y la cantidad (valores)
-        const timeStamps = await this.redis.zRangeWithScores(`usuario:${usuario}:dias`, 0, -1);
-        const valores = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
-
-        //vinculo cada dia con su cantidad
-        let resultados = []
-        for (const timeStamp of timeStamps) {
-            //por si se han quedado datos viejos por algun error solo coge los nuevos
-            if (timeStamp.score < timeIni)
-                continue;
-            //por si en algun momento se quisiera pedir un intervalo que no llega hasta hoy
-            if (timeStamp.score > timeFin)
-                continue;
-
-
-            resultados.push({
-                timeStamp: timeStamp.score,
-                value: Number(valores[timeStamp.value])
-            });
-        }
-
-        //formateo los datos
-        let formateados = [];
-        let contador = 0;
-        let current = -1;
-        if (resultados.length > 0)
-            current = resultados[0].timeStamp;
-        for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
-            if (i != current) {
-                formateados.push({ timeStamp: i, value: 0 });
-            }
-            else {
-                formateados.push({ timeStamp: i, value: resultados[contador].value });
-                contador++;
-                if (contador != resultados.length)
-                    current = resultados[contador].timeStamp;
-            }
-        }
-
-        return formateados;
-    }
-
+    
     /**
      * devuelve el timestamp en segundos del ultimo envio realizado por el usuario,
      * o 0 si el usuario no tiene envios registrados
@@ -233,41 +197,6 @@ class UsuarioDAO extends DAO {
     public async getUltimoEnvioUsuario(usuario: string): Promise<number> {
         const fechaStr = await this.redis.get(`usuario:${usuario}:fechaUltimoEnvio`);
         return fechaStr ? Number(fechaStr) : 0;
-    }
-
-    /**
-     * Elimina de Redis todos los registros de envios del dia indicado.
-     * @param timeStamp - Timestamp en segundos correspondiente al dia a eliminar.
-     */
-    public async eliminarEnviosDia(timeStamp: number) {
-
-        const usuarios = await this.redis.sMembers(`timestamp:${timeStamp}`);
-
-        //juntas las operaciones para hacer solo una llamada
-        const pipeline = this.redis.multi();
-
-        //se quitan los envios de todos los usuario que hicieron un envio ese dia
-        for (const usuario of usuarios) {
-            pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
-            //TODO quitar tambien de diasValor
-            //pipeline.hDel(`usuario:${usuario}:diasValor`, String(timeStamp));
-        }
-
-        await pipeline.exec();
-
-        //se borra el set con los usuario de ese dia
-        await this.redis.del(`timestamp:${timeStamp}`);
-    }
-
-    /**
-     * Devuelve el numero total de envios del usuario, o 0 si no tiene ninguno.
-     * @param usuario - Identificador del usuario.
-     * @returns Numero de envios.
-     */
-    public async getNumEnvios(usuario: string): Promise<number> {
-        const enviosStr = await this.redis.get(`usuario:${usuario}:envios`);
-        const envios = enviosStr ? Number(enviosStr) : 0;
-        return envios;
     }
 
     /**
@@ -383,6 +312,22 @@ class UsuarioDAO extends DAO {
     public async getDiasValor(usuario: string): Promise<{ timestamp: number, value: number }[]> {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
         return Object.entries(datos).map(([timestamp, value]) => ({ timestamp: Number(timestamp), value: Number(value) }));
+    }
+
+    /**
+     * Elimina de Redis todas las claves gestionadas por este DAO.
+     */
+    public async borrarTodo(): Promise<void> {
+        const pipeline = this.redis.multi();
+
+        for await (const keys of this.redis.scanIterator({ MATCH: 'usuario:*', COUNT: 100 }))
+            if (keys.length > 0) pipeline.del(keys);
+
+        for await (const keys of this.redis.scanIterator({ MATCH: 'timestamp:*', COUNT: 100 }))
+            if (keys.length > 0) pipeline.del(keys);
+
+        pipeline.del('timestamps');
+        await pipeline.exec();
     }
 }
 

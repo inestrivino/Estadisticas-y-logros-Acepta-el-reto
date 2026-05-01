@@ -139,6 +139,18 @@ class ProblemaDAO extends DAO {
         const tiempoTotal = await this.redis.get(`problema:${problema}:tiempoTotal`);
         return tiempoTotal ? Number(tiempoTotal) : 0;
     }
+
+    /**
+     * Elimina de Redis todas las claves gestionadas por este DAO.
+     */
+    public async borrarTodo(): Promise<void> {
+        const pipeline = this.redis.multi();
+
+        for await (const keys of this.redis.scanIterator({ MATCH: 'problema:*', COUNT: 100 }))
+            if (keys.length > 0) pipeline.del(keys);
+
+        await pipeline.exec();
+    }
 }
 
 export default new ProblemaDAO();

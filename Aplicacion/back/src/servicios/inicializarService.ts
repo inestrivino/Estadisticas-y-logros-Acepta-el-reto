@@ -1,6 +1,7 @@
 import procesarEnviosService from './procesarEnviosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
 import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
+import gestionService from './gestionService.js';
 
 class InicializarService {
 
@@ -18,12 +19,33 @@ class InicializarService {
      */
     public async inicializar() {
 
-        //saca el ultimo envio que se metio en la base de datos
-        let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
-        let referenciaPagina: number = -1;
+        //se mira si ha cambiado alguna version de los servicios de procesar
+        //si ha cambiado se resetea el progreso de carga para volver a cargar desde el principio
+        const versionProcesarEnviosService = process.env.major_procesarEnviosService!;
 
-        //TODO quitar esto
-        //gestionDAO.flushAll();
+        
+        gestionDAO.flushAll();
+
+        //se busca el primer envio a procesar y la pagina donde esta
+        const { envio: firstEnvio, pagina: firstPagina } = await this.buscarPrimerEnvio();
+
+        //se comienza a hacer las peticones para traer los bloques de envios
+        for await (const bloque of this.bloques(firstPagina, firstEnvio)) {
+
+            await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
+
+        }
+    }
+
+    /**
+     * Localiza el primer envio a procesar y la pagina de la API donde se encuentra.
+     * Si no hay envios previos arranca desde el principio, si los hay retoma desde el siguiente al ultimo procesado.
+     * @returns Objeto con el numero de envio y la pagina de referencia donde buscarlo.
+     */
+    private async buscarPrimerEnvio(): Promise<{ envio: number, pagina: number }> {
+        //saca el ultimo envio que se metio en la base de datos
+        let ultimoEnvio: number = await gestionService.getUltimoEnvio();
+        let referenciaPagina: number = -1;
 
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {
@@ -55,12 +77,7 @@ class InicializarService {
         if (ultimoEnvio === 1)
             await gestionDAO.setPrimeraPagina(firstPagina);
 
-        //se comienza a hacer las peticones para traer los bloques de envios
-        for await (const bloque of this.bloques(firstPagina, ultimoEnvio)) {
-
-            await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
-
-        }
+        return { envio: ultimoEnvio, pagina: firstPagina };
     }
 
     /**

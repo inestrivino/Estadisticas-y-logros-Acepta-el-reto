@@ -2,7 +2,6 @@ import { describe, test, expect } from 'vitest';
 import usuarioDAO from '../../src/dao/usuarioDAO.js';
 import { EstadoUsuario } from '../../src/types/estadoUsuario.js';
 import setUpTestFile from './setUptTest.ts';
-import dateToTimestamp from '../../src/utils/fecha.ts';
 
 setUpTestFile(usuarioDAO);
 
@@ -13,7 +12,7 @@ const dato = {
     categoria: "",
     resultado: "AC",
     lenguaje: "Cpp",
-    fecha: dateToTimestamp({ dia: 17, mes: 2, anio: 2025 }),
+    fecha: 1742169600,
     hora: 10
 };
 
@@ -25,7 +24,7 @@ describe("Registrar datos de usuario", () => {
         const diasValor = new Map<number, number>();
 
         for (let i = 0; i < 53; i++) {
-            const timestamp = dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() });
+            const timestamp = new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())).valueOf() / 1000;
             diasValor.set(timestamp, (diasValor.get(timestamp) ?? 0) + 1);
             fecha.setDate(fecha.getDate() + 7);
         }
@@ -44,15 +43,15 @@ describe("Registrar datos de usuario", () => {
             rachaEnviosACMax: 53,
             rachaDiasEnvio: 0,
             rachaDiasEnvioMax: 0,
-            ultimoDiaEnvio: dateToTimestamp({ dia: fecha.getDate(), mes: fecha.getMonth(), anio: fecha.getFullYear() }),
+            ultimoDiaEnvio: new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())).valueOf() / 1000,
             horas: new Set([0]),
             logros: new Set(),
         };
 
         await usuarioDAO.registrarEstadosUsuarios(new Map([["user1", estado]]));
 
-        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
-        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
+        const timeIni = 1742169600;
+        const timeFin = 1773619200;
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
@@ -79,8 +78,8 @@ describe("Registrar datos de usuario", () => {
 
     test("coge bien los dias un anio bisiesto", async () => {
 
-        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2024});
-        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2025});
+        const timeIni = 1710633600;
+        const timeFin = 1742083200;
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60
@@ -128,8 +127,8 @@ describe("Lecturas vacias", () => {
             logros: new Set(),
         }]]));
 
-        const timeIni = dateToTimestamp({dia: 17, mes: 2, anio: 2025});
-        const timeFin = dateToTimestamp({dia: 16, mes: 2, anio: 2026});
+        const timeIni = 1742169600;
+        const timeFin = 1773619200;
 
         let res: {}[] = [];
         for (let i = timeIni; i <= timeFin; i += 86400) { // 86400 = 24 * 60 * 60

@@ -5,7 +5,7 @@ import { EstadoUsuario } from "../types/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
-import usuarioService from "./usuarioService.js";
+import usuarioService from "./usuarios/estadisticasUsuarioBaseService.js";
 
 class XPService {
 

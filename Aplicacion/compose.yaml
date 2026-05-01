@@ -30,6 +30,7 @@ services:
       - REDIS_URL=redis://redis:6379
     env_file:
       - ./.env.back
+      - ./.env.versiones
     depends_on:
       - redis
       - rabbitmq
