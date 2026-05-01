@@ -45,12 +45,23 @@ export default function LogrosUsuario() {
             mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
             tituloBusqueda="Logros de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus logros alcanzados"
-            tituloResultado={
-                <h1>
-                    Logros usuario <b>{usuario}</b> <Badge bg="secondary">{nivel}</Badge>
-                </h1>
+            buscador={
+                <Buscador
+                    tipo="usuario_logro"
+                    ruta={`/usuarios/logros/${usuario}`}
+                    valorInicial={usuario}
+                    prefijo={usuario
+                        ? <>
+                            <span className="text-truncate">
+                                Logros de <b className="ms-1">{usuario}</b>
+                            </span>
+                            {nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}
+
+                        </>
+                        : undefined
+                    }
+                />
             }
-            buscador={<Buscador tipo="usuario_logro" ruta={`/usuarios/logros/${usuario}`} />}
             children={usuario && <LogrosUsuarioComp key={usuario} usuario={usuario} />}
         />
     )

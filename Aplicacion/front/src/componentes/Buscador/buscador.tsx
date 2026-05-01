@@ -26,6 +26,7 @@ export default function Buscador(props: {
 
     const [sugerencias, setSugerencias] = useState<string[]>([]);
     const [sugerenciaActiva, setSugerenciaActiva] = useState(-1);
+    const sugerenciasRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (!elem.trim()) {
             setSugerencias([]);
@@ -40,6 +41,24 @@ export default function Buscador(props: {
                     setSugerencias(data);
             });
     }, [elem]);
+
+    useEffect(() => {
+        const handleClickFueraDeSugerencias = (event: MouseEvent) => {
+            if (
+                sugerenciasRef.current &&
+                !sugerenciasRef.current.contains(event.target as Node)
+            ) {
+                setSugerencias([]);
+                setSugerenciaActiva(-1);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickFueraDeSugerencias);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickFueraDeSugerencias);
+        };
+    }, []);
 
     const buscar = (valor: string) => {
         setSugerencias([]);
@@ -87,7 +106,7 @@ export default function Buscador(props: {
         if (props.prefijo) setEditando(false);
     }
 
-    const handleSearch = (e?: any, valorOverride?: string) => {
+    const handleBusqueda = (e?: any, valorOverride?: string) => {
         e?.preventDefault();
         const valor = valorOverride ?? elem;
         buscar(valor);
@@ -116,7 +135,7 @@ export default function Buscador(props: {
                 const seleccion = sugerencias[sugerenciaActiva];
                 setElem(seleccion);
                 setSugerencias([]);
-                handleSearch(undefined, seleccion);
+                handleBusqueda(undefined, seleccion);
             }
         }
     };
@@ -126,21 +145,47 @@ export default function Buscador(props: {
         setTimeout(() => inputRef.current?.focus(), 0);
     };
 
+    const grupoRef = useRef<HTMLDivElement>(null);
+    const [anchoTitulo, setAnchoTitulo] = useState<number | undefined>(undefined);
+    useEffect(() => { // guarda el ancho para que cuando busques tenga el mismo tamaño que cuando esta en modo titulo
+        if (props.prefijo && !editando && grupoRef.current) {
+            setAnchoTitulo(grupoRef.current.offsetWidth);
+        }
+    }, [editando, props.prefijo]);
+
+    const [anchoSugerencias, setAnchoSugerencias] = useState<number | undefined>(undefined);
+    useEffect(() => { // guarda el ancho del buscador para que el ancho del contenedor de sujerencias sea el mismo
+        if (grupoRef.current) {
+            setAnchoSugerencias(grupoRef.current.offsetWidth);
+        }
+    }, [editando, anchoTitulo]);  
+
     return (
-        <Form onSubmit={handleSearch} className="buscador-app">
-            <div className="buscador-wrapper">
-                <InputGroup className="buscador-app-group" onClick={!editando ? activarEdicion : undefined} style={{ cursor: !editando ? "text" : undefined }}>
+        <Form onSubmit={handleBusqueda} className="buscador-app">
+            <div className="buscador-wrapper" ref={sugerenciasRef} style={{ position: "relative", width: "100%" }}>
+                <InputGroup
+                    ref={grupoRef}
+                    className={`buscador-app-group flex-nowrap ${props.prefijo && !editando ? "modo-titulo" : ""}`}
+                    onClick={!editando ? activarEdicion : undefined}
+                    style={{
+                        cursor: !editando ? "text" : undefined,
+                        maxWidth: props.prefijo && editando && anchoTitulo ? `${anchoTitulo}px` : undefined
+                    }}
+                >
+
                     {props.prefijo && !editando ? (
-                        <InputGroup.Text className="buscador-app-prefijo" style={{ flex: 1, borderRadius: "50px 0 0 50px" }}>
+                        <InputGroup.Text
+                            className="buscador-app-prefijo d-flex align-items-center gap-2"
+                            style={{ flex: 1, minWidth: 0, borderRadius: "50px 0 0 50px"/*, fontSize: "clamp(1.5rem, 2vw, 10rem)" */ }}
+                        >
                             {props.prefijo}
                         </InputGroup.Text>
                     ) : (
                         <Form.Control
                             ref={inputRef}
-                            className="buscador-app-input"
+                            className="buscador-app-input flex-grow-1 min-w-0"
                             type="text"
-                            placeholder={editando ? "Buscar usuario..." : ""}
-                            //placeholder={`Buscar ${props.tipo === "problema_estadistica" ? "problema" : "usuario"}...`}
+                            placeholder={editando ? `Buscar ${props.tipo === "problema_estadistica" ? "problema" : "usuario"}...` : ""}
                             value={elem}
                             onChange={(e) => { setElem(e.target.value); setSugerenciaActiva(-1); }}
                             onKeyDown={handleKeyDown}
@@ -151,7 +196,7 @@ export default function Buscador(props: {
 
                     <Button
                         type="button"
-                        className="buscador-app-button"
+                        className="buscador-app-button flex-shrink-0"
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => editando ? buscar(elem) : activarEdicion()}
                     >
@@ -160,7 +205,7 @@ export default function Buscador(props: {
                 </InputGroup>
 
                 {sugerencias.length > 0 && (
-                    <ul className="buscador-sugerencias">
+                    <ul className="buscador-sugerencias" style={{ width: anchoSugerencias ? `${anchoSugerencias}px` : "100%" }}>
                         {sugerencias.map((s, i) => (
                             <li key={i}
                                 className={i === sugerenciaActiva ? "activa" : ""}
@@ -168,20 +213,20 @@ export default function Buscador(props: {
                                 onClick={() => {
                                     setElem(s);
                                     setSugerencias([]);
-                                    handleSearch(undefined, s);
+                                    handleBusqueda(undefined, s);
                                 }}>
                                 {s}
                             </li>
                         ))}
                     </ul>
                 )}
-
-                {mensajeError && (
-                    <div className="buscador-error">
-                        {mensajeError}
-                    </div>
-                )}
             </div>
+
+            {mensajeError && (
+                <div className="buscador-error">
+                    {mensajeError}
+                </div>
+            )}
         </Form>
     );
 }

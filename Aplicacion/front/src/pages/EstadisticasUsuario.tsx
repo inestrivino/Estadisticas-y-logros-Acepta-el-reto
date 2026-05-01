@@ -42,14 +42,19 @@ export default function EstadisticasUsuario() {
             mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
             tituloBusqueda="Estadísticas de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus estadísticas"
-            tituloResultado={null}
             buscador={
                 <Buscador
                     tipo="usuario_estadistica"
                     ruta={`/usuarios/estadisticas/${usuario}`}
                     valorInicial={usuario}
                     prefijo={usuario
-                        ? <>Estadísticas de <b className="ms-1">{usuario}</b>{nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}</>
+                        ? <>
+                            <span className="text-truncate">
+                                Estadísticas de <b className="ms-1">{usuario}</b>
+                            </span>
+                            {nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}
+
+                        </>
                         : undefined
                     }
                 />

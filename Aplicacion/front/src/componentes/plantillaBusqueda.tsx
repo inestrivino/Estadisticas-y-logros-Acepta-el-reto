@@ -5,7 +5,6 @@ type Props = {
     mensajeDeNoEncontrado: string;
     tituloBusqueda: string;
     descripcion: string;
-    tituloResultado?: React.ReactNode;
     buscador: React.ReactNode;
     children?: React.ReactNode;
 };
@@ -15,7 +14,6 @@ export default function PlantillaBusqueda({
     mensajeDeNoEncontrado,
     tituloBusqueda,
     descripcion,
-    tituloResultado,
     buscador,
     children
 }: Props) {
@@ -27,7 +25,7 @@ export default function PlantillaBusqueda({
                 <div className={`
                     flex flex-col items-center flex-shrink-0 w-full
                     transition-all duration-700 ease-in-out
-                    ${hasResult ? "mt-4" : "mt-[calc(50dvh-155px)]"}
+                    ${hasResult ? "mt-1" : "mt-[calc(50dvh-155px)]"}
                 `}>
 
                     {/* titulo y descripcion desaparecen si hay resultado */}
@@ -36,29 +34,21 @@ export default function PlantillaBusqueda({
                         transition-all duration-700 ease-in-out
                         ${hasResult
                             ? "opacity-0 max-h-0 mb-0 pointer-events-none"
-                            : "opacity-100 max-h-40 mb-4"}
+                            : "opacity-100 max-h-40"}
                     `}>
                         <h1 className="text-3xl font-bold">{tituloBusqueda}</h1>
                         <p className="mt-3 text-muted">{descripcion}</p>
                     </div>
 
-                    {/* buscador se coloca arriba o en el centro dependiento de si hay resultado o no */}
-                    <div className={`
-                        transition-all duration-700 ease-in-out flex items-center gap-4
-                        ${hasResult ? "w-full" : "w-full max-w-md"}
-                    `}>
-                        {hasResult && (
-                            <h1 className="text-2xl font-bold shrink-0" style={{ color: "#3a3a3a" }}>
-                                {tituloResultado}
-                            </h1>
-                        )}
-                        <div className="flex-1">
+                    {/* buscador */}
+                    <div className="w-full flex justify-center">
+                        <div className="w-full min-w-0 transition-all duration-700 ease-in-out">
                             {buscador}
                         </div>
                     </div>
 
                     {mensajeDeNoEncontrado && (
-                        <Alert variant="danger" className="mt-2 w-full">
+                        <Alert variant="danger" className="mt-2">
                             {mensajeDeNoEncontrado}
                         </Alert>
                     )}

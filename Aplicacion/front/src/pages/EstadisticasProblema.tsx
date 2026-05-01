@@ -32,12 +32,21 @@ export default function EstadisticasProblema() {
             mensajeDeNoEncontrado={!problemaExiste && problema !== "" ? `El problema "${problema}" no existe` : ""}
             tituloBusqueda="Estadísticas de problemas"
             descripcion="Aquí podrás buscar cualquier problema de ¡Acepta el reto! y observar sus estadísticas"
-            tituloResultado={
-                <>
-                    Estadisticas problema <b>{problema}</b>
-                </>
+            buscador={
+                <Buscador
+                    tipo="problema_estadistica"
+                    ruta={`/problemas/estadisticas/${problema}`}
+                    valorInicial={problema}
+                    prefijo={problema
+                        ? <>
+                            <span className="text-truncate">
+                                Estadísticas ejercicio <b className="ms-1">{problema}</b>
+                            </span>
+                        </>
+                        : undefined
+                    }
+                />
             }
-            buscador={<Buscador tipo="problema_estadistica" ruta={`/problemas/${problema}`} />}
             children={problema && <EstadisticasProblemaComp key={problema} problema={problema} />}
         />
     )
