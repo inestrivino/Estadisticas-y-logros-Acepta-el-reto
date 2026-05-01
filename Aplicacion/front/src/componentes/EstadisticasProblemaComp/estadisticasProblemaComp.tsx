@@ -55,44 +55,43 @@ export default function EstadisticasProblemaComp(props: {
     }, [problema]);
 
     return (
-        <>
-            {/* Contenedor principal */}
-            <div className="w-full mt-4">
+        <div className="w-full mt-4 pb-4 flex flex-col gap-6 lg:h-full">
 
-                {/* Fila de datos numéricos - responsive */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
+            {/* Fila de datos numéricos */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
 
-                    <div className="flex justify-center">
-                        <DatoNumerico
-                            loading={envios === null}
-                            evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
-                            dimensiones={{ width: 200, height: 100 }}
-                            dato={{ value: envios ?? 0, description: "Envios" }}
-                        />
-                    </div>
-
-                    <div className="flex justify-center">
-                        <DatoNumerico
-                            loading={mejorTiempo === null}
-                            evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
-                            dimensiones={{ width: 200, height: 100 }}
-                            dato={{ value: mejorTiempo ?? 0, description: "Mejor tiempo" }}
-                        />
-                    </div>
-
-                    <div className="flex justify-center">
-                        <DatoNumerico
-                            loading={tiempoPromedio === null}
-                            evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
-                            dimensiones={{ width: 200, height: 100 }}
-                            dato={{ value: tiempoPromedio ?? 0, description: "Tiempo Promedio" }}
-                        />
-                    </div>
+                <div className="flex justify-center">
+                    <DatoNumerico
+                        loading={envios === null}
+                        evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
+                        dimensiones={{ width: 200, height: 100 }}
+                        dato={{ value: envios ?? 0, description: "Envios" }}
+                    />
                 </div>
 
-                {/* Fila de diagramas - responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-">
+                <div className="flex justify-center">
+                    <DatoNumerico
+                        loading={mejorTiempo === null}
+                        evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
+                        dimensiones={{ width: 200, height: 100 }}
+                        dato={{ value: mejorTiempo ?? 0, description: "Mejor tiempo" }}
+                    />
+                </div>
 
+                <div className="flex justify-center">
+                    <DatoNumerico
+                        loading={tiempoPromedio === null}
+                        evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
+                        dimensiones={{ width: 200, height: 100 }}
+                        dato={{ value: tiempoPromedio ?? 0, description: "Tiempo Promedio" }}
+                    />
+                </div>
+            </div>
+
+            {/* Fila de diagramas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 lg:[grid-template-rows:1fr]">
+
+                <div className="min-h-[350px] lg:min-h-[300px] lg:h-full flex flex-col">
                     {resultados && (
                         <DiagramaSectores
                             evento={formatEvent(problema as string, EventType.PROBLEMA_RESULTADOS)}
@@ -105,7 +104,9 @@ export default function EstadisticasProblemaComp(props: {
                             datos={resultados as { name: string; value: number }[]}
                         />
                     )}
+                </div>
 
+                <div className="min-h-[350px] lg:min-h-[300px] lg:h-full flex flex-col">
                     {lenguajes && (
                         <DiagramaSectores
                             evento={formatEvent(problema as string, EventType.PROBLEMA_LENGUAJES)}
@@ -118,9 +119,9 @@ export default function EstadisticasProblemaComp(props: {
                             datos={lenguajes as { name: string; value: number }[]}
                         />
                     )}
-
                 </div>
+
             </div>
-        </>
+        </div>
     )
 }

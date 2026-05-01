@@ -17,6 +17,7 @@ export default function LogrosRecientes(props: {
 }) {
     const [data, setData] = useState<DatosLogro[]>(props.datos);
 
+    /*
     useEffect(() => {
         setData(props.datos);
     }, [props.datos]);
@@ -26,6 +27,7 @@ export default function LogrosRecientes(props: {
         socket.on(props.evento, handler);
         return () => { socket.off(props.evento, handler); };
     }, [props.evento]);
+    */
 
     const recientes = data.filter(l => l.obtenido).slice(0, 3);
 

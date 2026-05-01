@@ -81,7 +81,7 @@ export default function EstadisticasUsuarioComp(props: {
 
     return (
         <>
-            <div className="w-full lg:h-full">
+            <div className="w-full lg:h-full lg:min-h-[450px]">
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-1 gap-4 lg:h-full">
                     {/* Columna izquierda - 2/3 del ancho */}
                     <div className="flex flex-col min-h-[600px] lg:col-span-2 w-full gap-4 lg:h-full lg:min-h-0">
@@ -110,16 +110,16 @@ export default function EstadisticasUsuarioComp(props: {
                         </div>
 
                         {/* Fila: Grafico de progreso XP + Logros */}
-                        <div className="grid grid-cols-1 grid-rows-2 lg:grid-cols-3 lg:grid-rows-1 gap-4 w-full shrink-0 lg:flex-1 lg:min-h-0 min-h-[220px]">
+                        <div className="grid grid-cols-1 grid-rows-2 lg:grid-cols-3 lg:grid-rows-1 gap-4 w-full shrink-0 lg:flex-1 lg:min-h-0 min-h-[180px]">
                             {/* Progreso XP */}
-                            <div className="lg:col-span-2 w-full h-full min-h-[220px]">
+                            <div className="lg:col-span-2 w-full h-full min-h-[250px] lg:min-h-0">
                                 <ProgresoXP
                                     evento={formatEvent(String(usuario), EventType.USUARIO_PARTICIPACION)}
                                     datos={progresoXP}
                                 />
                             </div>
                             {/* Panel de ultimos Logros */}
-                            <div className="w-full h-full min-h-[220px]">
+                            <div className="w-full h-full min-h-[250px] lg:min-h-0">
                                 <LogrosRecientes
                                     evento={formatEvent(String(usuario), EventType.LOGROS_USUARIO_CATEGORIA)}
                                     usuario={String(usuario)}

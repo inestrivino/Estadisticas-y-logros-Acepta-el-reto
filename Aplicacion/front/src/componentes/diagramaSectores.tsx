@@ -1,6 +1,6 @@
 import { socket } from "../services/socket.js";
 import { PieChart, Pie, ResponsiveContainer, Tooltip } from "recharts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type DataItem = {
     name: string;
@@ -46,6 +46,21 @@ export default function DiagramaSectores(props: {
         };
     }, [props.evento]);
 
+    const legendRef = useRef<HTMLDivElement>(null);
+    const [legendFontSize, setLegendFontSize] = useState(15);
+
+    useEffect(() => {
+        const el = legendRef.current;
+        if (!el) return;
+        let size = 15;
+        el.style.fontSize = `${size}px`;
+        while (el.scrollHeight > el.clientHeight && size > 8) {
+            size -= 0.5;
+            el.style.fontSize = `${size}px`;
+        }
+        setLegendFontSize(size);
+    }, [data]);
+
     const CustomLegend = (propsLegend: { datos: { name: string, value: number }[] }) => {
         let total = 0;
         for (const dato of propsLegend.datos)
@@ -63,7 +78,6 @@ export default function DiagramaSectores(props: {
                         display: "flex",
                         alignItems: "center",
                         gap: 5,
-                        fontSize: 15,
                         color: "#000000",
                         fontFamily: "monospace",
                     }}>
@@ -125,8 +139,7 @@ export default function DiagramaSectores(props: {
             flex: 1,
             flexDirection: "column",
             alignItems: "center",
-            minWidth: "300px",
-            padding: "1cqw",
+            minWidth: 0,
             background: "#D9EDF7",
             border: "1px solid #a6e1ff",
             borderRadius: "10px",
@@ -150,7 +163,9 @@ export default function DiagramaSectores(props: {
                     </PieChart>
                 </ResponsiveContainer>
             </div>
-            <CustomLegend datos={data} />
+            <div ref={legendRef} className="shrink-0 min-h-[30%] max-h-[40%] w-full overflow-hidden" style={{ fontSize: legendFontSize }}>
+                <CustomLegend datos={data} />
+            </div>
         </div >
     );
 }
