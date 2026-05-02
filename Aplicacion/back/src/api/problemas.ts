@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
         const sugerencias = await problemaService.getProblemasSugeridos(String(patron));
         return res.json(sugerencias);
     } else {
-        return res.json({});
+        return res.json([]);
     }
 })
 
