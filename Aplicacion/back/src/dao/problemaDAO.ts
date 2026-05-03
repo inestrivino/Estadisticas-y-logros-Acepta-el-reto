@@ -1,9 +1,20 @@
 import DAO from "./DAO.js"
 import redisClient from '../redis/redisClient.js';
-import { datosProblema } from "../types/datosProblema.js";
-import { EstadoProblema } from "../types/estadoProblema.js";
+import { EstadoProblema } from "../types/estados/estadoProblema.js";
+
+type Pipeline = ReturnType<typeof redisClient.multi>;
 
 class ProblemaDAO extends DAO {
+
+    //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
+    private registradores = [
+        this.registrarEnvios,
+        this.registrarEnviosAC,
+        this.registrarTiempoTotal,
+        this.registrarResultados,
+        this.registrarLenguajes,
+        this.registrarTiemposEnvios,
+    ];
 
     /**
      * Persiste en Redis el estado completo de cada problema del mapa usando un pipeline.
@@ -13,27 +24,42 @@ class ProblemaDAO extends DAO {
     public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [problema, estado] of estadosProblemas) {
-
-            pipeline.set(`problema:${problema}:envios`, String(estado.envios));
-            pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
-            pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
-
-            if (estado.resultados.size > 0)
-                pipeline.hSet(`problema:${problema}:resultados`, Object.fromEntries(
-                    Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
-                ));
-
-            if (estado.lenguajes.size > 0)
-                pipeline.hSet(`problema:${problema}:lenguajes`, Object.fromEntries(
-                    Array.from(estado.lenguajes.entries()).map(([k, v]) => [k, String(v)])
-                ));
-
-            for (const [envioId, tiempo] of estado.tiemposEnvios)
-                pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
-        }
+        for (const [problema, estado] of estadosProblemas)
+            for (const registrador of this.registradores)
+                registrador(pipeline, problema, estado);
 
         await pipeline.exec();
+    }
+
+    private registrarEnvios(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        pipeline.set(`problema:${problema}:envios`, String(estado.envios));
+    }
+
+    private registrarEnviosAC(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
+    }
+
+    private registrarTiempoTotal(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
+    }
+
+    private registrarResultados(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        if (estado.resultados.size > 0)
+            pipeline.hSet(`problema:${problema}:resultados`, Object.fromEntries(
+                Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
+            ));
+    }
+
+    private registrarLenguajes(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        if (estado.lenguajes.size > 0)
+            pipeline.hSet(`problema:${problema}:lenguajes`, Object.fromEntries(
+                Array.from(estado.lenguajes.entries()).map(([k, v]) => [k, String(v)])
+            ));
+    }
+
+    private registrarTiemposEnvios(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
+        for (const [envioId, tiempo] of estado.tiemposEnvios)
+            pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
     }
 
     /**

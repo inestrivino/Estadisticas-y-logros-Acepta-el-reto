@@ -1,9 +1,26 @@
 import DAO from "./DAO.js";
 import redisClient from '../redis/redisClient.js';
-import { datosUsuario } from "../types/datosUsuario.js";
-import { EstadoUsuario } from "../types/estadoUsuario.js";
+import { datosUsuario } from "../types/datos/datosUsuario.js";
+import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
+
+type Pipeline = ReturnType<typeof redisClient.multi>;
 
 class UsuarioDAO extends DAO {
+
+    //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
+    private registradores = [
+        this.registrarEnvios,
+        this.registrarFechaUltimoEnvio,
+        this.registrarRachaEnviosAC,
+        this.registrarRachaDiasEnvio,
+        this.registrarProblemasAC,
+        this.registrarHoras,
+        this.registrarResultados,
+        this.registrarLenguajes,
+        this.registrarLenguajesAC,
+        this.registrarLenguajesProblemas,
+        this.registrarDiasValor,
+    ];
 
     /**
      * Persiste en Redis el estado completo de cada usuario del mapa usando un pipeline.
@@ -14,50 +31,78 @@ class UsuarioDAO extends DAO {
     public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [usuario, estado] of estadosUsuarios) {
-
-            pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
-            pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
-            pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));
-            pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, String(estado.rachaEnviosACMax));
-            pipeline.set(`usuario:${usuario}:rachaDiasEnvio`, String(estado.rachaDiasEnvio));
-            pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`, String(estado.rachaDiasEnvioMax));
-
-            if (estado.problemasAC.size > 0)
-                pipeline.sAdd(`usuario:${usuario}:problemasAC`, Array.from(estado.problemasAC));
-
-            if (estado.horas.size > 0)
-                pipeline.sAdd(`usuario:${usuario}:horas`, Array.from(estado.horas).map(String));
-
-            if (estado.resultados.size > 0)
-                pipeline.hSet(`usuario:${usuario}:resultados`, Object.fromEntries(
-                    Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
-                ));
-
-            if (estado.lenguajesConteo.size > 0)
-                pipeline.hSet(`usuario:${usuario}:lenguajes`, Object.fromEntries(
-                    Array.from(estado.lenguajesConteo.entries()).map(([k, v]) => [k, String(v)])
-                ));
-
-            if (estado.lenguajesAC.size > 0)
-                pipeline.hSet(`usuario:${usuario}:lenguajesAC`, Object.fromEntries(
-                    Array.from(estado.lenguajesAC.entries()).map(([k, v]) => [k, String(v)])
-                ));
-
-            for (const [lenguaje, problemas] of estado.lenguajesProblemasResueltos)
-                if (problemas.size > 0)
-                    pipeline.sAdd(`usuario:${usuario}:lenguaje:${lenguaje}`, Array.from(problemas));
-
-            for (const [timestamp, cantidad] of estado.diasValor) {
-                pipeline.hSet(`usuario:${usuario}:diasValor`, String(timestamp), String(cantidad));
-                pipeline.zAdd(`usuario:${usuario}:dias`, [{ score: timestamp, value: String(timestamp) }]);
-                pipeline.sAdd(`timestamp:${timestamp}`, String(usuario));
-                pipeline.zAdd(`timestamps`, [{ score: timestamp, value: String(timestamp) }]);
-            }
-        }
+        for (const [usuario, estado] of estadosUsuarios)
+            for (const registrador of this.registradores)
+                registrador(pipeline, usuario, estado);
 
         await pipeline.exec();
     }
+
+    private registrarEnvios(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
+    }
+
+    private registrarFechaUltimoEnvio(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
+    }
+
+    private registrarRachaEnviosAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));
+        pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, String(estado.rachaEnviosACMax));
+    }
+
+    private registrarRachaDiasEnvio(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvio`, String(estado.rachaDiasEnvio));
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`, String(estado.rachaDiasEnvioMax));
+    }
+
+    private registrarProblemasAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        if (estado.problemasAC.size > 0)
+            pipeline.sAdd(`usuario:${usuario}:problemasAC`, Array.from(estado.problemasAC));
+    }
+
+    private registrarHoras(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        if (estado.horas.size > 0)
+            pipeline.sAdd(`usuario:${usuario}:horas`, Array.from(estado.horas).map(String));
+    }
+
+    private registrarResultados(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        if (estado.resultados.size > 0)
+            pipeline.hSet(`usuario:${usuario}:resultados`, Object.fromEntries(
+                Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
+            ));
+    }
+
+    private registrarLenguajes(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        if (estado.lenguajesConteo.size > 0)
+            pipeline.hSet(`usuario:${usuario}:lenguajes`, Object.fromEntries(
+                Array.from(estado.lenguajesConteo.entries()).map(([k, v]) => [k, String(v)])
+            ));
+    }
+
+    private registrarLenguajesAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        if (estado.lenguajesAC.size > 0)
+            pipeline.hSet(`usuario:${usuario}:lenguajesAC`, Object.fromEntries(
+                Array.from(estado.lenguajesAC.entries()).map(([k, v]) => [k, String(v)])
+            ));
+    }
+
+    private registrarLenguajesProblemas(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        for (const [lenguaje, problemas] of estado.lenguajesProblemasResueltos)
+            if (problemas.size > 0)
+                pipeline.sAdd(`usuario:${usuario}:lenguaje:${lenguaje}`, Array.from(problemas));
+    }
+
+    private registrarDiasValor(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
+        for (const [ts, cantidad] of estado.diasValor) {
+            pipeline.hSet(`usuario:${usuario}:diasValor`, String(ts), String(cantidad));
+            pipeline.zAdd(`usuario:${usuario}:dias`, [{ score: ts, value: String(ts) }]);
+            pipeline.sAdd(`timestamp:${ts}`, String(usuario));
+            pipeline.zAdd(`timestamps`, [{ score: ts, value: String(ts) }]);
+        }
+    }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve los envios dentro de un periodo de tiempo.
