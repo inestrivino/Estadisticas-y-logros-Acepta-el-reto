@@ -1,11 +1,11 @@
 import problemaService from "./problemas/problemaService.js";
 import usuarioService from "./usuarios/usuarioService.js";
-import { EstadoUsuario } from "../types/estadoUsuario.js";
-import { EstadoProblema } from "../types/estadoProblema.js";
+import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
+import { EstadoProblema } from "../types/estados/estadoProblema.js";
 import logrosService from "./logros/logrosService.js";
-import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
-import { EnvioSinProcesarEvent } from "../types/envioSinProcesarEvent.js";
-import { EnvioProcesado } from "../types/envioProcesado.js";
+import { EnvioSinProcesarInicial } from "../types/envios/envioSinProcesarInicial.js";
+import { EnvioSinProcesarEvent } from "../types/envios/envioSinProcesarEvent.js";
+import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 import { conjuntoEmitter, routerEmitter } from "../sockets/socketEmitter.js";
 import xpService from "./xpService.js";
 import estadosService from "./estados/estadosService.js";

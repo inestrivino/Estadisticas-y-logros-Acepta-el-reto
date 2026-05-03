@@ -1,0 +1,19 @@
+import { Logro } from "../logro.js";
+import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+
+const logro18: Logro = {
+    id: 1,
+    nombre: "logro18",
+    descripcion: "Realización de envíos en cada hora del día",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.PLATA,
+    categoria: CategoriaLogro.RACHAS,
+    sorpresa: true,
+
+    enTiempoReal: false,
+
+    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.horas.size === 24
+};
+
+export default logro18;

@@ -1,0 +1,19 @@
+import { Logro } from "../logro.js";
+import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+
+const logro1: Logro = {
+    id: 1,
+    nombre: "logro1",
+    descripcion: "Creación de una cuenta",
+    imagen: "logro_placeholder.png",
+    nivel: NivelLogro.BRONCE,
+    categoria: CategoriaLogro.ONBOARDING,
+    sorpresa: false,
+
+    enTiempoReal: false,
+
+    condicion: (estadoUsuario, estadoProblema, envio) => true
+};
+
+export default logro1;

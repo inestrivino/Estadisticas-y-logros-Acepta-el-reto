@@ -1,6 +1,6 @@
 import procesarEnviosService from './procesarEnviosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
-import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
+import { EnvioSinProcesarInicial } from "../types/envios/envioSinProcesarInicial.js";
 import gestionService from './gestionService.js';
 
 class InicializarService {

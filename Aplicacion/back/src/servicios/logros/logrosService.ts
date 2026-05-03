@@ -1,14 +1,132 @@
-import { logros } from "./definiciones/logro.js";
-import { EstadoUsuario } from "../../types/estadoUsuario.js";
-import { EstadoProblema } from "../../types/estadoProblema.js";
+import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
+import { EstadoProblema } from "../../types/estados/estadoProblema.js";
 import logrosDAO from "../../dao/logrosDAO.js";
-import { datosLogro } from "../../types/datosLogro.js";
-import { EnvioProcesado } from "../../types/envioProcesado.js";
-import { Logro } from "../../types/logro.js";
+import { datosLogro } from "../../types/datos/datosLogro.js";
+import { EnvioProcesado } from "../../types/envios/envioProcesado.js";
+import { Logro } from "./definiciones/logro.js";
+
+import { logrosOnboarding } from "./definiciones/onboarding/index.js";
+import { logrosProblemas } from "./definiciones/problemas/index.js";
+import { logrosLenguajes } from "./definiciones/lenguajes/index.js";
+import { logrosRachas } from "./definiciones/rachas/index.js";
+import { logrosCalidad } from "./definiciones/calidad/index.js";
 
 class LogrosService {
 
     private nuevosPorUsuario = new Map<string, Set<string>>();
+
+    //grupos de trofeos que se evaluan de forma independiente
+    //para añadir nuevos logros basta con crear un nuevo grupo y añadirlo aqui
+    private gruposTrofeos: Logro[][] = [
+        logrosOnboarding,
+        logrosProblemas,
+        logrosLenguajes,
+        logrosRachas,
+        logrosCalidad,
+    ];
+
+    /**
+     * Procesa los logros en tiempo real de cada grupo tras un envio
+     * y acumula los nuevos en nuevosPorUsuario.
+     * @param estadoUsuario - Estado actual del usuario.
+     * @param estadoProblema - Estado actual del problema.
+     * @param envio - Envio que desencadena la evaluacion.
+     */
+    public procesarEstado(estadoUsuario: EstadoUsuario, estadoProblema: EstadoProblema, envio: EnvioProcesado) {
+
+        //se evalua cada grupo de trofeos en tiempo real
+        //TODO poner aqui que solo se procesen los grupos que se necesiten segun el numero de envio
+        //y al principio del inicializar se mira si cambio el numero de version para poner el numero del envio a 1
+        const nuevos: string[] = [];
+        for (const grupo of this.gruposTrofeos)
+            for (const logro of this.comprobarLogros(grupo, true, estadoUsuario, estadoProblema, envio))
+                nuevos.push(logro);
+
+        if (nuevos.length === 0)
+            return;
+
+        //se acumulan los nuevos logros para este usuario
+        if (!this.nuevosPorUsuario.has(envio.usuario))
+            this.nuevosPorUsuario.set(envio.usuario, new Set());
+
+        for (const trofeo of nuevos)
+            this.nuevosPorUsuario.get(envio.usuario)?.add(trofeo);
+    }
+
+    /**
+     * Procesa los logros de estado global de cada grupo para cada usuario y persiste los nuevos en Redis.
+     * @param usuarios - Conjunto de identificadores de usuario a evaluar.
+     * @param estadosUsuarios - Mapa con el estado final de cada usuario.
+     * @param estadosProblemas - Mapa con el estado final de cada problema (no usado actualmente, reservado para futuros logros).
+     */
+    public async cargarTrofeos(
+        usuarios: Set<string>,
+        estadosUsuarios: Map<string, EstadoUsuario>,
+        estadosProblemas: Map<string, EstadoProblema>
+    ) {
+
+        for (const usuario of usuarios) {
+
+            const estadoUsuario = estadosUsuarios.get(usuario) as EstadoUsuario;
+
+            //se evalua cada grupo de trofeos de estado global
+            for (const grupo of this.gruposTrofeos) {
+                const nuevos = this.comprobarLogros(grupo, false, estadoUsuario);
+
+                if (nuevos.length === 0)
+                    continue;
+
+                if (!this.nuevosPorUsuario.has(usuario))
+                    this.nuevosPorUsuario.set(usuario, new Set());
+
+                for (const trofeo of nuevos)
+                    this.nuevosPorUsuario.get(usuario)?.add(trofeo);
+            }
+        }
+
+        //se pasan al formato correcto para guardarlos en la base de datos y se guardan
+        const datos: datosLogro[] = [];
+        for (const [usuario, logros] of this.nuevosPorUsuario)
+            datos.push({ usuario, logros: Array.from(logros) });
+
+        //se limpia el mapa de logros nuevos para el siguiente bloque
+        this.nuevosPorUsuario.clear();
+
+        //se guardan los logros nuevos en la base de datos
+        await logrosDAO.guardarBloqueLogros(datos);
+    }
+
+    /**
+     * Comprueba que logros de un grupo cumple el usuario y los marca como obtenidos.
+     * @returns Nombres de los logros recien obtenidos por el usuario.
+     */
+    private comprobarLogros(
+        grupo: Logro[],
+        enTiempoReal: boolean,
+        estadoUsuario: EstadoUsuario,
+        estadoProblema?: EstadoProblema,
+        envio?: EnvioProcesado
+    ): string[] {
+
+        const nuevos: string[] = [];
+
+        for (const logro of grupo) {
+            //se omiten los logros que no son del modo evaluado
+            if (logro.enTiempoReal !== enTiempoReal)
+                continue;
+
+            //se omiten los logros que el usuario ya tiene
+            if (estadoUsuario.logros.has(logro.nombre))
+                continue;
+
+            if (logro.condicion(estadoUsuario, estadoProblema, envio)) {
+                estadoUsuario.logros.add(logro.nombre);
+                nuevos.push(logro.nombre);
+            }
+        }
+
+        return nuevos;
+    }
 
     /**
      * Devuelve todos los logros indicando si el usuario los tiene o no, agrupados segun la clasificacion.
@@ -20,7 +138,8 @@ class LogrosService {
         const setLogros = new Set(await logrosDAO.getLogros(usuario));
 
         //agrega el atributo de si el usuario tiene ese logro o no
-        const logrosUsuario = logros.map(logro => ({
+        const todosLosLogros = this.gruposTrofeos.flat();
+        const logrosUsuario = todosLosLogros.map(logro => ({
             nombre: logro.nombre,
             descripcion: logro.descripcion,
             imagen: logro.imagen,
@@ -53,102 +172,16 @@ class LogrosService {
     }
 
     /**
-     * Busca un logro por su nombre.
+     * Busca un logro por su nombre recorriendo todos los grupos de trofeos.
      * @param logro - Nombre del logro a buscar.
      * @returns El logro encontrado, o `undefined` si no existe.
      */
     public getLogroByName(logro: string): Logro | undefined {
-        return logros.find(l => l.nombre === logro);
-    }
-
-    /**
-     * Comprueba los logros en tiempo real tras un envio y acumula los nuevos en nuevosPorUsuario.
-     * @param estadoUsuario - Estado actual del usuario.
-     * @param estadoProblema - Estado actual del problema.
-     * @param envio - Envio que desencadena la evaluacion.
-     */
-    public procesarEstado(estadoUsuario: EstadoUsuario, estadoProblema: EstadoProblema, envio: EnvioProcesado) {
-
-        //se miran con el estado actual si se ha conseguido algun logro
-        const nuevos = this.comprobarLogros(true, estadoUsuario, estadoProblema, envio);
-
-        //si no hay un ninguno se vuelve
-        if (nuevos.length === 0)
-            return;
-
-        //si alguno de los trofeos no lo habia conseguido ya en este bloque se marca como conseguido
-        if (!this.nuevosPorUsuario.has(envio.usuario))
-            this.nuevosPorUsuario.set(envio.usuario, new Set());
-
-        for (const trofeo of nuevos)
-            this.nuevosPorUsuario.get(envio.usuario)?.add(trofeo);
-    }
-
-    /**
-     * Comprueba los logros de estado global para cada usuario y persiste los nuevos en Redis
-     * (estadosProblemas como parametro aunque ahora no se usa por si se necesitara para algun otro logro)
-     * @param usuarios - Conjunto de identificadores de usuario a evaluar.
-     * @param estadosUsuarios - Mapa con el estado final de cada usuario.
-     * @param estadosProblemas - Mapa con el estado final de cada problema.
-     */
-    public async cargarTrofeos(
-        usuarios: Set<string>,
-        estadosUsuarios: Map<string, EstadoUsuario>,
-        estadosProblemas: Map<string, EstadoProblema>
-    ) {
-
-        //se comprueban los logros que no dependen de un envio concreto, sino del estado global del usuario o del problema
-        for (const usuario of usuarios) {
-
-            //se saca el estada del usuario del envio
-            const estadoUsuario = estadosUsuarios.get(usuario) as EstadoUsuario;
-            //y se comprueban los logros, se pone a false porque no dependen del estado del juez
-            const nuevos = this.comprobarLogros(false, estadoUsuario);
-
-            for (const trofeo of nuevos) {
-                this.nuevosPorUsuario.get(usuario)?.add(trofeo);
-            }
+        for (const grupo of this.gruposTrofeos) {
+            const encontrado = grupo.find(l => l.nombre === logro);
+            if (encontrado) return encontrado;
         }
-
-        //se pasan al formato correcto para guardarlos en la base de datos y se guardan
-        const datos: datosLogro[] = [];
-        for (const [usuario, logros] of this.nuevosPorUsuario)
-            datos.push({ usuario, logros: Array.from(logros) });
-
-        //se limpia el mapa de logros nuevos para el siguiente bloque
-        this.nuevosPorUsuario.clear();
-
-        //se guardan los logros nuevos en la base de datos
-        await logrosDAO.guardarBloqueLogros(datos);
-    }
-
-    /**
-     * Evalua las condiciones de los logros filtrados por modo y devuelve los que se cumplen por primera vez.
-     * @param enTiempoReal - Si `true`, evalua logros por envio; si `false`, logros de estado global.
-     * @param estadoUsuario - Estado actual del usuario.
-     * @param estadoProblema - Estado actual del problema (solo en modo tiempo real).
-     * @param envio - Envio que desencadena la evaluacion (solo en modo tiempo real).
-     * @returns Array con los nombres de los logros recien obtenidos.
-     */
-    private comprobarLogros(enTiempoReal: boolean, estadoUsuario: EstadoUsuario, estadoProblema?: EstadoProblema, envio?: EnvioProcesado): string[] {
-
-        const nuevos: string[] = [];
-
-        //se comprueban los logros enTiempoReal o no dependiendo de esta variable
-        const logrosFiltrados = logros.filter(logro => logro.enTiempoReal === enTiempoReal);
-
-        for (const logro of logrosFiltrados) {
-            // se omiten los logros que el usuario ya tiene
-            if (estadoUsuario.logros.has(logro.nombre))
-                continue;
-
-            if (logro.condicion(estadoUsuario, estadoProblema, envio)) {
-                estadoUsuario.logros.add(logro.nombre);
-                nuevos.push(logro.nombre);
-            }
-        }
-
-        return nuevos;
+        return undefined;
     }
 }
 

@@ -1,7 +1,7 @@
-import { datosLogro } from "../types/datosLogro.js";
-import { EnvioProcesado } from "../types/envioProcesado.js";
-import { Logro, NivelLogro } from "../types/logro.js";
-import { EstadoUsuario } from "../types/estadoUsuario.js";
+import { datosLogro } from "../types/datos/datosLogro.js";
+import { EnvioProcesado } from "../types/envios/envioProcesado.js";
+import { Logro, NivelLogro } from "./logros/definiciones/logro.js";
+import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";

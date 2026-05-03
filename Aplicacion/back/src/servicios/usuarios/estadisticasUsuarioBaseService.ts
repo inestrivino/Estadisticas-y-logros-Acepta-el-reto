@@ -1,5 +1,5 @@
 import usuarioDAO from '../../dao/usuarioDAO.js';
-import { EstadoUsuario } from '../../types/estadoUsuario.js';
+import { EstadoUsuario } from '../../types/estados/estadoUsuario.js';
 
 class EstadisticasUsuarioBase {
 

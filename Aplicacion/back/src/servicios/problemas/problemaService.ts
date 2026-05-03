@@ -1,4 +1,4 @@
-import { EstadoProblema } from "../../types/estadoProblema.js";
+import { EstadoProblema } from "../../types/estados/estadoProblema.js";
 import estadisticasProblemaBase from "./estadisticasProblemaBaseService.js";
 
 class ProblemaService {

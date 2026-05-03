@@ -1,7 +1,23 @@
-import { EnvioProcesado } from "../../types/envioProcesado.js";
-import { EstadoProblema } from "../../types/estadoProblema.js";
-import { EstadoUsuario } from "../../types/estadoUsuario.js";
-import estadosBaseService from "./estadosBaseService.js";
+import { EnvioProcesado } from "../../types/envios/envioProcesado.js";
+import { EstadoProblema } from "../../types/estados/estadoProblema.js";
+import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
+
+import { CalculadorUsuario } from "./calculadores/calculadorUsuarioInterface.js";
+import { CalculadorProblema } from "./calculadores/calculadorProblemaInterface.js";
+
+import numEnviosUsuario from "./calculadores/usuarios/numEnvios.js";
+import problemasUsuario from "./calculadores/usuarios/problemas.js";
+import resultadosUsuario from "./calculadores/usuarios/resultados.js";
+import lenguajesUsuario from "./calculadores/usuarios/lenguajes.js";
+import diasValorUsuario from "./calculadores/usuarios/diasValor.js";
+import rachasUsuario from "./calculadores/usuarios/rachas.js";
+import horasUsuario from "./calculadores/usuarios/horas.js";
+import logrosUsuario from "./calculadores/usuarios/logros.js";
+
+import enviosProblema from "./calculadores/problemas/envios.js";
+import resultadosProblema from "./calculadores/problemas/resultados.js";
+import lenguajesProblema from "./calculadores/problemas/lenguajes.js";
+import tiemposProblema from "./calculadores/problemas/tiempos.js";
 
 
 class EstadosService {
@@ -9,35 +25,73 @@ class EstadosService {
     private estadosUsuarios: Map<string, EstadoUsuario> = new Map();
     private estadosProblemas: Map<string, EstadoProblema> = new Map();
 
-    public async getEstadosIniciales( usuarios: Set<string>, problemas: Set<string>) {
+    //calculadores que componen el estado del usuario
+    //para añadir un nuevo dato basta con crear un nuevo calculador y registrarlo aqui
+    private calculadoresUsuario: CalculadorUsuario[] = [
+        numEnviosUsuario,
+        problemasUsuario,
+        resultadosUsuario,
+        lenguajesUsuario,
+        diasValorUsuario,
+        rachasUsuario,
+        horasUsuario,
+        logrosUsuario,
+    ];
 
-        //crea los estados vacios para los usuarios y problemas
+    //calculadores que componen el estado del problema
+    private calculadoresProblema: CalculadorProblema[] = [
+        enviosProblema,
+        resultadosProblema,
+        lenguajesProblema,
+        tiemposProblema,
+    ];
+
+    /**
+     * Inicializa los estados de usuarios y problemas con los datos almacenados en la base de datos.
+     * @returns Copia profunda de los estados iniciales para usarlos como referencia.
+     */
+    public async getEstadosIniciales(usuarios: Set<string>, problemas: Set<string>) {
+
+        //crea los estados vacios para los usuarios y los rellena desde la base de datos
         for (const usuario of usuarios) {
-            this.estadosUsuarios.set(usuario, this.estadoVacioUsuario());
+            const estado = this.estadoVacioUsuario();
+            for (const calculador of this.calculadoresUsuario)
+                await calculador.cargarInicial(estado, usuario);
+            this.estadosUsuarios.set(usuario, estado);
         }
+
+        //crea los estados vacios para los problemas y los rellena desde la base de datos
         for (const problema of problemas) {
-            this.estadosProblemas.set(problema, this.estadoVacioProblema());
+            const estado = this.estadoVacioProblema();
+            for (const calculador of this.calculadoresProblema)
+                await calculador.cargarInicial(estado, problema);
+            this.estadosProblemas.set(problema, estado);
         }
 
-        //se pasa por todos los servicios que deben cargar datos iniciales
-        await estadosBaseService.getEstadosIniciales(this.estadosUsuarios, this.estadosProblemas);
-
+        //se devuelven copiados porque si no se comparten las referencias a los campos mutables de los estados con el servicio de logros
         return {
             estadosUsuariosIniciales: this.clonarEstadosUsuarios(this.estadosUsuarios),
             estadosProblemasIniciales: this.clonarEstadosProblemas(this.estadosProblemas)
-        }
+        };
     }
 
+    /**
+     * Generador que actualiza los estados con cada envio y los devuelve en orden.
+     */
     public async * getEstadosActualizados(envios: EnvioProcesado[]) {
+        
         for (const envio of envios) {
 
             const estadoUsuario = this.estadosUsuarios.get(envio.usuario)!;
             const estadoProblema = this.estadosProblemas.get(envio.problema)!;
 
-            //se pasa por todos los servicios que deben actualizar los estados con el nuevo envio
-            estadosBaseService.getEstadosActualizados(estadoUsuario, estadoProblema, envio);
+            //se delega en cada calculador la actualizacion de su fragmento del estado
+            for (const calculador of this.calculadoresUsuario)
+                calculador.actualizar(estadoUsuario, envio);
 
-            //se devuelven los mapas actualizados junto con el envio
+            for (const calculador of this.calculadoresProblema)
+                calculador.actualizar(estadoProblema, envio);
+
             yield {
                 estadosUsuarios: this.estadosUsuarios,
                 estadosProblemas: this.estadosProblemas,
@@ -47,96 +101,65 @@ class EstadosService {
     }
 
     /**
-     * Crea un estado de usuario vacio con todos los contadores a cero.
-     * @returns Estado inicial del usuario.
+     * Compone un estado de usuario vacio combinando los fragmentos iniciales de cada calculador.
      */
     private estadoVacioUsuario(): EstadoUsuario {
-        return {
-            numEnvios: 0,
-            problemasAC: new Set(),
-            problemasNoAC: new Set(),
-            resultados: new Map(),
-            lenguajes: new Set(),
-            lenguajesConteo: new Map(),
-            lenguajesAC: new Map(),
-            lenguajesProblemasResueltos: new Map(),
-            diasValor: new Map(),
-            rachaEnviosAC: 0,
-            rachaEnviosACMax: 0,
-            rachaDiasEnvio: 0,
-            rachaDiasEnvioMax: 0,
-            ultimoDiaEnvio: 0,
-            horas: new Set(),
-            logros: new Set(),
-        }
+        return Object.assign({}, ...this.calculadoresUsuario.map(c => c.estadoVacio())) as EstadoUsuario;
     }
 
     /**
-     * Devuelve una copia profunda del mapa de estados de usuarios.
-     * @param estados - Mapa original de estados de usuarios.
-     * @returns Nuevo mapa con todos los objetos mutables clonados.
-     */
-    private clonarEstadosUsuarios(estados: Map<string, EstadoUsuario>): Map<string, EstadoUsuario> {
-        const clon = new Map<string, EstadoUsuario>();
-        
-        //se usan los campos del estado y se clonan los objetos mutables para evitar referencias compartidas
-        for (const [usuario, estado] of estados) {
-            clon.set(usuario, {
-                ...estado,
-                problemasAC: new Set(estado.problemasAC),
-                problemasNoAC: new Set(estado.problemasNoAC),
-                resultados: new Map(estado.resultados),
-                lenguajes: new Set(estado.lenguajes),
-                lenguajesConteo: new Map(estado.lenguajesConteo),
-                lenguajesAC: new Map(estado.lenguajesAC),
-                lenguajesProblemasResueltos: new Map([...estado.lenguajesProblemasResueltos].map(([l, s]) => [l, new Set(s)])),
-                diasValor: new Map(estado.diasValor),
-                horas: new Set(estado.horas),
-                logros: new Set(estado.logros),
-            });
-        }
-
-        return clon;
-    }
-
-    /**
-     * Crea un estado de problema vacio con todos los contadores a cero.
-     * @returns Estado inicial del problema.
+     * Compone un estado de problema vacio combinando los fragmentos iniciales de cada calculador.
      */
     private estadoVacioProblema(): EstadoProblema {
-        return {
-            envios: 0,
-            enviosAC: 0,
-            mejorTiempo: Infinity,
-            tiempoTotal: 0,
-            resultados: new Map(),
-            lenguajes: new Map(),
-            tiemposOrdenados: [],
-            
-            posUltimoEnvio: -1,
-            tiemposEnvios: new Map()
-        }
+        return Object.assign({}, ...this.calculadoresProblema.map(c => c.estadoVacio())) as EstadoProblema;
     }
 
     /**
-     * Devuelve una copia profunda del mapa de estados de problemas.
-     * @param estados - Mapa original de estados de problemas.
-     * @returns Nuevo mapa con todos los objetos mutables clonados.
+     * Devuelve una copia profunda del mapa de estados de usuarios delegando el clonado de los
+     * campos mutables en cada calculador que los declare.
      */
-    private clonarEstadosProblemas(estados: Map<string, EstadoProblema>): Map<string, EstadoProblema> {
-        const clon = new Map<string, EstadoProblema>();
-        
-        //se usan los campos del estado y se clonan los objetos mutables para evitar referencias compartidas
-        for (const [problema, estado] of estados) {
-            clon.set(problema, {
-                ...estado,
-                tiemposOrdenados: [...estado.tiemposOrdenados],
-                resultados: new Map(estado.resultados),
-                lenguajes: new Map(estado.lenguajes),
-            });
+    private clonarEstadosUsuarios(estados: Map<string, EstadoUsuario>): Map<string, EstadoUsuario> {
+
+        const estadoClonado = new Map<string, EstadoUsuario>();
+
+        for (const [usuario, estado] of estados) {
+
+            //se clonan los campos primitivos
+            const clonado: EstadoUsuario = { ...estado };
+
+            //y para los campos mutables se delega el clonado a cada calculador que lo declare para evitar referencias compartidas
+            for (const calculador of this.calculadoresUsuario)
+                if (calculador.clonar)
+                    Object.assign(clonado, calculador.clonar(estado));
+
+            estadoClonado.set(usuario, clonado);
         }
 
-        return clon;
+        return estadoClonado;
+    }
+
+    /**
+     * Devuelve una copia profunda del mapa de estados de problemas delegando el clonado de los
+     * campos mutables en cada calculador que los declare.
+     */
+    private clonarEstadosProblemas(estados: Map<string, EstadoProblema>): Map<string, EstadoProblema> {
+
+        const estadoClonado = new Map<string, EstadoProblema>();
+
+        for (const [problema, estado] of estados) {
+
+            //se clonan los campos primitivos
+            const clonado: EstadoProblema = { ...estado };
+
+            //y para los campos mutables se delega el clonado a cada calculador que lo declare para evitar referencias compartidas
+            for (const calculador of this.calculadoresProblema)
+                if (calculador.clonar)
+                    Object.assign(clonado, calculador.clonar(estado));
+
+            estadoClonado.set(problema, clonado);
+        }
+
+        return estadoClonado;
     }
 }
 
