@@ -1,4 +1,4 @@
-import { datosXP } from '../types/datosXP.js';
+import { datosXP } from '../types/datos/datosXP.js';
 import DAO from './DAO.js'
 
 class XPDAO extends DAO {

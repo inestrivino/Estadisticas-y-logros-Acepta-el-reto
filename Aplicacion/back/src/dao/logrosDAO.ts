@@ -1,5 +1,5 @@
 import DAO from "./DAO.js";
-import { datosLogro } from "../types/datosLogro.js";
+import { datosLogro } from "../types/datos/datosLogro.js";
 
 class LogrosDAO extends DAO {
     

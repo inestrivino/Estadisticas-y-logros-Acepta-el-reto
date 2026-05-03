@@ -36,6 +36,7 @@ await redisClient.connect();
 await redisLoading();
 
 //se comprueba si se tiene que volver a procesar los envios
+//TODO
 process.env.dbVersion
 
 //se eliminan los envios anteriores a un año

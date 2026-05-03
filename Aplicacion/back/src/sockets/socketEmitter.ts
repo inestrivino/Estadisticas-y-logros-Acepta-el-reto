@@ -3,7 +3,7 @@ import { EventType, formatEvent } from "shared";
 import problemaDAO from "../dao/problemaDAO.js";
 import usuarioService from "../servicios/usuarios/estadisticasUsuarioBaseService.js";
 import logrosService from "../servicios/logros/logrosService.js";
-import { EnvioProcesado } from "../types/envioProcesado.js";
+import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
