@@ -7,69 +7,69 @@ await setUpTestFile(logrosDAO);
 describe("Guardar logros", () => {
 
     test("guarda un logro de un usuario", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["primer_ac"] }]);
-        expect(await logrosDAO.getLogros("Facundo")).toContain("primer_ac");
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] }]);
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).toContain("primer_ac");
     });
 
     test("guarda varios logros de un usuario", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["primer_ac", "racha_7"] }]);
-        const logros = await logrosDAO.getLogros("Facundo");
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac", "racha_7"] }]);
+        const logros = await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim());
         expect(logros).toContain("primer_ac");
         expect(logros).toContain("racha_7");
     });
 
     test("guarda logros de varios usuarios en el mismo bloque", async () => {
         await logrosDAO.guardarBloqueLogros([
-            { usuario: "Facundo", logros: ["primer_ac"] },
-            { usuario: "Nestor", logros: ["racha_7"] }
+            { usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] },
+            { usuario: ("Nestor").toLowerCase().normalize("NFC").trim(), logros: ["racha_7"] }
         ]);
-        expect(await logrosDAO.getLogros("Facundo")).toContain("primer_ac");
-        expect(await logrosDAO.getLogros("Nestor")).toContain("racha_7");
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).toContain("primer_ac");
+        expect(await logrosDAO.getLogros(("Nestor").toLowerCase().normalize("NFC").trim())).toContain("racha_7");
     });
 
     test("no mezcla logros entre usuarios", async () => {
         await logrosDAO.guardarBloqueLogros([
-            { usuario: "Facundo", logros: ["primer_ac"] },
-            { usuario: "Nestor", logros: ["racha_7"] }
+            { usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] },
+            { usuario: ("Nestor").toLowerCase().normalize("NFC").trim(), logros: ["racha_7"] }
         ]);
-        expect(await logrosDAO.getLogros("Facundo")).not.toContain("racha_7");
-        expect(await logrosDAO.getLogros("Nestor")).not.toContain("primer_ac");
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).not.toContain("racha_7");
+        expect(await logrosDAO.getLogros(("Nestor").toLowerCase().normalize("NFC").trim())).not.toContain("primer_ac");
     });
 
     test("acumula logros en llamadas sucesivas", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["primer_ac"] }]);
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["racha_7"] }]);
-        const logros = await logrosDAO.getLogros("Facundo");
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["racha_7"] }]);
+        const logros = await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim());
         expect(logros).toContain("primer_ac");
         expect(logros).toContain("racha_7");
     });
 
     test("no duplica un logro ya guardado", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["primer_ac"] }]);
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: ["primer_ac"] }]);
-        const logros = await logrosDAO.getLogros("Facundo");
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] }]);
+        const logros = await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim());
         expect(logros.filter(l => l === "primer_ac")).toHaveLength(1);
     });
 
     test("ignora usuarios con array de logros vacio", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: "Facundo", logros: [] }]);
-        expect(await logrosDAO.getLogros("Facundo")).toEqual([]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: [] }]);
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).toEqual([]);
     });
 
     test("ignora entradas vacias y guarda las que tienen logros", async () => {
         await logrosDAO.guardarBloqueLogros([
-            { usuario: "Facundo", logros: [] },
-            { usuario: "Nestor", logros: ["primer_ac"] }
+            { usuario: ("Facundo").toLowerCase().normalize("NFC").trim(), logros: [] },
+            { usuario: ("Nestor").toLowerCase().normalize("NFC").trim(), logros: ["primer_ac"] }
         ]);
-        expect(await logrosDAO.getLogros("Facundo")).toEqual([]);
-        expect(await logrosDAO.getLogros("Nestor")).toContain("primer_ac");
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).toEqual([]);
+        expect(await logrosDAO.getLogros(("Nestor").toLowerCase().normalize("NFC").trim())).toContain("primer_ac");
     });
 });
 
 describe("Lecturas vacias", () => {
 
     test("devuelve array vacio si el usuario no tiene logros", async () => {
-        expect(await logrosDAO.getLogros("Facundo")).toEqual([]);
+        expect(await logrosDAO.getLogros(("Facundo").toLowerCase().normalize("NFC").trim())).toEqual([]);
     });
 
     test("devuelve array vacio si el usuario no existe", async () => {
