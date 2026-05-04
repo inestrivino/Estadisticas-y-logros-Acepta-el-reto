@@ -24,8 +24,10 @@ export default function Buscador(props: {
 
     const [mensajeError, setMensajeError] = useState<string>("");
 
+    // lista de hasta 5 usuarios que coinciden con lo que esta escrito en el buscador en el momento
     const [sugerencias, setSugerencias] = useState<string[]>([]);
     const [sugerenciaActiva, setSugerenciaActiva] = useState(-1);
+    // guarda el area que ocupa el listado de sugerencias
     const sugerenciasRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (!elem.trim()) {

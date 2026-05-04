@@ -4,6 +4,7 @@ import problemaDAO from "../dao/problemaDAO.js";
 import usuarioService from "../servicios/usuarioService.js";
 import logrosService from "../servicios/logros/logrosService.js";
 import { EnvioProcesado } from "../types/envioProcesado.js";
+import xpService from "../servicios/xpService.js";
 
 type ActualizacionesRanking = {
     usuario: string,
@@ -45,6 +46,9 @@ export async function routerEmitter(envio: EnvioProcesado) {
 
     //se actualiza la tabla de ranking
     io.emit(EventType.ACTUALIZACION_RANKING);
+
+    //se actualiza el nivel del usuario
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_NIVEL), await xpService.getNivelUsuario(envio.usuario));
 }
 
 export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>, porcentaje: number/*, actualizacionRanking: InfoActualizacionesRanking*/) {
@@ -73,5 +77,8 @@ export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<stri
         //se actualizan los logros del usuario
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(usuario, "nivel"));
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(usuario, "categoria"));
+
+        //se actualiza el nivel del usuario
+        io.emit(formatEvent(usuario, EventType.USUARIO_NIVEL), await xpService.getNivelUsuario(usuario));
     }
 }

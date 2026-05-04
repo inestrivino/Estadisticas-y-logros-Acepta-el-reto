@@ -6,7 +6,7 @@ class XPDAO extends DAO {
     async registrarBloqueXP(datos: datosXP[]) {
         const pipeline = this.redis.multi();
         for (const { usuario, xp } of datos) {
-            pipeline.zIncrBy(`usuario:ranking`, xp, usuario);
+            pipeline.zIncrBy(`usuario:ranking`, xp, usuario.toLowerCase().normalize("NFC").trim());
         }
         await pipeline.exec();
     }

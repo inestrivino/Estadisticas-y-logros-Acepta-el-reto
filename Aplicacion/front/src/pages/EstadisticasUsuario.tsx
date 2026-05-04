@@ -5,12 +5,18 @@ import Badge from 'react-bootstrap/Badge';
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import EstadisticasUsuarioComp from "../componentes/estadisticasUsuarioComp";
+import EtiquetaNivel from "../componentes/etiquetaNivel";
+import { EventType, formatEvent } from "shared";
+import { NivelUsuario } from "shared/NivelUsuarios";
 
 export default function EstadisticasUsuario() {
 
     const params = useParams();
 
     const usuario = params.usuario || localStorage.getItem("usuarioActual") || "";
+    if(usuario !== localStorage.getItem("usuarioActual")) {
+        localStorage.setItem("usuarioActual", usuario);
+    }
 
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
     useEffect(() => {
@@ -29,7 +35,7 @@ export default function EstadisticasUsuario() {
     }, [usuario, navigate]);
 
     // NIVEL
-    const [nivel, setNivel] = useState<string>("");
+    const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
         fetch(`/api/usuarios/${usuario}/nivel`)
             .then(response => response.json())
@@ -39,7 +45,7 @@ export default function EstadisticasUsuario() {
     return (
         <PlantillaBusqueda
             hasResult={usuarioExiste === true}
-            mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
+            mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""} //TODO creo que es || no &&
             tituloBusqueda="Estadísticas de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus estadísticas"
             buscador={
@@ -52,7 +58,12 @@ export default function EstadisticasUsuario() {
                             <span className="text-truncate">
                                 Estadísticas de <b className="ms-1">{usuario}</b>
                             </span>
-                            {nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}
+                            {nivel &&
+                                <EtiquetaNivel
+                                    evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
+                                    nivel={nivel}
+                                />
+                            }
 
                         </>
                         : undefined

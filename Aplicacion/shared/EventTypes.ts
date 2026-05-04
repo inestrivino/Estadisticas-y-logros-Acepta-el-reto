@@ -18,6 +18,9 @@ export const EventType = {
   //RANKING USUARIOS
   ACTUALIZACION_RANKING: "reload-rankingUsuarios",
 
+  //NIVEL EXPERIENCIA USUARIO
+  USUARIO_NIVEL: "reload-nivelUsuario",
+
   //PARA AVISAR DE QUE SE HAN CARGADO MAS ENVIOS DE LA CARGA INICIAL
   CARGA_ENVIOS: "reload-cargaEnvios"
 } as const;

@@ -4,11 +4,13 @@ import Spinner from "react-bootstrap/Spinner";
 import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
 import { socket } from "../services/socket.ts";
-import { EventType } from "shared";
+import { EventType, formatEvent } from "shared";
 import { useQueryState } from "../hooks/useQueryState.tsx";
 import { Link, useSearchParams } from "react-router-dom";
 import "./TablaDeClasificaion.css";
 import { Badge } from "react-bootstrap";
+import EtiquetaNivel from "../componentes/etiquetaNivel.tsx";
+import { NivelUsuario } from "shared/NivelUsuarios.ts";
 
 type datoUsuario = {
     nombre: string,
@@ -59,7 +61,7 @@ export default function TablaDeClasificacion() {
     };
 
     // NIVEL
-    const [nivel, setNivel] = useState<string>("");
+    const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
         fetch(`/api/usuarios/${usuario}/nivel`)
             .then(response => response.json())
@@ -208,7 +210,13 @@ export default function TablaDeClasificacion() {
                     dir="rtl"
                     label={
                         <span>
-                            Filtrar por nivel <Badge bg="secondary">{nivel}</Badge>
+                            Filtrar por nivel
+                            {nivel &&
+                                <EtiquetaNivel
+                                    evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
+                                    nivel={nivel}
+                                />
+                            }
                         </span>
                     }
                     checked={porNivel}

@@ -18,6 +18,15 @@ type InfoActualizacionesRanking = {
     maxPos: number //ultima possicion del ranking afectada
 }
 
+export enum NivelUsuario {
+  APRENDIZ = "Aprendiz",
+  COMPETENTE = "Competente",
+  HABIL = "Hábil",
+  ESPECIALISTA = "Especialista",
+  MAESTRO = "Maestro",
+  SIN_NIVEL = ""
+}
+
 class XPService {
 
     private xpUsuarios = new Map<string, number>();
@@ -241,7 +250,8 @@ class XPService {
      * @returns String del nombre del nivel al que pertenece.
      */
     async getNivelUsuario(usuario: string) {
-        const xp = await xpDAO.getXPUsuario(usuario);
+        const u = usuario.toLowerCase().normalize("NFC").trim();
+        const xp = await xpDAO.getXPUsuario(u);
         return this.getNivelFromXP(xp);
     }
 
@@ -250,15 +260,15 @@ class XPService {
      * @param xp - Cantidad de xp.
      * @returns String correspondiente al nivel.
      */
-    private getNivelFromXP(xp: number) {
+    private getNivelFromXP(xp: number): NivelUsuario {
         if (xp !== -1) {
-            if (xp <= 100) return "Aprendiz"
-            if (xp <= 500) return "Competente"
-            if (xp <= 1000) return "Hábil"
-            if (xp <= 2000) return "Especialista"
-            return "Maestro"
+            if (xp <= 100) return NivelUsuario.APRENDIZ;
+            if (xp <= 500) return NivelUsuario.COMPETENTE;
+            if (xp <= 1000) return NivelUsuario.HABIL;
+            if (xp <= 2000) return NivelUsuario.ESPECIALISTA;
+            return NivelUsuario.MAESTRO;
         }
-        return "";
+        return NivelUsuario.SIN_NIVEL;
     }
 
     /**

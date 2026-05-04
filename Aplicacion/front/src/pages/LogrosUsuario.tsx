@@ -5,6 +5,9 @@ import Badge from 'react-bootstrap/Badge';
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import LogrosUsuarioComp from "../componentes/LogrosUsuarioComp/logrosUsuarioComp";
+import EtiquetaNivel from "../componentes/etiquetaNivel";
+import { EventType, formatEvent } from "shared";
+import { NivelUsuario } from "shared/NivelUsuarios";
 
 export default function LogrosUsuario() {
     const params = useParams();
@@ -32,7 +35,7 @@ export default function LogrosUsuario() {
     }, [usuario, navigate]);
 
     // NIVEL
-    const [nivel, setNivel] = useState<string>("");
+    const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
         fetch(`/api/usuarios/${usuario}/nivel`)
             .then(response => response.json())
@@ -55,7 +58,12 @@ export default function LogrosUsuario() {
                             <span className="text-truncate">
                                 Logros de <b className="ms-1">{usuario}</b>
                             </span>
-                            {nivel && <Badge bg="secondary" className="ms-2">{nivel}</Badge>}
+                            {nivel &&
+                                <EtiquetaNivel
+                                    evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
+                                    nivel={nivel}
+                                />
+                            }
 
                         </>
                         : undefined
