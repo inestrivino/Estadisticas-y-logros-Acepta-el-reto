@@ -121,7 +121,7 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.num,
-            usuario: envio.user.nick,
+            usuario: envio.user.nick.toLowerCase().normalize("NFC").trim(),
             problema: envio.problem.title,
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.result,
@@ -150,7 +150,7 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.sid,
-            usuario: envio.nick,
+            usuario: envio.nick.toLowerCase().normalize("NFC").trim(),
             problema: problema.title,
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.ver,

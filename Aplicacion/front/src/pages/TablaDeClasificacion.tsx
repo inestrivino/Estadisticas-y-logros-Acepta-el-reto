@@ -63,10 +63,13 @@ export default function TablaDeClasificacion() {
     // NIVEL
     const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
-        fetch(`/api/usuarios/${usuario}/nivel`)
-            .then(response => response.json())
-            .then(data => setNivel(data));
-    }, [usuario]);
+        if (usuarioExiste) {
+            fetch(`/api/usuarios/${usuario}/nivel`)
+                .then(response => response.json())
+                .then(data => setNivel(data));
+        }
+
+    }, [usuario, usuarioExiste]);
 
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -76,7 +79,7 @@ export default function TablaDeClasificacion() {
             const next = new URLSearchParams(prev);
 
             // si no hay usuario pone el filtrado de nivel a false
-            const nivelFinal = usuario ? (prev.get("nivel") ?? porNivelStr) : "false";
+            const nivelFinal = usuario && usuarioExiste ? (prev.get("nivel") ?? porNivelStr) : "false";
             if (!prev.get("nivel") || !usuario) next.set("nivel", nivelFinal);
 
             //if (!prev.get("nivel")) next.set("nivel", usuario ? porNivelStr : "false");

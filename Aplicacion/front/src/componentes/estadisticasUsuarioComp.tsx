@@ -21,6 +21,7 @@ export default function EstadisticasUsuarioComp(props: {
     //ENVIOS
     const [envios, setEnvios] = useState<{ timeStamp: number, value: number }[]>([]);
     useEffect(() => {
+        if(!usuario) return;
         fetch(`/api/usuarios/${usuario}/enviosAnio`)
             .then(response => response.json())
             .then(data => setEnvios(data));
@@ -29,6 +30,7 @@ export default function EstadisticasUsuarioComp(props: {
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
+        if(!usuario) return;
         fetch(`/api/usuarios/${usuario}/resultados`)
             .then(response => response.json())
             .then(data => setResultados(data));
@@ -37,6 +39,7 @@ export default function EstadisticasUsuarioComp(props: {
     //LENGUAJES
     const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
+        if(!usuario) return;
         fetch(`/api/usuarios/${usuario}/lenguajes`)
             .then(response => response.json())
             .then(data => setLenguajes(data));

@@ -14,9 +14,6 @@ export default function EstadisticasUsuario() {
     const params = useParams();
 
     const usuario = params.usuario || localStorage.getItem("usuarioActual") || "";
-    if(usuario !== localStorage.getItem("usuarioActual")) {
-        localStorage.setItem("usuarioActual", usuario);
-    }
 
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
     useEffect(() => {
@@ -26,21 +23,28 @@ export default function EstadisticasUsuario() {
             .then(res => res.json())
             .then(data => {
                 setUsuarioExiste(data.existe);
+                if (data.existe && usuario !== localStorage.getItem("usuarioActual")) {
+                    localStorage.setItem("usuarioActual", usuario);
+                }
             });
     }, [usuario]);
 
     const navigate = useNavigate();
     useEffect(() => {
+        if(!usuarioExiste) return;
         navigate(`/usuarios/estadisticas/${usuario}`, { replace: true });
-    }, [usuario, navigate]);
+    }, [usuario, usuarioExiste, navigate]);
 
     // NIVEL
     const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
-        fetch(`/api/usuarios/${usuario}/nivel`)
-            .then(response => response.json())
-            .then(data => setNivel(data));
-    }, [usuario]);
+        if (usuarioExiste) {
+            fetch(`/api/usuarios/${usuario}/nivel`)
+                .then(response => response.json())
+                .then(data => setNivel(data));
+        }
+
+    }, [usuario, usuarioExiste]);
 
     return (
         <PlantillaBusqueda
@@ -70,7 +74,7 @@ export default function EstadisticasUsuario() {
                     }
                 />
             }
-            children={usuario && <EstadisticasUsuarioComp key={usuario} usuario={usuario} />}
+            children={usuarioExiste === true && usuario !== "" && <EstadisticasUsuarioComp key={usuario} usuario={usuario} />}
         />
     )
 }

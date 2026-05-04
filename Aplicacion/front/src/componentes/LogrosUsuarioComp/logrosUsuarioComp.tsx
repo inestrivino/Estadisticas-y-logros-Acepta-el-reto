@@ -26,6 +26,8 @@ export default function LogrosUsuarioComp(props: {
 
     const [logros, setLogros] = useState<ListadoLogros>();
     useEffect(() => {
+        if (!usuario) return;
+
         fetch(`/api/usuarios/${usuario}/logros?clasificacion=${key}`)
             .then(response => response.json())
             .then(data => { setLogros(data); });
@@ -69,6 +71,7 @@ export default function LogrosUsuarioComp(props: {
 
                     {logros?.grupos.map((logrosGrupo, idx) => (
                         <GrupoLogro
+                            key={idx}
                             dimensiones={{ width: 1100, height: 300, outerRadius: 0 }}
                             color={getGroupColor(logrosGrupo.grupo)}
                             datos={logrosGrupo}

@@ -23,24 +23,32 @@ export default function LogrosUsuario() {
             .then(res => res.json())
             .then(data => {
                 setUsuarioExiste(data.existe);
+                if (data.existe && usuario !== localStorage.getItem("usuarioActual")) {
+                    localStorage.setItem("usuarioActual", usuario);
+                }
             });
     }, [usuario]);
 
     const navigate = useNavigate();
     useEffect(() => {
+        if(!usuarioExiste) return;
+
         const clasificacionGuardada = searchParams.get("clasificacion")
             ?? localStorage.getItem("clasificacion")
             ?? "nivel";
         navigate(`/usuarios/logros/${usuario}?clasificacion=${clasificacionGuardada}`, { replace: true });
-    }, [usuario, navigate]);
+    }, [usuario, usuarioExiste, navigate]);
 
     // NIVEL
     const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
     useEffect(() => {
-        fetch(`/api/usuarios/${usuario}/nivel`)
-            .then(response => response.json())
-            .then(data => setNivel(data));
-    }, [usuario]);
+        if (usuarioExiste) {
+            fetch(`/api/usuarios/${usuario}/nivel`)
+                .then(response => response.json())
+                .then(data => setNivel(data));
+        }
+
+    }, [usuario, usuarioExiste]);
 
     return (
         <PlantillaBusqueda
@@ -70,7 +78,7 @@ export default function LogrosUsuario() {
                     }
                 />
             }
-            children={usuario && <LogrosUsuarioComp key={usuario} usuario={usuario} />}
+            children={usuarioExiste === true && usuario !== "" && <LogrosUsuarioComp key={usuario} usuario={usuario} />}
         />
     )
 }

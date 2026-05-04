@@ -17,7 +17,7 @@ class LogrosService {
      * @returns Objeto con la clasificacion y los grupos de logros.
      */
     public async getLogrosUsuario(usuario: string, clasificacion: string) {
-        const setLogros = new Set(await logrosDAO.getLogros(usuario));
+        const setLogros = new Set(await logrosDAO.getLogros(usuario.toLowerCase().normalize("NFC").trim()));
 
         //agrega el atributo de si el usuario tiene ese logro o no
         const logrosUsuario = logros.map(logro => ({
@@ -104,6 +104,9 @@ class LogrosService {
             const estadoUsuario = estadosUsuarios.get(usuario) as EstadoUsuario;
             //y se comprueban los logros, se pone a false porque no dependen del estado del juez
             const nuevos = this.comprobarLogros(false, estadoUsuario);
+
+            if (!this.nuevosPorUsuario.has(usuario))
+                this.nuevosPorUsuario.set(usuario, new Set());
 
             for (const trofeo of nuevos) {
                 this.nuevosPorUsuario.get(usuario)?.add(trofeo);

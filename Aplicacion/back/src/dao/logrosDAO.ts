@@ -11,7 +11,7 @@ class LogrosDAO extends DAO {
         const pipeline = this.redis.multi();
         for (const dato of datos)
             if (dato.logros.length > 0)
-                pipeline.sAdd(`usuario:${dato.usuario}:logros`, dato.logros);
+                pipeline.sAdd(`usuario:${dato.usuario.toLowerCase().normalize("NFC").trim()}:logros`, dato.logros);
         await pipeline.exec();
     }
 
