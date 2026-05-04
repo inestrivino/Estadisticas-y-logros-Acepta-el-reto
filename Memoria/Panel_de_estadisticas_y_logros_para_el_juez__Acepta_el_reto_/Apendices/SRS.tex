@@ -203,6 +203,15 @@ El sistema expone y consume las siguientes interfaces externas:
     \item \textbf{Método de verificación:} Test de usabilidad.
 \end{itemize}
 
+\textbf{REQ-NF-004}
+\begin{itemize}
+    \item \textbf{Título:} Capacidad de integrarse con el OJ \aer
+    \item \textbf{Descripción:} El diseño e implementación de la aplicación deben posibilitar la futura integración de la aplicación en la estructura general de \aer, gracias a un enfoque modular, y comprensión del sistema de eventos existente.
+    \item \textbf{Racional:} Facilitar la puesta en marcha del sistema en el entorno real (el OJ \aer), donde podrá ofrecer su utilidad completa.
+    \item \textbf{Criterio de aceptación:} La aplicación debe demostrar una arquitectura modular, con una capa de negocio independiente de la interfaz y el manejo de la base de datos, y usar sistemas de manejo de eventos abstractos que se pueda reutilizar y cambiar fácilmente. 
+    \item \textbf{Método de verificación:} Revisión del código en grupo para validar el cumplimiento de los principios de diseño modular y desacoplado.
+\end{itemize}
+
 \subsection{Diseño e implementación}
 
 El sistema deberá diseñarse siguiendo principios de modularidad y desacoplamiento para facilitar su mantenimiento y posible integración futura.

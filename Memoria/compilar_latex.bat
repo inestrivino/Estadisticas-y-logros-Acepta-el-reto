@@ -7,7 +7,7 @@ REM Obtenemos la carpeta donde está el script
 SET SCRIPT_DIR=%~dp0
 
 REM Directorio objetivo absoluto
-SET TARGET_DIR=%SCRIPT_DIR%Panel_de_estadísticas_y_logros_para_el_juez__Acepta_el_reto_\
+SET TARGET_DIR=%SCRIPT_DIR%Panel_de_estadisticas_y_logros_para_el_juez__Acepta_el_reto_\
 
 echo Directorio actual: %CD%
 echo Directorio objetivo: %TARGET_DIR%

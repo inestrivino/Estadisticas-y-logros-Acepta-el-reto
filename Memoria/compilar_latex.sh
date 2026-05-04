@@ -4,7 +4,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Directorio objetivo absoluto
-TARGET_DIR="$SCRIPT_DIR/Panel_de_estadísticas_y_logros_para_el_juez__Acepta_el_reto_"
+TARGET_DIR="$SCRIPT_DIR/Panel_de_estadisticas_y_logros_para_el_juez__Acepta_el_reto_"
 
 echo "Directorio actual: $(pwd)"
 echo "Directorio objetivo: $TARGET_DIR"

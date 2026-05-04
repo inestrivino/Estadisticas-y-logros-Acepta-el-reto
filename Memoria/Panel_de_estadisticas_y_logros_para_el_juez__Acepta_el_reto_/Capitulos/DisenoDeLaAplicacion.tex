@@ -373,31 +373,56 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
     \label{fig:guiaEstilos}
 \end{figure}
 
-% TO DO REFERENCIAR ESTA FIGURA EN ALGUNA PARTE CUANDO TERMINE DE ESCRIBIR ESTA SECCIÓN
-
 En cuanto a los elementos de la interacción humano-máquina, tendremos en cuenta las heurísticas presentadas en \cite{Nielsen_1994}. En concreto para esta aplicación son importantes la visibilidad del estado del sistema, la equivalencia entre el sistema y el mundo real, y una representación de la información que simplifique el reconocimiento de los usuarios de la información, en vez de apelar a su memoria. 
 
 Manteniendo las heurísticas en mente, debemos definir tanto las pantallas del sistema, como su colocación de elementos para facilitar el uso (UX). Para ello, se han realizado una serie de \textit{wireframes}, una por cada pantalla de la aplicación. Las pantallas de la aplicación son:
 \begin{itemize}
-    \item Inicio
-    \item Estadísticas de usuario
+    \item Inicio.
+    \item Estadísticas de usuario.
     \begin{itemize}
-        \item Estadísticas
-        \item Medallero
+        \item Estadísticas, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireEstaUsuario}.
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_estadisticas_usuario.png}
+            \caption{\textit{Wireframe} de estadísticas de usuario}
+            \label{fig:wireEstaUsuario}
+        \end{figure}
+        \item Medallero, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireMedaUsuario}.
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_logros_usuario.png}
+            \caption{\textit{Wireframe} del medallero del usuario}
+            \label{fig:wireMedaUsuario}
+        \end{figure}
     \end{itemize}
-    \item Estadísticas de un ejercicio
-    \item Tabla de clasificación
+    \item Estadísticas de un problema, cuyo \textit{wireframe} se puede ver en la figura \ref{fig:wireEstaProblema}.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_estadisticas_problema.png}
+        \caption{\textit{Wireframe} de las estadísticas de un problema}
+        \label{fig:wireEstaProblema}
+    \end{figure}
+    \item Tabla de clasificación, cuyo \textit{wireframe} se puede ver en la figura \ref{fig:wireClasificacion}.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_tabla_clasificacion.png}
+        \caption{\textit{Wireframe} de la tabla de clasificación}
+        \label{fig:wireClasificacion}
+    \end{figure}
 \end{itemize}
 
-TO DO : WIREFRAMES UX
-
-TO DO: REPRESENTACIÓN DE LA INFORMACIÓN, DASHBOARDS
-
-TO DO: DISEÑO DE LAS PLACAS DE LOGROS
+TO DO : AÑADIR LAS PLACAS DE LOGROS
 
 \section{Arquitectura a alto nivel}
 
-TO DO: MOVER LA MAYOR PARTE DE ESTO A IMPLEMENTACIÓN
+Una introducción que mencione el objetivo de la arquitectura y sus principios guía (staisfacer los requisitos funcionales y no funcionales). 
+
+Una vista general de la arquitectura con un diagrama de cajas y flechas que muestre los componentes principales (frontend, backend, base de datos, integración con el juez (APIs, webhooks)) y cómo se lleva a cabo en alto nivel el flujo de datos. Explicar cada componente, su propósito y las interacciones en texto a alto nivel.
+
+Mencionar patrones concpetuales que vamos a utilizar (observer, MVC, repository?)
+
+Terminar explicando en detalle cómo esta arquitectura satisface los requisitos funcionales y no funcionales.
+
 
 El diseño de la arquitectura del sistema ha sido ideado atendiendo a los requisitos no funcionales definidos para la aplicación en el apéndice \ref{cap:SRS}. En concreto, los requisitos de rendimiento (REQ-NF-001) y fiabilidad de los datos (REQ-NF-002) exigen la selección de tecnologías eficientes y robustas, capaces de garantizar un procesamiento ágil y una gestión segura de la información. Por otro lado, el requisito de usabilidad (REQ-NF-003) subraya la necesidad de implementar una interfaz y experiencia de usuario no solo intuitiva y personalizable, sino también mantenible y escalable a largo plazo.
 
