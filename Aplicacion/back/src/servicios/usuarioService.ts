@@ -1,14 +1,24 @@
-import usuarioDAO from '../../dao/usuarioDAO.js';
-import { EstadoUsuario } from '../../types/estados/estadoUsuario.js';
+import usuarioDAO from '../dao/usuarioDAO.js';
+import { EstadoUsuario } from '../types/estados/estadoUsuario.js';
 
-class EstadisticasUsuarioBase {
+class UsuarioService {
 
     /**
      * Registra el estado de varios usuarios en base de datos.
      * @param estadosUsuarios - Mapa de nombre de usuario a su estado.
+     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
      */
     async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
         await usuarioDAO.registrarEstadosUsuarios(estadosUsuarios);
+    }
+
+    /**
+     * Borra los campos de los registradores indicados para cada usuario del mapa.
+     * @param estadosUsuarios - Mapa de identificador de usuario a su estado.
+     * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
+     */
+    async borrarEstadosUsuarios(ids: Set<string>): Promise<void> {
+        await usuarioDAO.borrarEstados(ids);
     }
 
     /**
@@ -171,4 +181,4 @@ class EstadisticasUsuarioBase {
     }
 }
 
-export default new EstadisticasUsuarioBase();
+export default new UsuarioService();

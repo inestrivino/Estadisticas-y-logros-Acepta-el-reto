@@ -1,14 +1,24 @@
-import problemaDAO from '../../dao/problemaDAO.js';
-import { EstadoProblema } from '../../types/estados/estadoProblema.js';
+import problemaDAO from '../dao/problemaDAO.js';
+import { EstadoProblema } from '../types/estados/estadoProblema.js';
 
 class ProblemaService {
    
     /**
      * Persiste el estado final de un bloque de problemas en Redis.
      * @param estadosProblemas - Mapa de identificador de problema a su estado final.
+     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
      */
     public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>) {
         return await problemaDAO.registrarEstadosProblemas(estadosProblemas);
+    }
+
+    /**
+     * Borra los campos de los registradores indicados para cada problema del mapa.
+     * @param estadosProblemas - Mapa de identificador de problema a su estado.
+     * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
+     */
+    public async borrarEstadosProblemas(ids: Set<string>): Promise<void> {
+        await problemaDAO.borrarEstados(ids);
     }
 
     /**
