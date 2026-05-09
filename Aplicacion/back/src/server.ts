@@ -12,7 +12,8 @@ import initConsumer from "./consumer/cosumer.js";
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
 import rutasGestion from "./api/gestion.js";
-import usuarioService from './servicios/usuarios/estadisticasUsuarioBaseService.js';
+import usuarioService from './servicios/usuarioService.js';
+import checkpointsService from './servicios/checkpointsService.js';
 
 //============== CONFIGURACION ==============
 const app = express();
@@ -35,15 +36,17 @@ app.listen(3000, (error) => {
 await redisClient.connect();
 await redisLoading();
 
-//se comprueba si se tiene que volver a procesar los envios
-//TODO
-process.env.dbVersion
-
 //se eliminan los envios anteriores a un año
 await usuarioService.eliminarEnviosAntiguos(); 
 
 //incializo el socket
 initSocket(app);
+
+//comprueba si hay que volver a lanzar la aplicacion de 0
+await gestionService.checkVersion();
+
+//se mira si algun actualizador ha cambiado de version o si hay alguno nuevo
+await checkpointsService.comprobarVersiones();
 
 //inicializo la base de datos de redis con los datos historicos
 await inicializarService.inicializar();

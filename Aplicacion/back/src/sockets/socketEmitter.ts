@@ -1,7 +1,7 @@
 import { getIO } from "./socketInit.js"
 import { EventType, formatEvent } from "shared";
 import problemaDAO from "../dao/problemaDAO.js";
-import usuarioService from "../servicios/usuarios/estadisticasUsuarioBaseService.js";
+import usuarioService from "../servicios/usuarioService.js";
 import logrosService from "../servicios/logros/logrosService.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 
