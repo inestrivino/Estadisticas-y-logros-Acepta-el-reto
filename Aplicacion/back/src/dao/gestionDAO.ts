@@ -70,9 +70,88 @@ class GestionDAO extends DAO {
         return porcentaje ? Number(porcentaje) : 0;
     }
 
-    //DEBUG
-    //TODO
-    /** Elimina todos los datos de Redis. Solo para uso en depuracion. */
+    //=============================== VERSIONES Y CHECKPOINTS ===============================
+
+    /**
+     * Devuelve la version aplicada de la estadistica indicada, o 0 si nunca se aplico.
+     */
+    public async getVersionStat(id: string): Promise<number> {
+        const v = await this.redis.get(`meta:stat:${id}:version`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste la version aplicada de la estadistica indicada.
+     */
+    public async setVersionStat(id: string, version: number) {
+        await this.redis.set(`meta:stat:${id}:version`, String(version));
+    }
+
+    /**
+     * Devuelve el numero del ultimo envio procesado por la estadistica indicada, o 0 si ninguno.
+     */
+    public async getCheckpointStat(id: string): Promise<number> {
+        const v = await this.redis.get(`meta:stat:${id}:envio`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste el numero del ultimo envio procesado por la estadistica indicada.
+     */
+    public async setCheckpointStat(id: string, envio: number) {
+        await this.redis.set(`meta:stat:${id}:envio`, String(envio));
+    }
+
+    /**
+     * Devuelve la version aplicada del logro indicado, o 0 si nunca se aplico.
+     */
+    public async getVersionLogro(id: string): Promise<number> {
+        const v = await this.redis.get(`meta:logro:${id}:version`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste la version aplicada del logro indicado.
+     */
+    public async setVersionLogro(id: string, version: number) {
+        await this.redis.set(`meta:logro:${id}:version`, String(version));
+    }
+
+    /**
+     * Devuelve el numero del ultimo envio procesado por el logro indicado, o 0 si ninguno.
+     */
+    public async getCheckpointLogro(id: string): Promise<number> {
+        const v = await this.redis.get(`meta:logro:${id}:envio`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste el numero del ultimo envio procesado por el logro indicado.
+     */
+    public async setCheckpointLogro(id: string, envio: number) {
+        await this.redis.set(`meta:logro:${id}:envio`, String(envio));
+    }
+
+    /**
+     * Devuelve la version de la aplicacion almacenada en Redis, o 0 si no hay ninguna.
+     * @returns Version de la aplicacion.
+     */
+    public async getVersion(): Promise<number> {
+        const v = await this.redis.get(`meta:app:version`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste la version de la aplicacion en Redis.
+     * @param version - Version de la aplicacion.
+     */
+    public async setVersion(version: number) {
+        await this.redis.set(`meta:app:version`, String(version));
+    }
+
+    /**
+     * Elimina todos los datos de Redis.
+     */
     public async flushAll() {
         await this.redis.flushAll();
     }

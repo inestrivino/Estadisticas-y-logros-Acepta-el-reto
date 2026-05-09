@@ -25,6 +25,20 @@ class LogrosDAO extends DAO {
     }
 
     /**
+     * Elimina un logro concreto del set de logros de cada usuario en Redis.
+     * Se usa al recalcular un logro cuya version cambio: se quita de todos los usuarios
+     * para que se reevalue su condicion durante el reproceso de envios.
+     * @param logro - Nombre del logro a eliminar.
+     */
+    public async borrarLogro(logro: string): Promise<void> {
+        const pipeline = this.redis.multi();
+        for await (const keys of this.redis.scanIterator({ MATCH: 'logros:*', COUNT: 100 }))
+            for (const key of keys)
+                pipeline.sRem(key, logro);
+        await pipeline.exec();
+    }
+
+    /**
      * Elimina de Redis todas las claves gestionadas por este DAO.
      */
     public async borrarTodo(): Promise<void> {

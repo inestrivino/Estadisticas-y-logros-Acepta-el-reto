@@ -1,105 +1,90 @@
 import DAO from "./DAO.js";
-import redisClient from '../redis/redisClient.js';
-import { datosUsuario } from "../types/datos/datosUsuario.js";
+import { RegistradorUsuario } from "./registradores/usuarioRegistradorInterface.js";
+import registradorEnvios    from "./registradores/usuarios/enviosRegistrador.js";
+import registradorRachas    from "./registradores/usuarios/rachasRegistrador.js";
+import registradorProblemas from "./registradores/usuarios/problemasRegistrador.js";
+import registradorHoras     from "./registradores/usuarios/horasRegistrador.js";
+import registradorResultados from "./registradores/usuarios/resultadosRegistrador.js";
+import registradorLenguajes from "./registradores/usuarios/lenguajesRegistrador.js";
+import registradorDiasValor from "./registradores/usuarios/diasValorRegistrador.js";
+import { CampoUsuario } from "../types/estados/camposEstadoUsuario.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
-
-type Pipeline = ReturnType<typeof redisClient.multi>;
 
 class UsuarioDAO extends DAO {
 
     //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
-    private registradores = [
-        this.registrarEnvios,
-        this.registrarFechaUltimoEnvio,
-        this.registrarRachaEnviosAC,
-        this.registrarRachaDiasEnvio,
-        this.registrarProblemasAC,
-        this.registrarHoras,
-        this.registrarResultados,
-        this.registrarLenguajes,
-        this.registrarLenguajesAC,
-        this.registrarLenguajesProblemas,
-        this.registrarDiasValor,
+    private registradores: RegistradorUsuario[] = [
+        registradorEnvios,
+        registradorRachas,
+        registradorProblemas,
+        registradorHoras,
+        registradorResultados,
+        registradorLenguajes,
+        registradorDiasValor,
     ];
 
     /**
      * Persiste en Redis el estado completo de cada usuario del mapa usando un pipeline.
-     * Sobreescribe todos los campos calculados durante el procesamiento del bloque
-     * porque de antes ya habia cargado los datos que habia previamente.
+     * Si se indica `statsActivos`, solo se escriben los campos de esos calculadores;
+     * si no se indica se escriben todos.
      * @param estadosUsuarios - Mapa de identificador de usuario a su estado final.
+     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
      */
     public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
         const pipeline = this.redis.multi();
 
         for (const [usuario, estado] of estadosUsuarios)
-            for (const registrador of this.registradores)
-                registrador(pipeline, usuario, estado);
+            for (const { id, registrar } of this.registradores)
+                if (estado[id] !== undefined)
+                    registrar(pipeline, usuario, estado);
 
         await pipeline.exec();
     }
 
-    private registrarEnvios(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
+    /**
+     * Borra todos los datos de Redis de los registradores cuyos ids se indiquen.
+     * @param ids - Conjunto de ids de registradores cuyos datos hay que borrar.
+     */
+    public async borrarEstados(ids: Set<string>): Promise<void> {
+        for (const registrador of this.registradores)
+            if (ids.has(registrador.id))
+                await registrador.borrar();
     }
 
-    private registrarFechaUltimoEnvio(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
-    }
+    ////============================== MODIFICADORES ==============================
 
-    private registrarRachaEnviosAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));
-        pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, String(estado.rachaEnviosACMax));
-    }
+    /**
+     * Elimina de Redis todos los registros de envios del dia indicado y anteriores.
+     * @param timeStamp - Timestamp en segundos del dia mas reciente a eliminar.
+     */
+    public async eliminarEnviosAnterioresDia(timeStamp: number) {
 
-    private registrarRachaDiasEnvio(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        pipeline.set(`usuario:${usuario}:rachaDiasEnvio`, String(estado.rachaDiasEnvio));
-        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`, String(estado.rachaDiasEnvioMax));
-    }
+        //se sacan todos lo dias registrados hasta el dia indicado
+        const timestamps = (await this.redis.zRange(`timestamps`, '-inf', timeStamp, { BY: 'SCORE' })).map(Number);
 
-    private registrarProblemasAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        if (estado.problemasAC.size > 0)
-            pipeline.sAdd(`usuario:${usuario}:problemasAC`, Array.from(estado.problemasAC));
-    }
-
-    private registrarHoras(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        if (estado.horas.size > 0)
-            pipeline.sAdd(`usuario:${usuario}:horas`, Array.from(estado.horas).map(String));
-    }
-
-    private registrarResultados(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        if (estado.resultados.size > 0)
-            pipeline.hSet(`usuario:${usuario}:resultados`, Object.fromEntries(
-                Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
-            ));
-    }
-
-    private registrarLenguajes(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        if (estado.lenguajesConteo.size > 0)
-            pipeline.hSet(`usuario:${usuario}:lenguajes`, Object.fromEntries(
-                Array.from(estado.lenguajesConteo.entries()).map(([k, v]) => [k, String(v)])
-            ));
-    }
-
-    private registrarLenguajesAC(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        if (estado.lenguajesAC.size > 0)
-            pipeline.hSet(`usuario:${usuario}:lenguajesAC`, Object.fromEntries(
-                Array.from(estado.lenguajesAC.entries()).map(([k, v]) => [k, String(v)])
-            ));
-    }
-
-    private registrarLenguajesProblemas(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        for (const [lenguaje, problemas] of estado.lenguajesProblemasResueltos)
-            if (problemas.size > 0)
-                pipeline.sAdd(`usuario:${usuario}:lenguaje:${lenguaje}`, Array.from(problemas));
-    }
-
-    private registrarDiasValor(pipeline: Pipeline, usuario: string, estado: EstadoUsuario) {
-        for (const [ts, cantidad] of estado.diasValor) {
-            pipeline.hSet(`usuario:${usuario}:diasValor`, String(ts), String(cantidad));
-            pipeline.zAdd(`usuario:${usuario}:dias`, [{ score: ts, value: String(ts) }]);
-            pipeline.sAdd(`timestamp:${ts}`, String(usuario));
-            pipeline.zAdd(`timestamps`, [{ score: ts, value: String(ts) }]);
+        const pipeline = this.redis.multi();
+        
+        //se itera por los timestamps y se eliminan los datos del usuario y las datos auxiliares
+        for (const ts of timestamps) {
+            await this.eliminarEnviosDia(ts, pipeline);
+            pipeline.del(`timestamp:${ts}`);
+            pipeline.zRem(`timestamps`, String(ts));
         }
+
+        await pipeline.exec();
+    }
+
+    private async eliminarEnviosDia(timeStamp: number, pipeline: ReturnType<typeof this.redis.multi>) {
+
+        //se sacan los usuarios que hicieron envios en ese dia
+        const usuarios:string[] = await this.redis.sMembers(`timestamp:${timeStamp}`);
+
+        for (const usuario of usuarios) {
+            pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
+            pipeline.hDel(`usuario:${usuario}:diasValor`, String(timeStamp));
+        }
+
+        console.log(` - Eliminados envios del dia ${timeStamp}`);
     }
 
     //============================== CONSULTAS ==============================
@@ -155,47 +140,13 @@ class UsuarioDAO extends DAO {
     }
 
     /**
-     * Elimina de Redis todos los registros de envios del dia indicado y anteriores.
-     * @param timeStamp - Timestamp en segundos del dia mas reciente a eliminar.
-     */
-    public async eliminarEnviosAnterioresDia(timeStamp: number) {
-
-        //se sacan todos lo dias registrados hasta el dia indicado
-        const timestamps = (await this.redis.zRange(`timestamps`, '-inf', timeStamp, { BY: 'SCORE' })).map(Number);
-
-        const pipeline = this.redis.multi();
-        
-        //se itera por los timestamps y se eliminan los datos del usuario y las datos auxiliares
-        for (const ts of timestamps) {
-            await this.eliminarEnviosDia(ts, pipeline);
-            pipeline.del(`timestamp:${ts}`);
-            pipeline.zRem(`timestamps`, String(ts));
-        }
-
-        await pipeline.exec();
-    }
-
-    private async eliminarEnviosDia(timeStamp: number, pipeline: ReturnType<typeof this.redis.multi>) {
-
-        //se sacan los usuarios que hicieron envios en ese dia
-        const usuarios:string[] = await this.redis.sMembers(`timestamp:${timeStamp}`);
-
-        for (const usuario of usuarios) {
-            pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
-            pipeline.hDel(`usuario:${usuario}:diasValor`, String(timeStamp));
-        }
-
-        console.log(` - Eliminados envios del dia ${timeStamp}`);
-    }
-
-    /**
      * Devuelve el numero total de envios del usuario, o 0 si no tiene ninguno.
      * @param usuario - Identificador del usuario.
      * @returns Numero de envios.
      */
     public async getNumEnvios(usuario: string): Promise<number> {
         const enviosStr = await this.redis.get(`usuario:${usuario}:envios`);
-        const envios = enviosStr ? Number(enviosStr) : 0;
+        const envios = enviosStr ? Number(enviosStr) || 0 : 0;
         return envios;
     }
 
@@ -359,21 +310,6 @@ class UsuarioDAO extends DAO {
         return Object.entries(datos).map(([timestamp, value]) => ({ timestamp: Number(timestamp), value: Number(value) }));
     }
 
-    /**
-     * Elimina de Redis todas las claves gestionadas por este DAO.
-     */
-    public async borrarTodo(): Promise<void> {
-        const pipeline = this.redis.multi();
-
-        for await (const keys of this.redis.scanIterator({ MATCH: 'usuario:*', COUNT: 100 }))
-            if (keys.length > 0) pipeline.del(keys);
-
-        for await (const keys of this.redis.scanIterator({ MATCH: 'timestamp:*', COUNT: 100 }))
-            if (keys.length > 0) pipeline.del(keys);
-
-        pipeline.del('timestamps');
-        await pipeline.exec();
-    }
 }
 
 export default new UsuarioDAO();

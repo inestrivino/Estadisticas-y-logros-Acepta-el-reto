@@ -1,66 +1,49 @@
 import DAO from "./DAO.js"
-import redisClient from '../redis/redisClient.js';
+import { RegistradorProblema } from "./registradores/problemaRegistradorInterface.js";
+import registradorEnvios    from "./registradores/problemas/enviosRegistrador.js";
+import registradorTiempos   from "./registradores/problemas/tiemposRegistrador.js";
+import registradorResultados from "./registradores/problemas/resultadosRegistrador.js";
+import registradorLenguajes from "./registradores/problemas/lenguajesRegistrador.js";
 import { EstadoProblema } from "../types/estados/estadoProblema.js";
-
-type Pipeline = ReturnType<typeof redisClient.multi>;
 
 class ProblemaDAO extends DAO {
 
     //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
-    private registradores = [
-        this.registrarEnvios,
-        this.registrarEnviosAC,
-        this.registrarTiempoTotal,
-        this.registrarResultados,
-        this.registrarLenguajes,
-        this.registrarTiemposEnvios,
+    private registradores: RegistradorProblema[] = [
+        registradorEnvios,
+        registradorTiempos,
+        registradorResultados,
+        registradorLenguajes,
     ];
 
     /**
      * Persiste en Redis el estado completo de cada problema del mapa usando un pipeline.
-     * Sobreescribe todos los campos calculados durante el procesamiento del bloque.
+     * Si se indica `statsActivos`, solo se escriben los campos de esos calculadores.
      * @param estadosProblemas - Mapa de identificador de problema a su estado final.
+     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
      */
     public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
         const pipeline = this.redis.multi();
 
         for (const [problema, estado] of estadosProblemas)
-            for (const registrador of this.registradores)
-                registrador(pipeline, problema, estado);
+            for (const { id, registrar } of this.registradores)
+                if (estado[id] !== undefined)
+                    registrar(pipeline, problema, estado);
 
         await pipeline.exec();
     }
 
-    private registrarEnvios(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        pipeline.set(`problema:${problema}:envios`, String(estado.envios));
+    /**
+     * Borra todos los datos de Redis de los registradores cuyos ids se indiquen.
+     * @param ids - Conjunto de ids de registradores cuyos datos hay que borrar.
+     */
+    public async borrarEstados(ids: Set<string>): Promise<void> {
+        for (const registrador of this.registradores)
+            if (ids.has(registrador.id))
+                await registrador.borrar();
     }
 
-    private registrarEnviosAC(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
-    }
-
-    private registrarTiempoTotal(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
-    }
-
-    private registrarResultados(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        if (estado.resultados.size > 0)
-            pipeline.hSet(`problema:${problema}:resultados`, Object.fromEntries(
-                Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
-            ));
-    }
-
-    private registrarLenguajes(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        if (estado.lenguajes.size > 0)
-            pipeline.hSet(`problema:${problema}:lenguajes`, Object.fromEntries(
-                Array.from(estado.lenguajes.entries()).map(([k, v]) => [k, String(v)])
-            ));
-    }
-
-    private registrarTiemposEnvios(pipeline: Pipeline, problema: string, estado: EstadoProblema) {
-        for (const [envioId, tiempo] of estado.tiemposEnvios)
-            pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
-    }
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve el numero total de envios del problema, o 0 si no hay ninguno.
@@ -164,18 +147,6 @@ class ProblemaDAO extends DAO {
     async getTiempoTotal(problema: string): Promise<number> {
         const tiempoTotal = await this.redis.get(`problema:${problema}:tiempoTotal`);
         return tiempoTotal ? Number(tiempoTotal) : 0;
-    }
-
-    /**
-     * Elimina de Redis todas las claves gestionadas por este DAO.
-     */
-    public async borrarTodo(): Promise<void> {
-        const pipeline = this.redis.multi();
-
-        for await (const keys of this.redis.scanIterator({ MATCH: 'problema:*', COUNT: 100 }))
-            if (keys.length > 0) pipeline.del(keys);
-
-        await pipeline.exec();
     }
 }
 
