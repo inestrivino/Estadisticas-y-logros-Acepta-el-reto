@@ -2,8 +2,8 @@ FROM node:lts-alpine
 
 WORKDIR /app/adapter
 
-COPY back/package.json ./
-COPY back/package-lock.json ./
+COPY adapter/package.json ./
+COPY adapter/package-lock.json ./
 
 RUN npm ci
 
