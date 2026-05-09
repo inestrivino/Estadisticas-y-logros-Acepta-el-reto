@@ -1,11 +1,11 @@
 import { datosLogro } from "../types/datos/datosLogro.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
-import { Logro, NivelLogro } from "./logros/definiciones/logro.js";
+import { NivelLogro } from "../types/enums/nivelLogro.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
-import usuarioService from "./usuarios/estadisticasUsuarioBaseService.js";
+import usuarioService from "./usuarioService.js";
 
 class XPService {
 

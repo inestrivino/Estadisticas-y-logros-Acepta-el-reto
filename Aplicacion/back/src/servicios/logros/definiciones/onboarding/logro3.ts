@@ -11,6 +11,9 @@ const logro3: Logro = {
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,
 
+    version: 1,
+    requiereEstadisticas: ["logrosUsuario"],
+
     enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.logros.size >= 5

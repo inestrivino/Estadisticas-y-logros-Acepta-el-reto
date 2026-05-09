@@ -11,6 +11,9 @@ const logro11: Logro = {
     categoria: CategoriaLogro.LENGUAJES,
     sorpresa: false,
 
+    version: 1,
+    requiereEstadisticas: ["lenguajesUsuario"],
+
     enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.lenguajes.size >= 3

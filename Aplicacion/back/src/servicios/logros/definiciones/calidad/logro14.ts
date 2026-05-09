@@ -11,6 +11,9 @@ const logro14: Logro = {
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,
 
+    version: 1,
+    requiereEstadisticas: ["problemasUsuario"],
+
     enTiempoReal: true,
 
     //se comprueba que el envio es AC y que el problema no tiene envios incorrectos previos

@@ -15,6 +15,9 @@ export class TrofeoRachaDias implements Logro {
     public readonly sorpresa = false;
     public readonly enTiempoReal = true;
 
+    public readonly version = 1;
+    public readonly requiereEstadisticas = ["rachasUsuario"];
+
     public readonly nombre: string;
     public readonly descripcion: string;
     public readonly nivel: NivelLogro;

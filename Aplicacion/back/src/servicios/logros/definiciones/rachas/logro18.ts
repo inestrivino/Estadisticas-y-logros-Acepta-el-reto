@@ -11,6 +11,9 @@ const logro18: Logro = {
     categoria: CategoriaLogro.RACHAS,
     sorpresa: true,
 
+    version: 1,
+    requiereEstadisticas: ["horasUsuario"],
+
     enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.horas.size === 24

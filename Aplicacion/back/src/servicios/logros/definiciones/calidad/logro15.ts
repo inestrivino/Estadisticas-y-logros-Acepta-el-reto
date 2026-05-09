@@ -11,6 +11,9 @@ const logro15: Logro = {
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,
 
+    version: 1,
+    requiereEstadisticas: ["enviosProblema", "tiemposProblema"],
+
     enTiempoReal: true,
 
     condicion: (estadoUsuario, estadoProblema, envio) => {

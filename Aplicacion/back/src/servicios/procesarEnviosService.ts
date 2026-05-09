@@ -1,5 +1,5 @@
-import problemaService from "./problemas/problemaService.js";
-import usuarioService from "./usuarios/usuarioService.js";
+import problemaService from "./problemaService.js";
+import usuarioService from "./usuarioService.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import { EstadoProblema } from "../types/estados/estadoProblema.js";
 import logrosService from "./logros/logrosService.js";
@@ -8,8 +8,9 @@ import { EnvioSinProcesarEvent } from "../types/envios/envioSinProcesarEvent.js"
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 import { conjuntoEmitter, routerEmitter } from "../sockets/socketEmitter.js";
 import xpService from "./xpService.js";
-import estadosService from "./estados/estadosService.js";
+import estadosService from "./estadosService.js";
 import gestionService from "./gestionService.js";
+import checkpointsService from "./checkpointsService.js";
 
 class ProcesarEnviosService {
 
@@ -17,6 +18,7 @@ class ProcesarEnviosService {
      * Parsea, procesa y persiste un bloque de envios de carga historica.
      * Actualiza el progreso de carga (ultimo envio, pagina y porcentaje) y notifica al frontend.
      * @param bloque - Array de envios sin procesar junto con su numero de pagina de origen.
+     * @param plan - Plan de recalculo (no se usa directamente, los checkpoints en Redis ya filtran).
      */
     public async procesarBloqueEnviosInicial(bloque: { envio: EnvioSinProcesarInicial, numPagina: number }[]) {
 
@@ -52,7 +54,7 @@ class ProcesarEnviosService {
     public async procesarBloqueEnviosEvent(bloque: EnvioSinProcesarEvent[]) {
         //cada elemento del bloque se parsea
         const enviosProcesados = bloque.map(e => this.parseEnvioEvent(e));
-        
+
         const problemas: Set<string> = new Set<string>();
         const usuarios: Set<string> = new Set<string>();
         for (const envio of enviosProcesados) {
@@ -67,41 +69,91 @@ class ProcesarEnviosService {
     }
 
     /**
-     * Calcula logros y XP, y persiste las estadisticas de un bloque de envios ya procesados.
-     * @param enviosProcesados - Array de envios en formato interno.
+     * Funcion principal que calcula logros y XP, y persiste las estadisticas de un bloque de envios ya procesados.
+     * Carga los checkpoints actuales de cada calculador y logro para que las piezas ya
+     * actualizadas puedan saltarse los envios que ya tenian procesados.
+     * @param enviosProcesados - Array de envios en formato interno (ordenados por envioId ascendente).
      * @param usuarios - Conjunto de identificadores de usuario presentes en el bloque.
      * @param problemas - Conjunto de identificadores de problema presentes en el bloque.
      */
     private async procesarBloqueEnvios(enviosProcesados: EnvioProcesado[], usuarios: Set<string>, problemas: Set<string>) {
 
+        //se cargan los checkpoints actuales de cada calculador y logro
+        const { checkpointsUsuarios, checkpointsProblemas } = await checkpointsService.cargarCheckpointsStat();
+        const checkpointsLogro = await checkpointsService.cargarCheckpointsLogro();
+
         //de los estados que van a cambiar se saca el estado actual de la base de datos
         const {estadosUsuariosIniciales, estadosProblemasIniciales} = await estadosService.getEstadosIniciales(usuarios, problemas);
 
-        //se actualizan los estados de los usuarios y problemas de este bloque.
-        //se procesa cada estado despues de cada envio para procesar los trofeos que dependen del estado de las estadisticas
-        //en un momento concreto (ejemplo: rachas, tiempos relativos a los de otros usuario etc)
-        let envio: EnvioProcesado;
-        let estadosUsuarios: Map<string, EstadoUsuario> = estadosUsuariosIniciales;
-        let estadosProblemas: Map<string, EstadoProblema> = estadosProblemasIniciales;
-        for await ({ estadosUsuarios, estadosProblemas, envio } of estadosService.getEstadosActualizados(enviosProcesados)) {
+        const checkpoints = new Map<string, Map<string, number>>([
+            ["usuarios", checkpointsUsuarios],
+            ["problemas", checkpointsProblemas],
+            ["logros", checkpointsLogro]
+        ]);
+
+        //ACTUALIZACION DE LOS ESTADOS
+
+        //se actualizan los estados aplicando cada envio del bloque en orden, y se procesan los logros de estado global con cada envio
+        let { estadosUsuarios, estadosProblemas } = await this.actualizarEstados(enviosProcesados, checkpoints);
+
+        //SE PERSISTEN LOS TROFEOS, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
+
+        const lastEnvioId = enviosProcesados[enviosProcesados.length - 1].envioId;
+
+        //se persisten los datos
+        await usuarioService.registrarEstadosUsuarios(estadosUsuarios);
+        await problemaService.registrarEstadosProblemas(estadosProblemas);
+
+        //se procesan los logros de estado global con el checkpoint del bloque para evitar reevaluar
+        await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas, checkpointsLogro, lastEnvioId);
+
+        //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
+        //await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
+
+        //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
+        const checkpointsStat = new Map([...checkpointsUsuarios, ...checkpointsProblemas]);
+        await checkpointsService.avanzarCheckpoints(checkpointsStat, checkpointsLogro, lastEnvioId);
+    }
+
+    /**
+     * Actualiza los estados de usuarios y problemas aplicando los envios del bloque en orden.
+     * Ademas se procesan los logros dependientes del estado del juez en un momento concreto.
+     * @param enviosProcesados - Array de envios ya parseados al formato interno.
+     * @param checkpoints - Checkpoints actuales de cada calculador y logro para filtrar los envios ya procesados por cada uno.
+     * @returns - Estados de usuarios y problemas actualizados despues de aplicar el bloque.
+     */
+    private async actualizarEstados(
+            enviosProcesados: EnvioProcesado[],
+            checkpoints: Map<string, Map<string, number>>): Promise<{estadosUsuarios: Map<string, EstadoUsuario>, estadosProblemas: Map<string, EstadoProblema>}>
+        {
+
+        //se actualizan los estados aplicando solo los calculadores y logros cuyo checkpoint
+        //sea menor que el envioId actual, los ya al dia se saltan ese envio
+        let envio: EnvioProcesado = enviosProcesados[0];
+        let estadosUsuarios: Map<string, EstadoUsuario> = new Map();
+        let estadosProblemas: Map<string, EstadoProblema> = new Map();
+
+        //ultimo envio que proceso cada calculador
+        const checkpointsUsuarios = checkpoints.get("usuarios")!;
+        const checkpointsProblemas = checkpoints.get("problemas")!;
+        const checkpointsLogro = checkpoints.get("logros")!;
+
+        for await ({ estadosUsuarios, estadosProblemas, envio } of estadosService.getEstadosActualizados(
+            enviosProcesados,
+            checkpointsUsuarios,
+            checkpointsProblemas,
+            estadosUsuarios,
+            estadosProblemas
+        )) {
             logrosService.procesarEstado(
-                estadosUsuarios.get(envio.usuario) as EstadoUsuario, 
-                estadosProblemas!.get(envio.problema) as EstadoProblema, 
-                envio
+                estadosUsuarios.get(envio.usuario) as EstadoUsuario,
+                estadosProblemas.get(envio.problema) as EstadoProblema,
+                envio,
+                checkpointsLogro
             );
         }
 
-        //se procesan los trofeos que no dependen de estadisticas de un momento concreto
-        //(ejemplo: trofeos por resolver cantidades de problemas, por usar lenguajes etc)
-        //y se guardan todos los trofeos en la base de datos
-        await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas);
-
-        //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
-        await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
-
-        //se persisten los estados de usuarios y problemas resultantes del bloque
-        await usuarioService.registrarEstadosUsuarios(estadosUsuarios);
-        await problemaService.registrarEstadosProblemas(estadosProblemas);
+        return { estadosUsuarios, estadosProblemas };
     }
 
     /**

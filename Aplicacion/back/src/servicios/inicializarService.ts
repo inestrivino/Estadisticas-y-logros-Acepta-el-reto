@@ -19,13 +19,6 @@ class InicializarService {
      */
     public async inicializar() {
 
-        //se mira si ha cambiado alguna version de los servicios de procesar
-        //si ha cambiado se resetea el progreso de carga para volver a cargar desde el principio
-        const versionProcesarEnviosService = process.env.major_procesarEnviosService!;
-
-        
-        gestionDAO.flushAll();
-
         //se busca el primer envio a procesar y la pagina donde esta
         const { envio: firstEnvio, pagina: firstPagina } = await this.buscarPrimerEnvio();
 

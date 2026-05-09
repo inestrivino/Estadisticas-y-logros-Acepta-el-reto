@@ -11,6 +11,9 @@ const logro17: Logro = {
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: true,
 
+    version: 1,
+    requiereEstadisticas: ["enviosProblema", "tiemposProblema"],
+
     enTiempoReal: true,
 
     //tras actualizarEstado el mejorTiempo del problema ya refleja este envio, asi que si lo igualo o mejoro se cumple

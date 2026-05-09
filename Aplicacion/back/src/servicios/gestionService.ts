@@ -2,11 +2,33 @@ import gestionDAO from "../dao/gestionDAO.js";
 
 class GestionService {
 
+    /**
+     * Reinicia el contador del ultimo envio procesado a 0.
+     */
+    public async resetContadorEnvios() {
+        await gestionDAO.setUltimoEnvio(0);
+    }
+
+    /**
+     * Actualiza el id del ultimo envio y el numero de la ultima pagina procesada.
+     * El id de envio solo avanza: no se retrocede si el nuevo valor es menor que el actual.
+     * @param ultimoEnvio - Id del ultimo envio procesado.
+     * @param ultimaPagina - Numero de la ultima pagina procesada.
+     */
     public async setUltimoEnvioYPagina(ultimoEnvio: number, ultimaPagina: number) {
-        await gestionDAO.setUltimoEnvio(ultimoEnvio);
+        //ultimoEnvio es monotono: durante un recalculo se reprocesan envios antiguos
+        //y no se debe retroceder el contador global
+        const actual = await gestionDAO.getUltimoEnvio();
+        if (ultimoEnvio > actual)
+            await gestionDAO.setUltimoEnvio(ultimoEnvio);
         await gestionDAO.setUltimaPagina(ultimaPagina);
     }
 
+    /**
+     * Calcula y persiste el porcentaje de carga completado respecto a la primera pagina.
+     * @param pagina - Numero de pagina actual en proceso.
+     * @returns Porcentaje de carga completado (0-100).
+     */
     public async calcularPorcentajeCarga(pagina: number) {
         const primeraPagina = await gestionDAO.getPrimeraPagina();
         const porcentaje = Math.round((primeraPagina - pagina) / primeraPagina * 100);
@@ -14,9 +36,30 @@ class GestionService {
         await gestionDAO.setPorcentajeCarga(porcentaje);
         return porcentaje;
     }
-    
+
+    /**
+     * Devuelve el id del ultimo envio procesado.
+     * @returns Id del ultimo envio procesado.
+     */
     public async getUltimoEnvio() {
         return await gestionDAO.getUltimoEnvio();
+    }
+
+    /**
+     * Comprueba si la version de la aplicacion en el .env ha aumentado respecto a la almacenada.
+     * Si es asi, elimina todos los datos de Redis y persiste la nueva version.
+     * @returns condicional de si se ha reiniciado o no.
+     */
+    public async checkVersion(): Promise<boolean> {
+        const currentVersion = Number(process.env.VERSION ?? 0);
+        const storedVersion = await gestionDAO.getVersion();
+        if (currentVersion !== storedVersion) { //TODO cambiar esto al final y poner un >
+            console.log(` * version detectada: ${currentVersion}, version almacenada: ${storedVersion}. Reiniciando Redis.`);
+            await gestionDAO.flushAll();
+            await gestionDAO.setVersion(currentVersion);
+            return true;
+        }
+        return false;
     }
 }
 
