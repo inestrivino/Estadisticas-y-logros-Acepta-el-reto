@@ -54,6 +54,25 @@ class UsuarioService {
     }
     
     /**
+     * Devuelve si el usuario existe en la bd o no.
+     * @param usuario - Identificador del usuario.
+     */
+    public async existeUsuario(usuario: string): Promise<boolean> {
+        const u = usuario.toLowerCase().normalize("NFC").trim();
+        return await usuarioDAO.existeUsuario(u);
+    }
+
+    /**
+     * Devuelve los usuarios cuyo nombre (nick) comienzan por el string patron.
+     * @param patron - String.
+     * @returns Array con los nombres de los usuarios`.
+     */
+    public async getUsuariosSugeridos(patron: string): Promise<string[]> {
+        const p = patron.toLowerCase().normalize("NFC").trim();
+        return usuarioDAO.getUsuariosSugeridos(p);
+    }
+    
+    /**
      * Devuelve el conteo de cada resultado del usuario ordenado alfabeticamente.
      * @param usuario - Identificador del usuario.
      * @returns Array de pares `{ name, value }`.
@@ -179,6 +198,11 @@ class UsuarioService {
     async getDiasValor(usuario: string): Promise<{ timestamp: number, value: number }[]> {
         return usuarioDAO.getDiasValor(usuario);
     }
+
+    async getRachaActualEnviosCorrectos(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaActualEnviosCorrectos(usuario);
+    }
+    
 }
 
 export default new UsuarioService();

@@ -29,7 +29,7 @@ router.get("/:usuario/logros", async (req, res) => {
 router.get("/ranking", async (req, res) => {
     const { pag, tam, usuario } = req.query;
     const existeUsuario = usuario ? true : false;
-    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), existeUsuario , usuario ? String(usuario) : "");
+    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), existeUsuario, usuario ? String(usuario) : "");
     const totalUsuarios = await xpService.getNumUsuarios(existeUsuario, (usuario ? String(usuario) : ""));
     return res.json({ usuarios, totalUsuarios });
 });
@@ -38,6 +38,55 @@ router.get("/:usuario/nivel", async (req, res) => {
     const { usuario } = req.params;
     const nivel = await xpService.getNivelUsuario(usuario);
     return res.json(nivel);
+});
+
+router.get("/ranking/:usuario", async (req, res) => {
+    const { usuario } = req.params;
+    const { filtrarNivel } = req.query;
+    const filtrar = filtrarNivel === 'true';
+    const info = await xpService.getInfoUsuarioRanking(usuario, filtrar);
+    return res.json(info);
+});
+
+router.get("/:usuario", async (req, res) => {
+    const { usuario } = req.params;
+    const existe = await usuarioService.existeUsuario(usuario);
+    return res.json({ existe });
 })
+
+router.get("/", async (req, res) => {
+    const { patron } = req.query;
+    if (patron) {
+        const sugerencias = await usuarioService.getUsuariosSugeridos(String(patron));
+        return res.json(sugerencias);
+    } else {
+        return res.json({});
+    }
+})
+
+
+router.get("/:usuario/posRanking", async (req, res) => {
+    const { usuario } = req.params;
+    const pos = await xpService.getPosUsuarioEnRanking(usuario);
+    return res.json(pos);
+});
+
+router.get("/:usuario/numEjerciciosResueltos", async (req, res) => {
+    const { usuario } = req.params;
+    const numEjs = (await usuarioService.getNumProblemasResueltos(usuario));
+    return res.json(numEjs);
+});
+
+router.get("/:usuario/rachaActualEnvios", async (req, res) => {
+    const { usuario } = req.params;
+    const numEjs = await usuarioService.getRachaEnviosCorrectos(usuario);
+    return res.json(numEjs);
+});
+
+router.get("/:usuario/rachaMaxEnvios", async (req, res) => {
+    const { usuario } = req.params;
+    const numEjs = await usuarioService.getRachaDiasEnviosConsecutivos(usuario);
+    return res.json(numEjs);
+});
 
 export default router;

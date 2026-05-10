@@ -3,6 +3,22 @@ import problemaService from '../servicios/problemaService.js';
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+    const { patron } = req.query;
+    if (patron) {
+        const sugerencias = await problemaService.getProblemasSugeridos(String(patron));
+        return res.json(sugerencias);
+    } else {
+        return res.json([]);
+    }
+})
+
+router.get("/:problema", async (req, res) => {
+    const { problema } = req.params;
+    const existe = await problemaService.existeProblema(problema);
+    return res.json({ existe });
+})
+
 router.get("/:problema/envios", async (req, res) => {
 const { problema } = req.params;
     return res.json(await problemaService.getNumEnvios(problema));

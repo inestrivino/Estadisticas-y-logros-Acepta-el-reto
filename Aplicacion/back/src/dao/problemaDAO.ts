@@ -1,7 +1,7 @@
 import DAO from "./DAO.js"
 import { RegistradorProblema } from "./registradores/problemaRegistradorInterface.js";
-import registradorEnvios    from "./registradores/problemas/enviosRegistrador.js";
-import registradorTiempos   from "./registradores/problemas/tiemposRegistrador.js";
+import registradorEnvios from "./registradores/problemas/enviosRegistrador.js";
+import registradorTiempos from "./registradores/problemas/tiemposRegistrador.js";
 import registradorResultados from "./registradores/problemas/resultadosRegistrador.js";
 import registradorLenguajes from "./registradores/problemas/lenguajesRegistrador.js";
 import { EstadoProblema } from "../types/estados/estadoProblema.js";
@@ -25,11 +25,13 @@ class ProblemaDAO extends DAO {
     public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [problema, estado] of estadosProblemas)
+        for (const [problema, estado] of estadosProblemas) {
             for (const { id, registrar } of this.registradores)
                 if (estado[id] !== undefined)
                     registrar(pipeline, problema, estado);
 
+            pipeline.zAdd(`problemas`, { score: 0, value: problema });
+        }
         await pipeline.exec();
     }
 
@@ -44,6 +46,26 @@ class ProblemaDAO extends DAO {
     }
 
     //============================== CONSULTAS ==============================
+
+    /**
+     * Devuelve si existe un problema con el nombre problema.
+     * @param problema - Identificador del problema.
+     * @returns True si existe y false si no.
+     */
+    async existeProblema(problema: string): Promise<boolean> {
+        const score = await this.redis.zScore(`problemas`, problema);
+        return score !== null;
+    }
+
+    /**
+     * Devuelve los problemas cuyo nombre comienzan por el string patron.
+     * @param patron - String.
+     * @returns Array con los nombres de los problemas`.
+     */
+    async getProblemasSugeridos(patron: string): Promise<string[]> {
+        const problemas = await this.redis.zRangeByLex(`problemas`, `[${patron}`, `[${patron}\xff`, { LIMIT: { offset: 0, count: 5 } });
+        return problemas;
+    }
 
     /**
      * Devuelve el numero total de envios del problema, o 0 si no hay ninguno.

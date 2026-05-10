@@ -1,9 +1,9 @@
 import DAO from "./DAO.js";
 import { RegistradorUsuario } from "./registradores/usuarioRegistradorInterface.js";
-import registradorEnvios    from "./registradores/usuarios/enviosRegistrador.js";
-import registradorRachas    from "./registradores/usuarios/rachasRegistrador.js";
+import registradorEnvios from "./registradores/usuarios/enviosRegistrador.js";
+import registradorRachas from "./registradores/usuarios/rachasRegistrador.js";
 import registradorProblemas from "./registradores/usuarios/problemasRegistrador.js";
-import registradorHoras     from "./registradores/usuarios/horasRegistrador.js";
+import registradorHoras from "./registradores/usuarios/horasRegistrador.js";
 import registradorResultados from "./registradores/usuarios/resultadosRegistrador.js";
 import registradorLenguajes from "./registradores/usuarios/lenguajesRegistrador.js";
 import registradorDiasValor from "./registradores/usuarios/diasValorRegistrador.js";
@@ -33,11 +33,13 @@ class UsuarioDAO extends DAO {
     public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
         const pipeline = this.redis.multi();
 
-        for (const [usuario, estado] of estadosUsuarios)
+        for (const [usuario, estado] of estadosUsuarios) {
             for (const { id, registrar } of this.registradores)
                 if (estado[id] !== undefined)
                     registrar(pipeline, usuario, estado);
-
+            
+            pipeline.zAdd(`usuarios`, { score: 0, value: usuario });
+         }       
         await pipeline.exec();
     }
 
@@ -63,7 +65,7 @@ class UsuarioDAO extends DAO {
         const timestamps = (await this.redis.zRange(`timestamps`, '-inf', timeStamp, { BY: 'SCORE' })).map(Number);
 
         const pipeline = this.redis.multi();
-        
+
         //se itera por los timestamps y se eliminan los datos del usuario y las datos auxiliares
         for (const ts of timestamps) {
             await this.eliminarEnviosDia(ts, pipeline);
@@ -77,7 +79,7 @@ class UsuarioDAO extends DAO {
     private async eliminarEnviosDia(timeStamp: number, pipeline: ReturnType<typeof this.redis.multi>) {
 
         //se sacan los usuarios que hicieron envios en ese dia
-        const usuarios:string[] = await this.redis.sMembers(`timestamp:${timeStamp}`);
+        const usuarios: string[] = await this.redis.sMembers(`timestamp:${timeStamp}`);
 
         for (const usuario of usuarios) {
             pipeline.zRem(`usuario:${usuario}:dias`, String(timeStamp));
@@ -88,6 +90,26 @@ class UsuarioDAO extends DAO {
     }
 
     //============================== CONSULTAS ==============================
+    
+    /**
+     * Devuelve si el usuario usuario existe.
+     * @param usuario - Identificador del usuario.
+     * @returns true si existe y false si no.
+     */
+    async existeUsuario(usuario: string): Promise<boolean> {
+        const score = await this.redis.zScore("usuarios", usuario);
+        return score !== null;
+    }
+
+    /**
+     * Devuelve los usuarios cuyo nombre (nick) comienzan por el string patron.
+     * @param patron - String.
+     * @returns Array con los nombres de los usuarios`.
+     */
+    async getUsuariosSugeridos(patron: string): Promise<string[]> {
+        const usuarios = await this.redis.zRangeByLex(`usuarios`, `[${patron}`, `[${patron}\xff`);
+        return usuarios;
+    }
 
     /**
      * Devuelve los envios dentro de un periodo de tiempo.
@@ -183,7 +205,7 @@ class UsuarioDAO extends DAO {
 
         return formateados;
     }
-    
+
     /**
      * devuelve el timestamp en segundos del ultimo envio realizado por el usuario,
      * o 0 si el usuario no tiene envios registrados
@@ -309,7 +331,17 @@ class UsuarioDAO extends DAO {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
         return Object.entries(datos).map(([timestamp, value]) => ({ timestamp: Number(timestamp), value: Number(value) }));
     }
-
+    
+    /**
+     * Devuelve la racha actual de envios correctos consecutivos del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha maxima de envios correctos.
+     */
+    public async getRachaActualEnviosCorrectos(usuario: string): Promise<number> {
+        const rachaStr = await this.redis.get(`usuario:${usuario}:rachaEnviosAC`);
+        const racha = rachaStr ? Number(rachaStr) : 0;
+        return racha;
+    }
 }
 
 export default new UsuarioDAO();

@@ -22,6 +22,21 @@ class ProblemaService {
     }
 
     /**
+     * Devuelve si el problema existe en la bd o no.
+     * @param problema - Identificador del problema.
+     */
+    public async existeProblema(problema: string): Promise<boolean> {
+        const p = problema.toLowerCase().normalize("NFC").trim();
+        return await problemaDAO.existeProblema(p);
+    }
+
+    
+    public async getProblemasSugeridos(patron: string): Promise<string[]> {
+        const p = patron.toLowerCase().normalize("NFC").trim();
+        return problemaDAO.getProblemasSugeridos(p);
+    }
+
+    /**
      * Devuelve el numero total de envios del problema.
      * @param problema - Identificador del problema.
      */

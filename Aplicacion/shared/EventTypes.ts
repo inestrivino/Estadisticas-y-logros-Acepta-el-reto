@@ -10,10 +10,20 @@ export const EventType = {
   USUARIO_RESULTADOS: "reload-resultadosUsuario",
   USUARIO_LENGUAJES: "reload-lenguajesUsuario",
   USUARIO_PARTICIPACION: "reload-participacionUsuario",
+  USUARIO_POS_RANKING: "reload-posRanking",
+  USUARIO_NUM_PROBLEMAS_RESUELTOS: "reload-numProblemasResueltos",
+  USUARIO_RACHA_ACTUAL_ENVIOS_AC: "reload-rachaActualEnviosAC",
+  USUARIO_RACHA_MAX_ENVIOS_AC: "reload-rachaMaxEnviosAC",
 
   //LOGROS USUARIO
   LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
   LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria",
+
+  //RANKING USUARIOS
+  ACTUALIZACION_RANKING: "reload-rankingUsuarios",
+
+  //NIVEL EXPERIENCIA USUARIO
+  USUARIO_NIVEL: "reload-nivelUsuario",
 
   //PARA AVISAR DE QUE SE HAN CARGADO MAS ENVIOS DE LA CARGA INICIAL
   CARGA_ENVIOS: "reload-cargaEnvios"

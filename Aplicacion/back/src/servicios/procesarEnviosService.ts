@@ -108,7 +108,7 @@ class ProcesarEnviosService {
         await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas, checkpointsLogro, lastEnvioId);
 
         //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
-        //await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
+        await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
         const checkpointsStat = new Map([...checkpointsUsuarios, ...checkpointsProblemas]);
@@ -173,8 +173,8 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.num,
-            usuario: envio.user.nick,
-            problema: envio.problem.title,
+            usuario: envio.user.nick.toLowerCase().normalize("NFC").trim(),
+            problema: envio.problem.title.toLowerCase().normalize("NFC").trim(),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.result,
             lenguaje: envio.language,
@@ -204,8 +204,8 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.sid,
-            usuario: envio.nick,
-            problema: problema.title,
+            usuario: envio.nick.toLowerCase().normalize("NFC").trim(),
+            problema: problema.title.toLowerCase().normalize("NFC").trim(),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.ver,
             lenguaje: envio.lan,

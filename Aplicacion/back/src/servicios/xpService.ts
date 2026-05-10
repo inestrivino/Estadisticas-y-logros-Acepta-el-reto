@@ -5,7 +5,15 @@ import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import logrosService from "./logros/logrosService.js";
 import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
-import usuarioService from "./usuarioService.js";
+
+export enum NivelUsuario {
+    APRENDIZ = "Aprendiz",
+    COMPETENTE = "Competente",
+    HABIL = "Hábil",
+    ESPECIALISTA = "Especialista",
+    MAESTRO = "Maestro",
+    SIN_NIVEL = ""
+}
 
 class XPService {
 
@@ -19,7 +27,7 @@ class XPService {
      * @param listadoLogros - Array de logros procesados del bloque.
      */
     public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
-        
+
         for (const envio of envios) {
             if (!this.xpUsuarios.has(envio.usuario))
                 this.xpUsuarios.set(envio.usuario, 0);
@@ -84,25 +92,41 @@ class XPService {
     }
 
     /**
-     * Devuelve los xp correspondientes al resultado obtenido del envio.
-     * @param resultado - Identificador del resultado.
-     * @returns Numero entero positivo.
+     * Devuelve la informacion del usuario asociada a los xp y su ranking.
+     * @param filtrarPorNivel - Indica si la informacion es respecto al ranking global o al perteneciente al nivel del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns El nombre, el nivel, los xp y la posicion del usuario en el ranking (varia si es con respecto al ranking global 
+     *  o solo de su nivel).
      */
-    private getXPPorResultadoEnvio(resultado: string): number {
-        return resultado === "AC" ? 15 : 1;
+    async getInfoUsuarioRanking(usuario: string, filtrarNivel: boolean) {
+        const nivel = await this.getNivelUsuario(usuario);
+        const xp = await xpDAO.getXPUsuario(usuario);
+
+        const pos =
+            filtrarNivel ?
+                await this.getPosUsuarioEnRankingPorNivel(usuario, nivel) :
+                await xpDAO.getPosUsuarioEnRanking(usuario);
+
+        return { nombre: usuario, nivel, xp, pos };
     }
 
     /**
-     * Devuelve los xp correspondientes al nivel de logro obtenido.
-     * @param nivel - Identificador del nivel.
-     * @returns Numero entero positivo.
+     * Devuelve la posicion del usuario en el ranking de su nivel.
+     * @param nivel - Identificador del nivel del usuario
+     * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
+     * @returns Entero positivo. //TODO lanzar error en caso de que la posicion sea negativa
      */
-    private getXPPorNivelLogro(nivel: NivelLogro): number {
-        switch (nivel) {
-            case NivelLogro.BRONCE: return 20;
-            case NivelLogro.PLATA: return 40;
-            case NivelLogro.ORO: return 60;
-        }
+    private async getPosUsuarioEnRankingPorNivel(usuario: string, nivel: string) {
+        // rango de xp correspondiente al nivel del usuario
+        const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
+        // primer usuario en el ranking que pertenece a ese nivel
+        const primerUsuarioNivel = (await xpDAO.getUsuariosRankingPorRangoYNivel(0, 1, iniXP, finXP))[0];
+        // posicion del ranking global en la que se encuentra el primer usuario que pertenece a ese nivel
+        const posPrimerUsuario = await xpDAO.getPosUsuarioEnRanking(primerUsuarioNivel.value);
+        // posicion del ranking global en la que se encuentra el usuario
+        const posGlobalUsuario = await xpDAO.getPosUsuarioEnRanking(usuario);
+
+        return posGlobalUsuario - posPrimerUsuario + 1;
     }
 
     /**
@@ -118,10 +142,11 @@ class XPService {
         const fin = pag * tam - 1;
         if (!filtrarPorNivel) {
             const usuarios = await xpDAO.getUsuariosRankingPorRango(ini, fin);
-            return usuarios.map(u => ({
+            return usuarios.map((u, i) => ({
                 nombre: u.value,
                 xp: u.score,
-                nivel: this.getNivelFromXP(u.score)
+                nivel: this.getNivelFromXP(u.score),
+                pos: ini + i + 1
             }));
         }
         else {
@@ -129,10 +154,11 @@ class XPService {
             const nivel = this.getNivelFromXP(xp);
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             const usuarios = await xpDAO.getUsuariosRankingPorRangoYNivel(ini, fin, iniXP, finXP)
-            return usuarios.map(u => ({
+            return usuarios.map((u, i) => ({
                 nombre: u.value,
                 xp: u.score,
-                nivel: nivel
+                nivel: nivel,
+                pos: ini + i + 1
             }))
         }
     }
@@ -156,6 +182,29 @@ class XPService {
     }
 
     /**
+     * Devuelve los xp correspondientes al resultado obtenido del envio.
+     * @param resultado - Identificador del resultado.
+     * @returns Numero entero positivo.
+     */
+    private getXPPorResultadoEnvio(resultado: string): number {
+        return resultado === "AC" ? 15 : 1;
+    }
+
+    /**
+     * Devuelve los xp correspondientes al nivel de logro obtenido.
+     * @param nivel - Identificador del nivel.
+     * @returns Numero entero positivo.
+     */
+    private getXPPorNivelLogro(nivel: NivelLogro): number {
+        switch (nivel) {
+            case NivelLogro.BRONCE: return 20;
+            case NivelLogro.PLATA: return 40;
+            case NivelLogro.ORO: return 60;
+            default: return 0;
+        }
+    }
+
+    /**
      * Devuelve el nivel al que pertenece el usuario a partir del xp que tiene.
      * @param usuario - Identificador del usuario.
      * @returns String del nombre del nivel al que pertenece.
@@ -170,15 +219,15 @@ class XPService {
      * @param xp - Cantidad de xp.
      * @returns String correspondiente al nivel.
      */
-    private getNivelFromXP(xp: number) {
+    private getNivelFromXP(xp: number): NivelUsuario {
         if (xp !== -1) {
-            if (xp <= 100) return "Aprendiz"
-            if (xp <= 500) return "Competente"
-            if (xp <= 1000) return "Hábil"
-            if (xp <= 2000) return "Especialista"
-            return "Maestro"
+            if (xp <= 100) return NivelUsuario.APRENDIZ;
+            if (xp <= 500) return NivelUsuario.COMPETENTE;
+            if (xp <= 1000) return NivelUsuario.HABIL;
+            if (xp <= 2000) return NivelUsuario.ESPECIALISTA;
+            return NivelUsuario.MAESTRO;
         }
-        return "";
+        return NivelUsuario.SIN_NIVEL;
     }
 
     /**
@@ -196,6 +245,11 @@ class XPService {
             default: return { iniXP: Number.MIN_VALUE, finXP: Number.MAX_VALUE };
         }
     }
+
+    async getPosUsuarioEnRanking(usuario: string): Promise<number> {
+        return await xpDAO.getPosUsuarioEnRanking(usuario);
+    }
+
 }
 
 export default new XPService();

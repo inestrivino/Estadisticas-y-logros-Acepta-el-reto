@@ -4,12 +4,13 @@ import problemaDAO from "../dao/problemaDAO.js";
 import usuarioService from "../servicios/usuarioService.js";
 import logrosService from "../servicios/logros/logrosService.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
+import xpService from "../servicios/xpService.js";
 
 /*
 Recibe el json que llego por rabbitMQ y actualiza los diagramas correspondientes
 */
 export async function routerEmitter(envio: EnvioProcesado) {
-    
+
     console.log("Emite eventos para recargar los componentes");
 
     //se obtiene el socket para emitir los eventos
@@ -26,19 +27,30 @@ export async function routerEmitter(envio: EnvioProcesado) {
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_RESULTADOS), await usuarioService.getResultados(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_LENGUAJES), await usuarioService.getLenguajes(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_NUM_PROBLEMAS_RESUELTOS), await usuarioService.getNumProblemasResueltos(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_ACTUAL_ENVIOS_AC), await usuarioService.getRachaActualEnviosCorrectos(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_MAX_ENVIOS_AC), await usuarioService.getRachaEnviosCorrectos(envio.usuario));
 
     //se actualizan los logros del usuario
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(envio.usuario, "nivel"));
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(envio.usuario, "categoria"));
+
+    //se actualiza la tabla de ranking
+    io.emit(EventType.ACTUALIZACION_RANKING);
+
+    //se actualiza el nivel del usuario
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_NIVEL), await xpService.getNivelUsuario(envio.usuario));
 }
 
 export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<string>, porcentaje: number) {
-    
+
     const io = getIO();
 
     //para actualizar la barra de carga que te dice el porcentaje de envios que han cargado
     io.emit(EventType.CARGA_ENVIOS, porcentaje);
     
+    io.emit(EventType.ACTUALIZACION_RANKING);
+
     for (const problema of problemas) {
         //se actualizan los diagramas de estadisticas de problemas
         io.emit(formatEvent(problema, EventType.PROBLEMA_RESULTADOS), await problemaDAO.getResultados(problema));
@@ -53,9 +65,15 @@ export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<stri
         io.emit(formatEvent(usuario, EventType.USUARIO_RESULTADOS), await usuarioService.getResultados(usuario));
         io.emit(formatEvent(usuario, EventType.USUARIO_LENGUAJES), await usuarioService.getLenguajes(usuario));
         io.emit(formatEvent(usuario, EventType.USUARIO_PARTICIPACION), await usuarioService.getEnviosAnio(usuario));
+        io.emit(formatEvent(usuario, EventType.USUARIO_NUM_PROBLEMAS_RESUELTOS), await usuarioService.getNumProblemasResueltos(usuario));
+        io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_ACTUAL_ENVIOS_AC), await usuarioService.getRachaActualEnviosCorrectos(usuario));
+        io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_MAX_ENVIOS_AC), await usuarioService.getRachaEnviosCorrectos(usuario));
 
         //se actualizan los logros del usuario
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(usuario, "nivel"));
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(usuario, "categoria"));
+
+        //se actualiza el nivel del usuario
+        io.emit(formatEvent(usuario, EventType.USUARIO_NIVEL), await xpService.getNivelUsuario(usuario));
     }
 }
