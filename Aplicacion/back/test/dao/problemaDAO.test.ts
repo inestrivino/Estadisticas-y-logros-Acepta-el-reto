@@ -5,7 +5,7 @@ import setUpTestFile from './setUptTest.ts';
 
 await setUpTestFile(problemaDAO);
 
-const PROBLEMA = "Facundo y el undo";
+const PROBLEMA = ("Facundo y el undo").toLowerCase().normalize("NFC").trim();;
 
 function estadoBase(): EstadoProblema {
     return {
