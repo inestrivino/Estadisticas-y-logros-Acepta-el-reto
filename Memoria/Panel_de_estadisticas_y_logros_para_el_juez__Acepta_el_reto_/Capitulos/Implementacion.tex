@@ -6,6 +6,23 @@ Insertar aquí los lenguajes utilizados y sus versiones, las frameworks, y las h
 
 Cual es el entorno de despliegue.
 
+SUCIO:
+El diseño de la arquitectura del sistema ha sido ideado atendiendo a los requisitos no funcionales definidos para la aplicación en el apéndice \ref{cap:SRS}. En concreto, los requisitos de rendimiento (REQ-NF-001) y fiabilidad de los datos (REQ-NF-002) exigen la selección de tecnologías eficientes y robustas, capaces de garantizar un procesamiento ágil y una gestión segura de la información. Por otro lado, el requisito de usabilidad (REQ-NF-003) subraya la necesidad de implementar una interfaz y experiencia de usuario no solo intuitiva y personalizable, sino también mantenible y escalable a largo plazo.
+
+Tras el análisis comparativo de las tecnologías disponibles, detallado en el capítulo~\ref{cap:estadoDelArteDeTecnologias}, se ha decidido adoptar un \textit{stack} tecnológico compuesto por React, Node.js y Redis para el desarrollo del \textit{frontend}, \textit{backend} y gestión de datos, respectivamente. Esta elección responde a las siguientes ventajas clave:
+
+\begin{itemize}
+    \item React: Su capacidad para construir interfaces de usuario dinámicas y reactivas lo convierte en una herramienta idónea para el proyecto. El modelo basado en componentes no solo facilita la reutilización de código, sino que también optimiza la gestión del estado de la aplicación. Esto es especialmente relevante para cargar y visualizar datos en tiempo real, evitando recargas completas de página y reduciendo los tiempos de espera.
+
+    \item Node.js: Destaca por su arquitectura orientada a eventos, que permite manejar operaciones asíncronas de manera eficiente. Esta característica es fundamental para garantizar un \textit{backend} escalable y capaz de procesar múltiples solicitudes concurrentes sin degradar el rendimiento.
+
+    \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
+\end{itemize}
+
+La arquitectura actual de \aer, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.
+
+En contraste, la arquitectura propuesta para este proyecto introduce un enfoque modular, lo que no solo simplifica la integración futura con la infraestructura existente de \aer, sino que también facilita la evolución independiente de cada componente. Esta modularidad, combinada con el uso de tecnologías modernas, asegura que el sistema sea adaptable, escalable y capaz de responder a las necesidades cambiantes del proyecto sin requerir rediseños profundos.
+
 \section{Arquitectura del sistema}
 Insertar aquí todo lo referido a la arquitectura técnica del sistema. Qué elecciones de tecnologías hemos realizado, diagramas de interacción, justificación, etc.
 Insertar aquí el diseño de la base de datos.
@@ -18,6 +35,8 @@ Cómo se calculan los logros y las estadísticas de manera eficiente.
 Mencionar de pasada lo de que al obtener un logro se lanza un evento, para facilitar la futura integración con el juez. 
 
 \section{Desarrollo del \textit{frontend}}
+TO DO : HABLAR DE LOS CAMBIOS DE DISEÑO QUE SE PRODUJERON DURANTE EL DESARROLLO DE LA APLICACIÓN
+
 Hablar sobre el desarrollo del dashboard de estadísticas, la visualización de datos.
 Hablar sobre la interacción con el backend (manejo del estado).
 

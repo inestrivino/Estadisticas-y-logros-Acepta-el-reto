@@ -373,21 +373,36 @@ El primer paso para el diseño de la interfaz, es establecer los parámetros que
     \label{fig:guiaEstilos}
 \end{figure}
 
-En cuanto a los elementos de la interacción humano-máquina, tendremos en cuenta las heurísticas presentadas en \cite{Nielsen_1994}. En concreto para esta aplicación son importantes la visibilidad del estado del sistema, la equivalencia entre el sistema y el mundo real, y una representación de la información que simplifique el reconocimiento de los usuarios de la información, en vez de apelar a su memoria. 
+Para representar los logros de usuario que crearon 3 bases (una de bronce, otra de plata y una tercera de oro) de \textit{pixel art}\footnote{Más información sobre el \textit{pixel art}: \url{https://es.wikipedia.org/wiki/Pixel_art}} sobre las que construir más adelante todas las versiones correspondientes a cada logro. Estas imágenes son \textit{placeholders} para servir de visualización en este proyecto académico. Por ello los diseños son simples (tan solo 32x32 píxeles) y poco elaborados, aunque se ha buscado que fuesen visualmente agradables. Además, empezar con bases sobre las que dibujar los elementos que diferencien a cada logro es una buena forma de mantener una fácil modularidad y refactorización en caso de querer editar algún logro o añadir nuevos. Además, su diseño similar a una copa deportiva, mantiene el principio anteriormente descrito de similitud con el mundo real y fácil comprensión por parte del usuario.
 
-Manteniendo las heurísticas en mente, debemos definir tanto las pantallas del sistema, como su colocación de elementos para facilitar el uso (UX). Para ello, se han realizado una serie de \textit{wireframes}, una por cada pantalla de la aplicación. Las pantallas de la aplicación son:
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Imagenes/Bitmap/basesLogros.png}
+    \caption{Base de \textit{pixel art} para los logros}
+    \label{fig:baseBronce}
+\end{figure}
+
+En cuanto a los elementos de la interacción humano-máquina, se tienen en cuenta las heurísticas presentadas en \cite{Nielsen_1994} para garantizar una experiencia de usuario intuitiva y eficiente. En concreto para esta aplicación son importantes la visibilidad del estado del sistema y una representación de la información que simplifique el reconocimiento de la información por parte de los usuarios, en lugar de apelar a su memoria. 
+
+El sistema constará de 5 pantallas, todas con una barra de navegación común que permite navegar entre ellas:
 \begin{itemize}
-    \item Inicio.
-    \item Estadísticas de usuario.
+    \item Inicio: Una pantalla de bienvenida a la aplicación, con una breve explicación de su contexto y propósito, así como un acceso rápido a búsqueda de estadísticas de usuario y ejercicio. Su \textit{wireframe} se muestra en la figura \ref{fig:wireInicio}. Esta colocación de elementos en la interfaz, permite al usuario informarse del sistema y su estado, para pasar cuanto antes a utilizar las funcionalidades que le interesen.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Imagenes/Vectorial/Todo.pdf}
+        \caption{\textit{Wireframe} de la página de inicio}
+        \label{fig:wireInicio}
+    \end{figure}
+    \item Estadísticas de usuario: Dividida en dos subsecciones, las estadísticas que muestran al usuario su estado en el sistema, y el medallero de logros que recompensan la interacción con este. 
     \begin{itemize}
-        \item Estadísticas, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireEstaUsuario}.
+        \item Estadísticas de usuario, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireEstaUsuario}.
         \begin{figure}
             \centering
             \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_estadisticas_usuario.png}
             \caption{\textit{Wireframe} de estadísticas de usuario}
             \label{fig:wireEstaUsuario}
         \end{figure}
-        \item Medallero, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireMedaUsuario}.
+        \item Medallero de logros, cuyo \textit{wireframe} se encuentra en la figura \ref{fig:wireMedaUsuario}.
         \begin{figure}
             \centering
             \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_logros_usuario.png}
@@ -395,14 +410,14 @@ Manteniendo las heurísticas en mente, debemos definir tanto las pantallas del s
             \label{fig:wireMedaUsuario}
         \end{figure}
     \end{itemize}
-    \item Estadísticas de un problema, cuyo \textit{wireframe} se puede ver en la figura \ref{fig:wireEstaProblema}.
+    \item Estadísticas de un problema: Permite al usuario informarse sobre la historia y estado de un determinado ejercicio en la aplicación. Su \textit{wireframe} se muestra en la figura \ref{fig:wireEstaProblema}.
     \begin{figure}
         \centering
         \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_estadisticas_problema.png}
         \caption{\textit{Wireframe} de las estadísticas de un problema}
         \label{fig:wireEstaProblema}
     \end{figure}
-    \item Tabla de clasificación, cuyo \textit{wireframe} se puede ver en la figura \ref{fig:wireClasificacion}.
+    \item Tabla de clasificación: Indica al usuario cual es su estado respecto a los demás usuarios del sistema, tanto a nivel general, como dentro del rango de XP de su nivel. Su \textit{wireframe} se puede ver en la figura \ref{fig:wireClasificacion}.
     \begin{figure}
         \centering
         \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_tabla_clasificacion.png}
@@ -411,31 +426,21 @@ Manteniendo las heurísticas en mente, debemos definir tanto las pantallas del s
     \end{figure}
 \end{itemize}
 
-TO DO : AÑADIR LAS PLACAS DE LOGROS
+El diseño de la aplicación es adaptable\footnote{Artículo de la W3 respecto a sus recomendaciones para el diseño adaptable: \url{https://www.w3.org/TR/mobile-bp/#OneWeb}}, pero no se realizaron \textit{wireframes} ni tests específicos para diferentes tamaños de pantalla debido a las siguientes dos razones: 
+\begin{enumerate}
+    \item La adaptabilidad automática del \textit{frontend} al utilizar \textit{frameworks} que cubren esta necesidad durante el desarrollo.
+    \item Como conluye el estudio realizado en \cite{SaezLopez_SevillanoGarcia_VazquezCano_2019}, los estudiantes españoles son más propensos a optar por un portátil cuando se trata de realizar tareas académicas o complejas, categoría que engloba el uso de jueces en línea. Además, el ordenador es la plataforma preferible para la programación debido a sus cualidades (pantalla ancha y teclado) y la elegida para la participación en clases o concursos de programación competitiva. Es decir, ya que se puede concluir que la página será visitada de forma mayoritaria a través de ordenadores, se priorizó el diseño y prueba de la versión de la interfaz disponible en estos dispositivos.
+\end{enumerate}
+Los nombres simples para las diferentes pantallas, el uso de iconos, y los títulos (y descripciones cuando aplica) de las diferentes estadísticas y logros, fomentan el reconocimiento de los elementos, en lugar de la memorización por parte del usuario.
+
+Los wireframes iniciales aquí mostrados servieron como base, pero más adelante durante el desarrollo se realizaron ajustes para adaptarlos a la realidad técnica y a feedback de usuarios (descritos más en detalle en los capítulos \ref{cap:implementacion} y \ref{cap:evaluacion}). Es decir, su uso fue orientativo en lugar de restrictivo. 
 
 \section{Arquitectura a alto nivel}
 
-Una introducción que mencione el objetivo de la arquitectura y sus principios guía (staisfacer los requisitos funcionales y no funcionales). 
+TO DO: Una introducción que mencione el objetivo de la arquitectura y sus principios guía (satisfacer los requisitos funcionales y no funcionales).
 
-Una vista general de la arquitectura con un diagrama de cajas y flechas que muestre los componentes principales (frontend, backend, base de datos, integración con el juez (APIs, webhooks)) y cómo se lleva a cabo en alto nivel el flujo de datos. Explicar cada componente, su propósito y las interacciones en texto a alto nivel.
-
+TO DO: Una vista general de la arquitectura con un diagrama de cajas y flechas que muestre los componentes principales (frontend, backend, base de datos, integración con el juez (APIs, webhooks)) y cómo se lleva a cabo en alto nivel el flujo de datos. Explicar cada componente, su propósito y las interacciones en texto a alto nivel.
 Mencionar patrones concpetuales que vamos a utilizar (observer, MVC, repository?)
 
-Terminar explicando en detalle cómo esta arquitectura satisface los requisitos funcionales y no funcionales.
+TO DO: Terminar explicando en detalle cómo esta arquitectura satisface los requisitos funcionales y no funcionales.
 
-
-El diseño de la arquitectura del sistema ha sido ideado atendiendo a los requisitos no funcionales definidos para la aplicación en el apéndice \ref{cap:SRS}. En concreto, los requisitos de rendimiento (REQ-NF-001) y fiabilidad de los datos (REQ-NF-002) exigen la selección de tecnologías eficientes y robustas, capaces de garantizar un procesamiento ágil y una gestión segura de la información. Por otro lado, el requisito de usabilidad (REQ-NF-003) subraya la necesidad de implementar una interfaz y experiencia de usuario no solo intuitiva y personalizable, sino también mantenible y escalable a largo plazo.
-
-Tras el análisis comparativo de las tecnologías disponibles, detallado en el capítulo~\ref{cap:estadoDelArteDeTecnologias}, se ha decidido adoptar un \textit{stack} tecnológico compuesto por React, Node.js y Redis para el desarrollo del \textit{frontend}, \textit{backend} y gestión de datos, respectivamente. Esta elección responde a las siguientes ventajas clave:
-
-\begin{itemize}
-    \item React: Su capacidad para construir interfaces de usuario dinámicas y reactivas lo convierte en una herramienta idónea para el proyecto. El modelo basado en componentes no solo facilita la reutilización de código, sino que también optimiza la gestión del estado de la aplicación. Esto es especialmente relevante para cargar y visualizar datos en tiempo real, evitando recargas completas de página y reduciendo los tiempos de espera.
-
-    \item Node.js: Destaca por su arquitectura orientada a eventos, que permite manejar operaciones asíncronas de manera eficiente. Esta característica es fundamental para garantizar un \textit{backend} escalable y capaz de procesar múltiples solicitudes concurrentes sin degradar el rendimiento.
-
-    \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
-\end{itemize}
-
-La arquitectura actual de \aer, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.
-
-En contraste, la arquitectura propuesta para este proyecto introduce un enfoque modular, lo que no solo simplifica la integración futura con la infraestructura existente de \aer, sino que también facilita la evolución independiente de cada componente. Esta modularidad, combinada con el uso de tecnologías modernas, asegura que el sistema sea adaptable, escalable y capaz de responder a las necesidades cambiantes del proyecto sin requerir rediseños profundos.
