@@ -164,7 +164,7 @@ export default function DiagramaSectores(props: {
                 </ResponsiveContainer>
             </div>
             <div ref={legendRef} className="shrink-0 min-h-[30%] max-h-[40%] w-full overflow-hidden" style={{ fontSize: legendFontSize }}>
-                <CustomLegend datos={data} />
+            <CustomLegend datos={data} />
             </div>
         </div >
     );

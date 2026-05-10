@@ -63,7 +63,7 @@ export default function BarraCarga({ evento, progresoInicial }: Props) {
                     color: "#F5F5F5",
                     zIndex: 999,
                 }}>
-                    La aplicación está cargando<br />los datos de Acepta el reto.<br />{progreso}% completado
+                    La aplicación está cargando<br />los datos de Acepta el reto<br />{progreso}% completado
                 </div>
             )}
         </div>
