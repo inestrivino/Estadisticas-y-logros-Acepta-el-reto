@@ -19,7 +19,7 @@ export default function PlantillaBusqueda({
 }: Props) {
     return (
         <div className="w-full h-full px-4 sm:px-6 lg:px-8 pb-3">
-            <div className="flex flex-col" style={{ height: "calc(100dvh - 75px)" }}>
+            <div className="flex flex-col h-full">
 
                 {/* titulo, descripcion y buscador */}
                 <div className={`

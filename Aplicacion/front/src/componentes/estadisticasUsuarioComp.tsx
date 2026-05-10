@@ -118,7 +118,7 @@ export default function EstadisticasUsuarioComp(props: {
 
     return (
         <>
-            <div className="w-full lg:h-[calc(100dvh-180px)]">
+            <div className="w-full lg:h-full pb-4 lg:pb-0">
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-1 gap-4 lg:h-full">
                     {/* Columna izquierda - 2/3 del ancho */}
                     <div className="flex flex-col lg:col-span-2 w-full gap-4 lg:h-full lg:min-h-0">

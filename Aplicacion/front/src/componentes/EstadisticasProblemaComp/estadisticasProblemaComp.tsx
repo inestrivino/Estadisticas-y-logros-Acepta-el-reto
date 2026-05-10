@@ -55,7 +55,7 @@ export default function EstadisticasProblemaComp(props: {
     }, [problema]);
 
     return (
-        <div className="w-full mt-4 pb-4 flex flex-col gap-6 lg:min-h-[calc(100dvh-200px)]">
+        <div className="w-full flex flex-col gap-6 lg:h-full pb-4 lg:pb-0">
 
             {/* Fila de datos numéricos */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
