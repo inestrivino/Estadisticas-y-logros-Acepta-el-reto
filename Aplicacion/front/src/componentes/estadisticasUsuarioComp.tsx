@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { EventType } from "shared/EventTypes.js";
 import { formatEvent } from "shared/EventTypes.js";
+import { useParams } from "react-router-dom";
 
 //COMPONENTES
 import PanelParticipacion from "./panelParticipacion.js";
@@ -10,19 +11,18 @@ import DiagramaSectores from "./diagramaSectores.js";
 import DatoNumerico from "./datoNumerico.js";
 import { DatosLogro } from "shared/LogroTypes.js";
 import { NivelLogro, CategoriaLogro } from "shared/LogroConsts.js";
+import DatoNumericoRanking from "./datoNumericoRanking.js";
 
 export default function EstadisticasUsuarioComp(props: {
     usuario: string
 }) {
 
-    const [usuario, setUsuario] = useState<string>("");
-    useEffect(() => {
-        setUsuario(props.usuario);
-    }, [props.usuario]);
+    const usuario = props.usuario;
 
     //ENVIOS
     const [envios, setEnvios] = useState<{ timeStamp: number, value: number }[]>([]);
     useEffect(() => {
+        if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/enviosAnio`)
             .then(response => response.json())
             .then(data => setEnvios(data));
@@ -42,17 +42,18 @@ export default function EstadisticasUsuarioComp(props: {
         { mes: "Oct", puntos: 600 },
         { mes: "Nov", puntos: 700 },
         { mes: "Dic", puntos: 800 },
-    ]);
+    ]);/*
     useEffect(() => {
         if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/progresoXP`)
             .then(response => response.json())
             .then(data => setProgresoXP(data));
-    }, [usuario]);
+    }, [usuario]);*/
 
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
+        if(!usuario) return;
         fetch(`/api/usuarios/${usuario}/resultados`)
             .then(response => response.json())
             .then(data => setResultados(data));
@@ -63,49 +64,89 @@ export default function EstadisticasUsuarioComp(props: {
         { nombre: "Primer logro", descripcion: "Descripción del primer logro", nivel: NivelLogro.ORO, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: true },
         { nombre: "Segundo logro", descripcion: "Descripción del segundo logro", nivel: NivelLogro.PLATA, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: false },
         { nombre: "Tercer logro", descripcion: "Descripción del tercer logro", nivel: NivelLogro.BRONCE, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: false },
-    ]);
+    ]);/*
     useEffect(() => {
         if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/logrosRecientes`)
             .then(response => response.json())
             .then(data => setLogrosRecientes(data));
-    }, [usuario]);
+    }, [usuario]);*/
 
     //LENGUAJES
     const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
+        if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/lenguajes`)
             .then(response => response.json())
             .then(data => setLenguajes(data));
     }, [usuario]);
 
+
+    const [posRanking, setPosRanking] = useState<number | null>(null);
+    const [ejerciciosResueltos, setEjerciciosResueltos] = useState<number | null>(null);
+    const [rachaActualEnvios, setRachaActualEnvios] = useState<number | null>(null);
+    const [rachaMaxEnvios, setRachaMaxEnvios] = useState<number | null>(null);
+    useEffect(() => {
+        if (!usuario) return;
+
+        async function fetchData() {
+            const [
+                posRankingData,
+                ejerciciosResueltosData,
+                rachaActualEnviosData,
+                rachaMaxEnviosData
+            ] = await Promise.all([
+                fetch(`/api/usuarios/${usuario}/posRanking`).then(r => r.json()),
+                fetch(`/api/usuarios/${usuario}/numEjerciciosResueltos`).then(r => r.json()),
+                fetch(`/api/usuarios/${usuario}/rachaActualEnvios`).then(r => r.json()),
+                fetch(`/api/usuarios/${usuario}/rachaMaxEnvios`).then(r => r.json()),
+            ]);
+
+            setPosRanking(posRankingData);
+            setEjerciciosResueltos(ejerciciosResueltosData);
+            setRachaActualEnvios(rachaActualEnviosData);
+            setRachaMaxEnvios(rachaMaxEnviosData);
+
+            console.log(posRankingData);
+            console.log(ejerciciosResueltosData);
+            console.log(rachaActualEnviosData);
+            console.log(rachaMaxEnviosData);
+        }
+
+        fetchData();
+    }, [usuario]);
+
     return (
         <>
-            <div className="w-full lg:h-full lg:min-h-[450px]">
+            <div className="w-full lg:h-[calc(100dvh-180px)]">
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-1 gap-4 lg:h-full">
                     {/* Columna izquierda - 2/3 del ancho */}
-                    <div className="flex flex-col min-h-[600px] lg:col-span-2 w-full gap-4 lg:h-full lg:min-h-0">
+                    <div className="flex flex-col lg:col-span-2 w-full gap-4 lg:h-full lg:min-h-0">
                         {/* Fila de 4 métricas */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full shrink-0">
-                            <DatoNumerico
-                                evento={formatEvent(String(usuario), EventType.TIEMPO_PROM_PROBLEMA)}
+                            <DatoNumericoRanking
+                                loading={posRanking === null}
+                                usuario={usuario}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 10, description: "Tiempo Promedio" }}
+                                dato={{ value: posRanking ?? 0, description: "Tabla de clasificación" }}
                             />
                             <DatoNumerico
-                                evento={formatEvent(String(usuario), EventType.TIEMPO_PROM_PROBLEMA)}
+                                loading={ejerciciosResueltos === null}
+                                evento={formatEvent(String(usuario), EventType.USUARIO_NUM_PROBLEMAS_RESUELTOS)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 10, description: "Tiempo Promedio" }}
+                                dato={{ value: ejerciciosResueltos ?? 0, description: "Ejercicios resueltos" }}
                             />
                             <DatoNumerico
-                                evento={formatEvent(String(usuario), EventType.TIEMPO_PROM_PROBLEMA)}
+                                loading={rachaActualEnvios === null}
+                                evento={formatEvent(String(usuario), EventType.USUARIO_RACHA_ACTUAL_ENVIOS_AC)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 10, description: "Tiempo Promedio" }}
+                                dato={{ value: rachaActualEnvios ?? 0, description: "Racha actual envios" }}
                             />
                             <DatoNumerico
-                                evento={formatEvent(String(usuario), EventType.TIEMPO_PROM_PROBLEMA)}
+                                loading={rachaMaxEnvios === null}
+                                evento={formatEvent(String(usuario), EventType.USUARIO_RACHA_MAX_ENVIOS_AC)}
                                 dimensiones={{ width: 200, height: 100 }}
-                                dato={{ value: 10, description: "Tiempo Promedio" }}
+                                dato={{ value: rachaMaxEnvios ?? 0, description: "Racha máxima envios" }}
                             />
                         </div>
 

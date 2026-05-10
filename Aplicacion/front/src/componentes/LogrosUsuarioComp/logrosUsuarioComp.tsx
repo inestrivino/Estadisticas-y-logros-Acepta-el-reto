@@ -10,21 +10,21 @@ import "./logrosUsuarioComp.css";
 
 // COMPONENTES
 import GrupoLogro from "../Logro/grupoLogros.js";
+import { useQueryState } from "../../hooks/useQueryState.js";
 
 
 export default function LogrosUsuarioComp(props: {
     usuario: string
 }) {
 
-    const [usuario, setUsuario] = useState<string>("");
-    useEffect(() => {
-        setUsuario(props.usuario);
-    }, [props.usuario]);
+    const usuario = props.usuario;
 
-    const [key, setKey] = useState('categoria');
+    const [key, setKey] = useQueryState("clasificacion", "nivel");
 
     const [logros, setLogros] = useState<ListadoLogros>();
-    useEffect(() => { //TODO al inicializar la vista de logros ver si recordamos de la ultima vez visitada o no
+    useEffect(() => {
+        if (!usuario) return;
+
         fetch(`/api/usuarios/${usuario}/logros?clasificacion=${key}`)
             .then(response => response.json())
             .then(data => { setLogros(data); });
@@ -68,6 +68,7 @@ export default function LogrosUsuarioComp(props: {
 
                     {logros?.grupos.map((logrosGrupo, idx) => (
                         <GrupoLogro
+                            key={idx}
                             dimensiones={{ width: 1100, height: 300, outerRadius: 0 }}
                             color={getGroupColor(logrosGrupo.grupo)}
                             datos={logrosGrupo}
