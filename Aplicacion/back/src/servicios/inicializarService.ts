@@ -298,7 +298,7 @@ class InicializarService {
      * @returns Objeto `{ data, pagina }` con el JSON parseado y el numero de pagina.
      */
     private async fetchUrl(url: string, pagina: number, bloque: number, posBloque: number): Promise<PaginaFetched> {
-        console.log(`[enviada]  Pagina ${pagina} bloque: ${bloque}, posBloque ${posBloque}`);
+        //console.log(`[enviada]  Pagina ${pagina} bloque: ${bloque}, posBloque ${posBloque}`);
         let res;
         do {
             res = await fetch(url);

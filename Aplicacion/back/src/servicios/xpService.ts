@@ -1,8 +1,8 @@
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
-import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
-import { ActualizadorXP } from "./actualizadoresXP/xpActualizadorInterface.js";
+import { NivelLogro } from "../types/enums/nivelLogro.js";
 
+import { ActualizadorXP } from "./actualizadoresXP/xpActualizadorInterface.js";
 import numEnviosXP from "./actualizadoresXP/numEnvioActualizadorXP.js";
 import problemasXP from "./actualizadoresXP/resultadosActualizadorXP.js";
 import logrosXP from "./actualizadoresXP/logrosActualizadorXP.js";
@@ -56,7 +56,7 @@ class XPService {
         }
 
         const puntos = Array.from(xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
-        await XPDAO.registrarBloqueXP(puntos);
+        await xpDAO.registrarBloqueXP(puntos);
         return puntos;
     }
 
