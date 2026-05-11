@@ -108,7 +108,7 @@ class ProcesarEnviosService {
         await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas, checkpointsLogro, lastEnvioId);
 
         //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
-        await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
+        //await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
         const checkpointsStat = new Map([...checkpointsUsuarios, ...checkpointsProblemas]);

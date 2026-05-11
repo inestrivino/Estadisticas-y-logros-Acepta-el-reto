@@ -7,7 +7,7 @@ import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 class DiasValorCalculador extends ActualizadorUsuario {
 
     id = CampoUsuario.DIAS_VALOR;
-    version = 1;
+    version = 2;
 
     estadoVacio(estado: EstadoUsuario): void {
         estado.diasValor = new Map();
@@ -19,7 +19,8 @@ class DiasValorCalculador extends ActualizadorUsuario {
     }
 
     actualizar(estado: EstadoUsuario, envio: EnvioProcesado): void {
-        //TODO filtrar envios anteriores al ultimo año
+        const haceUnAnio = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60;
+        if (envio.fecha < haceUnAnio) return;
         estado.diasValor!.set(envio.fecha, (estado.diasValor!.get(envio.fecha) ?? 0) + 1);
     }
 

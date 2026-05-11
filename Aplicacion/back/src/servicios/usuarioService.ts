@@ -50,7 +50,7 @@ class UsuarioService {
 
         const anioTimestamp = hoyTimestamp - 365 * 24 * 60 * 60;
 
-        usuarioDAO.eliminarEnviosAnterioresDia(anioTimestamp);
+        await usuarioDAO.eliminarEnviosAnterioresDia(anioTimestamp);
     }
     
     /**
