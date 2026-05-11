@@ -1,5 +1,5 @@
 import { Logro } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { TrofeoRachaEnviosAC } from "./trofeoRachaEnviosAC.js";
 import { TrofeoRachaDias } from "./trofeoRachaDias.js";
 import logro18 from "./logro18.js";

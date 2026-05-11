@@ -1,7 +1,7 @@
 import { Logro  } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
-import { EstadoUsuario } from "../../../../types/estados/estadoUsuario.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
+import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 
 /**
  * Trofeo parametrizado que se otorga al resolver 25 problemas distintos en un lenguaje concreto.
@@ -30,6 +30,6 @@ export class TrofeoLenguaje implements Logro {
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {
-        return (estadoUsuario.lenguajesProblemasResueltos.get(this.lenguaje)?.size ?? 0) >= 25;
+        return (estadoUsuario.lenguajesProblemasResueltos!.get(this.lenguaje)?.size ?? 0) >= 25;
     }
 }
