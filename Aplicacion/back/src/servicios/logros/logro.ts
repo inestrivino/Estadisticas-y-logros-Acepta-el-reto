@@ -1,8 +1,8 @@
-import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
-import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
-import { EstadoProblema } from "../../../types/estados/estadoProblema.js";
-import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
-import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { EnvioProcesado } from "../../types/envios/envioProcesado.js";
+import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
+import { EstadoProblema } from "../../types/estados/estadoProblema.js";
+import { CategoriaLogro } from "../../types/enums/categoriaLogro.js";
+import { NivelLogro } from "../../types/enums/nivelLogro.js";
 
 export interface Logro {
   //datos del logro

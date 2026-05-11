@@ -1,9 +1,10 @@
 import gestionDAO from "../dao/gestionDAO.js";
 import estadosService from "./estadosService.js";
 import gestionService from "./gestionService.js";
-import logrosService from "./logros/logrosService.js";
+import logrosService from "./logrosService.js";
 import usuarioService from "./usuarioService.js";
 import problemaService from "./problemaService.js";
+import xpService from "./xpService.js";
 
 class CheckpointsService {
 
@@ -15,36 +16,51 @@ class CheckpointsService {
     public async comprobarVersiones(): Promise<void> {
         const { calculadoresUsuario, calculadoresProblema } = estadosService.getActualizadores();
 
-        const idsUsuarioCambiados = new Set<string>();
-        const idsProblemasCambiados = new Set<string>();
+        const camposResetearUsuarios = new Set<string>();
+        const camposResetearProblemas = new Set<string>();
 
         for (const calculador of calculadoresUsuario) {
-            const versionGuardada = await gestionDAO.getVersionStat(calculador.id);
+            const versionGuardada = await gestionDAO.getVersionCalc("stat", calculador.id);
             if (versionGuardada !== calculador.version) {
                 console.log(` - version cambiada en '${calculador.id}': ${versionGuardada} -> ${calculador.version}, reseteando checkpoint`);
-                await gestionDAO.setVersionStat(calculador.id, calculador.version);
-                await gestionDAO.setCheckpointStat(calculador.id, 0);
+                await gestionDAO.setVersionCalc("stat", calculador.id, calculador.version);
+                await gestionDAO.setCheckpointCalc("stat", calculador.id, 0);
                 await gestionService.resetContadorEnvios();
-                idsUsuarioCambiados.add(calculador.id);
+                camposResetearUsuarios.add(calculador.id);
             }
         }
 
         for (const calculador of calculadoresProblema) {
-            const versionGuardada = await gestionDAO.getVersionStat(calculador.id);
+            const versionGuardada = await gestionDAO.getVersionCalc("stat", calculador.id);
             if (versionGuardada !== calculador.version) {
                 console.log(` - version cambiada en '${calculador.id}': ${versionGuardada} -> ${calculador.version}, reseteando checkpoint`);
-                await gestionDAO.setVersionStat(calculador.id, calculador.version);
-                await gestionDAO.setCheckpointStat(calculador.id, 0);
+                await gestionDAO.setVersionCalc("stat", calculador.id, calculador.version);
+                await gestionDAO.setCheckpointCalc("stat", calculador.id, 0);
                 await gestionService.resetContadorEnvios();
-                idsProblemasCambiados.add(calculador.id);
+                camposResetearProblemas.add(calculador.id);
             }
         }
 
-        if (idsUsuarioCambiados.size > 0)
-            await usuarioService.borrarEstadosUsuarios(idsUsuarioCambiados);
+        if (camposResetearUsuarios.size > 0)
+            await usuarioService.resetearCamposUsuarios(camposResetearUsuarios);
 
-        if (idsProblemasCambiados.size > 0)
-            await problemaService.borrarEstadosProblemas(idsProblemasCambiados);
+        if (camposResetearProblemas.size > 0)
+            await problemaService.resetearCamposProblemas(camposResetearProblemas);
+
+        //se comprueba si uno de los campos reseteados afecta a la experiencia y hay que resetearla
+        this.comprobacionReseteoXP(camposResetearUsuarios);
+    }
+
+    //TODO poner jsdoc y ver que hacer si recalcular todas las estadisticas que tengan que ver con la experiencia o no
+    private comprobacionReseteoXP(camposResetearUsuarios:Set<string>) {
+        const ids = xpService.actualizadoresIDs();
+
+        for (const id of ids) {
+            if (camposResetearUsuarios.has(id)) 
+                xpService.resetearXP();
+        }
+
+        camposResetearUsuarios.add
     }
 
     /**
@@ -59,21 +75,21 @@ class CheckpointsService {
         const { calculadoresUsuario, calculadoresProblema } = estadosService.getActualizadores();
 
         for (const calculador of calculadoresUsuario) {
-            const versionGuardada = await gestionDAO.getVersionStat(calculador.id);
+            const versionGuardada = await gestionDAO.getVersionCalc("stat", calculador.id);
             if (versionGuardada !== calculador.version) {
-                await gestionDAO.setVersionStat(calculador.id, calculador.version);
-                await gestionDAO.setCheckpointStat(calculador.id, 0);
+                await gestionDAO.setVersionCalc("stat", calculador.id, calculador.version);
+                await gestionDAO.setCheckpointCalc("stat", calculador.id, 0);
             }
-            checkpointsUsuarios.set(calculador.id, await gestionDAO.getCheckpointStat(calculador.id));
+            checkpointsUsuarios.set(calculador.id, await gestionDAO.getCheckpointCalc("stat", calculador.id));
         }
 
         for (const calculador of calculadoresProblema) {
-            const versionGuardada = await gestionDAO.getVersionStat(calculador.id);
+            const versionGuardada = await gestionDAO.getVersionCalc("stat", calculador.id);
             if (versionGuardada !== calculador.version) {
-                await gestionDAO.setVersionStat(calculador.id, calculador.version);
-                await gestionDAO.setCheckpointStat(calculador.id, 0);
+                await gestionDAO.setVersionCalc("stat", calculador.id, calculador.version);
+                await gestionDAO.setCheckpointCalc("stat", calculador.id, 0);
             }
-            checkpointsProblemas.set(calculador.id, await gestionDAO.getCheckpointStat(calculador.id));
+            checkpointsProblemas.set(calculador.id, await gestionDAO.getCheckpointCalc("stat", calculador.id));
         }
 
         return { checkpointsUsuarios, checkpointsProblemas };
@@ -86,26 +102,24 @@ class CheckpointsService {
     public async cargarCheckpointsLogro(): Promise<Map<string, number>> {
         const checkpoints = new Map<string, number>();
         for (const logro of logrosService.getDefiniciones())
-            checkpoints.set(logro.nombre, await gestionDAO.getCheckpointLogro(logro.nombre));
+            checkpoints.set(logro.nombre, await gestionDAO.getCheckpointCalc("logro", logro.nombre));
         return checkpoints;
     }
 
     /**
      * Avanza el checkpoint en Redis de cada stat y logro que quedo por detras del bloque
      * para que en el siguiente bloque se sigan filtrando correctamente.
+     * @param checkpoints - Mapa con claves "usuarios", "problemas" y "logros", cada una con sus checkpoints por id.
+     * @param lastEnvioId - Id del ultimo envio del bloque procesado.
      */
-    public async avanzarCheckpoints(
-        checkpointsStat: Map<string, number>,
-        checkpointsLogro: Map<string, number>,
-        lastEnvioId: number
-    ) {
-        for (const [id, cp] of checkpointsStat)
-            if (cp < lastEnvioId)
-                await gestionDAO.setCheckpointStat(id, lastEnvioId);
-
-        for (const [nombre, cp] of checkpointsLogro)
-            if (cp < lastEnvioId)
-                await gestionDAO.setCheckpointLogro(nombre, lastEnvioId);
+    public async avanzarCheckpoints(checkpoints: Map<string, Map<string, number>>, lastEnvioId: number) {
+        for (const [tipo, mapa] of checkpoints) {
+            for (const [id, cp] of mapa) {
+                if (cp < lastEnvioId) {
+                    await gestionDAO.setCheckpointCalc(tipo === "logros" ? "logro" : "stat", id, lastEnvioId);
+                }
+            }
+        }
     }
 }
 

@@ -2,8 +2,9 @@
 import cron from 'node-cron';
 import usuarioDAO from '../dao/usuarioDAO.js';
 
-export default function activarCron() {
 
+export default function activarCron() {
+    /*
     cron.schedule('* * * * *', async () => {
         const hoy = new Date;
         hoy.setHours(0, 0, 0, 0);
@@ -16,4 +17,5 @@ export default function activarCron() {
     cron.schedule('* * * * *', async () => {
         console.log('Prueba');
     });
+    */
 }

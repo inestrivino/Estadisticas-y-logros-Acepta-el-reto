@@ -1,5 +1,5 @@
 import { ActualizadorUsuario } from "../usuarioActualizadorInterface.js";
-import logrosService from "../../logros/logrosService.js";
+import logrosService from "../../logrosService.js";
 import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";

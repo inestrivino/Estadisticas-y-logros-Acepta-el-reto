@@ -1,6 +1,6 @@
 import express from 'express';
 import usuarioService from '../servicios/usuarioService.js';
-import logrosService from '../servicios/logros/logrosService.js';
+import logrosService from '../servicios/logrosService.js';
 import xpService from '../servicios/xpService.js';
 const router = express.Router();
 

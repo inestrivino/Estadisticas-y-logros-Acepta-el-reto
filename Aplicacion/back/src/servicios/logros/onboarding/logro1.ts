@@ -1,6 +1,6 @@
 import { Logro } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro1: Logro = {
     id: 1,

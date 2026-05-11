@@ -2,7 +2,7 @@ import problemaService from "./problemaService.js";
 import usuarioService from "./usuarioService.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import { EstadoProblema } from "../types/estados/estadoProblema.js";
-import logrosService from "./logros/logrosService.js";
+import logrosService from "./logrosService.js";
 import { EnvioSinProcesarInicial } from "../types/envios/envioSinProcesarInicial.js";
 import { EnvioSinProcesarEvent } from "../types/envios/envioSinProcesarEvent.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
@@ -108,11 +108,10 @@ class ProcesarEnviosService {
         await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas, checkpointsLogro, lastEnvioId);
 
         //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
-        //await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
+        await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
-        const checkpointsStat = new Map([...checkpointsUsuarios, ...checkpointsProblemas]);
-        await checkpointsService.avanzarCheckpoints(checkpointsStat, checkpointsLogro, lastEnvioId);
+        await checkpointsService.avanzarCheckpoints(checkpoints, lastEnvioId);
     }
 
     /**

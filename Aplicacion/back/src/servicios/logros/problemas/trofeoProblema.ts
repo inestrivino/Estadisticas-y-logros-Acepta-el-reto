@@ -1,7 +1,7 @@
 import { Logro } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
-import { EstadoUsuario } from "../../../../types/estados/estadoUsuario.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
+import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 
 /**
  * Trofeo parametrizado que se otorga al alcanzar una cantidad determinada de problemas resueltos.
@@ -32,6 +32,6 @@ export class TrofeoProblema implements Logro {
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {
-        return estadoUsuario.problemasAC.size >= this.cantidad;
+        return estadoUsuario.problemasAC!.size >= this.cantidad;
     }
 }
