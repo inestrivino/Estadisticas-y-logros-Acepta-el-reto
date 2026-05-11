@@ -6,7 +6,7 @@ const logro1: Logro = {
     id: 1,
     nombre: "logro1",
     descripcion: "Creación de una cuenta",
-    imagen: "logro_placeholder.png",
+    imagen: "trofeo_bronce_placeholder.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,

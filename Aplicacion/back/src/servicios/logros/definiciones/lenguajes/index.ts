@@ -8,8 +8,8 @@ import logro11 from "./logro11.js";
  * el nombre y la descripción adecuados
  */
 export const logrosLenguajes: Logro[] = [
-    new TrofeoLenguaje("logro8", "c", "C"),
-    new TrofeoLenguaje("logro9", "cpp", "C++"),
-    new TrofeoLenguaje("logro10", "java", "Java"),
+    new TrofeoLenguaje("logro8", "c", "C", "trofeo_oro_placeholder.png"),
+    new TrofeoLenguaje("logro9", "cpp", "C++", "trofeo_oro_placeholder.png"),
+    new TrofeoLenguaje("logro10", "java", "Java", "trofeo_oro_placeholder.png"),
     logro11,
 ];

@@ -10,7 +10,6 @@ import { EstadoUsuario } from "../../../../types/estados/estadoUsuario.js";
 export class TrofeoRachaDias implements Logro {
 
     public readonly id = 1;
-    public readonly imagen = "logro_placeholder.png";
     public readonly categoria = CategoriaLogro.RACHAS;
     public readonly sorpresa = false;
     public readonly enTiempoReal = true;
@@ -22,12 +21,14 @@ export class TrofeoRachaDias implements Logro {
     public readonly descripcion: string;
     public readonly nivel: NivelLogro;
     private readonly umbral: number;
+    public readonly imagen: string;
 
-    constructor(nombre: string, umbral: number, nivel: NivelLogro) {
+    constructor(nombre: string, umbral: number, nivel: NivelLogro, imagen: string) {
         this.nombre = nombre;
         this.umbral = umbral;
         this.nivel = nivel;
         this.descripcion = `Realización de envíos en ${umbral} días consecutivos`;
+        this.imagen = imagen;
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {

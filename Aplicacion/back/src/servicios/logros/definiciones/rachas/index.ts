@@ -10,7 +10,7 @@ import logro18 from "./logro18.js";
  * para generar el nombre y la descripción adecuados
  */
 export const logrosRachas: Logro[] = [
-    new TrofeoRachaEnviosAC("logro12", 5, NivelLogro.ORO),
-    new TrofeoRachaDias("logro13", 7, NivelLogro.BRONCE),
+    new TrofeoRachaEnviosAC("logro12", 5, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
+    new TrofeoRachaDias("logro13", 7, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
     logro18,
 ];

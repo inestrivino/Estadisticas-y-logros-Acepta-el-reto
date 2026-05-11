@@ -6,7 +6,7 @@ const logro17: Logro = {
     id: 1,
     nombre: "logro17",
     descripcion: "Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema que tenga al menos 100 envios",
-    imagen: "logro_placeholder.png",
+    imagen: "trofeo_oro_placeholder.png",
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: true,

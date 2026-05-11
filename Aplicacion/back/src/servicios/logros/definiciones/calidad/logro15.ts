@@ -6,7 +6,7 @@ const logro15: Logro = {
     id: 1,
     nombre: "logro15",
     descripcion: "Envío correcto dentro del 25% de soluciones más rápidas para un problema que tenga al menos 100 envios",
-    imagen: "logro_placeholder.png",
+    imagen: "trofeo_plata_placeholder.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,

@@ -10,7 +10,6 @@ import { EstadoUsuario } from "../../../../types/estados/estadoUsuario.js";
 export class TrofeoLenguaje implements Logro {
 
     public readonly id = 1;
-    public readonly imagen = "logro_placeholder.png";
     public readonly categoria = CategoriaLogro.LENGUAJES;
     public readonly nivel = NivelLogro.ORO;
     public readonly sorpresa = false;
@@ -22,11 +21,13 @@ export class TrofeoLenguaje implements Logro {
     public readonly nombre: string;
     public readonly descripcion: string;
     private readonly lenguaje: string;
+    public readonly imagen: string;
 
-    constructor(nombre: string, lenguaje: string, lenguajeDisplay: string) {
+    constructor(nombre: string, lenguaje: string, lenguajeDisplay: string, imagen: string) {
         this.nombre = nombre;
         this.lenguaje = lenguaje;
         this.descripcion = `Resolución de 25 problemas en ${lenguajeDisplay}`;
+        this.imagen = imagen;
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {

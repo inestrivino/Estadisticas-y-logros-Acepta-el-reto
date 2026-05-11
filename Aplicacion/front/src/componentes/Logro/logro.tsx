@@ -20,7 +20,16 @@ export default function Logro(props: {
             <>
                 <Col key={props.idx}>
                     <Card className='border-0'>
-                        <Card.Img variant="top" src={imagen} style={{ filter: !props.datos.obtenido ? 'grayscale(100%)' : 'none' }} />
+                        <Card.Img
+                            variant="top"
+                            src={imagen}
+                            style={{
+                                width: "65%",
+                                margin: "0 auto",
+                                padding: "2px",
+                                display: "block",
+                                filter: !props.datos.obtenido ? "grayscale(100%) brightness(50%)" : "none"
+                            }} />
                         <Card.Body className="text-center">
                             <Card.Title>{props.datos.nombre}</Card.Title>
                             <Card.Text>

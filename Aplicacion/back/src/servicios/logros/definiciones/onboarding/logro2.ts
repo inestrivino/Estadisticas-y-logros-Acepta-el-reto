@@ -6,7 +6,7 @@ const logro2: Logro = {
     id: 1,
     nombre: "logro2",
     descripcion: "Realización del primer envío",
-    imagen: "logro_placeholder.png",
+    imagen: "trofeo_bronce_placeholder.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,

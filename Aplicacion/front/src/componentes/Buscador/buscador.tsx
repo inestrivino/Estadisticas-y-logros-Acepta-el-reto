@@ -37,12 +37,7 @@ export default function Buscador(props: {
         fetch(`/api/${props.tipo === "problema_estadistica" ? "problemas" : "usuarios"}?patron=${elem}`)
             .then(res => res.json())
             .then(data => {
-                //TODO quitar el if-else y dejar solo setSugerencias(data)
-                if (data.length === 1 && data[0] === elem)
-                    setSugerencias([]);
-                else
-                    setSugerencias(data);
-                //setSugerencias(data);
+                setSugerencias(data);
             });
     }, [elem]);
 
@@ -208,7 +203,7 @@ export default function Buscador(props: {
                     </Button>
                 </InputGroup>
 
-                {sugerencias.length > 0/* && editando*/ && ( //TODO descomentar esto
+                {sugerencias.length > 0 && editando && (
                     <ul className="buscador-sugerencias" style={{ width: anchoSugerencias ? `${anchoSugerencias}px` : "100%" }}>
                         {sugerencias.map((s, i) => (
                             <li key={i}
