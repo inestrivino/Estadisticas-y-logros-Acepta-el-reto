@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import problemaDAO from '../../src/dao/problemaDAO.js';
-import { EstadoProblema } from '../../src/types/estadoProblema.js';
+import { EstadoProblema } from '../../src/types/estados/estadoProblema.js';
+import { CampoProblema } from '../../src/types/estados/camposEstadoProblema.js';
 import setUpTestFile from './setUptTest.ts';
 
 await setUpTestFile(problemaDAO);
@@ -9,14 +10,18 @@ const PROBLEMA = "Facundo y el undo";
 
 function estadoBase(): EstadoProblema {
     return {
+        [CampoProblema.ENVIOS]: true,
         envios: 0,
         enviosAC: 0,
+        [CampoProblema.TIEMPOS]: true,
         mejorTiempo: Infinity,
         tiempoTotal: 0,
         tiemposOrdenados: [],
         posUltimoEnvio: -1,
         tiemposEnvios: new Map(),
+        [CampoProblema.RESULTADOS]: true,
         resultados: new Map(),
+        [CampoProblema.LENGUAJES]: true,
         lenguajes: new Map(),
     };
 }
@@ -37,8 +42,8 @@ describe("Registrar estado de un problema", () => {
     test("guarda el tiempo promedio de envios AC", async () => {
         const estado = estadoBase();
         estado.tiempoTotal = 0.2;
-        estado.resultados.set("AC", 1);
-        estado.tiemposEnvios.set(1, 0.2);
+        estado.resultados!.set("AC", 1);
+        estado.tiemposEnvios!.set(1, 0.2);
         await registrar(estado);
         expect(await problemaDAO.getTiempoPromedio(PROBLEMA)).toBe(0.2);
     });
@@ -46,22 +51,22 @@ describe("Registrar estado de un problema", () => {
     test("el tiempo promedio es 0 si no hay envios AC", async () => {
         const estado = estadoBase();
         estado.envios = 1;
-        estado.resultados.set("WA", 1);
+        estado.resultados!.set("WA", 1);
         await registrar(estado);
         expect(await problemaDAO.getTiempoPromedio(PROBLEMA)).toBe(0);
     });
 
     test("guarda el mejor tiempo", async () => {
         const estado = estadoBase();
-        estado.tiemposEnvios.set(1, 0.2);
+        estado.tiemposEnvios!.set(1, 0.2);
         await registrar(estado);
         expect(await problemaDAO.getMejorTiempo(PROBLEMA)).toBe(0.2);
     });
 
     test("guarda los resultados", async () => {
         const estado = estadoBase();
-        estado.resultados.set("AC", 1);
-        estado.resultados.set("WA", 1);
+        estado.resultados!.set("AC", 1);
+        estado.resultados!.set("WA", 1);
         await registrar(estado);
         const resultados = await problemaDAO.getResultados(PROBLEMA);
         expect(resultados).toContainEqual({ name: "AC", value: 1 });
@@ -70,7 +75,7 @@ describe("Registrar estado de un problema", () => {
 
     test("guarda los lenguajes", async () => {
         const estado = estadoBase();
-        estado.lenguajes.set("Cpp", 2);
+        estado.lenguajes!.set("Cpp", 2);
         await registrar(estado);
         const lenguajes = await problemaDAO.getLenguajes(PROBLEMA);
         expect(lenguajes).toContainEqual({ name: "Cpp", value: 2 });
@@ -78,8 +83,8 @@ describe("Registrar estado de un problema", () => {
 
     test("devuelve los lenguajes ordenados alfabeticamente", async () => {
         const estado = estadoBase();
-        estado.lenguajes.set("Python", 3);
-        estado.lenguajes.set("Java", 1);
+        estado.lenguajes!.set("Python", 3);
+        estado.lenguajes!.set("Java", 1);
         await registrar(estado);
         const lenguajes = await problemaDAO.getLenguajes(PROBLEMA);
         expect(lenguajes[0].name).toBe("Java");
@@ -102,9 +107,9 @@ describe("Registrar estado de un problema", () => {
 
     test("guarda los tiempos de envio ordenados por tiempo ascendente", async () => {
         const estado = estadoBase();
-        estado.tiemposEnvios.set(1, 0.3);
-        estado.tiemposEnvios.set(2, 0.1);
-        estado.tiemposEnvios.set(3, 0.2);
+        estado.tiemposEnvios!.set(1, 0.3);
+        estado.tiemposEnvios!.set(2, 0.1);
+        estado.tiemposEnvios!.set(3, 0.2);
         await registrar(estado);
         expect(await problemaDAO.getTiemposOrdenados(PROBLEMA)).toEqual([2, 3, 1]);
     });
@@ -127,15 +132,15 @@ describe("Actualizar estado de un problema", () => {
     test("sobreescribe el tiempo promedio", async () => {
         const estado1 = estadoBase();
         estado1.tiempoTotal = 0.2;
-        estado1.resultados.set("AC", 1);
-        estado1.tiemposEnvios.set(1, 0.2);
+        estado1.resultados!.set("AC", 1);
+        estado1.tiemposEnvios!.set(1, 0.2);
         await registrar(estado1);
 
         const estado2 = estadoBase();
         estado2.tiempoTotal = 0.6;
-        estado2.resultados.set("AC", 2);
-        estado2.tiemposEnvios.set(1, 0.2);
-        estado2.tiemposEnvios.set(2, 0.4);
+        estado2.resultados!.set("AC", 2);
+        estado2.tiemposEnvios!.set(1, 0.2);
+        estado2.tiemposEnvios!.set(2, 0.4);
         await registrar(estado2);
 
         expect(await problemaDAO.getTiempoPromedio(PROBLEMA)).toBe(0.3);
@@ -143,8 +148,8 @@ describe("Actualizar estado de un problema", () => {
 
     test("el mejor tiempo es el minimo del sorted set", async () => {
         const estado = estadoBase();
-        estado.tiemposEnvios.set(1, 0.2);
-        estado.tiemposEnvios.set(2, 0.1);
+        estado.tiemposEnvios!.set(1, 0.2);
+        estado.tiemposEnvios!.set(2, 0.1);
         await registrar(estado);
         expect(await problemaDAO.getMejorTiempo(PROBLEMA)).toBe(0.1);
     });
