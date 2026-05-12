@@ -1,10 +1,68 @@
 .usuario-link {
-  color: inherit; /* mismo color que texto normal */
-  text-decoration: none; /* sin subrayado */
-  font-weight: bold;     
+  color: inherit;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .usuario-link:hover {
-  color: #446E9B;
+  /*color: #446E9B;*/
   text-decoration: underline;
+}
+
+.app-tabla tbody .usuario-link:hover {
+  color: #446E9B;
+}
+
+.app-row-usuario:hover td {
+  color: #3A3F47;
+}
+
+.app-tabla {
+  --bs-table-bg: #F5F5F5;
+  /*--bs-table-striped-bg: #72ACD3;*/
+  --bs-table-hover-bg: #D9EDF7;
+  --bs-table-border-color: #446E9B;
+  --bs-table-color: #3A3F47;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.app-tabla thead th {
+  background-color: #446E9B !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.app-tabla td,
+.app-tabla th {
+  vertical-align: middle;
+}
+
+.app-row-usuario td {
+  background-color: #72ACD3 !important;
+  color: white;
+}
+
+.app-pag .page-link {
+  background-color: #F5F5F5;
+  border-color: #446E9B;
+  color: #446E9B;
+}
+
+.app-pag .page-link:hover {
+  background-color: #D9EDF7;
+  border-color: #446E9B;
+  color: #446E9B;
+}
+
+.app-pag .page-item.disabled .page-link {
+  background-color: #F5F5F5;
+  border-color: #446E9B;
+  color: #aaa;
+}
+
+.app-pag .page-item.active .page-link {
+  background-color: #446E9B !important;
+  border-color: #446E9B;
+  color: white;
 }

@@ -47,11 +47,6 @@ export default function TablaDeClasificacion() {
     const usuario = usuarioQuery;
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
 
-    // obtiene el numero de pagina de la query, en caso de no tenerlo lo obtendra de localStora, si no el default value sera la 1
-    const [pagStr, setPagStr] = useQueryState("pagina", "1");
-    const pag = parseInt(pagStr);
-    const setPag = (val: number) => setPagStr(String(val));
-
     // obtiene si se quiere filtrar los usuarios de la tabla por el nivel del usuario de la query, sino de localStorage, sino el
     //  valor sera false 
     const [porNivelStr, setPorNivelStr] = useQueryState("nivel", "false");
@@ -73,18 +68,19 @@ export default function TablaDeClasificacion() {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
+    // obtiene el numero de pagina de la query, en caso de no tenerlo lo obtendra de localStora, si no el default value sera la 1
+    const [pagStr, setPagStr] = useQueryState("pagina", "1");
+    const pag = parseInt(pagStr);
+    const setPag = (val: number) => setPagStr(String(val));
     // se encarga de actualizar la url con los parametros necesarios (nivel, pagina, usuarioActual)
     useEffect(() => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev);
 
-            // si no hay usuario pone el filtrado de nivel a false
-            const nivelFinal = usuario && usuarioExiste ? (prev.get("nivel") ?? porNivelStr) : "false";
-            if (!prev.get("nivel") || !usuario) next.set("nivel", nivelFinal);
-
-            //if (!prev.get("nivel")) next.set("nivel", usuario ? porNivelStr : "false");
+            if (!prev.get("nivel")) next.set("nivel", porNivelStr);
             if (!prev.get("pagina")) next.set("pagina", pagStr);
             if (!prev.get("usuarioActual") && usuarioQuery) next.set("usuarioActual", usuarioQuery);
+
             return next;
         }, { replace: true });
     }, []);
@@ -125,6 +121,7 @@ export default function TablaDeClasificacion() {
             setUsuarioExiste(false);
             setInfoUsuario(undefined);
             setRows(pagSize);
+            setPorNivelStr("false");
             return;
         }
 
@@ -190,6 +187,27 @@ export default function TablaDeClasificacion() {
     const handleRankingUpdate = async () => {
         fetchRanking(pag);
     }
+
+    // cuando se cambia el filtrado por nivel se actualizan las queries de la url y sus correspondiente valores en 
+    //  localStorage
+    const handleCambioFiltro = (filtrar: boolean, usuarioExiste: boolean) => {
+        if (!usuarioExiste) return;
+        localStorage.setItem("nivel", String(filtrar));
+        localStorage.setItem("pagina", "1");
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            next.set("nivel", String(filtrar));
+            next.set("pagina", "1");
+            return next;
+        }, { replace: true });
+    }
+
+    const [inputPag, setInputPag] = useState(String(pag));
+    useEffect(() => {
+        setInputPag(String(pag));
+    }, [pag]);
+
+
     return (
         <div>
             <h1 className="p-4 text-3xl font-bold">
@@ -197,42 +215,32 @@ export default function TablaDeClasificacion() {
             </h1>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {usuarioExiste && <Form.Check
-                    className="mb-2"
-                    type="switch"
-                    id="toggle-check"
-                    dir="rtl"
-                    label={
-                        <span>
-                            Filtrar por nivel
-                            {nivel &&
-                                <EtiquetaNivel
-                                    evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
-                                    nivel={nivel}
-                                />
-                            }
-                        </span>
-                    }
-                    checked={porNivel}
-                    onChange={(e) => {
-                        // cuando se cambia el filtrado por nivel se actualizan las queries de la url y sus correspondiente valores en 
-                        //  localStorage
-                        if (!usuarioExiste) return;
-                        const nuevoNivel = e.currentTarget.checked;
-                        localStorage.setItem("nivel", String(nuevoNivel));
-                        localStorage.setItem("pagina", "1");
-                        setSearchParams(prev => {
-                            const next = new URLSearchParams(prev);
-                            next.set("nivel", String(nuevoNivel));
-                            next.set("pagina", "1");
-                            return next;
-                        }, { replace: true });
-                    }}
-                />}
+                <div className="d-flex justify-content-end">
+                    {usuarioExiste && <Form.Check
+                        className="mb-2"
+                        type="switch"
+                        id="toggle-check"
+                        dir="rtl"
+                        label={
+                            <span>
+                                Filtrar por nivel
+                                {nivel &&
+                                    <EtiquetaNivel
+                                        evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
+                                        nivel={nivel}
+                                    />
+                                }
+                            </span>
+                        }
+                        checked={porNivel}
+                        onChange={(e) => { handleCambioFiltro(e.currentTarget.checked, usuarioExiste) }}
+                    />}
+                </div>
+
                 {loading ? (
                     <Spinner animation="border" />
                 ) : (
-                    <Table striped bordered hover>
+                    <Table className="app-tabla" bordered hover>
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -243,7 +251,7 @@ export default function TablaDeClasificacion() {
                         </thead>
                         <tbody>
                             {infoUsuario &&
-                                <tr key={1} className="table-dark">
+                                <tr key="infoUsuario" className="app-row-usuario" style={{ backgroundColor: '#446E9B' }}>
                                     <td>{infoUsuario.pos}</td>
                                     <td>
                                         <Link to={`/usuarios/estadisticas/${infoUsuario.nombre}`} className="usuario-link">
@@ -254,7 +262,7 @@ export default function TablaDeClasificacion() {
                                     <td>{infoUsuario.xp}</td>
                                 </tr>}
                             {users.map((u: datoUsuario, index) => (
-                                <tr key={u.nombre} className={u.nombre === usuario ? "table-dark" : ""}>
+                                <tr key={u.nombre} className={u.nombre === usuario ? "app-row-usuario" : ""}>
                                     <td>{u.pos}</td>
                                     <td>
                                         <Link to={`/usuarios/estadisticas/${u.nombre}`} className="usuario-link">
@@ -269,24 +277,50 @@ export default function TablaDeClasificacion() {
                     </Table>
                 )}
 
-                <div className="aligne-items-center">
-                    <Pagination>
+                <div className="d-flex justify-content-center">
+                    <Pagination className="app-pag">
                         <Pagination.Prev onClick={() => setPag(pag - 1)} disabled={pag === 1} />
-                        {pag !== 1 && <Pagination.Ellipsis />}
-                        {/*TODO descomentar esto y borrar la linea anterior */}
-                        {/*{pag > 3 && <Pagination.Ellipsis />}
-                        {pag > 2 && <Pagination.Item>{pag - 2}</Pagination.Item>}
-                        {pag > 1 && <Pagination.Item>{pag - 1}</Pagination.Item>}*/}
+                        {pag > 3 && <Pagination.Ellipsis />}
+                        {pag > 2 && <Pagination.Item onClick={() => setPag(pag - 2)}>{pag - 2}</Pagination.Item>}
+                        {pag > 1 && <Pagination.Item onClick={() => setPag(pag - 1)}>{pag - 1}</Pagination.Item>}
 
-                        <Pagination.Item key={pag} active={true} onClick={() => setPag(pag)}>
-                            {pag}
-                        </Pagination.Item>
+                        <Form.Control
+                            type="text"
+                            min={1}
+                            max={totalPags}
+                            value={inputPag}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d*$/.test(value)) { // solo permite numeros
+                                    setInputPag(value);
+                                }
+                            }}
+                            style={{
+                                width: "70px",
+                                textAlign: "center",
+                                borderRadius: "0",
+                                marginLeft: "-1px",
+                                marginRight: "-1px",
+                                borderColor: "#446E9B",
+                                backgroundColor: "#72ACD3",
+                                color: "#3A3F47",
+                                boxShadow: "none"
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    const value = Number(inputPag);
+                                    if (value >= 1 && value <= totalPags) {
+                                        setPag(value);
+                                    } else {
+                                        setInputPag(String(pag));
+                                    }
+                                }
+                            }}
+                        />
 
-                        {/*TODO descomentar esto y borrar la linea posterior */}
-                        {/*{pag < totalPags - 1 && <Pagination.Item>{pag + 1}</Pagination.Item>}
-                        {pag < totalPags - 2 && <Pagination.Item>{pag + 2}</Pagination.Item>}
-                        {pag < totalPags - 3 && <Pagination.Ellipsis />}*/}
-                        {pag !== totalPags && <Pagination.Ellipsis />}
+                        {pag < totalPags - 1 && <Pagination.Item onClick={() => setPag(pag + 1)}>{pag + 1}</Pagination.Item>}
+                        {pag < totalPags - 2 && <Pagination.Item onClick={() => setPag(pag + 2)}>{pag + 2}</Pagination.Item>}
+                        {pag < totalPags - 3 && <Pagination.Ellipsis />}
                         <Pagination.Next onClick={() => setPag(pag + 1)} disabled={pag === totalPags} />
                     </Pagination>
                 </div>

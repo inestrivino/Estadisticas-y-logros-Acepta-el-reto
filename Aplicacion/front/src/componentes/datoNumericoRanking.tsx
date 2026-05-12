@@ -1,6 +1,7 @@
 import { EventType } from "shared";
 import { socket } from "../services/socket.ts";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const skeletonKeyframes = `
 @keyframes shimmer {
@@ -91,7 +92,9 @@ export default function DatoNumericoRanking(props: {
     return (
         <div style={props.style} className="w-full">
             <div style={containerStyle}>
-                <div style={{ fontSize: "28px", fontWeight: "bold" }}> # {data} </div>
+                <Link to="/usuarios/ranking" style={{ textDecoration: "none", color: "inherit" }}>
+                    <div style={{ fontSize: "28px", fontWeight: "bold" }}> # {data} </div>
+                </Link>
                 <div style={{ fontSize: "14px", color: "#555" }}> {props.dato.description} </div>
             </div>
         </div>
