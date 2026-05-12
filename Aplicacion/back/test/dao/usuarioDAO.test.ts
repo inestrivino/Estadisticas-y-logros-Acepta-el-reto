@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import usuarioDAO from '../../src/dao/usuarioDAO.js';
-import { EstadoUsuario } from '../../src/types/estadoUsuario.js';
+import { EstadoUsuario } from '../../src/types/estados/estadoUsuario.js';
+import { CampoUsuario } from '../../src/types/estados/camposEstadoUsuario.js';
 import setUpTestFile from './setUptTest.ts';
 
 setUpTestFile(usuarioDAO);
@@ -30,21 +31,29 @@ describe("Registrar datos de usuario", () => {
         }
 
         const estado: EstadoUsuario = {
+            [CampoUsuario.NUM_ENVIOS]: true,
             numEnvios: 53,
+            [CampoUsuario.PROBLEMAS]: true,
             problemasAC: new Set(["p1"]),
             problemasNoAC: new Set(),
+            [CampoUsuario.RESULTADOS]: true,
             resultados: new Map([["AC", 53]]),
+            [CampoUsuario.LENGUAJES]: true,
             lenguajes: new Set(["Cpp"]),
             lenguajesConteo: new Map([["Cpp", 53]]),
             lenguajesAC: new Map([["Cpp", 53]]),
             lenguajesProblemasResueltos: new Map([["Cpp", new Set(["p1"])]]),
+            [CampoUsuario.DIAS_VALOR]: true,
             diasValor,
+            [CampoUsuario.RACHAS]: true,
             rachaEnviosAC: 53,
             rachaEnviosACMax: 53,
             rachaDiasEnvio: 0,
             rachaDiasEnvioMax: 0,
             ultimoDiaEnvio: new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())).valueOf() / 1000,
+            [CampoUsuario.HORAS]: true,
             horas: new Set([0]),
+            [CampoUsuario.LOGROS]: true,
             logros: new Set(),
         };
 
@@ -109,21 +118,29 @@ describe("Lecturas vacias", () => {
 
     test("coge bien lo dias", async () => {
         await usuarioDAO.registrarEstadosUsuarios(new Map([[dato.usuario, {
+            [CampoUsuario.NUM_ENVIOS]: true,
             numEnvios: 1,
+            [CampoUsuario.PROBLEMAS]: true,
             problemasAC: new Set([dato.problema]),
             problemasNoAC: new Set(),
+            [CampoUsuario.RESULTADOS]: true,
             resultados: new Map([[dato.resultado, 1]]),
+            [CampoUsuario.LENGUAJES]: true,
             lenguajes: new Set([dato.lenguaje]),
             lenguajesConteo: new Map([[dato.lenguaje, 1]]),
             lenguajesAC: new Map([[dato.lenguaje, 1]]),
             lenguajesProblemasResueltos: new Map([[dato.lenguaje, new Set([dato.problema])]]),
+            [CampoUsuario.DIAS_VALOR]: true,
             diasValor: new Map([[dato.fecha, 1]]),
+            [CampoUsuario.RACHAS]: true,
             rachaEnviosAC: 1,
             rachaEnviosACMax: 1,
             rachaDiasEnvio: 1,
             rachaDiasEnvioMax: 1,
             ultimoDiaEnvio: dato.fecha,
+            [CampoUsuario.HORAS]: true,
             horas: new Set([dato.hora]),
+            [CampoUsuario.LOGROS]: true,
             logros: new Set(),
         }]]));
 

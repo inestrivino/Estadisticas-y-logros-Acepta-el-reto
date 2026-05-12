@@ -1,6 +1,6 @@
 import { Logro } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro17: Logro = {
     id: 1,
@@ -20,7 +20,7 @@ const logro17: Logro = {
     condicion: (estadoUsuario, estadoProblema, envio) => {
         const esAcierto = envio!.resultado === "AC";
         const esMejorTiempo = envio!.tiempo <= (estadoProblema!.mejorTiempo ?? Infinity);
-        const cienEnvios = (estadoProblema!.envios ?? 0) >= 100;
+        const cienEnvios = estadoProblema!.envios! >= 100;
         return esAcierto && esMejorTiempo && cienEnvios;
     }
 };

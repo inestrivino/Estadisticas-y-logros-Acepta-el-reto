@@ -14,12 +14,27 @@ class UsuarioService {
 
     /**
      * Borra los campos de los registradores indicados para cada usuario del mapa.
-     * @param estadosUsuarios - Mapa de identificador de usuario a su estado.
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
-    async borrarEstadosUsuarios(ids: Set<string>): Promise<void> {
+    async resetearCamposUsuarios(ids: Set<string>): Promise<void> {
         await usuarioDAO.borrarEstados(ids);
     }
+    
+    /**
+     * Elimina de Redis los envios con mas de un anio de antiguedad.
+     */
+    public async eliminarEnviosAntiguos() {
+        //se saca el timeStamp del inicio del dia en el que se hizo la consulta
+        const hoy = new Date;
+        hoy.setHours(0, 0, 0, 0);
+        const hoyTimestamp = hoy.valueOf() / 1000;
+
+        const anioTimestamp = hoyTimestamp - 365 * 24 * 60 * 60;
+
+        await usuarioDAO.eliminarEnviosAnterioresDia(anioTimestamp);
+    }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve los envios del ultimo anio del usuario
@@ -37,20 +52,6 @@ class UsuarioService {
         const datos = await usuarioDAO.getEnviosUsuario(usuario, timeIni, timeFin);
 
         return datos;
-    }
-
-    /**
-     * Elimina de Redis los envios con mas de un anio de antiguedad.
-     */
-    public async eliminarEnviosAntiguos() {
-        //se saca el timeStamp del inicio del dia en el que se hizo la consulta
-        const hoy = new Date;
-        hoy.setHours(0, 0, 0, 0);
-        const hoyTimestamp = hoy.valueOf() / 1000;
-
-        const anioTimestamp = hoyTimestamp - 365 * 24 * 60 * 60;
-
-        await usuarioDAO.eliminarEnviosAnterioresDia(anioTimestamp);
     }
     
     /**

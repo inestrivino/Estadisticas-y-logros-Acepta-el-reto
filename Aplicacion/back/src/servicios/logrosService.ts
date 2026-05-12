@@ -1,15 +1,15 @@
-import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
-import { EstadoProblema } from "../../types/estados/estadoProblema.js";
-import logrosDAO from "../../dao/logrosDAO.js";
-import { datosLogro } from "../../types/datos/datosLogro.js";
-import { EnvioProcesado } from "../../types/envios/envioProcesado.js";
-import { Logro } from "./definiciones/logro.js";
+import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
+import { EstadoProblema } from "../types/estados/estadoProblema.js";
+import logrosDAO from "../dao/logrosDAO.js";
+import { datosLogro } from "../types/datos/datosLogro.js";
+import { EnvioProcesado } from "../types/envios/envioProcesado.js";
+import { Logro } from "./logros/logro.js";
 
-import { logrosOnboarding } from "./definiciones/onboarding/index.js";
-import { logrosProblemas } from "./definiciones/problemas/index.js";
-import { logrosLenguajes } from "./definiciones/lenguajes/index.js";
-import { logrosRachas } from "./definiciones/rachas/index.js";
-import { logrosCalidad } from "./definiciones/calidad/index.js";
+import { logrosOnboarding } from "./logros/onboarding/index.js";
+import { logrosProblemas } from "./logros/problemas/index.js";
+import { logrosLenguajes } from "./logros/lenguajes/index.js";
+import { logrosRachas } from "./logros/rachas/index.js";
+import { logrosCalidad } from "./logros/calidad/index.js";
 
 class LogrosService {
 
@@ -39,7 +39,7 @@ class LogrosService {
      * @param logros - Nombres de logros a reevaluar.
      */
     public async reevaluarLogros(logros: Set<string>) {
-        //TODO Fase 5
+        //TODO
     }
 
     /**
@@ -51,7 +51,7 @@ class LogrosService {
         estadoUsuario: EstadoUsuario,
         estadoProblema: EstadoProblema,
         envio: EnvioProcesado,
-        checkpointsLogro?: Map<string, number>
+        checkpointsLogro: Map<string, number>
     ) {
 
         //se evalua cada grupo de trofeos en tiempo real, filtrando por checkpoint

@@ -1,10 +1,11 @@
-import { datosLogro } from "../types/datos/datosLogro.js";
-import { EnvioProcesado } from "../types/envios/envioProcesado.js";
-import { NivelLogro } from "../types/enums/nivelLogro.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
-import logrosService from "./logros/logrosService.js";
-import XPDAO from "../dao/xpDAO.js"
 import xpDAO from "../dao/xpDAO.js";
+import { NivelLogro } from "../types/enums/nivelLogro.js";
+
+import { ActualizadorXP } from "./actualizadoresXP/xpActualizadorInterface.js";
+import numEnviosXP from "./actualizadoresXP/numEnvioActualizadorXP.js";
+import problemasXP from "./actualizadoresXP/resultadosActualizadorXP.js";
+import logrosXP from "./actualizadoresXP/logrosActualizadorXP.js";
 
 export enum NivelUsuario {
     APRENDIZ = "Aprendiz",
@@ -17,80 +18,63 @@ export enum NivelUsuario {
 
 class XPService {
 
-    private xpUsuarios = new Map<string, number>();
+    private actualizadoresXP: ActualizadorXP[] = [
+        numEnviosXP,
+        problemasXP,
+        logrosXP
+    ]
 
     /**
-     * Calcula los xp obtenidos por cada usuario a partir de un bloque de envios. Primero recorre los envios para calcular los
-     *  puntos a partir del resultado obtenido en cada envio (acierto o no). Luego calcula los puntos obtenidos a partir de
-     *  los logros alcanzados por cada usuario.
-     * @param envios - Array de envios procesados del bloque.
-     * @param listadoLogros - Array de logros procesados del bloque.
-     */
-    public async procesarBloqueEnvios(envios: EnvioProcesado[], listadoLogros: datosLogro[]) {
-
-        for (const envio of envios) {
-            if (!this.xpUsuarios.has(envio.usuario))
-                this.xpUsuarios.set(envio.usuario, 0);
-            const xp = this.xpUsuarios.get(envio.usuario) as number + this.getXPPorResultadoEnvio(envio.resultado);
-            this.xpUsuarios.set(envio.usuario, xp);
-        }
-
-        for (const { usuario, logros } of listadoLogros) {
-            const xp = (this.xpUsuarios.has(usuario) ? this.xpUsuarios.get(usuario) : 0) as number + this.calcularXPDeLogros(logros);
-            this.xpUsuarios.set(usuario, xp);
-        }
-
-        const puntos = Array.from(this.xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
-        await XPDAO.registrarBloqueXP(puntos);
-        return puntos;
-    }
-
-    /**
-     * Calcula los xp obtenidos por cada usuario a partir de la diferencia entre su estado inicial y final en el bloque.
-     * Los xp por envios se derivan del incremento en numEnvios y resultados AC. Los xp por logros se derivan de los
-     * logros nuevos que aparecen en el estado final pero no en el inicial.
+     * Calcula los xp obtenidos por cada usuario a partir de la diferencia entre su estado inicial y final,
+     * delegando en cada actualizador registrado en actualizadoresXP.
      * @param estadosIniciales - Mapa de estados de usuario antes de procesar el bloque.
-     * @param estadosFinales - Mapa de estados de usuario despues de procesar el bloque.
+     * @param estadosFinales - Mapa de estados de usuario despues de procesar el bloque (puede ser parcial).
+     * @returns Array de pares { usuario, xp } con los puntos acumulados en el bloque.
      */
     public async procesarBloqueEstados(
         estadosIniciales: Map<string, EstadoUsuario>,
         estadosFinales: Map<string, EstadoUsuario>
     ) {
-        this.xpUsuarios = new Map<string, number>();
+        const xpUsuarios = new Map<string, number>();
 
         for (const [usuario, estadoFinal] of estadosFinales) {
-            const estadoInicial = estadosIniciales.get(usuario);
+            const estadoInicial = estadosIniciales.get(usuario) ?? {} as EstadoUsuario;
 
-            const acFinal = estadoFinal.resultados.get("AC") ?? 0;
-            const acInicial = estadoInicial?.resultados.get("AC") ?? 0;
-            const enviosAC = acFinal - acInicial;
-            const totalEnvios = estadoFinal.numEnvios - (estadoInicial?.numEnvios ?? 0);
-            const enviosNoAC = totalEnvios - enviosAC;
+            //transforma un array en un único valor final aplicando una función acumuladora a cada elemento
+            //el acumulado empieza en 0
+            const xp = this.actualizadoresXP.reduce((acc, act) => {
 
-            const logrosNuevos = [...estadoFinal.logros].filter(l => !estadoInicial?.logros.has(l));
+                //se mira si el estado final tiene la estadistica de este actualizador
+                const calculado = estadoFinal[act.id as keyof EstadoUsuario] !== undefined;
 
-            const xp = enviosAC * 15 + enviosNoAC * 1 + this.calcularXPDeLogros(logrosNuevos);
-            this.xpUsuarios.set(usuario, xp);
+                //si no lo tienen devuelve el acumulado de la experiencia de este bloque
+                return calculado ? acc + act.actualizar(estadoInicial, estadoFinal) : acc;
+
+            }, 0);
+
+            xpUsuarios.set(usuario, xp);
         }
 
-        const puntos = Array.from(this.xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
-        await XPDAO.registrarBloqueXP(puntos);
+        const puntos = Array.from(xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
+        await xpDAO.registrarBloqueXP(puntos);
+        return puntos;
     }
 
-    /**
-     * Devuelve los xp correspondientes al conjunto de logros que se pasa.
-     * @param nombreLogros - Listado de identificadores (nombres) de los logros.
-     * @returns Numero entero positivo.
-     */
-    private calcularXPDeLogros(nombreLogros: string[]): number {
-        let xp = 0;
-        for (const logro of nombreLogros.map(l => logrosService.getLogroByName(l))) {
-            if (logro !== undefined)
-                xp += this.getXPPorNivelLogro(logro.nivel)
+    public async resetearXP() {
+        await xpDAO.resetearXP();
+    }
+
+    public actualizadoresIDs(): string[] {
+        const ids: string[] = [];
+
+        for (const actualizador of this.actualizadoresXP) {
+            ids.push(actualizador.id);
         }
-        return xp;
+
+        return ids;
     }
 
+    //============================== CONSULTAS ==============================
     /**
      * Devuelve la informacion del usuario asociada a los xp y su ranking.
      * @param filtrarPorNivel - Indica si la informacion es respecto al ranking global o al perteneciente al nivel del usuario.

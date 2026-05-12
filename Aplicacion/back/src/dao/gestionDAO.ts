@@ -73,63 +73,43 @@ class GestionDAO extends DAO {
     //=============================== VERSIONES Y CHECKPOINTS ===============================
 
     /**
-     * Devuelve la version aplicada de la estadistica indicada, o 0 si nunca se aplico.
+     * Devuelve la version aplicada del calculador o logro indicado, o 0 si nunca se aplico.
+     * @param tipo - Prefijo del tipo: "stat" o "logro".
+     * @param id - Identificador del calculador o logro.
      */
-    public async getVersionStat(id: string): Promise<number> {
-        const v = await this.redis.get(`meta:stat:${id}:version`);
+    public async getVersionCalc(tipo: string, id: string): Promise<number> {
+        const v = await this.redis.get(`meta:${tipo}:${id}:version`);
         return v ? Number(v) : 0;
     }
 
     /**
-     * Persiste la version aplicada de la estadistica indicada.
+     * Persiste la version aplicada del calculador o logro indicado.
+     * @param tipo - Prefijo del tipo: "stat" o "logro".
+     * @param id - Identificador del calculador o logro.
+     * @param version - Version a persistir.
      */
-    public async setVersionStat(id: string, version: number) {
-        await this.redis.set(`meta:stat:${id}:version`, String(version));
+    public async setVersionCalc(tipo: string, id: string, version: number) {
+        await this.redis.set(`meta:${tipo}:${id}:version`, String(version));
     }
 
     /**
-     * Devuelve el numero del ultimo envio procesado por la estadistica indicada, o 0 si ninguno.
+     * Devuelve el numero del ultimo envio procesado por el calculador o logro indicado, o 0 si ninguno.
+     * @param tipo - Prefijo del tipo: "stat" o "logro".
+     * @param id - Identificador del calculador o logro.
      */
-    public async getCheckpointStat(id: string): Promise<number> {
-        const v = await this.redis.get(`meta:stat:${id}:envio`);
+    public async getCheckpointCalc(tipo: string, id: string): Promise<number> {
+        const v = await this.redis.get(`meta:${tipo}:${id}:envio`);
         return v ? Number(v) : 0;
     }
 
     /**
-     * Persiste el numero del ultimo envio procesado por la estadistica indicada.
+     * Persiste el numero del ultimo envio procesado por el calculador o logro indicado.
+     * @param tipo - Prefijo del tipo: "stat" o "logro".
+     * @param id - Identificador del calculador o logro.
+     * @param envio - Id del ultimo envio procesado.
      */
-    public async setCheckpointStat(id: string, envio: number) {
-        await this.redis.set(`meta:stat:${id}:envio`, String(envio));
-    }
-
-    /**
-     * Devuelve la version aplicada del logro indicado, o 0 si nunca se aplico.
-     */
-    public async getVersionLogro(id: string): Promise<number> {
-        const v = await this.redis.get(`meta:logro:${id}:version`);
-        return v ? Number(v) : 0;
-    }
-
-    /**
-     * Persiste la version aplicada del logro indicado.
-     */
-    public async setVersionLogro(id: string, version: number) {
-        await this.redis.set(`meta:logro:${id}:version`, String(version));
-    }
-
-    /**
-     * Devuelve el numero del ultimo envio procesado por el logro indicado, o 0 si ninguno.
-     */
-    public async getCheckpointLogro(id: string): Promise<number> {
-        const v = await this.redis.get(`meta:logro:${id}:envio`);
-        return v ? Number(v) : 0;
-    }
-
-    /**
-     * Persiste el numero del ultimo envio procesado por el logro indicado.
-     */
-    public async setCheckpointLogro(id: string, envio: number) {
-        await this.redis.set(`meta:logro:${id}:envio`, String(envio));
+    public async setCheckpointCalc(tipo: string, id: string, envio: number) {
+        await this.redis.set(`meta:${tipo}:${id}:envio`, String(envio));
     }
 
     /**

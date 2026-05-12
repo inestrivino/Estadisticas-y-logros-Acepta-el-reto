@@ -17,9 +17,11 @@ class ProblemaService {
      * @param estadosProblemas - Mapa de identificador de problema a su estado.
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
-    public async borrarEstadosProblemas(ids: Set<string>): Promise<void> {
+    public async resetearCamposProblemas(ids: Set<string>): Promise<void> {
         await problemaDAO.borrarEstados(ids);
     }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve si el problema existe en la bd o no.

@@ -1,6 +1,6 @@
 import { Logro } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro2: Logro = {
     id: 1,
@@ -16,7 +16,7 @@ const logro2: Logro = {
 
     enTiempoReal: false,
 
-    condicion: (estadoUsuario, estadoProblema, envio) => (estadoUsuario?.numEnvios ?? 0) >= 1
+    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.numEnvios! >= 1
 };
 
 export default logro2;

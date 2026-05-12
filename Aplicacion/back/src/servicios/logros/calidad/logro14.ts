@@ -1,6 +1,6 @@
 import { Logro  } from "../logro.js";
-import { NivelLogro } from "../../../../types/enums/nivelLogro.js";
-import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
+import { NivelLogro } from "../../../types/enums/nivelLogro.js";
+import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro14: Logro = {
     id: 1,
@@ -17,7 +17,7 @@ const logro14: Logro = {
     enTiempoReal: true,
 
     //se comprueba que el envio es AC y que el problema no tiene envios incorrectos previos
-    condicion: (estadoUsuario, estadoProblema, envio) => envio!.resultado === "AC" && !estadoUsuario.problemasNoAC?.has(envio!.problema)
+    condicion: (estadoUsuario, estadoProblema, envio) => envio!.resultado === "AC" && !estadoUsuario.problemasNoAC!.has(envio!.problema)
 };
 
 export default logro14;

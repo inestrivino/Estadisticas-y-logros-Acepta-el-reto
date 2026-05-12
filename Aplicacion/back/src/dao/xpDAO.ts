@@ -3,6 +3,10 @@ import DAO from './DAO.js'
 
 class XPDAO extends DAO {
 
+    /**
+     * Incrementa la XP de cada usuario del bloque en el ranking global.
+     * @param datos - Array de pares usuario/xp a acumular.
+     */
     async registrarBloqueXP(datos: datosXP[]) {
         const pipeline = this.redis.multi();
         for (const { usuario, xp } of datos) {
@@ -10,6 +14,15 @@ class XPDAO extends DAO {
         }
         await pipeline.exec();
     }
+
+    /**
+     * Pone a 0 la XP de todos los usuarios del ranking.
+     */
+    async resetearXP() {
+        await this.redis.del(`usuario:ranking`);
+    }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve los usuarios que se encuentran entre las posiciones ini y fin del ranking.
