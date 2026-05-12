@@ -30,7 +30,7 @@ export default function Logro(props: {
                                 display: "block",
                                 filter: !props.datos.obtenido ? "grayscale(100%) brightness(50%)" : "none"
                             }} />
-                        <Card.Body className="text-center">
+                        <Card.Body className={!props.datos.obtenido ? "text-center text-muted" : "text-center"}>
                             <Card.Title>{props.datos.nombre}</Card.Title>
                             <Card.Text>
                                 {props.datos.descripcion}

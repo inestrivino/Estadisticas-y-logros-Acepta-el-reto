@@ -27,7 +27,7 @@ export class TrofeoRachaDias implements Logro {
         this.nombre = nombre;
         this.umbral = umbral;
         this.nivel = nivel;
-        this.descripcion = `Realización de envíos en ${umbral} días consecutivos`;
+        this.descripcion = `He realizado envíos en ${umbral} días consecutivos`;
         this.imagen = imagen;
     }
 

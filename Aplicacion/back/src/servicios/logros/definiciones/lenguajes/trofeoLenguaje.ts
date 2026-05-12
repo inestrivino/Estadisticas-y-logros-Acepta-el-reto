@@ -26,11 +26,11 @@ export class TrofeoLenguaje implements Logro {
     constructor(nombre: string, lenguaje: string, lenguajeDisplay: string, imagen: string) {
         this.nombre = nombre;
         this.lenguaje = lenguaje;
-        this.descripcion = `Resolución de 25 problemas en ${lenguajeDisplay}`;
+        this.descripcion = `He resuelto 25 problemas en ${lenguajeDisplay}`;
         this.imagen = imagen;
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {
-        return (estadoUsuario.lenguajesProblemasResueltos.get(this.lenguaje)?.size ?? 0) >= 25;
+        return (estadoUsuario?.lenguajesProblemasResueltos?.get(this.lenguaje)?.size ?? 0) >= 25;
     }
 }

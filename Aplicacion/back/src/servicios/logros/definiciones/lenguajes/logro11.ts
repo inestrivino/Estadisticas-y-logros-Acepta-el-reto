@@ -5,7 +5,7 @@ import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
 const logro11: Logro = {
     id: 1,
     nombre: "logro11",
-    descripcion: "Haber realizado envíos con 3 lenguajes diferentes",
+    descripcion: "He realizado envíos con 3 lenguajes diferentes",
     imagen: "trofeo_plata_placeholder.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.LENGUAJES,
@@ -16,7 +16,7 @@ const logro11: Logro = {
 
     enTiempoReal: false,
 
-    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.lenguajes.size >= 3
+    condicion: (estadoUsuario, estadoProblema, envio) => (estadoUsuario.lenguajes?.size ?? 0) >= 3
 };
 
 export default logro11;

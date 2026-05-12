@@ -5,7 +5,7 @@ import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
 const logro18: Logro = {
     id: 1,
     nombre: "logro18",
-    descripcion: "Realización de envíos en cada hora del día",
+    descripcion: "He realizado envíos en cada hora del día",
     imagen: "trofeo_plata_placeholder.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.RACHAS,
@@ -16,7 +16,7 @@ const logro18: Logro = {
 
     enTiempoReal: false,
 
-    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.horas.size === 24
+    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario?.horas?.size === 24
 };
 
 export default logro18;

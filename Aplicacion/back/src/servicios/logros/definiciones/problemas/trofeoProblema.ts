@@ -27,11 +27,11 @@ export class TrofeoProblema implements Logro {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.nivel = nivel;
-        this.descripcion = `Resolución de ${cantidad} problemas`;
+        this.descripcion = `He resuelto ${cantidad} problemas`;
         this.imagen = imagen;
     }
 
     public condicion(estadoUsuario: EstadoUsuario): boolean {
-        return estadoUsuario.problemasAC.size >= this.cantidad;
+        return (estadoUsuario?.problemasAC?.size ?? 0) >= this.cantidad;
     }
 }

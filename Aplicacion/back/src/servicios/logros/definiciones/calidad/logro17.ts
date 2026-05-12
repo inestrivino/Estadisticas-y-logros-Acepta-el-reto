@@ -5,7 +5,7 @@ import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
 const logro17: Logro = {
     id: 1,
     nombre: "logro17",
-    descripcion: "Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema que tenga al menos 100 envios",
+    descripcion: "He realizado un envío correcto que iguale o mejore el tiempo de ejecución récord para un problema que tiene al menos 100 envios",
     imagen: "trofeo_oro_placeholder.png",
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CALIDAD,
@@ -20,7 +20,7 @@ const logro17: Logro = {
     condicion: (estadoUsuario, estadoProblema, envio) => {
         const esAcierto = envio!.resultado === "AC";
         const esMejorTiempo = envio!.tiempo <= (estadoProblema!.mejorTiempo ?? Infinity);
-        const cienEnvios = estadoProblema!.envios >= 100;
+        const cienEnvios = (estadoProblema!.envios ?? 0) >= 100;
         return esAcierto && esMejorTiempo && cienEnvios;
     }
 };

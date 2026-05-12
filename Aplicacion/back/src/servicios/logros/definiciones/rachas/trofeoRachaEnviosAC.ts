@@ -27,7 +27,7 @@ export class TrofeoRachaEnviosAC implements Logro {
         this.nombre = nombre;
         this.umbral = umbral;
         this.nivel = nivel;
-        this.descripcion = `Consecución de una racha de ${umbral} envíos aceptados a la primera`;
+        this.descripcion = `He alcanzado una racha de ${umbral} envíos aceptados a la primera`;
         this.imagen = imagen;
     }
 

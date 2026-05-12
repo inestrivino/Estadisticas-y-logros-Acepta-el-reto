@@ -5,7 +5,7 @@ import { CategoriaLogro } from "../../../../types/enums/categoriaLogro.js";
 const logro2: Logro = {
     id: 1,
     nombre: "logro2",
-    descripcion: "Realización del primer envío",
+    descripcion: "He realizado mi primer envío",
     imagen: "trofeo_bronce_placeholder.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.ONBOARDING,
@@ -16,7 +16,7 @@ const logro2: Logro = {
 
     enTiempoReal: false,
 
-    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.numEnvios >= 1
+    condicion: (estadoUsuario, estadoProblema, envio) => (estadoUsuario?.numEnvios ?? 0) >= 1
 };
 
 export default logro2;
