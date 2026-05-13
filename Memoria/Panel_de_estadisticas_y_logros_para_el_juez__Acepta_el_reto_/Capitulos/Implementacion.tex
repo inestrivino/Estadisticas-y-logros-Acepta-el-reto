@@ -2,26 +2,20 @@
 \label{cap:implementacion}
 
 \section{Entorno de desarrollo y herramientas}
-Insertar aquí los lenguajes utilizados y sus versiones, las frameworks, y las herramientas de control de versiones y despliegue.
 
-Cual es el entorno de despliegue.
+Para el desarrollo de la aplicación se empleó un entorno basado en tecnologías web modernas orientadas al desarrollo de aplicaciones distribuidas y escalables. A continuación, se describen los lenguajes, frameworks y herramientas utilizadas durante la implementación del proyecto.
 
-SUCIO:
-El diseño de la arquitectura del sistema ha sido ideado atendiendo a los requisitos no funcionales definidos para la aplicación en el apéndice \ref{cap:SRS}. En concreto, los requisitos de rendimiento (REQ-NF-001) y fiabilidad de los datos (REQ-NF-002) exigen la selección de tecnologías eficientes y robustas, capaces de garantizar un procesamiento ágil y una gestión segura de la información. Por otro lado, el requisito de usabilidad (REQ-NF-003) subraya la necesidad de implementar una interfaz y experiencia de usuario no solo intuitiva y personalizable, sino también mantenible y escalable a largo plazo.
+En cuanto a los lenguajes de programación y marcado, se utilizaron TypeScript \footnote{\url{https://www.typescriptlang.org/}} en su versión 5.9.3 o superior y JavaScript como soporte para determinadas librerías y configuraciones del ecosistema Node.js. Para la construcción de la interfaz de usuario se empleó React 19.2.2 o superior, permitiendo el desarrollo de componentes reutilizables y una gestión eficiente del estado de la aplicación. Además, se utilizaron HTML5 y CSS3 para la estructuración y el diseño visual de la interfaz.
 
-Tras el análisis comparativo de las tecnologías disponibles, detallado en el capítulo~\ref{cap:estadoDelArteDeTecnologias}, se ha decidido adoptar un \textit{stack} tecnológico compuesto por React, Node.js y Redis para el desarrollo del \textit{frontend}, \textit{backend} y gestión de datos, respectivamente. Esta elección responde a las siguientes ventajas clave:
+El entorno de ejecución del backend se basó en Node.js 12.17 \footnote{\url{https://nodejs.org/en}} o superior, junto con npm 7 \footnote{\url{https://www.npmjs.com/}} o superior como gestor de dependencias y paquetes. Para el almacenamiento temporal y la gestión de caché se utilizó Redis 5.8.3 \footnote{\url{https://redis.io/}} o superior, mejorando el rendimiento de determinadas operaciones del sistema gracias a ser una base de datos dirigida a alta eficiencia. Asimismo, se incorporó RabbitMQ \footnote{\url{https://www.rabbitmq.com/}} como sistema de mensajería, permitiendo la comunicación asíncrona entre servicios y facilitando una arquitectura desacoplada.
 
-\begin{itemize}
-    \item React: Su capacidad para construir interfaces de usuario dinámicas y reactivas lo convierte en una herramienta idónea para el proyecto. El modelo basado en componentes no solo facilita la reutilización de código, sino que también optimiza la gestión del estado de la aplicación. Esto es especialmente relevante para cargar y visualizar datos en tiempo real, evitando recargas completas de página y reduciendo los tiempos de espera.
+La contenerización de los distintos servicios se realizó mediante Docker 20.10 \footnote{\url{https://www.docker.com/}} o superior, aunque durante el desarrollo se utilizó la versión 29.2.1. Esta versión incluye soporte integrado para Docker Compose \footnote{\url{https://docs.docker.com/compose/}}, herramienta empleada para la orquestación de los contenedores y la definición de los distintos servicios de la aplicación. Las imágenes Docker utilizadas para los servicios basados en Node.js se construyeron sobre imágenes \texttt{node:alpine}, debido a su reducido tamaño y eficiencia.
 
-    \item Node.js: Destaca por su arquitectura orientada a eventos, que permite manejar operaciones asíncronas de manera eficiente. Esta característica es fundamental para garantizar un \textit{backend} escalable y capaz de procesar múltiples solicitudes concurrentes sin degradar el rendimiento.
+En el entorno de producción del frontend se utilizó Nginx \footnote{\url{https://nginx.org/}} como servidor web, principalmente por su alto rendimiento y velocidad en el servido de contenido estático y renderizado de la aplicación cliente.
 
-    \item Redis: Como base de datos \textit{clave-valor} en memoria, su incorporación está motivada por la necesidad de optimizar el rendimiento mediante el almacenamiento en caché de datos de acceso frecuente. Redis es ideal para aplicaciones que requieren respuestas en tiempo real, ya que reduce la latencia y aligera la carga sobre la base de datos principal.
-\end{itemize}
+Para el control de versiones del proyecto se empleó Git \footnote{\url{https://git-scm.com/}} junto con la plataforma GitHub \footnote{\url{https://github.com/}}, facilitando la gestión del código fuente, el trabajo colaborativo y el seguimiento de cambios. Finalmente, el entorno de desarrollo principal utilizado fue Visual Studio Code (VSCode), gracias a su integración con el ecosistema JavaScript/TypeScript y sus herramientas de depuración y automatización.
 
-La arquitectura actual de \aer, descrita en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, se basa en un modelo tradicional que emplea Tomcat como servidor de aplicaciones, PHP para el desarrollo del \textit{frontend} y MySQL como sistema de gestión de bases de datos. Este enfoque, aunque funcional, presenta limitaciones en términos de escalabilidad, modularidad y experiencia de usuario, especialmente en comparación con las demandas actuales de las aplicaciones web.
-
-En contraste, la arquitectura propuesta para este proyecto introduce un enfoque modular, lo que no solo simplifica la integración futura con la infraestructura existente de \aer, sino que también facilita la evolución independiente de cada componente. Esta modularidad, combinada con el uso de tecnologías modernas, asegura que el sistema sea adaptable, escalable y capaz de responder a las necesidades cambiantes del proyecto sin requerir rediseños profundos.
+En comparación con la arquitectura tradicional descrita para \aer\ en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, basada en Tomcat, PHP y MySQL, la solución desarrollada en este trabajo adopta un enfoque más moderno. El uso de las tecnologías elegidas permite mejorar aspectos como la escalabilidad, la modularidad y el rendimiento, a la vez que la arquitectura desacoplada sigue permitiendo integrar el sistema de estadísticas y logros dentro de \aer sin tener que realizar cambios en el OJ.
 
 \section{Arquitectura del sistema}
 Insertar aquí todo lo referido a la arquitectura técnica del sistema. Qué elecciones de tecnologías hemos realizado, diagramas de interacción, justificación, etc.
@@ -31,8 +25,14 @@ Insertar aquí el diseño de la base de datos.
 Hablar sobre la obtención y manejo de los datos respecto al sistema existente.
 Qué eventos son importantes.
 Lógica de asignación de logros.
-Cómo se calculan los logros y las estadísticas de manera eficiente.
-Mencionar de pasada lo de que al obtener un logro se lanza un evento, para facilitar la futura integración con el juez. 
+Cómo se calculan los logros y las estadísticas de manera eficiente: 
+- Donde va actualizando los estados los actualiza y llama al logro service que comprueba si se ha obtenido un logro (se cumple la condición) y luego una segunda vez cuando se ha terminado de parsear el batch entero de datos (para los logros acumulativos).
+- Las estadísticas se actualizan con la actualización del estado
+- Al terminar de procesarse el batch se calcula el xp en base a las estadísticas (se compara el estado actual con el estado final para comparar cuánto se suma entonces no puede bajar nunca).
+
+ESTO ES FUTURO: Mencionar de pasada lo de que al obtener un logro se lanza un evento, para facilitar la futura integración con el juez. 
+
+En fases tempranas se uso un script en el back que se ejecuta al crear npm run graph para mostrar un diagrama visual de las dependencias. 
 
 \section{Desarrollo del \textit{frontend}}
 TO DO : HABLAR DE LOS CAMBIOS DE DISEÑO QUE SE PRODUJERON DURANTE EL DESARROLLO DE LA APLICACIÓN
@@ -43,5 +43,16 @@ Hablar sobre la interacción con el backend (manejo del estado).
 \section{Problemas críticos y soluciones}
 Esto sería dentro de las otras dos selecciones.
 
-\section{Despliegue y mantenimiento}
-Describir el proceso de despliegue, los scripts utilizados, la monitorización si existe, y el manejo de actualizaciones (número de versión, etc).
+\section{Despliegue y mantenimiento (CI/CD)}
+
+El proyecto incorpora un flujo de integración y despliegue continuo (CI/CD) orientado a facilitar el desarrollo colaborativo, la validación automática del código y el despliegue de la aplicación en distintos entornos. Para ello, se desarrollaron distintos scripts y configuraciones que automatizan tanto la ejecución de pruebas como la gestión de contenedores y procesos de compilación.
+
+En relación con la integración continua, el proyecto dispone de un flujo automatizado definido en el archivo \texttt{ci.yml}, encargado de ejecutar pruebas y comprobaciones automáticas sobre el código fuente antes de integrar cambios en las ramas principales. Los detalles concretos sobre las pruebas realizadas y su evaluación se describen en el capítulo correspondiente de \ref{cap:evaluacion}. Además, se dispone de una página de monitorización que permite supervisar el estado y funcionamiento de los distintos servicios de la aplicación según los tests.
+
+Durante el desarrollo se detectaron determinadas limitaciones relacionadas con el uso de contenedores Docker en entornos locales, por lo que se implementó un script específico denominado \texttt{startDev.js}. Este script automatiza el arranque del entorno de desarrollo y simplifica la gestión de los servicios necesarios para ejecutar la aplicación correctamente.
+
+Asimismo, el entorno de desarrollo permite la depuración directa de los contenedores Docker gracias a la configuración incluida en \texttt{.vscode/launch.json}. Esto facilita la identificación y resolución de errores tanto en el frontend como en el backend sin necesidad de ejecutar los servicios fuera de los contenedores.
+
+La aplicación se distribuye mediante contenedores Docker y utiliza distintas configuraciones según el entorno de ejecución. En producción, el comando \texttt{npm start prod} lanza un entorno basado en Docker Compose que, previamente al despliegue, compila tanto el frontend como el backend transformando el código TypeScript en JavaScript optimizado para ejecución en producción. Este proceso permite reducir dependencias innecesarias y mejorar el rendimiento y la portabilidad de la aplicación desplegada.
+
+En cuanto a la gestión de versiones, se siguió una convención de versionado semántico, considerando la finalización del proyecto como la versión \texttt{1.0}. Para el desarrollo colaborativo se adoptó un flujo de trabajo basado en ramas para cada \textit{feature} que se desea implementar: un (\textit{branching workflow})\footnote{Puede leerse más sobre esta estrategia de organización y despliegue en el siguiente enlace: \url{https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows}}. La rama \texttt{main} contiene siempre la versión estable y desplegable de la aplicación, mientras que la rama \texttt{dev} se utiliza para la integración y validación de nuevas funcionalidades. Cada nueva característica se desarrolla en una rama independiente, permitiendo aislar cambios y reducir conflictos. Adicionalmente, en determinadas ocasiones se crearon ramas intermedias destinadas a realizar fusiones y comprobaciones previas sin comprometer la estabilidad del código principal.

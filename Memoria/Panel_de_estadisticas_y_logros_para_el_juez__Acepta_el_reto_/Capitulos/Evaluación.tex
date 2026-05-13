@@ -1,81 +1,312 @@
 \chapter{Evaluación}
 \label{cap:evaluacion}
 
-TO DO : HACER ALGÚN TIPO DE INTRODUCCIÓN
-
 \section{Objetivos de la evaluación}
 
-TO DO : LEER OTRA VEZ EL APENDICE DE LOS REQUISITOS Y REESCRIBIR LA SECCIÓN DE USABILIDAD Y FUNCIONALIDADES
-
-El objetivo principal de la evaluación es comprobar si la página de estadísticas y logros desarrollada cumple con los requisitos funcionales y de experiencia de usuario planteados durante el desarrollo del proyecto. Para ello, se busca analizar tanto la utilidad práctica de la herramienta, como verificar que los requisitos técnicos de mayor prioridad han sido alcanzados.
+El objetivo principal de la evaluación es comprobar si la página de estadísticas y logros desarrollada cumple con los requisitos funcionales y de experiencia de usuario planteados durante el desarrollo del proyecto, y si por lo tanto añadirá el valor esperado a \aer. Para ello, se busca analizar tanto la utilidad práctica de la herramienta, como verificar que los requisitos técnicos de mayor prioridad han sido alcanzados.
 
 De manera más concreta, los objetivos de la evaluación son los siguientes:
 
-\begin{itemize}
+\begin{enumerate}
     \item Evaluar la usabilidad de la interfaz, comprobando si los usuarios pueden navegar por la página e interpretar la información mostrada de manera intuitiva y sencilla.
-    
     \item Analizar la claridad y utilidad de las estadísticas presentadas, verificando si permiten al usuario comprender mejor su actividad y progreso dentro del sistema.
-    
     \item Detectar posibles problemas de diseño, implementación, organización de la información o experiencia de usuario que puedan afectar negativamente al uso de la aplicación.
-    
     \item Obtener feedback cualitativo con el fin de identificar futuras mejoras.
-\end{itemize}
+\end{enumerate}
 
 
 \section{Metodología}
 
-\subsection{Funcionalidades}
+\subsection{Pruebas funcionales}
+De manera consistente con lo mencionado en el capítulo \autoref{sec:requisitos}, la verificación de la mayoría de requisitos se realiza mediante pruebas funcionales, es decir, pruebas automatizadas implementadas mediante código. Estas pruebas permiten comprobar que los diferentes estados de la aplicación tras determinadas acciones del usuario o cambios en los datos son consistentes con el comportamiento esperado, prestando especial atención a casos límite y situaciones excepcionales.
 
-TO DO : HABLAR DE LA METODOLOGÍA PARA LA REALIZACIÓN DE TESTS FUNCIONALES
+Para la implementación de las pruebas se utilizó la tecnología \textit{Vitest}, integrada dentro del ecosistema de desarrollo de la aplicación. Tanto el \textit{frontend} como el \textit{backend} disponen de sus propias carpetas de pruebas, organizadas de manera independiente según las funcionalidades que validan.
 
-\subsection{Usabilidad}
-Para evaluar la usabilidad general de la aplicación se ha utilizado una metodología mixta, combinando técnicas cuantitativas y cualitativas. Este enfoque permite obtener tanto métricas objetivas sobre el uso de la aplicación como opiniones y percepciones de los usuarios acerca de su experiencia.
-Esta evaluación fue diseñada y desarrollada según lo descrito en el artículo sobre pruebas de usabilidad del Nielsen Group \footnote{\url{https://www.nngroup.com/articles/usability-testing-101/}}. 
+Dentro de estas pruebas se distinguen principalmente dos tipos:
+
+\begin{itemize}
+    \item \textbf{Pruebas unitarias:} centradas en validar el comportamiento individual de funciones, servicios y componentes aislados. Esto permite detectar fácilmente errores de lógica.
+    \item \textbf{Pruebas de integración:} orientadas a comprobar la interacción entre distintos componentes del sistema, como la comunicación entre servicios, acceso a datos o actualización de estados tras el procesamiento de envíos.
+\end{itemize}
+
+Adicionalmente, el proyecto cuenta con un sistema de integración continua configurado mediante GitHub Actions, concretamente a través del flujo de trabajo definido en el archivo \texttt{ci.yml} dentro del directorio \texttt{.github/workflows}. Este sistema ejecuta automáticamente las pruebas cada vez que se realiza un \textit{commit} o una actualización sobre las ramas principales del proyecto (\texttt{main} y \texttt{dev}).
+Los resultados de las pruebas y reportes generados pueden consultarse en tiempo real en el siguiente enlace:
+\begin{center}
+\url{https://n3stor173.github.io/Reportes-Estadisticas-Logros/}
+\end{center}.
+
+\subsection{Pruebas de usabilidad}
+
+Para evaluar la usabilidad general de la aplicación según el requisito \autoref{req:REQ-NF-003} se ha utilizado una metodología mixta, combinando técnicas cuantitativas y cualitativas. Este enfoque permite obtener tanto métricas objetivas sobre el uso de la aplicación como opiniones y percepciones de los usuarios acerca de su experiencia.
+Esta evaluación fue diseñada y desarrollada siguiendo las guías y recomendaciones establecidas por el Nielsen Norman Group para pruebas de usabilidad y descritas en el siguiente artículo: \url{https://www.nngroup.com/articles/usability-testing-101/}. 
 
 La evaluación se ha dividido en dos tipos principales de pruebas:
 
 \begin{itemize}
-    \item \textbf{Pruebas cuantitativas:} orientadas a medir aspectos relacionados con la usabilidad y comprensión de la interfaz mediante cuestionarios y métricas de uso.
-    
-    \item \textbf{Pruebas cualitativas:} enfocadas en recopilar opiniones, impresiones y sugerencias de mejora por parte de los participantes.
+    \item \textbf{Pruebas cuantitativas:} orientadas a medir aspectos relacionados con la usabilidad y comprensión de la interfaz mediante métricas numéricas.
+    \item \textbf{Pruebas cualitativas:} enfocadas en recopilar opiniones e impresiones subjetivas de los participantes.
 \end{itemize}
+
+Esto nos permite diversificar la retroalimentación obtenida y minimizar posibles sesgos a la vez que se permite la libre expresión de las opiniones de los participantes.
 
 \subsubsection{Participantes}
 
-Siguiendo las recomendaciones descritas en el artículo del Nielsen Group, las pruebas fueron realizadas con un grupo reducido de 5 usuarios potenciales. Los participantes cuentan con diferentes niveles de experiencia en el uso de sistemas similares, permitiendo obtener perspectivas variadas sobre la utilidad y accesibilidad de la aplicación. 
+Siguiendo las recomendaciones descritas en el artículo del Nielsen Norman Group, las pruebas fueron realizadas con un grupo reducido de 5 usuarios potenciales. Los participantes cuentan con diferentes niveles de experiencia en el uso de sistemas similares, como se describe en los resultados de la siguiente sección, permitiendo obtener perspectivas variadas sobre la utilidad y accesibilidad de la aplicación. 
 
-El número de participantes fue suficiente para identificar los principales problemas de usabilidad y recoger feedback representativo para una primera evaluación del sistema.
+El número de participantes fue suficiente para identificar los principales problemas de usabilidad y recoger feedback representativo para una primera evaluación del sistema, aunque no suficientes para representar a todo el conjunto de usuarios y potenciales usuarios.
 
 \subsubsection{Procedimiento}
 
-TO DO : CAMBIAR PARA LISTAR LAS PRUEBAS REALMENTE REALIZADAS, GRAFICAS DE LOS RESULTADOS, RESUMEN DE LOS RESULTADOS, COMENTARIOS, ETC
+La evaluación de usabilidad se estructuró en tres fases. 
+
+En primer lugar se realizó cuestionario previo tenía como objetivo entender el perfil de los 5 participantes. El cuestionario realiza las siguientes preguntas:
+\begin{enumerate}
+    \item Edad del participante
+    \item ¿Alguna vez has participado en un concurso o clase de programación competitiva?
+    \item ¿Cómo clasificarías tu nivel de programación competitiva en una escala del 1 al 5?
+    \item ¿Has usado \aer en el pasado?
+    \item ¿Con qué frecuencia usas OJs?
+    \item ¿Para qué usarías o has usado \aer?
+\end{enumerate}
+
+Posteriormente, los participantes realizaron una serie de tareas representativas del uso esperado de la aplicación. Todas las tareas se realizaron partiendo desde la página principal y sin proporcionar instrucciones adicionales más allá del objetivo concreto a completar.
+Las tareas evaluadas fueron las siguientes:
+
+\begin{enumerate}
+    \item Tarea 1: Encontrar las estadísticas generales de un usuario.
+    \item Tarea 2: Consultar las estadísticas de un ejercicio concreto.
+    \item Tarea 3: Visualizar los logros obtenidos.
+    \item Tarea 4: Consultar la posición en la clasificación global y por nivel.
+\end{enumerate}
+
+En esta fase se recopilaron una serie de métricas cuantitativas que permitieran un análisis posterior efectivo del desarrollo de la prueba:
+
+\begin{itemize}
+    \item Tiempo necesario para completar cada tarea.
+    \item Éxito o fallo al completar la tarea.
+    \item Número de dudas o intentos realizados.
+    \item Problemas de navegación o interpretación detectados.
+    \item Comentarios espontáneos realizados por los usuarios.
+\end{itemize}
+
+Finalmente, se realizó un segundo cuestionario cualitativo para que los participantes pudiesen compartir y valorar su experiencia durante la realización de tareas. Las preguntas realizadas fueron:
+\begin{enumerate}
+    \item Enumerar en una escala del 1 al 5:
+    \begin{itemize}
+        \item La facilidad de uso de la aplicación
+        \item La claridad de la interfaz
+        \item La facilidad para encontrar y entender la información
+        \item La utilidad de cada funcionalidad para entender el estado del usuario en el sistema y recibir motivación
+        \begin{itemize}
+            \item Estadísticas de usuario
+            \item Estadísticas de ejercicio
+            \item Logros
+            \item Clasificación
+        \end{itemize}
+    \end{itemize}
+    \item ¿Qué te ha resultado más difícil?
+    \item ¿Qué te ha resultado más fácil?
+    \item ¿Qué mejorarías?
+    \item ¿Hay algo que esperabas y no encontraste?
+    \item ¿Cuál es tu opinión sobre una posible funcionalidad de compartición de las estadísticas de un usuario por mensajería / redes sociales?
+\end{enumerate}
+
+\subsubsection{Resultados de la prueba de usabilidad}
+
+El cuestionario inicial para determinar el perfil de los usuarios mostró que contábamos con un grupo de participantes generalmente jóvenes (media de edad de 28,8 años y mediana de 22 años), con experiencia previa en clases o concursos de programación competitiva, que habían utilizado \aer, y que se autoevaluaban como poseedores de un nivel medio de conocimiento en programación competitiva (valoración media de 3,66 sobre 5).
+
+La mayoría de los participantes indicó que utiliza \aer\ principalmente con fines de estudio o entretenimiento. Las respuestas fueron más heterogéneas en lo relativo a la frecuencia de uso del \textit{online judge}, variando desde ``casi nunca'' hasta ``diariamente''.
+
+En conjunto, se puede concluir que los participantes representan de forma razonable el perfil medio de los usuarios de \aer, por lo que la retroalimentación obtenida durante la prueba de usabilidad resulta relevante y de calidad para la evaluación del sistema.
+
+Durante la realización de las tareas los resultados fueron generalmente positivos. Todas las tareas pudieron ser completadas por la mayoría de participantes sin ayuda externa. Las tareas relacionadas con logros y estadísticas de usuario fueron las más rápidas, con tiempos medios inferiores a 10 segundos. Por otro lado, las principales dificultades aparecieron en la navegación de la clasificación por nivel y en la interpretación de algunas gráficas de estadísticas de ejercicios.
+
+En concreto, algunos usuarios mostraron dudas relacionadas con:
+
+\begin{itemize}
+    \item La ausencia de autocompletado en determinadas búsquedas.
+    \item La comprensión en la información que representan las gráficas.
+    \item La visibilidad del filtrado por nivel dentro de la clasificación.
+    \item La interpretación visual de ciertos elementos de la tabla de ranking.
+\end{itemize}
+
+A pesar de estas dificultades, los participantes consiguieron completar prácticamente todas las tareas planteadas, lo que indica un nivel de usabilidad satisfactorio para una primera versión funcional del sistema.
+
+La figura \ref{fig:porcentaje_exito_tareas} muestra gráficamente el porcentaje de éxito en cada tarea realizada, mientras que la figura \ref{fig:tiempo_medio_tareas} visualiza el tiempo medio que le llevó a los participantes completar cada tarea. 
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=18pt,
+    width=0.95\textwidth,
+    height=7cm,
+    ymin=0,
+    ymax=100,
+    ylabel={Porcentaje de éxito (\%)},
+    symbolic x coords={
+        Tarea 1,
+        Tarea 2,
+        Tarea 3,
+        Tarea 4
+    },
+    xtick=data,
+    xticklabel style={
+        rotate=15,
+        anchor=east,
+        align=center
+    },
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+    title={Porcentaje de éxito por tarea},
+    grid=major,
+]
+\addplot[
+    fill=blue!40
+] coordinates {
+    (Tarea 1,100)
+    (Tarea 2,100)
+    (Tarea 3,100)
+    (Tarea 4,100)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Porcentaje de éxito obtenido en cada tarea del test de usabilidad}
+\label{fig:porcentaje_exito_tareas}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=18pt,
+    width=0.95\textwidth,
+    height=7cm,
+    ymin=0,
+    ymax=30,
+    ylabel={Tiempo medio (segundos)},
+    symbolic x coords={
+        Tarea 1,
+        Tarea 2,
+        Tarea 3,
+        Tarea 4
+    },
+    xtick=data,
+    xticklabel style={
+        rotate=15,
+        anchor=east,
+        align=center
+    },
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+    title={Tiempo medio por tarea},
+    grid=major,
+]
+\addplot[
+    fill=green!50
+] coordinates {
+    (Tarea 1,19.6)
+    (Tarea 2,13.4)
+    (Tarea 3,4)
+    (Tarea 4,22.3)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Tiempo medio necesario para completar cada tarea}
+\label{fig:tiempo_medio_tareas}
+\end{figure}
+
+En cuanto a la valoración de las tareas en el cuestionario cualitativo posterior, las puntuaciones medias obtenidas fueron en su mayoría altas, con poca distinción entre ellas, como se puede ver en la figura \ref{fig:valoraciones_medias_usabilidad}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=14pt,
+    width=0.95\textwidth,
+    height=8cm,
+    ymin=0,
+    ymax=5,
+    ylabel={Puntuación media (sobre 5)},
+    symbolic x coords={
+        Facilidad de uso,
+        Claridad interfaz,
+        Encontrar información,
+        Estadísticas usuario,
+        Estadísticas ejercicios,
+        Logros,
+        Clasificación
+    },
+    xtick=data,
+    xticklabel style={
+        rotate=20,
+        anchor=east,
+        align=center
+    },
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+    title={Valoraciones medias del cuestionario de usabilidad},
+    grid=major,
+]
+\addplot[
+    fill=orange!60
+] coordinates {
+    (Facilidad de uso,4.4)
+    (Claridad interfaz,4.6)
+    (Encontrar información,4.5)
+    (Estadísticas usuario,4.5)
+    (Estadísticas ejercicios,4)
+    (Logros,4.4)
+    (Clasificación,4.5)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Valoraciones medias obtenidas en el cuestionario posterior de usabilidad}
+\label{fig:valoraciones_medias_usabilidad}
+\end{figure}
+
+Además de las puntuaciones numéricas, se recopilaron comentarios útiles para identificar posibles mejoras futuras. Entre las sugerencias más repetidas destacan:
+
+\begin{itemize}
+    \item Mejorar la claridad visual y explicativa de las gráficas.
+    \item Hacer más visibles ciertos controles interactivos, como el filtrado por nivel.
+    \item Añadir opciones avanzadas de búsqueda y paginación en la clasificación.
+    \item Incorporar imágenes o elementos visuales asociados a los logros.
+    \item Permitir filtrar estadísticas por periodos temporales.
+\end{itemize}
+
+Algunas de estas sugerencias se encuentran implementadas en la versión final de la aplicación ya que estaban planeadas y requerían poco esfuerzo, como la incorporación de imágenes únicos a los logros, mientras que otros fueron analizados y añadidos a la lista de trabajo futuro, ya que requerirían comenzar una nueva iteración de desarrollo sobre la aplicación base desarrollada durante el presente proyecto, como el filtrado de estadísticas por periodos temporales.
+
+Sobre la funcionalidad de compartición de estadísticas (requsito REQ-FUN-008 en la \ref{cap:SRS}), los participantes la encontraron interesante y con potencial de motivación a los usuarios, aunque no muy importante, justificando que fuese recortada de la iteración de desarrollo actual dados los límites temporales.
 
 \subsubsection{Herramientas utilizadas}
 
-TO DO : QUÉ USAMOS? SOLO LOS ORDENADORES Y LA VERSIÓN ONLINE O EN DESARROLLO DE LA APLICACIÓN.
+Para realizar las pruebas de usabilidad se usaron uno o dos ordenadores (según la disponibilidad), así como un cronómetro.
+Uno de los ordenadores se puso a disposición de los participantes para que realizasen las tareas del test, cuyo tiempo en ser completadas fue medida usando el cronómetro. Tras la realización de cada tarea, se hizo uso de un ordenador para tomar notas sobre el resultado y comentarios de los participantes.
 
 \subsection{Limitaciones}
-
-TO DO : MEJORAR UN POCO ESTA SECCIÓN, INCLUIR COSAS SOBRE LOS TESTS FUNCIONALES
 
 La evaluación realizada presenta varias limitaciones derivadas del alcance y contexto del proyecto.
 
 En primer lugar, las pruebas se realizaron sobre una versión funcional desarrollada específicamente para el TFG y no integrada completamente en una plataforma real con usuarios activos durante un periodo prolongado de tiempo. Esto impide analizar métricas relacionadas con el uso continuado del sistema, como el tiempo medio necesario para completar logros, la evolución de la participación de los usuarios o el impacto real sobre la retención dentro de la plataforma.
 
-Además, el número de participantes en las pruebas fue limitado, por lo que los resultados obtenidos no pueden considerarse representativos de una comunidad amplia de usuarios.
+Además, está versión se encontraba todavía en desarrollo, por lo que no se pudieron poner a prueba la funcionalidad de compartición, o la visualización completa de los datos.
 
-Por último, debido a las restricciones temporales del proyecto, no fue posible realizar evaluaciones longitudinales que permitieran estudiar cambios en la motivación o comportamiento de los usuarios a medio y largo plazo.
+Por último, ya que el número de participantes en las pruebas fue limitado, los resultados obtenidos no pueden considerarse representativos de una comunidad amplia de usuarios sin hacer un estudio mayor.
 
-\section{Resultados}
 
-TO DO : REESCRIBIR ESTO PARA IR CON LA REALIDAD Y AÑADIR COSAS DE LOS TESTS FUNCIONALES
+\section{Conclusión}
 
 Los resultados obtenidos durante las pruebas muestran una valoración generalmente positiva de la funcionalidad desarrollada.
 
-En relación con la usabilidad, la mayoría de los participantes pudieron navegar por la página e interpretar las estadísticas sin dificultades importantes. La organización de la información y la separación entre estadísticas y logros facilitaron la comprensión general de la interfaz.
+Las tareas relacionadas con estadísticas de usuario y visualización de logros fueron completadas rápidamente y sin errores relevantes por prácticamente todos los participantes. Esto indica que las funcionalidades principales de consulta resultan intuitivas.
 
-Respecto al sistema de logros, varios usuarios indicaron que este elemento aumenta el interés por consultar la página y proporciona una sensación de progreso dentro de la plataforma. Asimismo, algunos participantes destacaron que los logros pueden servir como incentivo para aumentar la actividad y participación de los usuarios.
+Aunque se detectaron ciertas dificultades, estos problemas no impidieron completar las tareas. Sin embargo, evidencian posibles mejoras futuras relacionadas con la claridad visual y la accesibilidad de determinados elementos.
 
-No obstante, también se identificaron algunos aspectos susceptibles de mejora. Entre ellos destacan la necesidad de añadir descripciones más detalladas en determinados logros, mejorar la visualización de algunas estadísticas y ofrecer información adicional sobre el progreso necesario para desbloquear ciertos objetivos.
+Las valoraciones subjetivas obtenidas en el cuestionario posterior también fueron positivas. La facilidad de uso, claridad de la interfaz y utilidad de las funcionalidades recibieron puntuaciones medias superiores a 4 sobre 5 en prácticamente todos los apartados evaluados.
+
+La implementación de pruebas funcionales con su correspondiente integración continua, nos permite además mantener un control constante de la calidad del código y el cumplimiento de los requisitos a nivel de implementación, fácilmente comprobable.
 
 En términos generales, los resultados obtenidos cumplen con los objetivos planteados inicialmente, validando tanto la viabilidad técnica de la funcionalidad como su aceptación por parte de los usuarios participantes en la evaluación.

@@ -389,7 +389,7 @@ El sistema constará de 5 pantallas, todas con una barra de navegación común q
     \item Inicio: Una pantalla de bienvenida a la aplicación, con una breve explicación de su contexto y propósito, así como un acceso rápido a búsqueda de estadísticas de usuario y ejercicio. Su \textit{wireframe} se muestra en la figura \ref{fig:wireInicio}. Esta colocación de elementos en la interfaz, permite al usuario informarse del sistema y su estado, para pasar cuanto antes a utilizar las funcionalidades que le interesen.
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\linewidth]{Imagenes/Vectorial/Todo.pdf}
+        \includegraphics[width=0.5\linewidth]{Imagenes/Vectorial/Todo.pdf}
         \caption{\textit{Wireframe} de la página de inicio}
         \label{fig:wireInicio}
     \end{figure}
@@ -437,10 +437,65 @@ Los wireframes iniciales aquí mostrados servieron como base, pero más adelante
 
 \section{Arquitectura a alto nivel}
 
-TO DO: Una introducción que mencione el objetivo de la arquitectura y sus principios guía (satisfacer los requisitos funcionales y no funcionales).
+La arquitectura de la aplicación se ha diseñado con el objetivo de proporcionar un sistema modular, escalable y mantenible capaz de satisfacer tanto los requisitos funcionales como los no funcionales definidos en el apéndice de la \ref{cap:SRS}. En particular, la arquitectura busca garantizar la actualización automática de estadísticas, la correcta gestión de usuarios y ejercicios, así como la capacidad de procesar grandes volúmenes de envíos procedentes del juez de programación de forma eficiente y consistente en el tiempo.
 
-TO DO: Una vista general de la arquitectura con un diagrama de cajas y flechas que muestre los componentes principales (frontend, backend, base de datos, integración con el juez (APIs, webhooks)) y cómo se lleva a cabo en alto nivel el flujo de datos. Explicar cada componente, su propósito y las interacciones en texto a alto nivel.
-Mencionar patrones concpetuales que vamos a utilizar (observer, MVC, repository?)
+Para ello, el sistema se ha estructurado siguiendo una separación clara de responsabilidades entre los distintos componentes principales: frontend, \textit{backend}, base de datos e integración con \aer. Esta separación facilita el mantenimiento del código, la reutilización de componentes y la posibilidad de extender el sistema en el futuro sin necesidad de rediseñar completamente la aplicación.
 
-TO DO: Terminar explicando en detalle cómo esta arquitectura satisface los requisitos funcionales y no funcionales.
+Además, durante el diseño se han seguido diversos principios de ingeniería software, entre los que destacan:
 
+\begin{itemize}
+    \item \textbf{Separación de responsabilidades:} Gracias al uso de una estructura de servicios para gestionar la lógica de negocio, cada componente del sistema tiene una función claramente definida. El frontend se encarga únicamente de la presentación de datos, mientras que el backend procesa la lógica y los DAOs (\textit{Data Access Object}) gestionan el acceso a la base de datos.
+
+    \item \textbf{Modularidad y extensibilidad:} La aplicación está organizada en módulos independientes, lo que facilita añadir nuevas funcionalidades o modificar componentes existentes sin afectar al resto del sistema. Esto resulta especialmente útil en los actualizadores de estado del sistema y registradores de este estado en la base de datos, donde pueden incorporarse nuevas estrategias de procesamiento de manera sencilla. 
+
+    \item \textbf{Bajo acoplamiento entre componentes:} Los distintos elementos de la arquitectura interactúan mediante interfaces bien definidas y mecanismos desacoplados, como APIs o \textit{sockets}. Esto reduce las dependencias directas entre módulos y mejora la mantenibilidad del sistema.
+
+    \item \textbf{Actualización reactiva basada en eventos:} El sistema utiliza eventos y notificaciones para reaccionar automáticamente ante nuevos envíos o cambios en el estado de los usuarios y ejercicios en \aer. Gracias al uso de colas de mensajes, el frontend puede actualizar la información en tiempo real sin intervención manual del usuario.
+
+    \item \textbf{Escalabilidad para el procesamiento de grandes cantidades de envíos:} El procesamiento de envíos se realiza de forma incremental y en bloques de hasta 1000 elementos, evitando sobrecargas de memoria y permitiendo gestionar grandes volúmenes de información de manera eficiente.
+\end{itemize}
+
+A alto nivel, la aplicación sigue una arquitectura basada en una SPA (\textit{Single Page Application}). La navegación entre las diferentes ``vistas'' de la página solo implica un cambio en lo que se muestra y una solicitud para obtener los datos que se quieren representar, en lugar de la carga de un nuevo documento HTML.
+
+Esto tiene varias ventajas a nivel de rendimiento, como la reducción del tráfico innecesario entre cliente y servidor, menores tiempos de respuesta tras la carga inicial y una experiencia de usuario más fluida y reactiva, ya que únicamente se actualizan los componentes necesarios de la interfaz \footnote{Para leer una introducción al concepto de las SPAs y sus beneficios: \url{https://www.geeksforgeeks.org/javascript/what-is-single-page-application/}}.
+
+
+De manera consistente con un sistema modular, el \textit{frontend} se encarga exclusivamente de la visualización y de la interacción con el usuario, mientras que el \textit{backend} concentra toda la lógica de negocio y el procesamiento de datos. Mantiene una comunicación reactiva con el \textit{backend} mediante \textit{sockets}. Cuando el \textit{backend} detecta la llegada de nuevos envíos o cambios relevantes en las estadísticas, envía una notificación al \textit{frontend} para actualizar automáticamente la información mostrada al usuario. Este mecanismo resulta fundamental para satisfacer los requisitos de actualización automática definidos en la especificación funcional.
+El \textit{backend} por lo tanto funciona de manera similar a una API, recibiendo solicitudes de la capa \textit{frontend} que responde con información estructurada. Además, maneja la lógica de negocio, como la comprobación de las precondiciones para que un usuario reciba un logro.
+
+Para acceder a la base de datos se utiliza el patrón DAO (\textit{Data Access Object}). En este modelo, los servicios no interactúan directamente con la base de datos, sino que delegan las operaciones de almacenamiento y recuperación de información a objetos DAO especializados. De esta manera, se desacopla la lógica de negocio de la lógica de persistencia, mejorando la mantenibilidad y facilitando posibles cambios futuros en la tecnología de almacenamiento.
+
+Uno de los componentes más interesantes al diseñar la arquitectura, es el sistema de integración con el juez externo, ya que esto determina en gran medida el rendimiento y consistencia de la aplicación. Debido a limitaciones temporales para poder establecer un sistema de mensajería integrado entre \aer y el presente proyecto, se desarrolló como solución temporal un adaptador intermedio basado en \textit{long polling} \footnote{Para aprender sobre las conexiones \textit{long polling}: \url{https://www.geeksforgeeks.org/javascript/what-is-long-polling-and-short-polling/}}. Este adaptador permanece continuamente consultando el endpoint de eventos proporcionado por el juez. Cuando detecta cambios o nuevos envíos, genera un evento. Posteriormente, un componente consumidor dentro del backend recibe estos mensajes y desencadena el procesamiento correspondiente.
+
+La figura \ref{fig:arquitectura_general} muestra una visión general de la arquitectura del sistema y del flujo de datos entre sus componentes principales.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/diagramadearquitectura.drawio.pdf}
+\caption{Arquitectura general de alto nivel del sistema}
+\label{fig:arquitectura_general}
+\end{figure}
+
+Durante este procesamiento se analiza qué usuarios y ejercicios han sido afectados y se recupera su estado actual desde la base de datos. Posteriormente, se aplican las actualizaciones necesarias mediante un conjunto de actualizadores especializados.
+
+Este enfoque permite implementar distintos tipos de actualizadores reutilizando una misma estructura general, favoreciendo la extensibilidad del sistema. El mismo patrón conceptual se reutiliza también en los registradores encargados de persistir la información actualizada.
+
+Dentro del sistema se emplean además diversos patrones de diseño relevantes:
+
+\begin{itemize}
+    \item Patrón DAO para el acceso desacoplado a la base de datos.
+    \item Patrón Observer en la comunicación reactiva mediante \textit{sockets} y eventos.
+    \item Arquitectura MVC implícita derivada de la separación entre frontend, servicios y persistencia.
+    \item Patrón Singleton en servicios, routers y DAOs, dado que las instancias exportadas son únicas dentro de la aplicación.
+    \item Patrón Strategy o Specification en los actualizadores de estado, permitiendo intercambiar comportamientos específicos según el tipo de actualización.
+\end{itemize}
+
+Esta arquitectura permite satisfacer adecuadamente los requisitos funcionales definidos. La separación entre frontend y backend facilita la visualización eficiente de estadísticas de usuarios y ejercicios (REQ-FUN-001 y REQ-FUN-002), mientras que el uso de \textit{sockets} y procesamiento basado en eventos garantiza la actualización automática de información y clasificaciones (REQ-FUN-003 y REQ-FUN-006).
+
+Asimismo, la modularidad de los servicios de procesamiento permite implementar fácilmente sistemas de logros y reglas de puntuación (REQ-FUN-004 y REQ-FUN-005), ya que cada envío puede desencadenar múltiples procesos independientes sobre el estado del usuario. 
+
+Desde el punto de vista de los requisitos no funcionales, la arquitectura propuesta también aporta ventajas importantes. En relación con el rendimiento (REQ-NF-001), gracias al uso de la arquitectura SPA anteriormente mencionada, así como la organización de la recepción y procesamiento de datos, lo cual aporta también al cumplimiento del requisito de fiabilidad (REQ-NF-002). 
+
+En cuanto a la usabilidad (REQ-NF-003), el diseño del frontend permite ofrecer una experiencia de usuario más fluida. La actualización automática de estadísticas y clasificaciones evita que el usuario tenga que recargar manualmente la página para obtener información actualizada.
+
+Finalmente, la arquitectura satisface el requisito de integración con el OJ (REQ-NF-004) gracias a la capa de integración descrita en el corto plazo, y a su estructura modular que favorece la facilidad en las refactorizaciones que sean necesarias para convertirla en un servicio nativo de \aer en el largo plazo. 

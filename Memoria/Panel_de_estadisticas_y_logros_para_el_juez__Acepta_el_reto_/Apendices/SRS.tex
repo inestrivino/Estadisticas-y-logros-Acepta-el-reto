@@ -26,7 +26,7 @@ Cabe destacar que este documento se refiere exclusivamente a las funcionalidades
 \begin{itemize}
     \item \textbf{UI}: User Interface.
     \item \textbf{SRS}: Software Requirements Specification.
-    \item \textbf{TFG}: Trabajo Fin de Grado.
+    \item \textbf{TFG}: Trabajo de Fin de Grado.
     \item \textbf{¡Acepta el reto!}: Juez \textit{online} de programación competitiva objeto de este proyecto.
 \end{itemize}
 
@@ -40,7 +40,7 @@ Cabe destacar que este documento se refiere exclusivamente a las funcionalidades
 
 \subsection{Perspectiva del producto}
 
-El producto se desarrolla en el marco de un Trabajo de Fin de Grado (TFG), bajo la supervisión de los creadores y mantenedores de \aer. Su objetivo es cubrir la necesidad de introducir mayor dinamismo y nuevas fuentes de motivación para los usuarios del juez \textit{online} mediante estadísticas detalladas y un sistema de logros.
+El producto se desarrolla en el marco de un TFG, bajo la supervisión de los creadores y mantenedores de \aer. Su objetivo es cubrir la necesidad de introducir mayor dinamismo y nuevas fuentes de motivación para los usuarios del juez \textit{online} mediante estadísticas detalladas y un sistema de logros.
 
 Aunque la integración directa de estas funcionalidades en el juez no forma parte del alcance del proyecto, el diseño tendrá en cuenta criterios de modularidad y desacoplamiento que faciliten una posible integración futura.
 
@@ -56,7 +56,7 @@ Aunque la integración directa de estas funcionalidades en el juez no forma part
 
 \subsection{Limitaciones del producto}
 
-El producto estará sujeto a limitaciones técnicas derivadas del stack tecnológico seleccionado durante el desarrollo del TFG, así como a restricciones de tiempo y recursos propios de un proyecto académico. Asimismo, el sistema dependerá de la disponibilidad y calidad de los datos proporcionados por el juez \aer u otras fuentes externas. No se contemplan requisitos específicos de hardware más allá de los necesarios para ejecutar una aplicación web moderna.
+El producto estará sujeto a limitaciones técnicas derivadas del \textit{stack} tecnológico seleccionado durante el desarrollo del TFG, así como a restricciones de tiempo y recursos propios de un proyecto académico. Asimismo, el sistema dependerá de la disponibilidad y calidad de los datos proporcionados por el juez \aer u otras fuentes externas. No se contemplan requisitos específicos de hardware más allá de los necesarios para ejecutar una aplicación web moderna.
 
 \subsection{Características de los usuarios}
 
@@ -73,7 +73,8 @@ No se prevén necesidades especiales de accesibilidad en esta primera versión, 
 
 Se asume la disponibilidad de datos fiables sobre usuarios y ejercicios, así como el acceso a interfaces o mecanismos que permitan obtenerlos. El producto depende de librerías y servicios de terceros para la persistencia de datos y la visualización de estadísticas. Si alguna de estas dependencias no se cumple, el impacto principal será la imposibilidad de mostrar estadísticas actualizadas o de calcular correctamente los logros.
 
-\section{Requisitos}
+\section{Requisitos} 
+\label{sec:requisitos}
 
 \subsection{Interfaces externas}
 
@@ -88,7 +89,7 @@ El sistema expone y consume las siguientes interfaces externas:
         \item Sección de logros y medallas obtenidas.
         \item Tabla de clasifiación de usuarios.
 
- Se seguirán principios de diseño responsivo y consistencia visual con el estilo general de \aer.
+ Se seguirán principios de diseño responsivo y consistencia visual con el estilo general de \aer, aunque modernizando o alterando ciertos elementos.
     \end{itemize}
 
     \item \textbf{Interfaces de hardware}
@@ -96,6 +97,7 @@ El sistema expone y consume las siguientes interfaces externas:
 \end{itemize}
 
 \subsection{Funcionales}
+\label{subsec:funcionales}
 
 \textbf{REQ-FUN-001}
 \begin{itemize}
@@ -177,6 +179,7 @@ El sistema expone y consume las siguientes interfaces externas:
 \subsection{No funcionales}
 
 \textbf{REQ-NF-001}
+\label{req:REQ-NF-001}
 \begin{itemize}
     \item \textbf{Título:} Rendimiento
     \item \textbf{Descripción:} El sistema debe responder a las consultas de estadísticas en menos de 2 segundos en condiciones normales de carga.
@@ -186,15 +189,17 @@ El sistema expone y consume las siguientes interfaces externas:
 \end{itemize}
 
 \textbf{REQ-NF-002}
+\label{req:REQ-NF-002}
 \begin{itemize}
     \item \textbf{Título:} Fiabilidad de los datos
     \item \textbf{Descripción:} Las estadísticas mostradas deben ser consistentes con los datos de origen.
     \item \textbf{Racional:} Evitar información incorrecta que afecte a la confianza del usuario.
     \item \textbf{Criterio de aceptación:} No se detectan discrepancias en auditorías de datos.
-    \item \textbf{Método de verificación:} Análisis.
+    \item \textbf{Método de verificación:} Análisis? TEST FUNCIONAL?.
 \end{itemize}
 
 \textbf{REQ-NF-003}
+\label{req:REQ-NF-003}
 \begin{itemize}
     \item \textbf{Título:} Usabilidad
     \item \textbf{Descripción:} La interfaz debe ser comprensible sin necesidad de formación previa.
@@ -204,6 +209,7 @@ El sistema expone y consume las siguientes interfaces externas:
 \end{itemize}
 
 \textbf{REQ-NF-004}
+\label{req:REQ-NF-004}
 \begin{itemize}
     \item \textbf{Título:} Capacidad de integrarse con el OJ \aer
     \item \textbf{Descripción:} El diseño e implementación de la aplicación deben posibilitar la futura integración de la aplicación en la estructura general de \aer, gracias a un enfoque modular, y comprensión del sistema de eventos existente.
