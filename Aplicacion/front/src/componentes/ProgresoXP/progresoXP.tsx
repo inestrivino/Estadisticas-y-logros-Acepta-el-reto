@@ -5,6 +5,12 @@ import {
 } from "recharts";
 import { socket } from "../../services/socket.ts";
 
+const formatearXP = (xp: number): string => {
+    if (xp >= 1_000_000) return `${+(xp / 1_000_000).toFixed(1)}M`;
+    if (xp >= 1_000) return `${+(xp / 1_000).toFixed(1)}k`;
+    return String(xp);
+};
+
 export default function ProgresoXP(props: {
     evento: string,
     datos: { mes: string, puntos: number }[],
@@ -60,6 +66,7 @@ export default function ProgresoXP(props: {
                         axisLine={false}
                         tickLine={false}
                         width={40}
+                        tickFormatter={formatearXP}
                     />
                     <Tooltip
                         contentStyle={{
@@ -69,7 +76,7 @@ export default function ProgresoXP(props: {
                             fontSize: "0.8rem",
                             color: "#0c527a",
                         }}
-                        formatter={(value) => `${value} pts`}
+                        formatter={(value: number) => `${formatearXP(value)} pts`}
                     />
                     <Line
                         type="monotone"

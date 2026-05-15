@@ -29,26 +29,13 @@ export default function EstadisticasUsuarioComp(props: {
     }, [usuario]);
 
     //PROGRESO XP
-    const [progresoXP, setProgresoXP] = useState<{ mes: string, puntos: number }[]>([
-        { mes: "Ene", puntos: 310 },
-        { mes: "Feb", puntos: 400 },
-        { mes: "Mar", puntos: 430 },
-        { mes: "Abr", puntos: 520 },
-        { mes: "May", puntos: 570 },
-        { mes: "Jun", puntos: 100 },
-        { mes: "Jul", puntos: 150 },
-        { mes: "Ago", puntos: 100 },
-        { mes: "Sep", puntos: 500 },
-        { mes: "Oct", puntos: 600 },
-        { mes: "Nov", puntos: 700 },
-        { mes: "Dic", puntos: 800 },
-    ]);/*
+    const [progresoXP, setProgresoXP] = useState<{ mes: string, puntos: number }[]>([]);
     useEffect(() => {
         if (!usuario) return;
-        fetch(`/api/usuarios/${usuario}/progresoXP`)
+        fetch(`/api/usuarios/${usuario}/xpPorMes`)
             .then(response => response.json())
             .then(data => setProgresoXP(data));
-    }, [usuario]);*/
+    }, [usuario]);
 
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
@@ -155,7 +142,7 @@ export default function EstadisticasUsuarioComp(props: {
                             {/* Progreso XP */}
                             <div className="lg:col-span-2 w-full h-full min-h-[250px] lg:min-h-0">
                                 <ProgresoXP
-                                    evento={formatEvent(String(usuario), EventType.USUARIO_PARTICIPACION)}
+                                    evento={formatEvent(String(usuario), EventType.USUARIO_EXPERIENCIA_MES)}
                                     datos={progresoXP}
                                 />
                             </div>
@@ -174,9 +161,8 @@ export default function EstadisticasUsuarioComp(props: {
                             <div className="shrink-0">
                                 <PanelParticipacion
                                     evento={formatEvent(String(usuario), EventType.USUARIO_PARTICIPACION)}
-                                    inicioSemana={new Date().getDay()}
                                     datos={envios}
-                                    colores={["#0c527a", "#2675a6", "#60aade", "#90c4d1", "#ffffffc2"]}
+                                    colores={["#0c527a", "#2675a6", "#60aade", "rgb(151, 214, 255)", "#ffffffc2"]}
                                 />
                             </div>
                         }
