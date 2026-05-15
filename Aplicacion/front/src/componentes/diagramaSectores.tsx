@@ -49,9 +49,9 @@ export default function DiagramaSectores(props: {
     const legendRef = useRef<HTMLDivElement>(null);
     const [legendFontSize, setLegendFontSize] = useState(15);
 
-    useEffect(() => {
+    const adjustFontSize = () => {
         const el = legendRef.current;
-        if (!el) return;
+        if (!el || !el.clientHeight) return;
         let size = 15;
         el.style.fontSize = `${size}px`;
         while (el.scrollHeight > el.clientHeight && size > 8) {
@@ -59,7 +59,19 @@ export default function DiagramaSectores(props: {
             el.style.fontSize = `${size}px`;
         }
         setLegendFontSize(size);
+    };
+
+    useEffect(() => {
+        adjustFontSize();
     }, [data]);
+
+    useEffect(() => {
+        const el = legendRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(adjustFontSize);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     const CustomLegend = (propsLegend: { datos: { name: string, value: number }[] }) => {
         let total = 0;
@@ -72,6 +84,7 @@ export default function DiagramaSectores(props: {
                 gap: "6px 12px",
                 justifyContent: "center",
                 marginTop: 14,
+                margin: 5
             }}>
                 {propsLegend.datos.map((dato, i) => (
                     <div key={dato.name} style={{
@@ -113,13 +126,12 @@ export default function DiagramaSectores(props: {
         return (
             <div style={{
                 background: "#D9EDF7",
-                border: "1px solid rgba(255,255,255,0.12)",
+                border: "1px solid #86e7ffa8",
                 borderRadius: 10,
                 padding: "10px 14px",
                 fontFamily: "monospace",
                 fontSize: 12,
                 color: "#e8eaf2",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
             }}>
                 <div style={{ color: fill, fontWeight: 700, marginBottom: 4 }}>
                     {name}
