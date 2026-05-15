@@ -33,7 +33,4 @@ export type EstadoUsuario = {
 
     [CampoUsuario.HORAS]?: true,                                // centinela de horas de actividad
     horas?: Set<number>,                                        // las horas del dia en las que se ha realizado minimo un envio
-
-    [CampoUsuario.LOGROS]?: true,                               // centinela de logros conseguidos
-    logros?: Set<string>,                                       // logros conseguidos por el usuario
 }

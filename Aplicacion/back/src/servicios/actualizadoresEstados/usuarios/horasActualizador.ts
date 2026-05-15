@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class HorasCalculador extends ActualizadorUsuario {
+class HorasActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.HORAS;
     version = 1;
@@ -21,11 +21,6 @@ class HorasCalculador extends ActualizadorUsuario {
         estado.horas!.add(envio.hora);
     }
 
-    modificado(estado: EstadoUsuario): Partial<EstadoUsuario> {
-        return {
-            horas: new Set(estado.horas),
-        };
-    }
 }
 
-export default new HorasCalculador();
+export default new HorasActualizador();

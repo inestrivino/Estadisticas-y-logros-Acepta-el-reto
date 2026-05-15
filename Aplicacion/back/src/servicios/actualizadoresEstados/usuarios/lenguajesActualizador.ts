@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class LenguajesCalculador extends ActualizadorUsuario {
+class LenguajesActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.LENGUAJES;
     version = 1;
@@ -38,16 +38,6 @@ class LenguajesCalculador extends ActualizadorUsuario {
         }
     }
 
-    modificado(estado: EstadoUsuario): Partial<EstadoUsuario> {
-        return {
-            lenguajes: new Set(estado.lenguajes),
-            lenguajesConteo: new Map(estado.lenguajesConteo),
-            lenguajesAC: new Map(estado.lenguajesAC),
-            lenguajesProblemasResueltos: new Map(
-                [...estado.lenguajesProblemasResueltos!].map(([l, s]) => [l, new Set(s)])
-            ),
-        };
-    }
 }
 
-export default new LenguajesCalculador();
+export default new LenguajesActualizador();

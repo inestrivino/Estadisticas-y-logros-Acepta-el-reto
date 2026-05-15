@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class ResultadosCalculador extends ActualizadorUsuario {
+class ResultadosActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.RESULTADOS;
     version = 1;
@@ -22,11 +22,6 @@ class ResultadosCalculador extends ActualizadorUsuario {
         estado.resultados!.set(envio.resultado, (estado.resultados!.get(envio.resultado) ?? 0) + 1);
     }
 
-    modificado(estado: EstadoUsuario): Partial<EstadoUsuario> {
-        return {
-            resultados: new Map(estado.resultados),
-        };
-    }
 }
 
-export default new ResultadosCalculador();
+export default new ResultadosActualizador();

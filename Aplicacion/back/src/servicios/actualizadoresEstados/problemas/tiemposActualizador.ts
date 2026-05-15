@@ -4,7 +4,7 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 import problemaService from "../../problemaService.js";
 
-class TiemposCalculador extends ActualizadorProblema {
+class TiemposActualizador extends ActualizadorProblema {
 
     id = CampoProblema.TIEMPOS;
     version = 1;
@@ -56,4 +56,4 @@ class TiemposCalculador extends ActualizadorProblema {
     }
 }
 
-export default new TiemposCalculador();
+export default new TiemposActualizador();

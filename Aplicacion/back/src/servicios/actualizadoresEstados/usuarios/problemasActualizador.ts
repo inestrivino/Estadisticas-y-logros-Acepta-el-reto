@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class ProblemasCalculador extends ActualizadorUsuario {
+class ProblemasActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.PROBLEMAS;
     version = 1;
@@ -25,12 +25,6 @@ class ProblemasCalculador extends ActualizadorUsuario {
             estado.problemasNoAC!.add(envio.problema);
     }
 
-    modificado(estado: EstadoUsuario): Partial<EstadoUsuario> {
-        return {
-            problemasAC: new Set(estado.problemasAC),
-            problemasNoAC: new Set(estado.problemasNoAC),
-        };
-    }
 }
 
-export default new ProblemasCalculador();
+export default new ProblemasActualizador();

@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class DiasValorCalculador extends ActualizadorUsuario {
+class DiasValorActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.DIAS_VALOR;
     version = 2;
@@ -24,11 +24,6 @@ class DiasValorCalculador extends ActualizadorUsuario {
         estado.diasValor!.set(envio.fecha, (estado.diasValor!.get(envio.fecha) ?? 0) + 1);
     }
 
-    modificado(estado: EstadoUsuario): Partial<EstadoUsuario> {
-        return {
-            diasValor: new Map(estado.diasValor),
-        };
-    }
 }
 
-export default new DiasValorCalculador();
+export default new DiasValorActualizador();

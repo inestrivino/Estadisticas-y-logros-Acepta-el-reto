@@ -4,7 +4,7 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 import problemaService from "../../problemaService.js";
 
-class ResultadosCalculador extends ActualizadorProblema {
+class ResultadosActualizador extends ActualizadorProblema {
 
     id = CampoProblema.RESULTADOS;
     version = 1;
@@ -27,4 +27,4 @@ class ResultadosCalculador extends ActualizadorProblema {
     }
 }
 
-export default new ResultadosCalculador();
+export default new ResultadosActualizador();
