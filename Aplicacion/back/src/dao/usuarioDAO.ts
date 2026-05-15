@@ -7,7 +7,6 @@ import registradorHoras from "./registradores/usuarios/horasRegistrador.js";
 import registradorResultados from "./registradores/usuarios/resultadosRegistrador.js";
 import registradorLenguajes from "./registradores/usuarios/lenguajesRegistrador.js";
 import registradorDiasValor from "./registradores/usuarios/diasValorRegistrador.js";
-import { CampoUsuario } from "../types/estados/camposEstadoUsuario.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 
 class UsuarioDAO extends DAO {
@@ -106,6 +105,14 @@ class UsuarioDAO extends DAO {
      * @param patron - String.
      * @returns Array con los nombres de los usuarios`.
      */
+    /**
+     * Devuelve todos los usuarios registrados.
+     * @returns Array con los nombres de todos los usuarios.
+     */
+    async getTodosUsuarios(): Promise<string[]> {
+        return await this.redis.zRange(`usuarios`, 0, -1);
+    }
+
     async getUsuariosSugeridos(patron: string): Promise<string[]> {
         const usuarios = await this.redis.zRangeByLex(`usuarios`, `[${patron}`, `[${patron}\xff`);
         return usuarios;

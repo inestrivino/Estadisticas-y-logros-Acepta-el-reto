@@ -62,6 +62,14 @@ class UsuarioService {
         const u = usuario.toLowerCase().normalize("NFC").trim();
         return await usuarioDAO.existeUsuario(u);
     }
+    
+    /**
+     * Devuelve todos los usuarios registrados.
+     * @returns Array con los nombres de todos los usuarios.
+     */
+    async getTodosUsuarios(): Promise<string[]> {
+        return await usuarioDAO.getTodosUsuarios();
+    }
 
     /**
      * Devuelve los usuarios cuyo nombre (nick) comienzan por el string patron.
