@@ -16,7 +16,7 @@ const logro3: Logro = {
 
     enTiempoReal: false,
 
-    condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.logros!.size >= 5
+    condicion: (estadoUsuario, estadoProblema, envio, logrosACtuales) => logrosACtuales!.size >= 5
 };
 
 export default logro3;

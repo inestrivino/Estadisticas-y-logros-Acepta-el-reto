@@ -27,5 +27,5 @@ export interface Logro {
   enTiempoReal: boolean;
 
   //condicion para conseguir el logro en base al estado del usuario que hizo el envio y el estado del problema
-  condicion(estadoUsuario: EstadoUsuario, estadoProblema?: EstadoProblema, envio?: EnvioProcesado): boolean;
+  condicion(estadoUsuario: EstadoUsuario, estadoProblema?: EstadoProblema, envio?: EnvioProcesado, logrosActuales?: Set<Logro>): boolean;
 }

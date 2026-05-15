@@ -4,6 +4,8 @@ import logrosDAO from "../dao/logrosDAO.js";
 import { datosLogro } from "../types/datos/datosLogro.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 import { Logro } from "./logros/logro.js";
+import usuarioService from "./usuarioService.js";
+import estadosService from "./estadosService.js";
 
 import { logrosOnboarding } from "./logros/onboarding/index.js";
 import { logrosProblemas } from "./logros/problemas/index.js";
@@ -11,157 +13,140 @@ import { logrosLenguajes } from "./logros/lenguajes/index.js";
 import { logrosRachas } from "./logros/rachas/index.js";
 import { logrosCalidad } from "./logros/calidad/index.js";
 
+type Contexto = {
+    checkpointsLogro: Map<string, number>
+    logrosActuales: Map<string, Set<Logro>>
+    estadosUsuarios: Map<string, EstadoUsuario>
+    estadosProblemas: Map<string, EstadoProblema>
+    envio: EnvioProcesado
+}
+
+type InfoParaCondicion = {
+    checkpointsLogro: Map<string, number>
+    logrosActuales: Set<Logro>
+    estadoUsuario: EstadoUsuario
+    estadoProblema: EstadoProblema
+    envio: EnvioProcesado
+}
+
 class LogrosService {
 
-    private nuevosPorUsuario = new Map<string, Set<string>>();
-
-    //grupos de trofeos que se evaluan de forma independiente
     //para añadir nuevos logros basta con crear un nuevo grupo y añadirlo aqui
-    private gruposTrofeos: Logro[][] = [
-        logrosOnboarding,
-        logrosProblemas,
-        logrosLenguajes,
-        logrosRachas,
-        logrosCalidad,
+    private logros: Logro[] = [
+        ...logrosOnboarding,
+        ...logrosProblemas,
+        ...logrosLenguajes,
+        ...logrosRachas,
+        ...logrosCalidad,
     ];
 
     /**
      * Devuelve la lista plana de todas las definiciones de logros registradas.
      */
     public getDefiniciones(): Logro[] {
-        return this.gruposTrofeos.flat();
+        return this.logros;
     }
 
     /**
-     * Reevalua un conjunto de logros sin envios contra el estado actual de cada usuario.
-     * Solo aplicable a logros que no son en tiempo real y cuyas estadisticas requeridas
-     * estan al dia (de lo contrario habria que reprocesar envios).
-     * @param logros - Nombres de logros a reevaluar.
+     * Reevalua un conjunto de logros de estado global contra el estado actual de cada usuario.
+     * Borra los registros existentes de esos logros, recalcula las condiciones y persiste los resultados.
+     * Solo aplicable a logros que no son en tiempo real y cuyas estadisticas requeridas estan al dia.
+     * @param logros - Logros a reevaluar.
      */
-    public async reevaluarLogros(logros: Set<string>) {
-        //TODO
-    }
+    public async reevaluarLogros(logros: Logro[]): Promise<void> {
 
-    /**
-     * Procesa los logros en tiempo real de cada grupo tras un envio y acumula los nuevos en nuevosPorUsuario.
-     * Si se indica `checkpointsLogro`, cada logro solo se evalua si su checkpoint es estrictamente menor
-     * que el envioId (los ya procesados anteriormente se omiten).
-     */
-    public procesarEstado(
-        estadoUsuario: EstadoUsuario,
-        estadoProblema: EstadoProblema,
-        envio: EnvioProcesado,
-        checkpointsLogro: Map<string, number>
-    ) {
+        //se borran los registros actuales de los logros a reevaluar
+        for (const logro of logros)
+            await logrosDAO.borrarLogro(logro.nombre);
 
-        //se evalua cada grupo de trofeos en tiempo real, filtrando por checkpoint
-        const nuevos: string[] = [];
-        for (const grupo of this.gruposTrofeos)
-            for (const logro of this.comprobarLogros(grupo, true, estadoUsuario, estadoProblema, envio, checkpointsLogro))
-                nuevos.push(logro);
+        //se cargan los estados actuales de todos los usuarios
+        const usuarios = new Set(await usuarioService.getTodosUsuarios());
+        const estadosUsuarios = await estadosService.getEstadosInicialesUsuarios(usuarios);
 
-        if (nuevos.length === 0)
-            return;
-
-        //se acumulan los nuevos logros para este usuario
-        if (!this.nuevosPorUsuario.has(envio.usuario))
-            this.nuevosPorUsuario.set(envio.usuario, new Set());
-
-        for (const trofeo of nuevos)
-            this.nuevosPorUsuario.get(envio.usuario)?.add(trofeo);
-    }
-
-    /**
-     * Procesa los logros de estado global de cada grupo para cada usuario y persiste los nuevos en Redis.
-     * Si se indica `checkpointsLogro` y `lastEnvioId`, solo se evaluan los logros cuyo checkpoint es
-     * menor que el ultimo envio del bloque (los ya evaluados contra estado posterior se omiten).
-     */
-    public async cargarTrofeos(
-        usuarios: Set<string>,
-        estadosUsuarios: Map<string, EstadoUsuario>,
-        estadosProblemas: Map<string, EstadoProblema>,
-        checkpointsLogro?: Map<string, number>,
-        lastEnvioId?: number
-    ) {
-
-        for (const usuario of usuarios) {
-
-            const estadoUsuario = estadosUsuarios.get(usuario) as EstadoUsuario;
-
-            //se evalua cada grupo de trofeos de estado global, filtrando por checkpoint del bloque
-            for (const grupo of this.gruposTrofeos) {
-                const nuevos = this.comprobarLogros(grupo, false, estadoUsuario, undefined, undefined, checkpointsLogro, lastEnvioId);
-
-                if (nuevos.length === 0)
-                    continue;
-
-                if (!this.nuevosPorUsuario.has(usuario))
-                    this.nuevosPorUsuario.set(usuario, new Set());
-
-                for (const trofeo of nuevos)
-                    this.nuevosPorUsuario.get(usuario)?.add(trofeo);
-            }
+        //se reevaluan los logros para cada usuario y se acumulan los obtenidos
+        const datos: datosLogro[] = [];
+        for (const [usuario, estadoUsuario] of estadosUsuarios) {
+            const nuevos = logros
+                .filter(l => l.condicion(estadoUsuario, undefined, undefined))
+                .map(l => l.nombre);
+            if (nuevos.length > 0)
+                datos.push({ usuario, logros: nuevos });
         }
 
-        //se pasan al formato correcto para guardarlos en la base de datos y se guardan
-        const datos: datosLogro[] = [];
-        for (const [usuario, logros] of this.nuevosPorUsuario)
-            datos.push({ usuario, logros: Array.from(logros) });
-
-        //se limpia el mapa de logros nuevos para el siguiente bloque
-        this.nuevosPorUsuario.clear();
-
-        //se guardan los logros nuevos en la base de datos
+        //se guardan los logros recalculados en la base de datos
         await logrosDAO.guardarBloqueLogros(datos);
     }
 
     /**
-     * Comprueba que logros de un grupo cumple el usuario y los marca como obtenidos.
-     * Para logros en tiempo real se compara el checkpoint con `envio.envioId`,
-     * para logros globales se compara con `lastEnvioId` (ultimo envio del bloque).
-     * @returns Nombres de los logros recien obtenidos por el usuario.
+     * Evalua los logros en tiempo real para el envio del contexto y acumula los recien obtenidos en `nuevosPorUsuario`.
+     * Solo se evaluan los logros cuyo checkpoint es estrictamente menor que el `envioId` del envio.
+     * @param contexto - Checkpoints, logros actuales y estados de usuario del bloque.
+     * @param extra - Estado de problemas y envio que desencadena la evaluacion.
      */
-    private comprobarLogros(
-        grupo: Logro[],
-        enTiempoReal: boolean,
-        estadoUsuario: EstadoUsuario,
-        estadoProblema?: EstadoProblema,
-        envio?: EnvioProcesado,
-        checkpointsLogro?: Map<string, number>,
-        lastEnvioId?: number
-    ): string[] {
+    public comprobarLogros(contexto: Contexto): Map<string, Set<Logro>> {
 
-        const nuevos: string[] = [];
+        const nuevosPorUsuario = new Map<string, Set<Logro>>();
 
-        //si no tiene logros se devuelve un array vacio
-        if (!estadoUsuario.logros)
-            return [];
+        const info: InfoParaCondicion = {
+            checkpointsLogro: contexto.checkpointsLogro,
+            logrosActuales: contexto.logrosActuales.get(contexto.envio.usuario)!,
+            estadoUsuario: contexto.estadosUsuarios.get(contexto.envio.usuario)!,
+            estadoProblema: contexto.estadosProblemas.get(contexto.envio.problema)!,
+            envio: contexto.envio
+        }
 
-        for (const logro of grupo) {
-            //se omiten los logros que no son del modo evaluado
-            if (logro.enTiempoReal !== enTiempoReal)
-                continue;
+        const nuevos: Logro[] = [];
+        for (const logro of this.logros) {
 
             //se omiten los logros que el usuario ya tiene
-            if (estadoUsuario.logros.has(logro.nombre))
+            if (info.logrosActuales.has(logro))
                 continue;
 
             //se omiten los logros cuyo checkpoint ya cubre el envio o estado actual
-            if (checkpointsLogro) {
-                const checkpoint = checkpointsLogro.get(logro.nombre) ?? 0;
-                const referencia = enTiempoReal ? envio?.envioId : lastEnvioId;
-                if (referencia !== undefined && checkpoint >= referencia)
-                    continue;
-            }
+            const checkpoint = info.checkpointsLogro.get(logro.nombre) as number;
+            if (checkpoint >= contexto.envio.envioId)
+                continue;
 
-            if (logro.condicion(estadoUsuario, estadoProblema, envio)) {
-                estadoUsuario.logros.add(logro.nombre);
-                nuevos.push(logro.nombre);
+            if (logro.condicion(info.estadoUsuario, info.estadoProblema, info.envio, info.logrosActuales)) {
+                info.logrosActuales.add(logro);
+                nuevos.push(logro);
             }
         }
 
-        return nuevos;
+        //se acumulan los nuevos logros para este usuario
+        if (!nuevosPorUsuario.has(contexto.envio.usuario))
+            nuevosPorUsuario.set(contexto.envio.usuario, new Set());
+        for (const trofeo of nuevos)
+            nuevosPorUsuario.get(contexto.envio.usuario)?.add(trofeo);
+
+        return nuevosPorUsuario;
     }
+
+    /**
+     * Persiste globalmente todos los logros nuevos del bloque en Redis.
+     * @param nuevosLogros - Mapa de usuario a set de logros nuevos obtenidos en el bloque.
+     */
+    public async guardarLogros(nuevosLogros: Map<string, Set<Logro>>): Promise<void> {
+        const datos: datosLogro[] = [];
+        for (const [usuario, logros] of nuevosLogros)
+            datos.push({ usuario, logros: Array.from(logros).map(l => l.nombre) });
+        await logrosDAO.guardarBloqueLogros(datos);
+    }
+
+    /**
+     * Persiste los logros nuevos agrupados por mes en Redis (solo ultimos 12 meses).
+     * @param nuevosTrofeosPorMes - Mapa de mes a usuario a set de logros nuevos.
+     */
+    public async guardarLogrosPorMes(nuevosTrofeosPorMes: Map<number, Map<string, Set<Logro>>>): Promise<void> {
+        for (const [mes, nuevosPorUsuario] of nuevosTrofeosPorMes) {
+            const datos: datosLogro[] = [];
+            for (const [usuario, logros] of nuevosPorUsuario)
+                datos.push({ usuario, logros: Array.from(logros).map(l => l.nombre) });
+            await logrosDAO.guardarBloqueLogrosMes(datos, mes);
+        }
+    }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve todos los logros indicando si el usuario los tiene o no, agrupados segun la clasificacion.
@@ -173,8 +158,7 @@ class LogrosService {
         const setLogros = new Set(await logrosDAO.getLogros(usuario));
 
         //agrega el atributo de si el usuario tiene ese logro o no
-        const todosLosLogros = this.gruposTrofeos.flat();
-        const logrosUsuario = todosLosLogros.map(logro => ({
+        const logrosUsuario = this.logros.map(logro => ({
             nombre: logro.nombre,
             descripcion: logro.descripcion,
             imagen: logro.imagen,
@@ -198,26 +182,34 @@ class LogrosService {
     }
 
     /**
-     * Devuelve los identificadores de los logros obtenidos por el usuario.
-     * @param usuario - Identificador del usuario.
-     * @returns Array con los nombres de los logros obtenidos.
+     * Devuelve los logros obtenidos por cada usuario indicado.
+     * @param usuarios - Array de identificadores de usuario.
+     * @returns Mapa de usuario a set de logros obtenidos.
      */
-    public async getLogros(usuario: string): Promise<string[]> {
-        return logrosDAO.getLogros(usuario);
+    public async getLogros(usuarios: string[]): Promise<Map<string, Set<Logro>>> {
+
+        const logrosPorUsuario: Map<string, Set<Logro>> = new Map();
+
+        for (const usuario of usuarios) {
+            const nombres = await logrosDAO.getLogros(usuario);
+            const logros = new Set(nombres.map(n => this.logros.find(l => l.nombre === n)!).filter(Boolean));
+            logrosPorUsuario.set(usuario, logros);
+        }
+
+        return logrosPorUsuario;
     }
 
     /**
-     * Busca un logro por su nombre recorriendo todos los grupos de trofeos.
+     * Busca un logro por su nombre.
      * @param logro - Nombre del logro a buscar.
      * @returns El logro encontrado, o `undefined` si no existe.
      */
+    //TODO ver si esto tras la refactorizacion es necesario
+    /*
     public getLogroByName(logro: string): Logro | undefined {
-        for (const grupo of this.gruposTrofeos) {
-            const encontrado = grupo.find(l => l.nombre === logro);
-            if (encontrado) return encontrado;
-        }
-        return undefined;
+        return this.trofeos.find(l => l.nombre === logro);
     }
+    */
 }
 
 export default new LogrosService();
