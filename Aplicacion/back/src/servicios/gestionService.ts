@@ -50,16 +50,14 @@ class GestionService {
      * Si es asi, elimina todos los datos de Redis y persiste la nueva version.
      * @returns condicional de si se ha reiniciado o no.
      */
-    public async checkVersion(): Promise<boolean> {
+    public async checkVersion() {
         const currentVersion = Number(process.env.VERSION ?? 0);
         const storedVersion = await gestionDAO.getVersion();
-        if (currentVersion !== storedVersion) { //TODO cambiar esto al final y poner un >
+        if (currentVersion > storedVersion || currentVersion === -1) { 
             console.log(` * version detectada: ${currentVersion}, version almacenada: ${storedVersion}. Reiniciando Redis.`);
             await gestionDAO.flushAll();
             await gestionDAO.setVersion(currentVersion);
-            return true;
         }
-        return false;
     }
 }
 
