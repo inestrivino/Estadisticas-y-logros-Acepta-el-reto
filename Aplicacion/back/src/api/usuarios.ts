@@ -64,6 +64,10 @@ router.get("/", async (req, res) => {
     }
 })
 
+router.get("/:usuario/xpPorMes", async (req, res) => {
+    const { usuario } = req.params;
+    return res.json(await xpService.getXPUsuarioPorMes(usuario));
+});
 
 router.get("/:usuario/posRanking", async (req, res) => {
     const { usuario } = req.params;

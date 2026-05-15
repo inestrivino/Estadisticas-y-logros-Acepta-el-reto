@@ -10,6 +10,7 @@ export const EventType = {
   USUARIO_RESULTADOS: "reload-resultadosUsuario",
   USUARIO_LENGUAJES: "reload-lenguajesUsuario",
   USUARIO_PARTICIPACION: "reload-participacionUsuario",
+  USUARIO_EXPERIENCIA_MES: "reload-experienciaMesUsuario",
   USUARIO_POS_RANKING: "reload-posRanking",
   USUARIO_NUM_PROBLEMAS_RESUELTOS: "reload-numProblemasResueltos",
   USUARIO_RACHA_ACTUAL_ENVIOS_AC: "reload-rachaActualEnviosAC",
