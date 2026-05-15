@@ -1,11 +1,17 @@
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
 import xpDAO from "../dao/xpDAO.js";
+import usuarioService from "./usuarioService.js";
+import { datosXP } from "../types/datos/datosXP.js";
+import { Logro } from "./logros/logro.js";
 import { NivelLogro } from "../types/enums/nivelLogro.js";
 
-import { ActualizadorXP } from "./actualizadoresXP/xpActualizadorInterface.js";
-import numEnviosXP from "./actualizadoresXP/numEnvioActualizadorXP.js";
-import problemasXP from "./actualizadoresXP/resultadosActualizadorXP.js";
-import logrosXP from "./actualizadoresXP/logrosActualizadorXP.js";
+type EstadisticasXP = {
+    numEnvios: number,
+    numProblemasAC: number,
+    numTrofeosBronce: number,
+    numTrofeosPlata: number,
+    numTrofeosOro: number,
+}
 
 export enum NivelUsuario {
     APRENDIZ = "Aprendiz",
@@ -18,63 +24,112 @@ export enum NivelUsuario {
 
 class XPService {
 
-    private actualizadoresXP: ActualizadorXP[] = [
-        numEnviosXP,
-        problemasXP,
-        logrosXP
-    ]
-
     /**
-     * Calcula los xp obtenidos por cada usuario a partir de la diferencia entre su estado inicial y final,
-     * delegando en cada actualizador registrado en actualizadoresXP.
-     * @param estadosIniciales - Mapa de estados de usuario antes de procesar el bloque.
-     * @param estadosFinales - Mapa de estados de usuario despues de procesar el bloque (puede ser parcial).
-     * @returns Array de pares { usuario, xp } con los puntos acumulados en el bloque.
+     * Calcula y persiste la XP global y por mes de cada usuario a partir de la diferencia entre estados y los trofeos nuevos.
+     * @param estadosUsuarioIniciales - Estados de usuario antes del bloque.
+     * @param estadosUsuariosFinales - Estados de usuario despues del bloque.
+     * @param estadosFinalesPorMes - Estados finales de usuario agrupados por mes.
+     * @param nuevosLogrosPorMes - Trofeos nuevos obtenidos agrupados por mes.
      */
-    public async procesarBloqueEstados(
-        estadosIniciales: Map<string, EstadoUsuario>,
-        estadosFinales: Map<string, EstadoUsuario>
+    public async procesarXP(
+        estadosUsuarioIniciales: Map<string, EstadoUsuario>,
+        estadosUsuariosFinales: Map<string, EstadoUsuario>,
+        estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>>,
+        nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>>
     ) {
-        const xpUsuarios = new Map<string, number>();
+        const todosLosLogros = new Map<string, Set<Logro>>();
+        for (const logrosMes of nuevosLogrosPorMes.values())
+            for (const [usuario, logros] of logrosMes) {
+                if (!todosLosLogros.has(usuario)) todosLosLogros.set(usuario, new Set());
+                for (const logro of logros) todosLosLogros.get(usuario)!.add(logro);
+            }
 
-        for (const [usuario, estadoFinal] of estadosFinales) {
-            const estadoInicial = estadosIniciales.get(usuario) ?? {} as EstadoUsuario;
+        await xpDAO.registrarBloqueXP(this.calcularXP(estadosUsuarioIniciales, estadosUsuariosFinales, todosLosLogros));
 
-            //transforma un array en un único valor final aplicando una función acumuladora a cada elemento
-            //el acumulado empieza en 0
-            const xp = this.actualizadoresXP.reduce((acc, act) => {
-
-                //se mira si el estado final tiene la estadistica de este actualizador
-                const calculado = estadoFinal[act.id as keyof EstadoUsuario] !== undefined;
-
-                //si no lo tienen devuelve el acumulado de la experiencia de este bloque
-                return calculado ? acc + act.actualizar(estadoInicial, estadoFinal) : acc;
-
-            }, 0);
-
-            xpUsuarios.set(usuario, xp);
-        }
-
-        const puntos = Array.from(xpUsuarios.entries()).map(([usuario, xp]) => ({ usuario, xp }));
-        await xpDAO.registrarBloqueXP(puntos);
-        return puntos;
+        const bloquesMes = Array.from(estadosFinalesPorMes.entries()).map(([mes, estadosFinales]) => ({
+            mes,
+            puntos: this.calcularXP(estadosUsuarioIniciales, estadosFinales, nuevosLogrosPorMes.get(mes) ?? new Map())
+        }));
+        await xpDAO.registrarBloqueXPMes(bloquesMes);
     }
 
+    /**
+     * Calcula la XP total correspondiente a las estadisticas indicadas.
+     * @param stats - Estadisticas relevantes para el calculo de XP.
+     * @returns XP total calculada.
+     */
+    private calcularXPDesdeEstadisticas(stats: EstadisticasXP): number {
+        return stats.numEnvios * 1
+            + stats.numProblemasAC * 15
+            + stats.numTrofeosBronce * 20
+            + stats.numTrofeosPlata * 40
+            + stats.numTrofeosOro * 60;
+    }
+
+    /**
+     * Calcula la XP de cada usuario comparando su estado inicial y final, incluyendo los trofeos nuevos.
+     * @param estadosIniciales - Mapa de estados de usuario antes de procesar el bloque.
+     * @param estadosFinales - Mapa de estados de usuario despues de procesar el bloque.
+     * @param nuevosTrofeos - Trofeos nuevos obtenidos por cada usuario.
+     * @returns Array de objetos { usuario, xp } con la XP calculada para cada usuario.
+     */
+    private calcularXP(
+        estadosIniciales: Map<string, EstadoUsuario>,
+        estadosFinales: Map<string, EstadoUsuario>,
+        nuevosTrofeos: Map<string, Set<Logro>>
+    ): datosXP[] {
+        return Array.from(estadosFinales.entries()).map(([usuario, estadoFinal]) => {
+            const estadoInicial = estadosIniciales.get(usuario) ?? {} as EstadoUsuario;
+            const logros = nuevosTrofeos.get(usuario) ?? new Set<Logro>();
+            const xp = this.calcularXPDesdeEstadisticas({
+                numEnvios: (estadoFinal.numEnvios ?? 0) - (estadoInicial.numEnvios ?? 0),
+                numProblemasAC: (estadoFinal.problemasAC?.size ?? 0) - (estadoInicial.problemasAC?.size ?? 0),
+                numTrofeosBronce: [...logros].filter(l => l.nivel === NivelLogro.BRONCE).length,
+                numTrofeosPlata:  [...logros].filter(l => l.nivel === NivelLogro.PLATA).length,
+                numTrofeosOro:    [...logros].filter(l => l.nivel === NivelLogro.ORO).length,
+            });
+            return { usuario, xp };
+        });
+    }
+
+    /**
+     * Resetea todos los registros de la xp en la base de datos para todos los usuarios.
+     */
     public async resetearXP() {
         await xpDAO.resetearXP();
     }
 
-    public actualizadoresIDs(): string[] {
-        const ids: string[] = [];
+    //============================== CONSULTAS ==============================
 
-        for (const actualizador of this.actualizadoresXP) {
-            ids.push(actualizador.id);
+    /**
+     * Devuelve la XP acumulada por el usuario en cada mes, con el nombre abreviado del mes.
+     * @param usuario - Identificador del usuario.
+     * @returns Array de 12 entradas con el mes abreviado y su XP.
+     */
+    async getXPUsuarioPorMes(usuario: string): Promise<{ mes: string, puntos: number }[]> {
+        const NOMBRES_MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+        const [xpTotal, xpPorMes] = await Promise.all([
+            xpDAO.getXPUsuario(usuario),
+            xpDAO.getXPUsuarioPorMes(usuario)
+        ]);
+
+        const xpMesMap = new Map(xpPorMes.map(({ mes, xp }) => [mes, xp]));
+        const mesActual = new Date().getUTCMonth();
+
+        const resultado: { mes: string, puntos: number }[] = [];
+        let xpAcumulada = xpTotal < 0 ? 0 : xpTotal;
+
+        //se va hacia atras restando la xp de cada mes para obtener la xp al final de ese mes
+        for (let i = 0; i < 12; i++) {
+            const mes = (mesActual - i + 12) % 12;
+            resultado.unshift({ mes: NOMBRES_MESES[mes], puntos: Math.max(0, Math.round(xpAcumulada)) });
+            xpAcumulada -= xpMesMap.get(mes) ?? 0;
         }
 
-        return ids;
+        return resultado;
     }
 
-    //============================== CONSULTAS ==============================
     /**
      * Devuelve la informacion del usuario asociada a los xp y su ranking.
      * @param filtrarPorNivel - Indica si la informacion es respecto al ranking global o al perteneciente al nivel del usuario.
@@ -148,7 +203,7 @@ class XPService {
     }
 
     /**
-     * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica, 
+     * Devuelve el numero de usuarios dependiendo de: si usuario es "", devuelve todos los guardados en la bd; si usuario se especifica,
      * se devuelve el numero de usuario que pertenecen al mismo nivel (de xp) que este.
      * @param usuario - Identificador del usuario o "" en caso de no querer limitar por nivel.
      * @param filtrarPorNivel - Indica si queremos filtrar los usuario que devolvemos por el nivel del usuario.
@@ -162,29 +217,6 @@ class XPService {
             const nivel = await this.getNivelUsuario(usuario);
             const { iniXP, finXP } = this.getXPRangeFromNivel(nivel);
             return xpDAO.getNumUsuariosEnRango(iniXP, finXP);
-        }
-    }
-
-    /**
-     * Devuelve los xp correspondientes al resultado obtenido del envio.
-     * @param resultado - Identificador del resultado.
-     * @returns Numero entero positivo.
-     */
-    private getXPPorResultadoEnvio(resultado: string): number {
-        return resultado === "AC" ? 15 : 1;
-    }
-
-    /**
-     * Devuelve los xp correspondientes al nivel de logro obtenido.
-     * @param nivel - Identificador del nivel.
-     * @returns Numero entero positivo.
-     */
-    private getXPPorNivelLogro(nivel: NivelLogro): number {
-        switch (nivel) {
-            case NivelLogro.BRONCE: return 20;
-            case NivelLogro.PLATA: return 40;
-            case NivelLogro.ORO: return 60;
-            default: return 0;
         }
     }
 
