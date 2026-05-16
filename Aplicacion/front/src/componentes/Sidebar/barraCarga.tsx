@@ -40,6 +40,7 @@ export default function BarraCarga({ evento, progresoInicial }: Props) {
 
     return (
         <div
+            className="pt-3"
             style={{ position: "relative" }}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
@@ -51,18 +52,7 @@ export default function BarraCarga({ evento, progresoInicial }: Props) {
                 </span>
             </div>
             {hover && (
-                <div style={{
-                    position: "absolute",
-                    bottom: "calc(100% + 8px)",
-                    left: 0,
-                    right: 0,
-                    background: "#72acd3a2",
-                    borderRadius: 10,
-                    padding: "10px 6px 10px 12px",
-                    fontSize: "1 rem",
-                    color: "#F5F5F5",
-                    zIndex: 999,
-                }}>
+                <div className="barra-carga-tooltip">
                     La aplicación está cargando<br />los datos de Acepta el reto<br />{progreso}% completado
                 </div>
             )}

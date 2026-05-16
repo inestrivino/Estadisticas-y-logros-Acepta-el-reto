@@ -100,7 +100,7 @@ export default function DiagramaSectores(props: {
                             background: props.colores[i],
                             flexShrink: 0,
                         }} />
-                        <span style={{ fontWeight: 550, color: props.colores[i] }}>{dato.name}</span>
+                        <span style={{ fontWeight: 1000, color: props.colores[i] }}>{dato.name}</span>
                         <span style={{ color: "#4f4f4f" }}>{dato.value.toLocaleString()}</span>
                         <span style={{ color: props.colores[i] }}>
                             {((dato.value / total) * 100).toFixed(1)}%

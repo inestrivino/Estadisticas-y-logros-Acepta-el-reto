@@ -55,6 +55,8 @@
   padding: 30px 22px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar .app-navbar-titulo {
@@ -160,6 +162,19 @@
 
 
 /* barra de carga */
+.barra-carga-tooltip {
+  position: absolute;
+  bottom: calc(100%);
+  left: 0;
+  right: 0;
+  background: #72acd3;
+  border-radius: 10px;
+  padding: 10px 6px 10px 12px;
+  font-size: 1rem;
+  color: #F5F5F5;
+  z-index: 999;
+}
+
 .barra-carga {
   position: relative;
   overflow: hidden;
