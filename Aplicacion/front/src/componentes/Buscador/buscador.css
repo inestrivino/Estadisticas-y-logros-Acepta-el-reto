@@ -78,6 +78,7 @@
 }
 
 .buscador-sugerencias {
+    z-index: 9999;
     position: absolute;
     top: 100%;
     left: 50%;
