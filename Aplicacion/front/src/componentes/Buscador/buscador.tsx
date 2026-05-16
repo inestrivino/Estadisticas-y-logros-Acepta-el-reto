@@ -12,6 +12,7 @@ export default function Buscador(props: {
     ruta: string,
     valorInicial?: string,
     prefijo?: React.ReactNode,
+    onResultado?: (valor: string) => void,
 }) {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +21,16 @@ export default function Buscador(props: {
     const [editando, setEditando] = useState(!props.prefijo);
     const inputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+
+    //sincroniza editando con la presencia de prefijo (p.ej. cuando el padre actualiza usuario tras una busqueda)
+    useEffect(() => {
+        setEditando(!props.prefijo);
+    }, [!!props.prefijo]);
+
+    //sincroniza elem con valorInicial cuando cambia desde fuera
+    useEffect(() => {
+        if (props.valorInicial !== undefined) setElem(props.valorInicial);
+    }, [props.valorInicial]);
 
 
     const [mensajeError, setMensajeError] = useState<string>("");
@@ -89,7 +100,9 @@ export default function Buscador(props: {
                     } else {
                         setMensajeError("");
                         localStorage.setItem("usuarioActual", valor);
-                        if (props.tipo === "usuario_estadistica") {
+                        if (props.onResultado) {
+                            props.onResultado(valor);
+                        } else if (props.tipo === "usuario_estadistica") {
                             navigate(`/usuarios/estadisticas/${valor}`);
 
                         } else if (props.tipo === "usuario_logro") {
@@ -175,7 +188,7 @@ export default function Buscador(props: {
                     {props.prefijo && !editando ? (
                         <InputGroup.Text
                             className="buscador-app-prefijo d-flex align-items-center gap-2"
-                            style={{ flex: 1, minWidth: 0, borderRadius: "50px 0 0 50px"/*, fontSize: "clamp(1.5rem, 2vw, 10rem)" */ }}
+                            style={{ flex: 1, minWidth: 0, borderRadius: "50px 0 0 50px", fontSize: "clamp(1.5rem, 2vw, 2.25rem)" }}
                         >
                             {props.prefijo}
                         </InputGroup.Text>
