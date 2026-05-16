@@ -1,0 +1,10 @@
+.etiqueta-nivel {
+    padding: 0.3em 1em;
+    border-radius: 999px;
+    font-size: 0.7em;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    margin-top: 0.20em;
+}

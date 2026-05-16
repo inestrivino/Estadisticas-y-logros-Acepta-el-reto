@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { socket } from "../../services/socket.ts";
 import { DatosLogro } from "shared/LogroTypes.js";
 import { NivelLogro } from "shared/LogroConsts.js";
+import Skeleton from "../Skeleton/skeleton.tsx";
 
 const NIVEL_COLOR: Record<string, string> = {
     [NivelLogro.ORO]: "#f9c22b",
@@ -14,23 +15,23 @@ export default function LogrosRecientes(props: {
     evento: string,
     usuario: string,
     datos: DatosLogro[],
+    loading?: boolean,
 }) {
-    const [data, setData] = useState<DatosLogro[]>(props.datos);
+    //el dato base viene de las props, si llega una actualizacion por socket prevalece hasta nuevo cambio de props
+    const [socketData, setSocketData] = useState<DatosLogro[] | null>(null);
 
     useEffect(() => {
-        setData(props.datos);
-    }, [props.datos]);
-
-    useEffect(() => {
-        const handler = (nuevos: DatosLogro[]) => setData(nuevos);
+        const handler = (nuevos: DatosLogro[]) => setSocketData(nuevos);
         socket.on(props.evento, handler);
         return () => { socket.off(props.evento, handler); };
     }, [props.evento]);
 
-    const recientes = data;
+    useEffect(() => { setSocketData(null); }, [props.datos]);
+
+    const recientes = socketData ?? props.datos;
 
     return (
-        <div style={{
+        <Skeleton loading={props.loading} style={{
             width: "100%",
             height: "100%",
             background: "#D9EDF7",
@@ -47,6 +48,7 @@ export default function LogrosRecientes(props: {
                 fontWeight: 700,
                 color: "#0c527a",
                 fontSize: "0.95rem",
+                textAlign: "center",
             }}>
                 Últimos logros
             </p>
@@ -100,6 +102,6 @@ export default function LogrosRecientes(props: {
             >
                 Ver todos
             </Link>
-        </div>
+        </Skeleton>
     );
 }

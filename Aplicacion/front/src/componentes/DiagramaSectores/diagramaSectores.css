@@ -1,0 +1,101 @@
+.diagrama-sectores-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    background: #D9EDF7;
+    border: 1px solid #a6e1ff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #43555c66;
+    padding: 0.5rem 1rem 0;
+}
+
+.diagrama-sectores-cabecera {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.diagrama-sectores-cabecera-separador {
+    width: 1px;
+    align-self: stretch;
+    background: #86e7ffa8;
+}
+
+.diagrama-sectores-titulo {
+    margin: 0;
+    font-weight: 700;
+    color: #0c527a;
+    font-size: 0.95rem;
+}
+
+.diagrama-sectores-total {
+    font-family: monospace;
+    color: #2675a6;
+    font-size: 0.8rem;
+}
+
+.diagrama-sectores-total-valor {
+    color: #0c527a;
+    font-weight: 700;
+}
+
+.diagrama-sectores-chart {
+    position: relative;
+}
+
+.diagrama-sectores-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    justify-content: center;
+    margin: 5px;
+    margin-top: 14px;
+}
+
+.diagrama-sectores-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #000000;
+    font-family: monospace;
+}
+
+.diagrama-sectores-legend-punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.diagrama-sectores-legend-nombre {
+    font-weight: 1000;
+    text-transform: uppercase;
+}
+
+.diagrama-sectores-legend-valor {
+    color: #4f4f4f;
+}
+
+.diagrama-sectores-tooltip {
+    background: #D9EDF7;
+    border: 1px solid #86e7ffa8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #e8eaf2;
+}
+
+.diagrama-sectores-tooltip-titulo {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.diagrama-sectores-tooltip-cuerpo {
+    color: #a0a8c0;
+}

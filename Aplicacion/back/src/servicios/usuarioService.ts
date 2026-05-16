@@ -252,7 +252,16 @@ class UsuarioService {
     async getRachaActualEnviosCorrectos(usuario: string): Promise<number> {
         return usuarioDAO.getRachaActualEnviosCorrectos(usuario);
     }
-    
+
+    /**
+     * Devuelve la racha actual de dias consecutivos con al menos un envio del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Numero de dias consecutivos actuales con envio.
+     */
+    async getRachaActualDiasEnviosConsecutivos(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaActualDiasEnviosConsecutivos(usuario);
+    }
+
 }
 
 export default new UsuarioService();

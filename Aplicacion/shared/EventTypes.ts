@@ -15,6 +15,8 @@ export const EventType = {
   USUARIO_NUM_PROBLEMAS_RESUELTOS: "reload-numProblemasResueltos",
   USUARIO_RACHA_ACTUAL_ENVIOS_AC: "reload-rachaActualEnviosAC",
   USUARIO_RACHA_MAX_ENVIOS_AC: "reload-rachaMaxEnviosAC",
+  USUARIO_RACHA_ACTUAL_DIAS: "reload-rachaActualDias",
+  USUARIO_RACHA_MAX_DIAS: "reload-rachaMaxDias",
 
   //LOGROS USUARIO
   LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",

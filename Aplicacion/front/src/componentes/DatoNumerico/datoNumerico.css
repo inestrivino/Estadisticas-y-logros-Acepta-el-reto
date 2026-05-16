@@ -1,0 +1,70 @@
+.dato-numerico-container {
+    border: 1px solid #86e7ffa8;
+    border-radius: 12px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    background-color: #D9EDF7;
+    box-shadow: 0 0 10px #43555c66;
+}
+
+.dato-numerico-titulo {
+    margin: 0;
+    font-weight: 700;
+    color: #0c527a;
+    font-size: 0.75rem;
+}
+
+.dato-numerico-valor-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+.dato-numerico-valor {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Variante doble */
+.dato-numerico-doble-fila {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    min-height: 0;
+}
+
+.dato-numerico-doble-mitad {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.dato-numerico-doble-separador {
+    width: 1px;
+    background: #86e7ffa8;
+    margin: 0 8px;
+    margin-top: 4px;
+    align-self: stretch;
+}
+
+.dato-numerico-doble-valor {
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.dato-numerico-doble-label {
+    font-size: 12px;
+    color: #555;
+}

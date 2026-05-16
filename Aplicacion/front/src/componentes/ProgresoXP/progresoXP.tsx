@@ -4,6 +4,7 @@ import {
     Tooltip, ResponsiveContainer
 } from "recharts";
 import { socket } from "../../services/socket.ts";
+import Skeleton from "../Skeleton/skeleton.tsx";
 
 const formatearXP = (xp: number): string => {
     if (xp >= 1_000_000) return `${+(xp / 1_000_000).toFixed(1)}M`;
@@ -14,23 +15,23 @@ const formatearXP = (xp: number): string => {
 export default function ProgresoXP(props: {
     evento: string,
     datos: { mes: string, puntos: number }[],
+    loading?: boolean,
 }) {
-    const [data, setData] = useState<{ mes: string, puntos: number }[]>(props.datos);
+    //el dato base viene de las props, si llega una actualizacion por socket prevalece hasta nuevo cambio de props
+    const [socketData, setSocketData] = useState<{ mes: string, puntos: number }[] | null>(null);
 
     useEffect(() => {
-        setData(props.datos);
-    }, [props.datos]);
-
-    useEffect(() => {
-        const handler = (nuevoDatos: { mes: string, puntos: number }[]) => {
-            setData(nuevoDatos);
-        };
+        const handler = (nuevoDatos: { mes: string, puntos: number }[]) => setSocketData(nuevoDatos);
         socket.on(props.evento, handler);
         return () => { socket.off(props.evento, handler); };
     }, [props.evento]);
 
+    useEffect(() => { setSocketData(null); }, [props.datos]);
+
+    const data = socketData ?? props.datos;
+
     return (
-        <div style={{
+        <Skeleton loading={props.loading} style={{
             width: "100%",
             height: "100%",
             containerType: "inline-size",
@@ -48,6 +49,7 @@ export default function ProgresoXP(props: {
                 fontWeight: 700,
                 color: "#0c527a",
                 fontSize: "0.95rem",
+                textAlign: "center",
             }}>
                 Progreso puntos de experiencia
             </p>
@@ -89,6 +91,6 @@ export default function ProgresoXP(props: {
                 </LineChart>
             </ResponsiveContainer>
             </div>
-        </div>
+        </Skeleton>
     );
 }

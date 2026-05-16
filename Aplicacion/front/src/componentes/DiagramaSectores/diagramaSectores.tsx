@@ -1,6 +1,8 @@
-import { socket } from "../services/socket.js";
+import { socket } from "../../services/socket.js";
 import { PieChart, Pie, ResponsiveContainer, Tooltip } from "recharts";
 import { useEffect, useState, useRef } from "react";
+import Skeleton from "../Skeleton/skeleton.tsx";
+import "./diagramaSectores.css";
 
 type DataItem = {
     name: string;
@@ -15,36 +17,31 @@ interface CustomTooltipProps {
 
 export default function DiagramaSectores(props: {
     evento: string,
+    titulo: string,
     datos: { name: string; value: number }[],
     colores: string[],
     dimensiones: { width: number; height: number, outerRadius: number },
+    mostrarTotal?: boolean,
+    loading?: boolean,
 }) {
 
-    const [data, setData] = useState<DataItem[]>(() => {
-        const inicial: DataItem[] = props.datos;
-        for (let i = 0; i < inicial.length; i++) {
-            inicial[i].fill = props.colores[i % props.colores.length];
-        }
-        return inicial;
-    });
+    const mostrarTotal = props.mostrarTotal ?? false;
+
+    //el dato base viene de las props (fuente de verdad del padre tras el fetch),
+    //si llega una actualizacion por socket, prevalece sobre las props hasta que cambien
+    const [socketData, setSocketData] = useState<DataItem[] | null>(null);
 
     useEffect(() => {
-        const handler = (newDatos: DataItem[]) => {
-            setData(() => {
-                for (let i = 0; i < newDatos.length; i++) {
-                    newDatos[i].fill = props.colores[i % props.colores.length];
-                }
-                return newDatos;
-            });
-        };
-
+        const handler = (newDatos: DataItem[]) => setSocketData(newDatos);
         socket.on(props.evento, handler);
-
-        //se limpia el listener al desmontar el componente
-        return () => {
-            socket.off(props.evento, handler);
-        };
+        return () => { socket.off(props.evento, handler); };
     }, [props.evento]);
+
+    //al cambiar las props.datos (nuevo fetch del padre) se descarta lo recibido por socket previo
+    useEffect(() => { setSocketData(null); }, [props.datos]);
+
+    const baseData = socketData ?? props.datos;
+    const data: DataItem[] = baseData.map((d, i) => ({ ...d, fill: props.colores[i % props.colores.length] }));
 
     const legendRef = useRef<HTMLDivElement>(null);
     const [legendFontSize, setLegendFontSize] = useState(15);
@@ -73,37 +70,18 @@ export default function DiagramaSectores(props: {
         return () => ro.disconnect();
     }, []);
 
+    const total = data.reduce((acc, d) => acc + d.value, 0);
+
     const CustomLegend = (propsLegend: { datos: { name: string, value: number }[] }) => {
-        let total = 0;
-        for (const dato of propsLegend.datos)
-            total += dato.value;
         return (
-            <div style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "6px 12px",
-                justifyContent: "center",
-                marginTop: 14,
-                margin: 5
-            }}>
+            <div className="diagrama-sectores-legend">
                 {propsLegend.datos.map((dato, i) => (
-                    <div key={dato.name} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 5,
-                        color: "#000000",
-                        fontFamily: "monospace",
-                    }}>
-                        <div style={{
-                            width: 8, height: 8,
-                            borderRadius: "50%",
-                            background: props.colores[i],
-                            flexShrink: 0,
-                        }} />
-                        <span style={{ fontWeight: 1000, color: props.colores[i] }}>{dato.name}</span>
-                        <span style={{ color: "#4f4f4f" }}>{dato.value.toLocaleString()}</span>
+                    <div key={dato.name} className="diagrama-sectores-legend-item">
+                        <div className="diagrama-sectores-legend-punto" style={{ background: props.colores[i] }} />
+                        <span className="diagrama-sectores-legend-nombre" style={{ color: props.colores[i] }}>{dato.name}</span>
+                        <span className="diagrama-sectores-legend-valor">{dato.value.toLocaleString()}</span>
                         <span style={{ color: props.colores[i] }}>
-                            {((dato.value / total) * 100).toFixed(1)}%
+                            {total > 0 ? ((dato.value / total) * 100).toFixed(1) : "0.0"}%
                         </span>
                     </div>
                 ))}
@@ -112,31 +90,18 @@ export default function DiagramaSectores(props: {
     };
 
     const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-        //se calcula el total porque eso no lo tiene el segmento del chart
-        let total = 0;
-        for (const dato of props.datos)
-            total += dato.value;
-
         //se sacan los datos que se le pasaron a este segmento del chart
         if (!active || !payload?.length) return null;
         const { name, value, fill } = payload[0].payload;
-        const pct = ((value / total) * 100).toFixed(1);
+        const pct = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
 
-        //la estructura del tootltip 
+        //la estructura del tootltip
         return (
-            <div style={{
-                background: "#D9EDF7",
-                border: "1px solid #86e7ffa8",
-                borderRadius: 10,
-                padding: "10px 14px",
-                fontFamily: "monospace",
-                fontSize: 12,
-                color: "#e8eaf2",
-            }}>
-                <div style={{ color: fill, fontWeight: 700, marginBottom: 4 }}>
+            <div className="diagrama-sectores-tooltip">
+                <div className="diagrama-sectores-tooltip-titulo" style={{ color: fill }}>
                     {name}
                 </div>
-                <div style={{ color: "#a0a8c0" }}>
+                <div className="diagrama-sectores-tooltip-cuerpo">
                     {value.toLocaleString()} envíos&nbsp;&nbsp;
                     <span style={{ color: fill }}>{pct}%</span>
                 </div>
@@ -146,18 +111,19 @@ export default function DiagramaSectores(props: {
 
     //se renderiza el diagrama con los datos y colores asignados
     return (
-        <div className="@container w-full min-h-0 overflow-hidden" style={{
-            display: "flex",
-            flex: 1,
-            flexDirection: "column",
-            alignItems: "center",
-            minWidth: 0,
-            background: "#D9EDF7",
-            border: "1px solid #a6e1ff",
-            borderRadius: "10px",
-            boxShadow: "0 0 10px #43555c66",
-        }}>
-            <div className="flex-1 min-h-0 max-h-[60cqw] w-full">
+        <Skeleton loading={props.loading} className="diagrama-sectores-container @container w-full min-h-0 overflow-hidden">
+            <div className="diagrama-sectores-cabecera">
+                <p className="diagrama-sectores-titulo">{props.titulo}</p>
+                {mostrarTotal && (
+                    <>
+                        <div className="diagrama-sectores-cabecera-separador" />
+                        <span className="diagrama-sectores-total">
+                            total: <span className="diagrama-sectores-total-valor">{total.toLocaleString()}</span>
+                        </span>
+                    </>
+                )}
+            </div>
+            <div className="diagrama-sectores-chart flex-1 min-h-0 max-h-[60cqw] w-full">
                 {/*Dentro de un ResponsiveContainer para evitar un bug que hay con el tooltip si no se pone*/}
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -176,8 +142,8 @@ export default function DiagramaSectores(props: {
                 </ResponsiveContainer>
             </div>
             <div ref={legendRef} className="shrink-0 min-h-[30%] max-h-[40%] w-full overflow-hidden" style={{ fontSize: legendFontSize }}>
-            <CustomLegend datos={data} />
+                <CustomLegend datos={data} />
             </div>
-        </div >
+        </Skeleton>
     );
 }

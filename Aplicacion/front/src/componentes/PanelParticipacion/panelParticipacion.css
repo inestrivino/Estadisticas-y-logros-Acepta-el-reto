@@ -1,0 +1,69 @@
+.panel-participacion-container {
+    width: 100%;
+    container-type: inline-size;
+    display: inline-flex;
+    align-items: flex-start;
+    background: #D9EDF7;
+    border: 1px solid #86e7ffa8;
+    padding: 0.5cqw;
+    border-radius: 10px;
+    gap: clamp(2px, 0.5cqw, 6px);
+    box-shadow: 0 0 10px #43555c66;
+}
+
+/* mantiene la altura aproximada del panel mientras esta cargando (sin cuadrados hijos) */
+.panel-participacion-container.skeleton-wrapper {
+    aspect-ratio: 8 / 1;
+}
+
+.panel-participacion-dias {
+    display: grid;
+    grid-template-rows: repeat(7, calc((80cqw) / 53));
+    gap: 0.3cqw;
+    flex-shrink: 0;
+}
+
+.panel-participacion-dia {
+    font-size: calc((83cqw) / 53 * 0.8);
+    color: #0c527a;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.panel-participacion-grid {
+    display: grid;
+    grid-template-columns: repeat(54, calc((82cqw) / 54));
+    grid-template-rows: repeat(7, calc((82cqw) / 54));
+    gap: 0.3cqw;
+    grid-auto-flow: column;
+}
+
+.panel-participacion-celda {
+    border-radius: 20%;
+}
+
+.panel-participacion-celda-vacia {
+    background: #fbfbfb00;
+}
+
+.panel-participacion-celda-llena {
+    cursor: pointer;
+}
+
+.panel-participacion-tooltip {
+    position: fixed;
+    background: #D9EDF7;
+    border: 1px solid #86e7ffa8;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    color: #0c527a;
+    font-weight: 600;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+}

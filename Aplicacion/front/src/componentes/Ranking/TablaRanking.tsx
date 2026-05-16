@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { EventType, formatEvent } from "shared";
 import { NivelUsuario } from "shared/NivelUsuarios.ts";
 import { datoUsuario } from "./utils.ts";
-import EtiquetaNivel from "../etiquetaNivel.tsx";
+import EtiquetaNivel from "../EtiquetaNivel/etiquetaNivel.tsx";
 
 /**
  * Tabla del ranking con el listado de usuarios.

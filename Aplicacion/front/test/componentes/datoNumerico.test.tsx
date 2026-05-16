@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { setupServer } from "msw/node";
 import { describe, expect, beforeAll, afterEach, afterAll, test, vi, beforeEach } from "vitest";
 
-import DatoNumerico from "../../src/componentes/datoNumerico.tsx";
+import DatoNumerico from "../../src/componentes/DatoNumerico/datoNumerico.tsx";
 import { EventType, formatEvent } from "shared/EventTypes.ts";
 import { socket } from "../../src/services/socket.ts";
 
