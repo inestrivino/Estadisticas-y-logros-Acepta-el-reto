@@ -4,7 +4,7 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class RachasCalculador extends ActualizadorUsuario {
+class RachasActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.RACHAS;
     version = 1;
@@ -53,4 +53,4 @@ class RachasCalculador extends ActualizadorUsuario {
     }
 }
 
-export default new RachasCalculador();
+export default new RachasActualizador();

@@ -2,6 +2,7 @@ import { Logro } from "../logro.js";
 import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
+import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 /**
  * Trofeo parametrizado que se otorga al alcanzar una racha de dias consecutivos con envios.
@@ -12,10 +13,10 @@ export class TrofeoRachaDias implements Logro {
     public readonly id = 1;
     public readonly categoria = CategoriaLogro.RACHAS;
     public readonly sorpresa = false;
-    public readonly enTiempoReal = true;
 
     public readonly version = 1;
-    public readonly requiereEstadisticas = ["rachasUsuario"];
+    public readonly requiereEstadisticasUsuario = [CampoUsuario.RACHAS];
+    public readonly requiereEstadisticasProblemas = [];
 
     public readonly nombre: string;
     public readonly descripcion: string;

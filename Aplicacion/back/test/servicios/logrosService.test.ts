@@ -255,7 +255,6 @@ describe('cargarTrofeos (logros de onboarding)', () => {
 
   test('logro3: 5 logros obtenidos', async () => {
     const estado = estadoBase();
-    //solo logros enTiempoReal:false para que procesarEstado pueda otorgar logro14 y añadir el usuario al mapa
     estado.logros = new Set(['logro1', 'logro2', 'logro4', 'logro5', 'logro6']);
     logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC' }), new Map());
     await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());

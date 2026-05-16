@@ -4,10 +4,10 @@ import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 
-class NumEnviosCalculador extends ActualizadorUsuario {
+class NumEnviosActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.NUM_ENVIOS;
-    version = 3;
+    version = 1;
 
     estadoVacio(estado: EstadoUsuario): void {
         estado.numEnvios = 0;
@@ -22,4 +22,4 @@ class NumEnviosCalculador extends ActualizadorUsuario {
     }
 }
 
-export default new NumEnviosCalculador();
+export default new NumEnviosActualizador();

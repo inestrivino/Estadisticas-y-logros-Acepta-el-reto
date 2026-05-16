@@ -10,7 +10,6 @@ import LogrosRecientes from "./LogrosRecientes/logrosRecientes.js";
 import DiagramaSectores from "./diagramaSectores.js";
 import DatoNumerico from "./datoNumerico.js";
 import { DatosLogro } from "shared/LogroTypes.js";
-import { NivelLogro, CategoriaLogro } from "shared/LogroConsts.js";
 import DatoNumericoRanking from "./datoNumericoRanking.js";
 
 export default function EstadisticasUsuarioComp(props: {
@@ -29,26 +28,13 @@ export default function EstadisticasUsuarioComp(props: {
     }, [usuario]);
 
     //PROGRESO XP
-    const [progresoXP, setProgresoXP] = useState<{ mes: string, puntos: number }[]>([
-        { mes: "Ene", puntos: 310 },
-        { mes: "Feb", puntos: 400 },
-        { mes: "Mar", puntos: 430 },
-        { mes: "Abr", puntos: 520 },
-        { mes: "May", puntos: 570 },
-        { mes: "Jun", puntos: 100 },
-        { mes: "Jul", puntos: 150 },
-        { mes: "Ago", puntos: 100 },
-        { mes: "Sep", puntos: 500 },
-        { mes: "Oct", puntos: 600 },
-        { mes: "Nov", puntos: 700 },
-        { mes: "Dic", puntos: 800 },
-    ]);/*
+    const [progresoXP, setProgresoXP] = useState<{ mes: string, puntos: number }[]>([]);
     useEffect(() => {
         if (!usuario) return;
-        fetch(`/api/usuarios/${usuario}/progresoXP`)
+        fetch(`/api/usuarios/${usuario}/xpPorMes`)
             .then(response => response.json())
             .then(data => setProgresoXP(data));
-    }, [usuario]);*/
+    }, [usuario]);
 
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
@@ -60,17 +46,13 @@ export default function EstadisticasUsuarioComp(props: {
     }, [usuario]);
 
     //LOGROS RECIENTES
-    const [logrosRecientes, setLogrosRecientes] = useState<DatosLogro[]>([
-        { nombre: "Primer logro", descripcion: "Descripción del primer logro", nivel: NivelLogro.ORO, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: true },
-        { nombre: "Segundo logro", descripcion: "Descripción del segundo logro", nivel: NivelLogro.PLATA, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: false },
-        { nombre: "Tercer logro", descripcion: "Descripción del tercer logro", nivel: NivelLogro.BRONCE, imagen: "logro_placeholder.png", categoria: CategoriaLogro.CALIDAD, obtenido: true, sorpresa: false },
-    ]);/*
+    const [logrosRecientes, setLogrosRecientes] = useState<DatosLogro[]>([]);
     useEffect(() => {
         if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/logrosRecientes`)
             .then(response => response.json())
             .then(data => setLogrosRecientes(data));
-    }, [usuario]);*/
+    }, [usuario]);
 
     //LENGUAJES
     const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
@@ -118,7 +100,7 @@ export default function EstadisticasUsuarioComp(props: {
 
     return (
         <>
-            <div className="w-full lg:h-full pb-4 lg:pb-0">
+            <div className="w-full lg:h-full pb-4 lg:pb-0 lg:min-h-150">
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-1 gap-4 lg:h-full">
                     {/* Columna izquierda - 2/3 del ancho */}
                     <div className="flex flex-col lg:col-span-2 w-full gap-4 lg:h-full lg:min-h-0">
@@ -155,14 +137,14 @@ export default function EstadisticasUsuarioComp(props: {
                             {/* Progreso XP */}
                             <div className="lg:col-span-2 w-full h-full min-h-[250px] lg:min-h-0">
                                 <ProgresoXP
-                                    evento={formatEvent(String(usuario), EventType.USUARIO_PARTICIPACION)}
+                                    evento={formatEvent(String(usuario), EventType.USUARIO_EXPERIENCIA_MES)}
                                     datos={progresoXP}
                                 />
                             </div>
                             {/* Panel de ultimos Logros */}
                             <div className="w-full h-full min-h-[250px] lg:min-h-0">
                                 <LogrosRecientes
-                                    evento={formatEvent(String(usuario), EventType.LOGROS_USUARIO_CATEGORIA)}
+                                    evento={formatEvent(String(usuario), EventType.LOGROS_RECIENTES_USUARIO)}
                                     usuario={String(usuario)}
                                     datos={logrosRecientes}
                                 />
@@ -174,9 +156,8 @@ export default function EstadisticasUsuarioComp(props: {
                             <div className="shrink-0">
                                 <PanelParticipacion
                                     evento={formatEvent(String(usuario), EventType.USUARIO_PARTICIPACION)}
-                                    inicioSemana={new Date().getDay()}
                                     datos={envios}
-                                    colores={["#0c527a", "#2675a6", "#60aade", "#90c4d1", "#ffffffc2"]}
+                                    colores={["#0c527a", "#2675a6", "#60aade", "rgb(151, 214, 255)", "#ffffffc2"]}
                                 />
                             </div>
                         }

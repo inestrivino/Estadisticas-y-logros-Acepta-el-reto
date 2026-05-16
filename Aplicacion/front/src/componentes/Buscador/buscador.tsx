@@ -188,7 +188,7 @@ export default function Buscador(props: {
                     {props.prefijo && !editando ? (
                         <InputGroup.Text
                             className="buscador-app-prefijo d-flex align-items-center gap-2"
-                            style={{ flex: 1, minWidth: 0, borderRadius: "50px 0 0 50px"/*, fontSize: "clamp(1.5rem, 2vw, 10rem)" */ }}
+                            style={{ flex: 1, minWidth: 0, borderRadius: "50px 0 0 50px", fontSize: "clamp(1.5rem, 2vw, 2.25rem)" }}
                         >
                             {props.prefijo}
                         </InputGroup.Text>

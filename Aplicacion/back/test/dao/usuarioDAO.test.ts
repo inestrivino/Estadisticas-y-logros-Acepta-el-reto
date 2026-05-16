@@ -12,7 +12,7 @@ const dato = {
     problema: "p1",
     categoria: "",
     resultado: "AC",
-    lenguaje: "Cpp",
+    lenguaje: "cpp",
     fecha: 1742169600,
     hora: 10
 };
@@ -39,10 +39,10 @@ describe("Registrar datos de usuario", () => {
             [CampoUsuario.RESULTADOS]: true,
             resultados: new Map([["AC", 53]]),
             [CampoUsuario.LENGUAJES]: true,
-            lenguajes: new Set(["Cpp"]),
-            lenguajesConteo: new Map([["Cpp", 53]]),
-            lenguajesAC: new Map([["Cpp", 53]]),
-            lenguajesProblemasResueltos: new Map([["Cpp", new Set(["p1"])]]),
+            lenguajes: new Set(["cpp"]),
+            lenguajesConteo: new Map([["cpp", 53]]),
+            lenguajesAC: new Map([["cpp", 53]]),
+            lenguajesProblemasResueltos: new Map([["cpp", new Set(["p1"])]]),
             [CampoUsuario.DIAS_VALOR]: true,
             diasValor,
             [CampoUsuario.RACHAS]: true,

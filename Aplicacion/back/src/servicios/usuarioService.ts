@@ -1,23 +1,54 @@
 import usuarioDAO from '../dao/usuarioDAO.js';
 import { EstadoUsuario } from '../types/estados/estadoUsuario.js';
+import { RegistradorUsuario } from './registradores/usuarioRegistrador.js';
+import registradorEnvios from './registradores/usuarios/enviosRegistrador.js';
+import registradorRachas from './registradores/usuarios/rachasRegistrador.js';
+import registradorProblemas from './registradores/usuarios/problemasRegistrador.js';
+import registradorHoras from './registradores/usuarios/horasRegistrador.js';
+import registradorResultados from './registradores/usuarios/resultadosRegistrador.js';
+import registradorLenguajes from './registradores/usuarios/lenguajesRegistrador.js';
+import registradorDiasValor from './registradores/usuarios/diasValorRegistrador.js';
 
 class UsuarioService {
 
+    //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
+    private registradores: RegistradorUsuario[] = [
+        registradorEnvios,
+        registradorRachas,
+        registradorProblemas,
+        registradorHoras,
+        registradorResultados,
+        registradorLenguajes,
+        registradorDiasValor,
+    ];
+
     /**
-     * Registra el estado de varios usuarios en base de datos.
-     * @param estadosUsuarios - Mapa de nombre de usuario a su estado.
-     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
+     * Persiste en Redis el estado completo de cada usuario del mapa usando un pipeline.
+     * Solo se escriben los campos definidos en el estado (los `undefined` se omiten).
+     * @param estadosUsuarios - Mapa de identificador de usuario a su estado final.
      */
     async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
-        await usuarioDAO.registrarEstadosUsuarios(estadosUsuarios);
+        const pipeline = usuarioDAO.iniciarPipeline();
+
+        for (const [usuario, estado] of estadosUsuarios) {
+            for (const { id, registrar } of this.registradores)
+                if (estado[id] !== undefined)
+                    registrar(pipeline, usuario, estado);
+
+            usuarioDAO.guardarUsuario(pipeline, usuario);
+        }
+
+        await pipeline.exec();
     }
 
     /**
-     * Borra los campos de los registradores indicados para cada usuario del mapa.
+     * Borra los campos de los registradores indicados para cada usuario.
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
     async resetearCamposUsuarios(ids: Set<string>): Promise<void> {
-        await usuarioDAO.borrarEstados(ids);
+        for (const registrador of this.registradores)
+            if (ids.has(registrador.id))
+                await registrador.borrar();
     }
     
     /**
@@ -61,6 +92,14 @@ class UsuarioService {
     public async existeUsuario(usuario: string): Promise<boolean> {
         const u = usuario.toLowerCase().normalize("NFC").trim();
         return await usuarioDAO.existeUsuario(u);
+    }
+    
+    /**
+     * Devuelve todos los usuarios registrados.
+     * @returns Array con los nombres de todos los usuarios.
+     */
+    async getTodosUsuarios(): Promise<string[]> {
+        return await usuarioDAO.getTodosUsuarios();
     }
 
     /**
@@ -117,6 +156,16 @@ class UsuarioService {
      */
     async getNumProblemasLenguaje(usuario: string, lenguaje: string): Promise<number> {
         return usuarioDAO.getNumProblemasLenguaje(usuario, lenguaje);
+    }
+
+    /**
+     * Devuelve los identificadores de los problemas resueltos por el usuario en un lenguaje concreto.
+     * @param usuario - Identificador del usuario.
+     * @param lenguaje - Lenguaje de programacion a filtrar.
+     * @returns Array con los identificadores de los problemas resueltos en ese lenguaje.
+     */
+    async getProblemasLenguaje(usuario: string, lenguaje: string): Promise<string[]> {
+        return usuarioDAO.getProblemasLenguaje(usuario, lenguaje);
     }
 
     /**

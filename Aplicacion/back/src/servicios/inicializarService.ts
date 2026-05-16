@@ -10,7 +10,7 @@ type EnvioConPagina = { envio: EnvioSinProcesarInicial, numPagina: number };
 class InicializarService {
 
     //CONSTANTES
-    private tamanioBloque = 60; //numero de paginas que se acumularan antes de mandar los datos a la base de datos
+    private tamanioBloque = 50; //numero de paginas que se acumularan antes de mandar los datos a la base de datos
     private salto = 20; //resultados por pagina
     private poolSize = 20; //numero de peticiones que hay a la vez a la api
     private expected = -1; //numero de envio que se espera
@@ -23,19 +23,19 @@ class InicializarService {
     public async inicializar() {
 
         //se busca el primer envio a procesar y la pagina donde esta
-        const { envio: firstEnvio, pagina: firstPagina } = await this.buscarPrimerEnvio();
+        const { envio, pagina } = await this.buscarPrimerEnvio();
 
-        this.expected = firstEnvio;
-
+        this.expected = envio;
 
         let cola: Promise<void> = Promise.resolve();
 
-        for await (const { promesa } of this.peticiones(firstPagina, firstEnvio)) {
+        for await (const { promesa, numBloque } of this.peticiones(pagina, envio)) {
 
-            //el nuevo bloque que llega se pone al final de la cola de .then
+            //le llega la cadena de promesas a procesarBloque y le dice que cuando se procese mande el resultado a procesarEnviosService
             cola = cola.then(async () => {
                 const bloque = await promesa;
                 await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
+                console.log(` + Bloque ${numBloque} insertado en la base de datos\n`);
             });
 
         }
@@ -53,6 +53,13 @@ class InicializarService {
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionService.getUltimoEnvio();
         let referenciaPagina: number = -1;
+
+        //TODO quitar esto al final que es debug
+        /*
+        gestionDAO.flushAll();
+        ultimoEnvio = 1037429;
+        referenciaPagina = 1;
+        */
 
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {
@@ -212,7 +219,7 @@ class InicializarService {
      * @param firstEnvio - Numero del primer envio que se debe incluir en el resultado.
      * @yields Objeto con la promesa del bloque procesado listo para consumir.
      */
-    private async * peticiones(firstPagina: number, firstEnvio: number): AsyncGenerator<{promesa: Promise<EnvioConPagina[]>}> {
+    private async * peticiones(firstPagina: number, firstEnvio: number): AsyncGenerator<{promesa: Promise<EnvioConPagina[]>, numBloque: number}> {
 
         console.log(`\nComienza el procesamiento de los envios desde la pagina ${firstPagina}:`);
 
@@ -220,6 +227,7 @@ class InicializarService {
         let contadorBloque = 0;
         const enCurso = new Map<number, Promise<PaginaFetched>>();
         let promesasBloque = new Set<Promise<PaginaFetched>>();
+        let colaBloque: Promise<EnvioConPagina[]> = Promise.resolve([]);
 
         //se va pidiendo urls al generador
         for await (const { url, pagina } of this.generadorUrls(firstPagina)) {
@@ -241,17 +249,28 @@ class InicializarService {
 
             i++;
 
-            //si ya se han hecho todas las peticiones de un bloque se notifica sin pausar el fetch
+            //si ya se han hecho todas las peticiones de un bloque se encola su procesamiento
             if (i === this.tamanioBloque) {
-                yield { promesa: this.procesarBloque(firstEnvio, contadorBloque, promesasBloque)};
+                const promesasCurrent = promesasBloque;
+                const bloqueCurrent = contadorBloque;
+
+                //se encandenan los procesamientos de los bloques para que vayan en serie pero sin bloquear las peticiones
+                colaBloque = colaBloque.then(() => this.procesarBloque(firstEnvio, bloqueCurrent, promesasCurrent));
+                yield { promesa: colaBloque, numBloque: bloqueCurrent };
+
+                //se reinicia el contador de peticiones por bloque
                 promesasBloque = new Set();
                 i = 0;
                 contadorBloque++;
             }
         }
 
-        if (promesasBloque.size > 0)
-            yield { promesa: this.procesarBloque(firstEnvio, contadorBloque, promesasBloque) };
+        if (promesasBloque.size > 0) {
+            const promesasCurrent = promesasBloque;
+            const bloqueCurrent = contadorBloque;
+            colaBloque = colaBloque.then(() => this.procesarBloque(firstEnvio, bloqueCurrent, promesasCurrent));
+            yield { promesa: colaBloque, numBloque: bloqueCurrent};
+        }
 
         console.log(" * Procesamiento completado");
     }
@@ -324,7 +343,8 @@ class InicializarService {
     private async procesarBloque(
         firstEnvio: number,
         bloque: number,
-        promesasBloque: Set<Promise<PaginaFetched>>): Promise<EnvioConPagina[]> {
+        promesasBloque: Set<Promise<PaginaFetched>>
+    ): Promise<EnvioConPagina[]> {
 
         //una vez es su turno espera a que todas las peticiones a las paginas del bloque se hayan hecho
         const datosBloque = await Promise.all(promesasBloque);
@@ -353,7 +373,6 @@ class InicializarService {
                     continue;
                 }
 
-
                 //si el que llega es mayor al que se esperaba nos hemos saltado alguno
                 else if (this.expected < envio.num) {
                     console.log(`\n - Procesados del ${primerProcesadoIdx} al ${ultimoProcesadoIdx}`)
@@ -363,10 +382,10 @@ class InicializarService {
                     //se crea un array con los que nos hemos saltado
                     const envios: number[] = new Array();
                     for (let j = this.expected; j < Number(envio.num); j++)
-                        envios.push(this.expected);
+                        envios.push(j);
 
                     //se recuperan yendo hacia atras los que perdimos
-                    const recuperados = await this.recuperarEnvios(envios, numPagina + this.salto);
+                    const recuperados = await this.recuperarEnvios(envios, numPagina);
 
                     //los que se encuentran se encuentran se meten en el array de procesados
                     for (const envioRecuperado of recuperados) {
@@ -383,7 +402,7 @@ class InicializarService {
             }
         }
         console.log(`\n - Procesados del ${primerProcesadoIdx} al ${ultimoProcesadoIdx}`)
-        console.log(` + Procesado el bloque ${bloque}`);
+        console.log(` + Bloque ${bloque} procesado`);
 
         return datosProcesados;
     }
@@ -417,7 +436,7 @@ class InicializarService {
 
             pagina += this.salto;
         }
-        return recuperados;
+        return recuperados.reverse();
     }
 }
 

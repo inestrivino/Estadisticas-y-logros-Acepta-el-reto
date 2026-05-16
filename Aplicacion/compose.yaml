@@ -42,6 +42,18 @@ services:
     volumes:
       - ./redis_data:/data
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: app-redisinsight-dev
+    ports:
+      - "5540:5540"
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_USERNAME=default
+    depends_on:
+      - redis
+
   rabbitmq:
     image: rabbitmq:4-management
     restart: unless-stopped

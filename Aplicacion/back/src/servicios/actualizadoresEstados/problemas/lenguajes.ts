@@ -4,7 +4,7 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 import problemaService from "../../problemaService.js";
 
-class LenguajesCalculador extends CalculadorProblema {
+class LenguajesActualizador extends CalculadorProblema {
 
     id = CampoProblema.LENGUAJES;
     version = 1;
@@ -27,4 +27,4 @@ class LenguajesCalculador extends CalculadorProblema {
     }
 }
 
-export default new LenguajesCalculador();
+export default new LenguajesActualizador();

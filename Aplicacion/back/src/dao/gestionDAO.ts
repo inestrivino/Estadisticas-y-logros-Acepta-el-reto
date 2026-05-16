@@ -70,54 +70,14 @@ class GestionDAO extends DAO {
         return porcentaje ? Number(porcentaje) : 0;
     }
 
-    //=============================== VERSIONES Y CHECKPOINTS ===============================
-
-    /**
-     * Devuelve la version aplicada del calculador o logro indicado, o 0 si nunca se aplico.
-     * @param tipo - Prefijo del tipo: "stat" o "logro".
-     * @param id - Identificador del calculador o logro.
-     */
-    public async getVersionCalc(tipo: string, id: string): Promise<number> {
-        const v = await this.redis.get(`meta:${tipo}:${id}:version`);
-        return v ? Number(v) : 0;
-    }
-
-    /**
-     * Persiste la version aplicada del calculador o logro indicado.
-     * @param tipo - Prefijo del tipo: "stat" o "logro".
-     * @param id - Identificador del calculador o logro.
-     * @param version - Version a persistir.
-     */
-    public async setVersionCalc(tipo: string, id: string, version: number) {
-        await this.redis.set(`meta:${tipo}:${id}:version`, String(version));
-    }
-
-    /**
-     * Devuelve el numero del ultimo envio procesado por el calculador o logro indicado, o 0 si ninguno.
-     * @param tipo - Prefijo del tipo: "stat" o "logro".
-     * @param id - Identificador del calculador o logro.
-     */
-    public async getCheckpointCalc(tipo: string, id: string): Promise<number> {
-        const v = await this.redis.get(`meta:${tipo}:${id}:envio`);
-        return v ? Number(v) : 0;
-    }
-
-    /**
-     * Persiste el numero del ultimo envio procesado por el calculador o logro indicado.
-     * @param tipo - Prefijo del tipo: "stat" o "logro".
-     * @param id - Identificador del calculador o logro.
-     * @param envio - Id del ultimo envio procesado.
-     */
-    public async setCheckpointCalc(tipo: string, id: string, envio: number) {
-        await this.redis.set(`meta:${tipo}:${id}:envio`, String(envio));
-    }
+    //=============================== VERSIONES ===============================
 
     /**
      * Devuelve la version de la aplicacion almacenada en Redis, o 0 si no hay ninguna.
      * @returns Version de la aplicacion.
      */
     public async getVersion(): Promise<number> {
-        const v = await this.redis.get(`meta:app:version`);
+        const v = await this.redis.get(`app:version`);
         return v ? Number(v) : 0;
     }
 
@@ -126,7 +86,7 @@ class GestionDAO extends DAO {
      * @param version - Version de la aplicacion.
      */
     public async setVersion(version: number) {
-        await this.redis.set(`meta:app:version`, String(version));
+        await this.redis.set(`app:version`, String(version));
     }
 
     /**

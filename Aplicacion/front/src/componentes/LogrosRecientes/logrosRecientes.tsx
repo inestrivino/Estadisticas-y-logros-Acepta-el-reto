@@ -17,7 +17,6 @@ export default function LogrosRecientes(props: {
 }) {
     const [data, setData] = useState<DatosLogro[]>(props.datos);
 
-    /*
     useEffect(() => {
         setData(props.datos);
     }, [props.datos]);
@@ -27,9 +26,8 @@ export default function LogrosRecientes(props: {
         socket.on(props.evento, handler);
         return () => { socket.off(props.evento, handler); };
     }, [props.evento]);
-    */
 
-    const recientes = data.filter(l => l.obtenido).slice(0, 3);
+    const recientes = data;
 
     return (
         <div style={{
@@ -77,7 +75,7 @@ export default function LogrosRecientes(props: {
                         padding: "0.3rem 0.5rem",
                         borderLeft: `4px solid ${NIVEL_COLOR[logro.nivel] ?? "#2675a6"}`,
                     }}>
-                        <img style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxHeight: "130%", width: "auto" }}
+                        <img style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxHeight: "100%", width: "auto" }}
                             src={`/logros/${logro.imagen}`}
                             alt={logro.nombre}
                         />

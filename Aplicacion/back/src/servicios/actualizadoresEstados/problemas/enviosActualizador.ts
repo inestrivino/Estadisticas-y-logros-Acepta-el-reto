@@ -4,10 +4,10 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 import problemaService from "../../problemaService.js";
 
-class EnviosCalculador extends ActualizadorProblema {
+class EnviosActualizador extends ActualizadorProblema {
 
     id = CampoProblema.ENVIOS;
-    version = 4;
+    version = 1;
 
     estadoVacio(estado: EstadoProblema): void {
         estado.envios = 0;
@@ -26,4 +26,4 @@ class EnviosCalculador extends ActualizadorProblema {
     }
 }
 
-export default new EnviosCalculador();
+export default new EnviosActualizador();

@@ -12,7 +12,7 @@ import lenguajesUsuario from "./actualizadoresEstados/usuarios/lenguajesActualiz
 import diasValorUsuario from "./actualizadoresEstados/usuarios/diasValorActualizador.js";
 import rachasUsuario from "./actualizadoresEstados/usuarios/rachasActualizador.js";
 import horasUsuario from "./actualizadoresEstados/usuarios/horasActualizador.js";
-import logrosUsuario from "./actualizadoresEstados/usuarios/logrosActualizador.js";
+import logrosDAO from "../dao/logrosDAO.js";
 
 import enviosProblema from "./actualizadoresEstados/problemas/enviosActualizador.js";
 import resultadosProblema from "./actualizadoresEstados/problemas/resultadosActualizador.js";
@@ -22,8 +22,8 @@ import tiemposProblema from "./actualizadoresEstados/problemas/tiemposActualizad
 
 class EstadosService {
 
-    //calculadores que componen el estado del usuario
-    //para añadir un nuevo dato basta con crear un nuevo calculador y registrarlo aqui
+    //actualizadores que componen el estado del usuario
+    //para añadir un nuevo dato basta con crear un nuevo actualizador y registrarlo aqui
     private actualizadoresUsuario: ActualizadorUsuario[] = [
         numEnviosUsuario,
         problemasUsuario,
@@ -32,10 +32,9 @@ class EstadosService {
         diasValorUsuario,
         rachasUsuario,
         horasUsuario,
-        logrosUsuario,
     ];
 
-    //calculadores que componen el estado del problema
+    //actualizadores que componen el estado del problema
     private actualizadoresProblema: ActualizadorProblema[] = [
         enviosProblema,
         resultadosProblema,
@@ -44,54 +43,58 @@ class EstadosService {
     ];
 
     /**
-     * Devuelve los calculadores registrados para que otros servicios puedan consultarlos.
+     * Devuelve los actualizadores de los usuarios.
      */
-    public getActualizadores() {
-        return {
-            calculadoresUsuario: this.actualizadoresUsuario,
-            calculadoresProblema: this.actualizadoresProblema,
-        };
+    public getActualizadoresUsuarios() {
+        return this.actualizadoresUsuario
     }
 
     /**
-     * Inicializa los estados de usuarios y problemas con los datos almacenados en la base de datos.
-     * @returns Copia profunda de los estados iniciales para usarlos como referencia.
+     * Devuelve los actualizadores de los problemas.
      */
-    public async getEstadosIniciales(usuarios: Set<string>, problemas: Set<string>) {
+    public getActualizadoresProblemas() {
+        return this.actualizadoresProblema;
+    }
 
+    /**
+     * Inicializa los estados de usuario con los datos almacenados en la base de datos.
+     * @param usuarios - Conjunto de identificadores de usuario a inicializar.
+     * @returns Mapa de estado inicial por usuario.
+     */
+    public async getEstadosInicialesUsuarios(usuarios: Set<string>): Promise<Map<string, EstadoUsuario>> {
         const estadosUsuarios: Map<string, EstadoUsuario> = new Map();
-        const estadosProblemas: Map<string, EstadoProblema> = new Map();
-
-        //crea los estados vacios para los usuarios y los rellena desde la base de datos
         for (const usuario of usuarios) {
-            const estado = {};
-            for (const calculador of this.actualizadoresUsuario) {
-                calculador.inicializar(estado);
-                await calculador.cargarInicial(estado, usuario);
+            const estado: EstadoUsuario = {};
+            for (const actualizador of this.actualizadoresUsuario) {
+                actualizador.inicializar(estado);
+                await actualizador.cargarInicial(estado, usuario);
             }
             estadosUsuarios.set(usuario, estado);
         }
+        return estadosUsuarios;
+    }
 
-        //crea los estados vacios para los problemas y los rellena desde la base de datos
+    /**
+     * Inicializa los estados de problema con los datos almacenados en la base de datos.
+     * @param problemas - Conjunto de identificadores de problema a inicializar.
+     * @returns Mapa de estado inicial por problema.
+     */
+    public async getEstadosInicialesProblemas(problemas: Set<string>): Promise<Map<string, EstadoProblema>> {
+        const estadosProblemas: Map<string, EstadoProblema> = new Map();
         for (const problema of problemas) {
             const estado = {};
-            for (const calculador of this.actualizadoresProblema) {
-                calculador.inicializar(estado);
-                await calculador.cargarInicial(estado, problema);
+            for (const actualizador of this.actualizadoresProblema) {
+                actualizador.inicializar(estado);
+                await actualizador.cargarInicial(estado, problema);
             }
             estadosProblemas.set(problema, estado);
         }
-
-        //se devuelven copiados porque si no se comparten las referencias a los campos mutables de los estados con el servicio de logros
-        return {
-            estadosUsuariosIniciales: estadosUsuarios,
-            estadosProblemasIniciales: estadosProblemas
-        };
+        return estadosProblemas;
     }
 
     /**
      * Generador que actualiza los estados con cada envio y los devuelve en orden.
-     * Si se indica `checkpointsStat`, cada calculador solo procesa los envios cuyo
+     * Si se indica `checkpointsStat`, cada actualizador solo procesa los envios cuyo
      * envioId sea estrictamente mayor que su checkpoint (ya procesados se omiten).
      */
     public async * getEstadosActualizados(
@@ -113,35 +116,38 @@ class EstadosService {
                 estadoProblema = {};
 
             //USUARIOS
-            for (const calculador of this.actualizadoresUsuario) {
+            for (const actualizador of this.actualizadoresUsuario) {
 
                 //se mira si el estado tiene la informacion, si la tiene se actualiza
-                if (estadoUsuario[calculador.id as keyof EstadoUsuario] !== undefined)
-                    calculador.actualizar(estadoUsuario, envio);
+                if (estadoUsuario[actualizador.id as keyof EstadoUsuario] !== undefined)
+                    actualizador.actualizar(estadoUsuario, envio);
 
-                //si se llega al envio en el que se pasa el checkpoint del calculador se incluye la informacion en el estado
-                //esto se haria haciendo primero una llamada al cargar de la base de datos del calculador
-                else if ((checkpointsUsuarios?.get(calculador.id) ?? 0) < envio.envioId) {
-                    calculador.inicializar(estadoUsuario);
-                    await calculador.cargarInicial(estadoUsuario, envio.usuario);
-                    calculador.actualizar(estadoUsuario, envio);
+                //si se llega al envio en el que se pasa el checkpoint del actualizador se incluye la informacion en el estado
+                //esto se haria haciendo primero una llamada al cargar de la base de datos del actualizador
+                else if ((checkpointsUsuarios?.get(actualizador.id) ?? 0) < envio.envioId) {
+                    actualizador.inicializar(estadoUsuario);
+                    await actualizador.cargarInicial(estadoUsuario, envio.usuario);
+                    actualizador.actualizar(estadoUsuario, envio);
                 }
                     
             }
+            if (estadoUsuario.logros === undefined)
+                estadoUsuario.logros = new Set(await logrosDAO.getLogros(envio.usuario));
+
             estadosUsuarios.set(envio.usuario, estadoUsuario);
-                
+
             //PROBLEMAS
-            for (const calculador of this.actualizadoresProblema) {
+            for (const actualizador of this.actualizadoresProblema) {
 
                 //se mira si el estado tiene la informacion, si la tiene se actualiza
-                if (estadoProblema[calculador.id as keyof EstadoProblema] !== undefined)
-                    calculador.actualizar(estadoProblema, envio);
+                if (estadoProblema[actualizador.id as keyof EstadoProblema] !== undefined)
+                    actualizador.actualizar(estadoProblema, envio);
 
-                //si se llega al envio en el que se pasa el checkpoint del calculador se incluye la informacion en el estado
-                else if ((checkpointsProblemas?.get(calculador.id) ?? 0) < envio.envioId) {
-                    calculador.inicializar(estadoProblema);
-                    await calculador.cargarInicial(estadoProblema, envio.problema);
-                    calculador.actualizar(estadoProblema, envio);
+                //si se llega al envio en el que se pasa el checkpoint del actualizador se incluye la informacion en el estado
+                else if ((checkpointsProblemas?.get(actualizador.id) ?? 0) < envio.envioId) {
+                    actualizador.inicializar(estadoProblema);
+                    await actualizador.cargarInicial(estadoProblema, envio.problema);
+                    actualizador.actualizar(estadoProblema, envio);
                 }
                     
             }

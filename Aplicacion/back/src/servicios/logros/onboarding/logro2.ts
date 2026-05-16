@@ -1,6 +1,7 @@
 import { Logro } from "../logro.js";
 import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
+import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 const logro2: Logro = {
     id: 1,
@@ -12,9 +13,9 @@ const logro2: Logro = {
     sorpresa: false,
 
     version: 1,
-    requiereEstadisticas: ["numEnviosUsuario"],
+    requiereEstadisticasUsuario: [CampoUsuario.NUM_ENVIOS],
+    requiereEstadisticasProblemas: [],
 
-    enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio) => estadoUsuario.numEnvios! >= 1
 };

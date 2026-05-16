@@ -1,4 +1,4 @@
-import redisClient from '../../redis/redisClient.js';
+import redisClient from '../redis/redisClient.js';
 
 /**
  * Borra todas las claves de Redis que coincidan con alguno de los patrones dados.

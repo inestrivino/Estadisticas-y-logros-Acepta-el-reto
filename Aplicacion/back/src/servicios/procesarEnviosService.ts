@@ -11,6 +11,16 @@ import xpService from "./xpService.js";
 import estadosService from "./estadosService.js";
 import gestionService from "./gestionService.js";
 import checkpointsService from "./checkpointsService.js";
+import { Logro } from "./logros/logro.js";
+
+type ResultadoActualizarEstados = {
+    estadosUsuarios: Map<string, EstadoUsuario>
+    estadosProblemas: Map<string, EstadoProblema>
+    estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>>
+    nuevosLogros: Map<string, Set<Logro>>
+    nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>>
+    nuevosLogrosOrdenados: Map<string, Logro[]>
+};
 
 class ProcesarEnviosService {
 
@@ -37,7 +47,6 @@ class ProcesarEnviosService {
 
         //marca cual es ahora el ultimo envio procesado y la ultima pagina donde estaba
         await gestionService.setUltimoEnvioYPagina(enviosProcesados[enviosProcesados.length - 1].envioId, bloque[bloque.length - 1].numPagina);
-        console.log(" + Bloque insertado en la base de datos\n");
 
         //marca el nuevo porcentaje de carga completada
         const porcentaje = await gestionService.calcularPorcentajeCarga(bloque[bloque.length - 1].numPagina);
@@ -78,64 +87,79 @@ class ProcesarEnviosService {
      */
     private async procesarBloqueEnvios(enviosProcesados: EnvioProcesado[], usuarios: Set<string>, problemas: Set<string>) {
 
+        //TODO quizas separar esto en dos funciones para que quede mejor
+        
         //se cargan los checkpoints actuales de cada calculador y logro
-        const { checkpointsUsuarios, checkpointsProblemas } = await checkpointsService.cargarCheckpointsStat();
+        const { checkpointsUsuarios, checkpointsProblemas } = await checkpointsService.cargarCheckpointsStat(); //TODO separar y que esto sea una funcion cada uno
         const checkpointsLogro = await checkpointsService.cargarCheckpointsLogro();
-
-        //de los estados que van a cambiar se saca el estado actual de la base de datos
-        const {estadosUsuariosIniciales, estadosProblemasIniciales} = await estadosService.getEstadosIniciales(usuarios, problemas);
-
         const checkpoints = new Map<string, Map<string, number>>([
             ["usuarios", checkpointsUsuarios],
             ["problemas", checkpointsProblemas],
             ["logros", checkpointsLogro]
         ]);
 
-        //ACTUALIZACION DE LOS ESTADOS
+        //Se sacan los logros actuales de los usuraios y estados actuales que van a cambiar
+        const estadosUsuariosIniciales: Map<string, EstadoUsuario> = await estadosService.getEstadosInicialesUsuarios(usuarios);
+        //const estadosProblemasIniciales: Map<string, EstadoProblema> = await estadosService.getEstadosInicialesProblemas(problemas);
+        const logrosActuales: Map<string, Set<Logro>> = await logrosService.getLogros([...usuarios]);
+
+        //============ACTUALIZACION DE LOS ESTADOS============
+
+        //copia de los logrosActuales para no perder la referencia a los que se tienen al principio del bloque
+        const copiaLogrosActuales: Map<string, Set<Logro>> = new Map([...logrosActuales].map(([key, values]) => [key, new Set(values)]))
 
         //se actualizan los estados aplicando cada envio del bloque en orden, y se procesan los logros de estado global con cada envio
-        let { estadosUsuarios, estadosProblemas } = await this.actualizarEstados(enviosProcesados, checkpoints);
+        let { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints);
 
-        //SE PERSISTEN LOS TROFEOS, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
+        //SE PERSISTEN LOS logros, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
 
         const lastEnvioId = enviosProcesados[enviosProcesados.length - 1].envioId;
 
-        //se persisten los datos
+        //se persisten los datos de las estadisticas
         await usuarioService.registrarEstadosUsuarios(estadosUsuarios);
         await problemaService.registrarEstadosProblemas(estadosProblemas);
 
-        //se procesan los logros de estado global con el checkpoint del bloque para evitar reevaluar
-        await logrosService.cargarTrofeos(usuarios, estadosUsuarios, estadosProblemas, checkpointsLogro, lastEnvioId);
+        //se guardan globalmente todos los logros nuevos del bloque
+        await logrosService.guardarLogros(nuevosLogros);
+        await logrosService.guardarUltimosLogros(nuevosLogrosOrdenados);
 
-        //se procesan los xp obtenidos por cada usuario a partir de los envios y los logros obtenidos
-        await xpService.procesarBloqueEstados(estadosUsuariosIniciales, estadosUsuarios);
+        //se procesa la experiencia: xp global, xp por mes y persistencia por mes de cada
+        //estadistica registrada en xpService (envios, problemas AC, logros, ...)
+        await xpService.procesarExperiencia(estadosUsuariosIniciales, estadosUsuarios, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
         await checkpointsService.avanzarCheckpoints(checkpoints, lastEnvioId);
     }
 
     /**
-     * Actualiza los estados de usuarios y problemas aplicando los envios del bloque en orden.
-     * Ademas se procesan los logros dependientes del estado del juez en un momento concreto.
+     * Itera los envios del bloque en orden, actualizando estados y evaluando logros en tiempo real por el camino.
      * @param enviosProcesados - Array de envios ya parseados al formato interno.
      * @param checkpoints - Checkpoints actuales de cada calculador y logro para filtrar los envios ya procesados por cada uno.
-     * @returns - Estados de usuarios y problemas actualizados despues de aplicar el bloque.
+     * @returns Estados finales de usuarios y problemas tras recorrer el bloque, y los estados finales agrupados por mes.
      */
-    private async actualizarEstados(
+    private async iterarBloque(
             enviosProcesados: EnvioProcesado[],
-            checkpoints: Map<string, Map<string, number>>): Promise<{estadosUsuarios: Map<string, EstadoUsuario>, estadosProblemas: Map<string, EstadoProblema>}>
+            logrosActuales: Map<string, Set<Logro>>,
+            checkpoints: Map<string, Map<string, number>>
+        ): Promise<ResultadoActualizarEstados>
         {
 
+        //ultimo envio que proceso cada calculador
+        const checkpointsUsuarios = checkpoints.get("usuarios")!;
+        const checkpointsProblemas = checkpoints.get("problemas")!;
+        const checkpointsLogro = checkpoints.get("logros")!;
+        
         //se actualizan los estados aplicando solo los calculadores y logros cuyo checkpoint
         //sea menor que el envioId actual, los ya al dia se saltan ese envio
         let envio: EnvioProcesado = enviosProcesados[0];
         let estadosUsuarios: Map<string, EstadoUsuario> = new Map();
         let estadosProblemas: Map<string, EstadoProblema> = new Map();
 
-        //ultimo envio que proceso cada calculador
-        const checkpointsUsuarios = checkpoints.get("usuarios")!;
-        const checkpointsProblemas = checkpoints.get("problemas")!;
-        const checkpointsLogro = checkpoints.get("logros")!;
+        //se guardan los meses que hayan cambiado de experiencia con este bloque de envios
+        const estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>> = new Map();
+        const nuevosLogros: Map<string, Set<Logro>> = new Map();
+        const nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>> = new Map();
+        const nuevosLogrosOrdenados: Map<string, Logro[]> = new Map();
 
         for await ({ estadosUsuarios, estadosProblemas, envio } of estadosService.getEstadosActualizados(
             enviosProcesados,
@@ -144,15 +168,39 @@ class ProcesarEnviosService {
             estadosUsuarios,
             estadosProblemas
         )) {
-            logrosService.procesarEstado(
-                estadosUsuarios.get(envio.usuario) as EstadoUsuario,
-                estadosProblemas.get(envio.problema) as EstadoProblema,
-                envio,
-                checkpointsLogro
+
+            const nuevoslogroEnvio = logrosService.comprobarLogros(
+                { checkpointsLogro, logrosActuales, estadosUsuarios, estadosProblemas, envio }
             );
+
+            //se acumulan globalmente todos los logros nuevos independientemente de la fecha
+            for (const [usuario, logros] of nuevoslogroEnvio) {
+                if (!nuevosLogros.has(usuario)) nuevosLogros.set(usuario, new Set());
+                if (!nuevosLogrosOrdenados.has(usuario)) nuevosLogrosOrdenados.set(usuario, []);
+                for (const logro of logros) {
+                    nuevosLogros.get(usuario)!.add(logro);
+                    nuevosLogrosOrdenados.get(usuario)!.push(logro);
+                }
+            }
+
+            //se guarda el estado final del mes si es uno de los ultimos meses
+            const hoy = new Date().setUTCHours(0,0,0,0);
+            const haceUnAnio = hoy.valueOf() / 1000 - 365 * 24 * 60 * 60;
+            if (envio.fecha >= haceUnAnio) {
+
+                estadosFinalesPorMes.set(envio.mes, structuredClone(estadosUsuarios));
+
+                if (!nuevosLogrosPorMes.has(envio.mes))
+                    nuevosLogrosPorMes.set(envio.mes, new Map());
+                const meslogros = nuevosLogrosPorMes.get(envio.mes)!;
+                for (const [usuario, logros] of nuevoslogroEnvio) {
+                    if (!meslogros.has(usuario)) meslogros.set(usuario, new Set());
+                    for (const logro of logros) meslogros.get(usuario)!.add(logro);
+                }
+            }
         }
 
-        return { estadosUsuarios, estadosProblemas };
+        return { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados };
     }
 
     /**
@@ -172,16 +220,17 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.num,
-            usuario: envio.user.nick.toLowerCase().normalize("NFC").trim(),
-            problema: envio.problem.title.toLowerCase().normalize("NFC").trim(),
+            usuario: this.normalizar(envio.user.nick),
+            problema: this.normalizar(envio.problem.title),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.result,
-            lenguaje: envio.language,
+            lenguaje: this.normalizar(envio.language),
             tiempo: envio.executionTime,
-            memoria: envio.memoryUser, //TODO diria que esto no lo usamos en ningun momento
-            pos: envio.ranking, //TODO diria que esto tampoco
+            memoria: envio.memoryUser, //esto no lo usamos se deja por si se necesitara en el futuro
+            pos: envio.ranking, //esto no lo usamos se deja por si se necesitara en el futuro
             fecha: inicioDia.getTime() / 1000,
-            hora: fecha.getUTCHours()
+            hora: fecha.getUTCHours(),
+            mes: fecha.getUTCMonth()
         };
 
         return envioProcesado;
@@ -203,19 +252,30 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.sid,
-            usuario: envio.nick.toLowerCase().normalize("NFC").trim(),
-            problema: problema.title.toLowerCase().normalize("NFC").trim(),
+            usuario: this.normalizar(envio.nick),
+            problema: this.normalizar(problema.title),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.ver,
-            lenguaje: envio.lan,
+            lenguaje: this.normalizar(envio.lan),
             tiempo: envio.run / 1000,
-            memoria: envio.mem, //TODO diria que esto no lo usamos en ningun momento
-            pos: envio.rank, //TODO diria que esto tampoco
+            memoria: envio.mem, //esto no lo usamos se deja por si se necesitara en el futuro
+            pos: envio.rank,//esto no lo usamos se deja por si se necesitara en el futuro
             fecha: inicioDia.getTime() / 1000,
-            hora: fecha.getUTCHours()
+            hora: fecha.getUTCHours(),
+            mes: fecha.getUTCMonth()
         };
 
         return envioProcesado;
+    }
+
+    /**
+     * Normaliza una cadena de texto pasandola a minusculas, quitando tildes y otros
+     * diacriticos, y recortando los espacios laterales.
+     * @param texto - Cadena de texto a normalizar.
+     * @returns Cadena normalizada.
+     */
+    private normalizar(texto: string): string {
+        return texto.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
     }
 }
 

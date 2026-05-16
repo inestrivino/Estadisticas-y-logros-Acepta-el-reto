@@ -1,5 +1,7 @@
 import redisClient from '../redis/redisClient.js';
 
+export type Pipeline = ReturnType<typeof redisClient.multi>;
+
 export default abstract class DAO {
     protected redis;
 

@@ -5,8 +5,7 @@ export const CampoUsuario = {
     HORAS:      'horasUsuario',
     RESULTADOS: 'resultadosUsuario',
     LENGUAJES:  'lenguajesUsuario',
-    DIAS_VALOR: 'diasValorUsuario',
-    LOGROS:     'logrosUsuario',
+    DIAS_VALOR: 'diasValorUsuario'
 } as const;
 
 export type CampoUsuarioKey = typeof CampoUsuario[keyof typeof CampoUsuario];
