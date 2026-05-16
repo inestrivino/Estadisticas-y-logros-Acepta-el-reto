@@ -14,6 +14,7 @@ export default function EstadisticasProblema() {
     useEffect(() => {
         if (!problema) return;
 
+        setProblemaExiste(null);
         fetch(`/api/problemas/${problema}`)
             .then(res => res.json())
             .then(data => {
@@ -29,7 +30,7 @@ export default function EstadisticasProblema() {
     return (
         <PlantillaBusqueda
             hasResult={problemaExiste === true}
-            mensajeDeNoEncontrado={!problemaExiste && problema !== "" ? `El problema "${problema}" no existe` : ""}
+            mensajeDeNoEncontrado={problemaExiste === false && problema !== "" ? `El problema "${problema}" no existe` : ""}
             tituloBusqueda="Estadísticas de problemas"
             descripcion="Aquí podrás buscar cualquier problema de ¡Acepta el reto! y observar sus estadísticas"
             buscador={

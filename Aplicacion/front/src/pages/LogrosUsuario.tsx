@@ -18,7 +18,7 @@ export default function LogrosUsuario() {
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
     useEffect(() => {
         if (!usuario) return;
-
+        setUsuarioExiste(null);
         fetch(`/api/usuarios/${usuario}`)
             .then(res => res.json())
             .then(data => {
@@ -53,7 +53,7 @@ export default function LogrosUsuario() {
     return (
         <PlantillaBusqueda
             hasResult={usuarioExiste === true}
-            mensajeDeNoEncontrado={!usuarioExiste && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
+            mensajeDeNoEncontrado={usuarioExiste === false && usuario !== "" ? `El usuario "${usuario}" no existe` : ""}
             tituloBusqueda="Logros de usuarios"
             descripcion="Aquí podrás buscar cualquier usuario de ¡Acepta el reto! y observar sus logros alcanzados"
             buscador={

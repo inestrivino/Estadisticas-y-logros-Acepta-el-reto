@@ -51,19 +51,19 @@ export default function Sidebar() {
 
   const links = (
     <>
-      <Nav.Link as={NavLink} className="app-nav-link" to="/">
+      <Nav.Link as={NavLink} className="app-nav-link" to="/" onClick={handleClose}>
         <FontAwesomeIcon icon={faHouseChimney} />Inicio</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas"}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={"/problemas"} onClick={handleClose}>
         <FontAwesomeIcon icon={faChartPie} />Estadísticas ejercicios</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/estadisticas`} onClick={handleClose}>
         <FontAwesomeIcon icon={faChartLine} />Estadísticas usuario</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros`}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={`/usuarios/logros`} onClick={handleClose}>
         <FontAwesomeIcon icon={faAward} />Logros</Nav.Link>
 
-      <Nav.Link as={NavLink} className="app-nav-link" to={rutaRanking}>
+      <Nav.Link as={NavLink} className="app-nav-link" to={rutaRanking} onClick={handleClose}>
         <FontAwesomeIcon icon={faTableList} />Tabla de clasificación</Nav.Link>
 
     </>

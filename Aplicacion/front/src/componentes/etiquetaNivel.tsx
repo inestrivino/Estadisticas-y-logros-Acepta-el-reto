@@ -42,6 +42,6 @@ export default function EtiquetaNivel(props: {
     }
 
     return (
-        <Badge className="ms-2" style={{ backgroundColor: colorDelNivel(nivel) }}>{nivel}</Badge>
+        <Badge className="ms-2" bg="" style={{ backgroundColor: colorDelNivel(nivel) }}>{nivel}</Badge>
     );
 }
