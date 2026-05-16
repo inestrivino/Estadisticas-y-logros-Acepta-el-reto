@@ -1,5 +1,5 @@
 import { NivelUsuario } from "shared/NivelUsuarios.ts";
-import { NIVELES_FILTRO, colorDelNivel } from "./utils.ts";
+import { NIVELES_FILTRO, colorDelNivel, colorTextoDelNivel } from "./utils.ts";
 
 /**
  * Chips para filtrar el ranking por nivel. Incluye un boton extra para filtrar
@@ -29,7 +29,7 @@ export default function FiltrosNivel(props: {
                     style={{
                         marginRight: "1rem",
                         //si esta activo, se pinta con el color del nivel correspondiente
-                        ...(activoNivelUsuario && { background: colorDelNivel(nivelUsuario), borderColor: colorDelNivel(nivelUsuario), color: "#fff" }),
+                        ...(activoNivelUsuario && { background: colorDelNivel(nivelUsuario), borderColor: colorDelNivel(nivelUsuario), color: colorTextoDelNivel(nivelUsuario) }),
                     }}
                 >
                     {sinUsuario ? "—" : usuario}
@@ -40,7 +40,7 @@ export default function FiltrosNivel(props: {
                         key={nivel.value || "todos"}
                         className={`ranking-chip ${nivelActual === nivel.value ? "activo" : ""}`}
                         onClick={() => onCambio(nivel.value)}
-                        style={nivel.value && nivelActual === nivel.value ? { background: colorDelNivel(nivel.value), borderColor: colorDelNivel(nivel.value), color: "#fff" } : undefined}
+                        style={nivel.value && nivelActual === nivel.value ? { background: colorDelNivel(nivel.value), borderColor: colorDelNivel(nivel.value), color: colorTextoDelNivel(nivel.value) } : undefined}
                     >
                         {nivel.label}
                     </button>

@@ -1,7 +1,7 @@
 import { EventType, formatEvent } from "shared";
 import { NivelUsuario } from "shared/NivelUsuarios.ts";
 import Buscador from "../Buscador/buscador.tsx";
-import EtiquetaNivel from "../etiquetaNivel.tsx";
+import EtiquetaNivel from "../EtiquetaNivel/etiquetaNivel.tsx";
 
 /**
  * Buscador del ranking de usuarios. Cuando se busca un usuario, llama a `onResultado`

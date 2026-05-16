@@ -4,8 +4,8 @@ import Badge from 'react-bootstrap/Badge';
 
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
-import EstadisticasUsuarioComp from "../componentes/estadisticasUsuarioComp";
-import EtiquetaNivel from "../componentes/etiquetaNivel";
+import EstadisticasUsuarioComp from "../componentes/EstadisticasUsuarioComp/estadisticasUsuarioComp";
+import EtiquetaNivel from "../componentes/EtiquetaNivel/etiquetaNivel";
 import { EventType, formatEvent } from "shared";
 import { NivelUsuario } from "shared/NivelUsuarios";
 

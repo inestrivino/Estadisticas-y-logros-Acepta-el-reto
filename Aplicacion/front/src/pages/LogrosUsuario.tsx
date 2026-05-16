@@ -5,7 +5,7 @@ import Badge from 'react-bootstrap/Badge';
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
 import LogrosUsuarioComp from "../componentes/LogrosUsuarioComp/logrosUsuarioComp";
-import EtiquetaNivel from "../componentes/etiquetaNivel";
+import EtiquetaNivel from "../componentes/EtiquetaNivel/etiquetaNivel";
 import { EventType, formatEvent } from "shared";
 import { NivelUsuario } from "shared/NivelUsuarios";
 
