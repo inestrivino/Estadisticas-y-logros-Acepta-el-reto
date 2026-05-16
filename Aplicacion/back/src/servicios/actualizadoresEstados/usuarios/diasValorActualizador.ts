@@ -7,7 +7,7 @@ import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 class DiasValorActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.DIAS_VALOR;
-    version = 2;
+    version = 1;
 
     estadoVacio(estado: EstadoUsuario): void {
         estado.diasValor = new Map();

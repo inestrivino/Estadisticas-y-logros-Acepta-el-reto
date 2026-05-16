@@ -1,55 +1,218 @@
 import DAO from "./DAO.js";
-import { RegistradorUsuario } from "./registradores/usuarioRegistradorInterface.js";
-import registradorEnvios from "./registradores/usuarios/enviosRegistrador.js";
-import registradorRachas from "./registradores/usuarios/rachasRegistrador.js";
-import registradorProblemas from "./registradores/usuarios/problemasRegistrador.js";
-import registradorHoras from "./registradores/usuarios/horasRegistrador.js";
-import registradorResultados from "./registradores/usuarios/resultadosRegistrador.js";
-import registradorLenguajes from "./registradores/usuarios/lenguajesRegistrador.js";
-import registradorDiasValor from "./registradores/usuarios/diasValorRegistrador.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
+import { borrarPatrones } from "./borrarPatrones.js";
+import { Pipeline } from "./DAO.js"
 
 class UsuarioDAO extends DAO {
 
-    //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
-    private registradores: RegistradorUsuario[] = [
-        registradorEnvios,
-        registradorRachas,
-        registradorProblemas,
-        registradorHoras,
-        registradorResultados,
-        registradorLenguajes,
-        registradorDiasValor,
-    ];
+    //============================== PIPELINE ==============================
 
     /**
-     * Persiste en Redis el estado completo de cada usuario del mapa usando un pipeline.
-     * Si se indica `statsActivos`, solo se escriben los campos de esos calculadores;
-     * si no se indica se escriben todos.
-     * @param estadosUsuarios - Mapa de identificador de usuario a su estado final.
-     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
+     * Crea un nuevo pipeline (transaccion MULTI) de Redis para batchear escrituras.
+     * @returns Pipeline listo para acumular comandos antes de ejecutar con `exec()`.
      */
-    public async registrarEstadosUsuarios(estadosUsuarios: Map<string, EstadoUsuario>): Promise<void> {
-        const pipeline = this.redis.multi();
+    public iniciarPipeline(): Pipeline {
+        return this.redis.multi();
+    }
 
-        for (const [usuario, estado] of estadosUsuarios) {
-            for (const { id, registrar } of this.registradores)
-                if (estado[id] !== undefined)
-                    registrar(pipeline, usuario, estado);
-            
-            pipeline.zAdd(`usuarios`, { score: 0, value: usuario });
-         }       
-        await pipeline.exec();
+    //============================== REGISTRO DE USUARIO ==============================
+
+    /**
+     * Anade el identificador del usuario al indice global de usuarios.
+     * @param pipeline - Pipeline donde encolar el comando.
+     * @param usuario - Identificador del usuario.
+     */
+    public guardarUsuario(pipeline: Pipeline, usuario: string): void {
+        pipeline.zAdd(`usuarios`, { score: 0, value: usuario });
+    }
+
+    //============================== GUARDAR CAMPOS ==============================
+
+    /**
+     * Encola en el pipeline el guardado del numero de envios del usuario.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con el campo `numEnvios`.
+     */
+    public guardarEnvios(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        pipeline.set(`usuario:${usuario}:envios`, String(estado.numEnvios));
     }
 
     /**
-     * Borra todos los datos de Redis de los registradores cuyos ids se indiquen.
-     * @param ids - Conjunto de ids de registradores cuyos datos hay que borrar.
+     * Encola en el pipeline el guardado de las rachas del usuario (envios AC y dias).
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con los campos de racha.
      */
-    public async borrarEstados(ids: Set<string>): Promise<void> {
-        for (const registrador of this.registradores)
-            if (ids.has(registrador.id))
-                await registrador.borrar();
+    public guardarRachas(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
+        pipeline.set(`usuario:${usuario}:rachaEnviosAC`,    String(estado.rachaEnviosAC));
+        pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, String(estado.rachaEnviosACMax));
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvio`,   String(estado.rachaDiasEnvio));
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`,String(estado.rachaDiasEnvioMax));
+    }
+
+    /**
+     * Encola en el pipeline el guardado del set de problemas resueltos por el usuario.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con el campo `problemasAC`.
+     */
+    public guardarProblemas(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        if (estado.problemasAC!.size > 0)
+            pipeline.sAdd(`usuario:${usuario}:problemasAC`, Array.from(estado.problemasAC!));
+    }
+
+    /**
+     * Encola en el pipeline el guardado de las horas del dia en las que el usuario ha enviado.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con el campo `horas`.
+     */
+    public guardarHoras(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        if (estado.horas!.size > 0)
+            pipeline.sAdd(`usuario:${usuario}:horas`, Array.from(estado.horas!).map(String));
+    }
+
+    /**
+     * Encola en el pipeline el guardado del conteo de resultados del usuario.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con el campo `resultados`.
+     */
+    public guardarResultados(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        const datos: Record<string, string> = {};
+        for (const [k, v] of estado.resultados!)
+            datos[k] = String(v);
+        if (Object.keys(datos).length > 0)
+            pipeline.hSet(`usuario:${usuario}:resultados`, datos);
+    }
+
+    /**
+     * Encola en el pipeline el guardado de los conteos de lenguajes, lenguajes AC
+     * y problemas resueltos por lenguaje del usuario.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con los campos de lenguajes.
+     */
+    public guardarLenguajes(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        const conteo: Record<string, string> = {};
+        for (const [k, v] of estado.lenguajesConteo!)
+            conteo[k] = String(v);
+        if (Object.keys(conteo).length > 0)
+            pipeline.hSet(`usuario:${usuario}:lenguajes`, conteo);
+
+        const ac: Record<string, string> = {};
+        for (const [k, v] of estado.lenguajesAC!)
+            ac[k] = String(v);
+        if (Object.keys(ac).length > 0)
+            pipeline.hSet(`usuario:${usuario}:lenguajesAC`, ac);
+
+        for (const [lenguaje, problemas] of estado.lenguajesProblemasResueltos!) {
+            if (problemas.size > 0)
+                pipeline.sAdd(`usuario:${usuario}:lenguaje:${lenguaje}`, Array.from(problemas));
+        }
+    }
+
+    /**
+     * Encola en el pipeline el guardado del historial de envios por dia del usuario,
+     * actualizando los indices auxiliares de timestamps.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param usuario - Identificador del usuario.
+     * @param estado - Estado del usuario con el campo `diasValor`.
+     */
+    public guardarDiasValor(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
+        for (const [ts, cantidad] of estado.diasValor!) {
+            pipeline.hSet(`usuario:${usuario}:diasValor`, String(ts), String(cantidad));
+            pipeline.zAdd(`usuario:${usuario}:dias`, [{ score: ts, value: String(ts) }]);
+            pipeline.sAdd(`timestamp:${ts}`, String(usuario));
+            pipeline.zAdd(`timestamps`, [{ score: ts, value: String(ts) }]);
+        }
+    }
+
+    //============================== GUARDAR CAMPOS POR MES ==============================
+
+    /**
+     * Encola en el pipeline el incremento del numero de envios del usuario en el mes indicado.
+     * @param pipeline - Pipeline donde encolar el comando.
+     * @param usuario - Identificador del usuario.
+     * @param mes - Mes (0-11) al que pertenece el incremento.
+     * @param enviosNuevos - Numero de envios a sumar al contador del mes.
+     */
+    public registrarNumEnviosMes(pipeline: Pipeline, usuario: string, mes: number, enviosNuevos: number): void {
+        pipeline.zIncrBy(`usuario:numEnvios:mes:${mes}`, enviosNuevos, usuario);
+    }
+
+    /**
+     * Encola en el pipeline el guardado de los problemas resueltos con AC por el usuario en el mes indicado.
+     * @param pipeline - Pipeline donde encolar el comando.
+     * @param usuario - Identificador del usuario.
+     * @param mes - Mes (0-11) al que pertenecen los problemas.
+     * @param nuevos - Lista de identificadores de problema resueltos en ese mes.
+     */
+    public registrarProblemasACMes(pipeline: Pipeline, usuario: string, mes: number, nuevos: string[]): void {
+        pipeline.sAdd(`usuario:${usuario}:problemasAC:mes:${mes}`, nuevos);
+    }
+
+    //============================== BORRAR CAMPOS ==============================
+
+    /**
+     * Borra de Redis las claves del numero de envios de todos los usuarios.
+     */
+    public async borrarEnvios(): Promise<void> {
+        await borrarPatrones(['usuario:*:envios']);
+    }
+
+    /**
+     * Borra de Redis las claves de rachas (envios AC y dias) de todos los usuarios.
+     */
+    public async borrarRachas(): Promise<void> {
+        await borrarPatrones([
+            'usuario:*:fechaUltimoEnvio',
+            'usuario:*:rachaEnviosAC',
+            'usuario:*:rachaEnviosACMax',
+            'usuario:*:rachaDiasEnvio',
+            'usuario:*:rachaDiasEnvioMax',
+        ]);
+    }
+
+    /**
+     * Borra de Redis las claves de problemas resueltos de todos los usuarios.
+     */
+    public async borrarProblemas(): Promise<void> {
+        await borrarPatrones(['usuario:*:problemasAC']);
+    }
+
+    /**
+     * Borra de Redis las claves de horas de envios de todos los usuarios.
+     */
+    public async borrarHoras(): Promise<void> {
+        await borrarPatrones(['usuario:*:horas']);
+    }
+
+    /**
+     * Borra de Redis las claves del conteo de resultados de todos los usuarios.
+     */
+    public async borrarResultados(): Promise<void> {
+        await borrarPatrones(['usuario:*:resultados']);
+    }
+
+    /**
+     * Borra de Redis las claves de lenguajes (conteo, AC y problemas por lenguaje) de todos los usuarios.
+     */
+    public async borrarLenguajes(): Promise<void> {
+        await borrarPatrones([
+            'usuario:*:lenguajes',
+            'usuario:*:lenguajesAC',
+            'usuario:*:lenguaje:*',
+        ]);
+    }
+
+    /**
+     * Borra de Redis las claves del historial de envios por dia de todos los usuarios.
+     */
+    public async borrarDiasValor(): Promise<void> {
+        await borrarPatrones(['usuario:*:diasValor', 'usuario:*:dias']);
     }
 
     ////============================== MODIFICADORES ==============================

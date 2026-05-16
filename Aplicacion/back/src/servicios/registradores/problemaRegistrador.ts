@@ -1,15 +1,13 @@
-import redisClient from '../../redis/redisClient.js';
 import { EstadoProblema } from '../../types/estados/estadoProblema.js';
 import { CampoProblemaKey } from '../../types/estados/camposEstadoProblema.js';
-
-export type Pipeline = ReturnType<typeof redisClient.multi>;
+import { Pipeline } from '../../dao/problemaDAO.js';
 
 export interface RegistradorProblema {
 
     //centinela del calculador cuyos campos persiste este registrador
     id: CampoProblemaKey;
 
-    //escribe en el pipeline las claves de Redis correspondientes al estado del problema
+    //encola en el pipeline el guardado del campo gestionado por este registrador
     registrar(pipeline: Pipeline, problema: string, estado: EstadoProblema): void;
 
     //borra todas las claves de Redis que gestiona este registrador

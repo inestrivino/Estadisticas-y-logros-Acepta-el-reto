@@ -7,7 +7,7 @@ import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 class NumEnviosActualizador extends ActualizadorUsuario {
 
     id = CampoUsuario.NUM_ENVIOS;
-    version = 3;
+    version = 1;
 
     estadoVacio(estado: EstadoUsuario): void {
         estado.numEnvios = 0;

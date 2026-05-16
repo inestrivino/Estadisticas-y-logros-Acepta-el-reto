@@ -7,7 +7,7 @@ import problemaService from "../../problemaService.js";
 class EnviosActualizador extends ActualizadorProblema {
 
     id = CampoProblema.ENVIOS;
-    version = 4;
+    version = 1;
 
     estadoVacio(estado: EstadoProblema): void {
         estado.envios = 0;

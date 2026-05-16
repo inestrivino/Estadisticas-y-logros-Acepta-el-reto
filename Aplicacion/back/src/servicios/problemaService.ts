@@ -1,24 +1,48 @@
 import problemaDAO from '../dao/problemaDAO.js';
 import { EstadoProblema } from '../types/estados/estadoProblema.js';
+import { RegistradorProblema } from './registradores/problemaRegistrador.js';
+import registradorEnvios from './registradores/problemas/enviosRegistrador.js';
+import registradorTiempos from './registradores/problemas/tiemposRegistrador.js';
+import registradorResultados from './registradores/problemas/resultadosRegistrador.js';
+import registradorLenguajes from './registradores/problemas/lenguajesRegistrador.js';
 
 class ProblemaService {
-   
+
+    //para añadir un nuevo campo basta con crear un nuevo registrador y añadirlo aqui
+    private registradores: RegistradorProblema[] = [
+        registradorEnvios,
+        registradorTiempos,
+        registradorResultados,
+        registradorLenguajes,
+    ];
+
     /**
-     * Persiste el estado final de un bloque de problemas en Redis.
+     * Persiste en Redis el estado completo de cada problema del mapa usando un pipeline.
+     * Solo se escriben los campos definidos en el estado (los `undefined` se omiten).
      * @param estadosProblemas - Mapa de identificador de problema a su estado final.
-     * @param statsActivos - Conjunto opcional de ids de calculadores cuyos campos hay que persistir.
      */
-    public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>) {
-        return await problemaDAO.registrarEstadosProblemas(estadosProblemas);
+    public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
+        const pipeline = problemaDAO.iniciarPipeline();
+
+        for (const [problema, estado] of estadosProblemas) {
+            for (const { id, registrar } of this.registradores)
+                if (estado[id] !== undefined)
+                    registrar(pipeline, problema, estado);
+
+            problemaDAO.guardarProblema(pipeline, problema);
+        }
+
+        await pipeline.exec();
     }
 
     /**
-     * Borra los campos de los registradores indicados para cada problema del mapa.
-     * @param estadosProblemas - Mapa de identificador de problema a su estado.
+     * Borra los campos de los registradores indicados para cada problema.
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
     public async resetearCamposProblemas(ids: Set<string>): Promise<void> {
-        await problemaDAO.borrarEstados(ids);
+        for (const registrador of this.registradores)
+            if (ids.has(registrador.id))
+                await registrador.borrar();
     }
 
     //============================== CONSULTAS ==============================

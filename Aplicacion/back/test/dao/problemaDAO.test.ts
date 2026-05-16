@@ -75,20 +75,20 @@ describe("Registrar estado de un problema", () => {
 
     test("guarda los lenguajes", async () => {
         const estado = estadoBase();
-        estado.lenguajes!.set("Cpp", 2);
+        estado.lenguajes!.set("cpp", 2);
         await registrar(estado);
         const lenguajes = await problemaDAO.getLenguajes(PROBLEMA);
-        expect(lenguajes).toContainEqual({ name: "Cpp", value: 2 });
+        expect(lenguajes).toContainEqual({ name: "cpp", value: 2 });
     });
 
     test("devuelve los lenguajes ordenados alfabeticamente", async () => {
         const estado = estadoBase();
-        estado.lenguajes!.set("Python", 3);
-        estado.lenguajes!.set("Java", 1);
+        estado.lenguajes!.set("python", 3);
+        estado.lenguajes!.set("java", 1);
         await registrar(estado);
         const lenguajes = await problemaDAO.getLenguajes(PROBLEMA);
-        expect(lenguajes[0].name).toBe("Java");
-        expect(lenguajes[1].name).toBe("Python");
+        expect(lenguajes[0].name).toBe("java");
+        expect(lenguajes[1].name).toBe("python");
     });
 
     test("guarda el numero de envios AC", async () => {
