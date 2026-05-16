@@ -3,6 +3,7 @@ import { socket } from "../../services/socket.ts";
 import { useState, useEffect } from "react";
 import Skeleton from "../Skeleton/skeleton.tsx";
 import "./datoNumerico.css";
+import { Link } from "react-router-dom";
 
 /**
  * Variante de DatoNumerico para la posicion en el ranking del usuario. Antepone
@@ -44,7 +45,9 @@ export default function DatoNumericoRanking(props: {
             <Skeleton loading={props.loading} className="dato-numerico-container" style={alturaStyle}>
                 <p className="dato-numerico-titulo">{props.dato.description}</p>
                 <div className="dato-numerico-valor-wrapper">
-                    <div className="dato-numerico-valor"># {data}</div>
+                    <Link to="/usuarios/ranking" style={{ textDecoration: "none", color: "inherit" }}>
+                        <div className="dato-numerico-valor"># {data}</div>
+                    </Link>                    
                 </div>
             </Skeleton>
         </div>
