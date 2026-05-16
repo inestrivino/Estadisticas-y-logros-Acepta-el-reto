@@ -7,15 +7,7 @@ import { EstadisticaExperiencia } from "./experiencia/estadistica.js";
 import { enviosEstadistica } from "./experiencia/estadisticas/envios.js";
 import { problemasACEstadistica } from "./experiencia/estadisticas/problemasAC.js";
 import { logrosEstadistica } from "./experiencia/estadisticas/logros.js";
-
-export enum NivelUsuario {
-    APRENDIZ = "Aprendiz",
-    COMPETENTE = "Competente",
-    HABIL = "Hábil",
-    ESPECIALISTA = "Especialista",
-    MAESTRO = "Maestro",
-    SIN_NIVEL = ""
-}
+import { NivelUsuario } from "shared/NivelUsuarios.ts";
 
 class XPService {
 
@@ -235,7 +227,7 @@ class XPService {
             if (xp <= 500) return NivelUsuario.COMPETENTE;
             if (xp <= 1000) return NivelUsuario.HABIL;
             if (xp <= 2000) return NivelUsuario.ESPECIALISTA;
-            return NivelUsuario.MAESTRO;
+            return NivelUsuario.PROFESIONAL;
         }
         return NivelUsuario.SIN_NIVEL;
     }
@@ -251,7 +243,7 @@ class XPService {
             case NivelUsuario.COMPETENTE: return { iniXP: 101, finXP: 500 };
             case NivelUsuario.HABIL: return { iniXP: 501, finXP: 1000 };
             case NivelUsuario.ESPECIALISTA: return { iniXP: 1001, finXP: 2000 };
-            case NivelUsuario.MAESTRO: return { iniXP: 2001, finXP: Number.MAX_VALUE };
+            case NivelUsuario.PROFESIONAL: return { iniXP: 2001, finXP: Number.MAX_VALUE };
             default: return { iniXP: Number.MIN_VALUE, finXP: Number.MAX_VALUE };
         }
     }

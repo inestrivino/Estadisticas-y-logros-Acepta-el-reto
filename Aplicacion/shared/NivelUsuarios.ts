@@ -3,6 +3,6 @@ export enum NivelUsuario {
   COMPETENTE = "Competente",
   HABIL = "Hábil",
   ESPECIALISTA = "Especialista",
-  MAESTRO = "Maestro",
+  PROFESIONAL = "Profesional",
   SIN_NIVEL = ""
 }
