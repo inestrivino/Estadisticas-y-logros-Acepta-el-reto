@@ -19,6 +19,7 @@ export const EventType = {
   //LOGROS USUARIO
   LOGROS_USUARIO_NIVEL: "reload-logrosUsuarioNivel",
   LOGROS_USUARIO_CATEGORIA: "reload-logrosUsuarioCategoria",
+  LOGROS_RECIENTES_USUARIO: "reload-logrosRecientesUsuario",
 
   //RANKING USUARIOS
   ACTUALIZACION_RANKING: "reload-rankingUsuarios",

@@ -4,14 +4,24 @@ import logrosDAO from "../dao/logrosDAO.js";
 import { datosLogro } from "../types/datos/datosLogro.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 import { Logro } from "./logros/logro.js";
-import usuarioService from "./usuarioService.js";
-import estadosService from "./estadosService.js";
+import { NivelLogro } from "../types/enums/nivelLogro.js";
 
-import { logrosOnboarding } from "./logros/onboarding/index.js";
-import { logrosProblemas } from "./logros/problemas/index.js";
-import { logrosLenguajes } from "./logros/lenguajes/index.js";
-import { logrosRachas } from "./logros/rachas/index.js";
-import { logrosCalidad } from "./logros/calidad/index.js";
+import logro1 from "./logros/onboarding/logro1.js";
+import logro2 from "./logros/onboarding/logro2.js";
+import logro3 from "./logros/onboarding/logro3.js";
+
+import { TrofeoProblema } from "./logros/problemas/trofeoProblema.js";
+
+import { TrofeoLenguaje } from "./logros/lenguajes/trofeoLenguaje.js";
+import logro11 from "./logros/lenguajes/logro11.js";
+
+import { TrofeoRachaEnviosAC } from "./logros/rachas/trofeoRachaEnviosAC.js";
+import { TrofeoRachaDias } from "./logros/rachas/trofeoRachaDias.js";
+import logro18 from "./logros/rachas/logro18.js";
+
+import logro14 from "./logros/calidad/logro14.js";
+import logro15 from "./logros/calidad/logro15.js";
+import logro17 from "./logros/calidad/logro17.js";
 
 type Contexto = {
     checkpointsLogro: Map<string, number>
@@ -31,13 +41,34 @@ type InfoParaCondicion = {
 
 class LogrosService {
 
-    //para añadir nuevos logros basta con crear un nuevo grupo y añadirlo aqui
+    //para añadir nuevos logros basta con añadirlos a esta lista
     private logros: Logro[] = [
-        ...logrosOnboarding,
-        ...logrosProblemas,
-        ...logrosLenguajes,
-        ...logrosRachas,
-        ...logrosCalidad,
+        //onboarding
+        logro1,
+        logro2,
+        logro3,
+
+        //problemas
+        new TrofeoProblema("logro4", 10, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
+        new TrofeoProblema("logro5", 50, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
+        new TrofeoProblema("logro6", 100, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
+        new TrofeoProblema("logro7", 500, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
+
+        //lenguajes
+        new TrofeoLenguaje("logro8", "c", "C", "trofeo_oro_placeholder.png"),
+        new TrofeoLenguaje("logro9", "cpp", "C++", "trofeo_oro_placeholder.png"),
+        new TrofeoLenguaje("logro10", "java", "Java", "trofeo_oro_placeholder.png"),
+        logro11,
+
+        //rachas
+        new TrofeoRachaEnviosAC("logro12", 5, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
+        new TrofeoRachaDias("logro13", 7, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
+        logro18,
+
+        //calidad
+        logro14,
+        logro15,
+        logro17,
     ];
 
     /**
@@ -45,36 +76,6 @@ class LogrosService {
      */
     public getDefiniciones(): Logro[] {
         return this.logros;
-    }
-
-    /**
-     * Reevalua un conjunto de logros de estado global contra el estado actual de cada usuario.
-     * Borra los registros existentes de esos logros, recalcula las condiciones y persiste los resultados.
-     * Solo aplicable a logros que no son en tiempo real y cuyas estadisticas requeridas estan al dia.
-     * @param logros - Logros a reevaluar.
-     */
-    public async reevaluarLogros(logros: Logro[]): Promise<void> {
-
-        //se borran los registros actuales de los logros a reevaluar
-        for (const logro of logros)
-            await logrosDAO.borrarLogro(logro.nombre);
-
-        //se cargan los estados actuales de todos los usuarios
-        const usuarios = new Set(await usuarioService.getTodosUsuarios());
-        const estadosUsuarios = await estadosService.getEstadosInicialesUsuarios(usuarios);
-
-        //se reevaluan los logros para cada usuario y se acumulan los obtenidos
-        const datos: datosLogro[] = [];
-        for (const [usuario, estadoUsuario] of estadosUsuarios) {
-            const nuevos = logros
-                .filter(l => l.condicion(estadoUsuario, undefined, undefined))
-                .map(l => l.nombre);
-            if (nuevos.length > 0)
-                datos.push({ usuario, logros: nuevos });
-        }
-
-        //se guardan los logros recalculados en la base de datos
-        await logrosDAO.guardarBloqueLogros(datos);
     }
 
     /**
@@ -134,19 +135,47 @@ class LogrosService {
     }
 
     /**
-     * Persiste los logros nuevos agrupados por mes en Redis (solo ultimos 12 meses).
-     * @param nuevosTrofeosPorMes - Mapa de mes a usuario a set de logros nuevos.
+     * Persiste los 3 logros mas recientes de cada usuario en orden cronologico de obtencion.
+     * @param nuevosLogros - Mapa de usuario a array de logros nuevos en orden de obtencion.
      */
-    public async guardarLogrosPorMes(nuevosTrofeosPorMes: Map<number, Map<string, Set<Logro>>>): Promise<void> {
-        for (const [mes, nuevosPorUsuario] of nuevosTrofeosPorMes) {
-            const datos: datosLogro[] = [];
-            for (const [usuario, logros] of nuevosPorUsuario)
-                datos.push({ usuario, logros: Array.from(logros).map(l => l.nombre) });
-            await logrosDAO.guardarBloqueLogrosMes(datos, mes);
-        }
+    public async guardarUltimosLogros(nuevosLogros: Map<string, Logro[]>): Promise<void> {
+        const datos: datosLogro[] = [];
+        for (const [usuario, logros] of nuevosLogros)
+            datos.push({ usuario, logros: logros.map(l => l.nombre) });
+        await logrosDAO.guardarUltimosLogros(datos);
+    }
+
+    /**
+     * Borra de la base de datos los registros de los logros indicados para que se reevaluen al reprocesar.
+     * @param nombres - Conjunto de nombres de logros cuyos registros hay que borrar.
+     */
+    public async borrarLogros(nombres: Set<string>): Promise<void> {
+        for (const nombre of nombres)
+            await logrosDAO.borrarLogro(nombre);
     }
 
     //============================== CONSULTAS ==============================
+
+    /**
+     * Devuelve los datos completos de los 3 logros mas recientes del usuario en orden de obtencion.
+     * @param usuario - Identificador del usuario.
+     * @returns Array con los datos de los logros recientes.
+     */
+    public async getUltimosLogros(usuario: string) {
+        const nombres = await logrosDAO.getUltimosLogros(usuario);
+        return nombres
+            .map(nombre => this.logros.find(l => l.nombre === nombre))
+            .filter(Boolean)
+            .map(logro => ({
+                nombre: logro!.nombre,
+                descripcion: logro!.descripcion,
+                imagen: logro!.imagen,
+                nivel: logro!.nivel,
+                categoria: logro!.categoria,
+                sorpresa: logro!.sorpresa,
+                obtenido: true,
+            }));
+    }
 
     /**
      * Devuelve todos los logros indicando si el usuario los tiene o no, agrupados segun la clasificacion.
@@ -198,18 +227,6 @@ class LogrosService {
 
         return logrosPorUsuario;
     }
-
-    /**
-     * Busca un logro por su nombre.
-     * @param logro - Nombre del logro a buscar.
-     * @returns El logro encontrado, o `undefined` si no existe.
-     */
-    //TODO ver si esto tras la refactorizacion es necesario
-    /*
-    public getLogroByName(logro: string): Logro | undefined {
-        return this.trofeos.find(l => l.nombre === logro);
-    }
-    */
 }
 
 export default new LogrosService();

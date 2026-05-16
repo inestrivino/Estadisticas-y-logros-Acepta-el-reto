@@ -34,6 +34,7 @@ export async function routerEmitter(envio: EnvioProcesado) {
     //se actualizan los logros del usuario
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(envio.usuario, "nivel"));
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(envio.usuario, "categoria"));
+    io.emit(formatEvent(envio.usuario, EventType.LOGROS_RECIENTES_USUARIO), await logrosService.getUltimosLogros(envio.usuario));
 
     //se actualiza la tabla de ranking
     io.emit(EventType.ACTUALIZACION_RANKING);
@@ -75,6 +76,7 @@ export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<stri
         //se actualizan los logros del usuario
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(usuario, "nivel"));
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_CATEGORIA), await logrosService.getLogrosUsuario(usuario, "categoria"));
+        io.emit(formatEvent(usuario, EventType.LOGROS_RECIENTES_USUARIO), await logrosService.getUltimosLogros(usuario));
 
         //se actualiza el nivel del usuario
         io.emit(formatEvent(usuario, EventType.USUARIO_NIVEL), await xpService.getNivelUsuario(usuario));

@@ -23,6 +23,12 @@ class LenguajesActualizador extends ActualizadorUsuario {
 
         const lenguajesAC = await usuarioService.getLenguajesAC(usuario);
         estado.lenguajesAC = new Map(lenguajesAC.map(l => [l.name, l.value]));
+
+        //se carga tambien el set de problemas resueltos en cada lenguaje
+        for (const { name } of lenguajes) {
+            const problemas = await usuarioService.getProblemasLenguaje(usuario, name);
+            estado.lenguajesProblemasResueltos!.set(name, new Set(problemas));
+        }
     }
 
     actualizar(estado: EstadoUsuario, envio: EnvioProcesado): void {

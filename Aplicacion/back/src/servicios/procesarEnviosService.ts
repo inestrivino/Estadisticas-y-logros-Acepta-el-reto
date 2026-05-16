@@ -16,15 +16,11 @@ import { Logro } from "./logros/logro.js";
 type ResultadoActualizarEstados = {
     estadosUsuarios: Map<string, EstadoUsuario>
     estadosProblemas: Map<string, EstadoProblema>
-    estadosPorMes: EstadosPorMes
+    estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>>
     nuevosLogros: Map<string, Set<Logro>>
     nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>>
+    nuevosLogrosOrdenados: Map<string, Logro[]>
 };
-
-type EstadosPorMes = {
-    primerMes: number
-    estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>>
-}
 
 class ProcesarEnviosService {
 
@@ -113,7 +109,7 @@ class ProcesarEnviosService {
         const copiaLogrosActuales: Map<string, Set<Logro>> = new Map([...logrosActuales].map(([key, values]) => [key, new Set(values)]))
 
         //se actualizan los estados aplicando cada envio del bloque en orden, y se procesan los logros de estado global con cada envio
-        let { estadosUsuarios, estadosProblemas, estadosPorMes, nuevosLogros, nuevosLogrosPorMes } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints);
+        let { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints);
 
         //SE PERSISTEN LOS logros, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
 
@@ -125,11 +121,11 @@ class ProcesarEnviosService {
 
         //se guardan globalmente todos los logros nuevos del bloque
         await logrosService.guardarLogros(nuevosLogros);
-        //se guardan los logros nuevos por mes (solo ultimos 12 meses)
-        await logrosService.guardarLogrosPorMes(nuevosLogrosPorMes);
+        await logrosService.guardarUltimosLogros(nuevosLogrosOrdenados);
 
-        //se procesan los puntos de xp de cada usuario y se registra la evolucion por mes
-        await xpService.procesarXP(estadosUsuariosIniciales, estadosUsuarios, estadosPorMes.estadosFinalesPorMes, nuevosLogrosPorMes);
+        //se procesa la experiencia: xp global, xp por mes y persistencia por mes de cada
+        //estadistica registrada en xpService (envios, problemas AC, logros, ...)
+        await xpService.procesarExperiencia(estadosUsuariosIniciales, estadosUsuarios, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
         await checkpointsService.avanzarCheckpoints(checkpoints, lastEnvioId);
@@ -159,11 +155,11 @@ class ProcesarEnviosService {
         let estadosUsuarios: Map<string, EstadoUsuario> = new Map();
         let estadosProblemas: Map<string, EstadoProblema> = new Map();
 
-        //se guardan los meses que hayan cambiado de experiencian con este bloque de envios
-        const primerMes = envio.mes;
+        //se guardan los meses que hayan cambiado de experiencia con este bloque de envios
         const estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>> = new Map();
         const nuevosLogros: Map<string, Set<Logro>> = new Map();
         const nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>> = new Map();
+        const nuevosLogrosOrdenados: Map<string, Logro[]> = new Map();
 
         for await ({ estadosUsuarios, estadosProblemas, envio } of estadosService.getEstadosActualizados(
             enviosProcesados,
@@ -180,7 +176,11 @@ class ProcesarEnviosService {
             //se acumulan globalmente todos los logros nuevos independientemente de la fecha
             for (const [usuario, logros] of nuevoslogroEnvio) {
                 if (!nuevosLogros.has(usuario)) nuevosLogros.set(usuario, new Set());
-                for (const logro of logros) nuevosLogros.get(usuario)!.add(logro);
+                if (!nuevosLogrosOrdenados.has(usuario)) nuevosLogrosOrdenados.set(usuario, []);
+                for (const logro of logros) {
+                    nuevosLogros.get(usuario)!.add(logro);
+                    nuevosLogrosOrdenados.get(usuario)!.push(logro);
+                }
             }
 
             //se guarda el estado final del mes si es uno de los ultimos meses
@@ -200,7 +200,7 @@ class ProcesarEnviosService {
             }
         }
 
-        return { estadosUsuarios, estadosProblemas, estadosPorMes: { primerMes, estadosFinalesPorMes }, nuevosLogros, nuevosLogrosPorMes };
+        return { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados };
     }
 
     /**
@@ -220,14 +220,14 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.num,
-            usuario: envio.user.nick.toLowerCase().normalize("NFC").trim(),
-            problema: envio.problem.title.toLowerCase().normalize("NFC").trim(),
+            usuario: this.normalizar(envio.user.nick),
+            problema: this.normalizar(envio.problem.title),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.result,
-            lenguaje: envio.language,
+            lenguaje: this.normalizar(envio.language),
             tiempo: envio.executionTime,
-            memoria: envio.memoryUser, //TODO diria que esto no lo usamos en ningun momento
-            pos: envio.ranking, //TODO diria que esto tampoco
+            memoria: envio.memoryUser, //esto no lo usamos se deja por si se necesitara en el futuro
+            pos: envio.ranking, //esto no lo usamos se deja por si se necesitara en el futuro
             fecha: inicioDia.getTime() / 1000,
             hora: fecha.getUTCHours(),
             mes: fecha.getUTCMonth()
@@ -252,20 +252,30 @@ class ProcesarEnviosService {
 
         const envioProcesado: EnvioProcesado = {
             envioId: envio.sid,
-            usuario: envio.nick.toLowerCase().normalize("NFC").trim(),
-            problema: problema.title.toLowerCase().normalize("NFC").trim(),
+            usuario: this.normalizar(envio.nick),
+            problema: this.normalizar(problema.title),
             //categoria: envio.categoria, //TODO categorias problemas
             resultado: envio.ver,
-            lenguaje: envio.lan,
+            lenguaje: this.normalizar(envio.lan),
             tiempo: envio.run / 1000,
-            memoria: envio.mem, //TODO diria que esto no lo usamos en ningun momento
-            pos: envio.rank, //TODO diria que esto tampoco
+            memoria: envio.mem, //esto no lo usamos se deja por si se necesitara en el futuro
+            pos: envio.rank,//esto no lo usamos se deja por si se necesitara en el futuro
             fecha: inicioDia.getTime() / 1000,
             hora: fecha.getUTCHours(),
             mes: fecha.getUTCMonth()
         };
 
         return envioProcesado;
+    }
+
+    /**
+     * Normaliza una cadena de texto pasandola a minusculas, quitando tildes y otros
+     * diacriticos, y recortando los espacios laterales.
+     * @param texto - Cadena de texto a normalizar.
+     * @returns Cadena normalizada.
+     */
+    private normalizar(texto: string): string {
+        return texto.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
     }
 }
 

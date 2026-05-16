@@ -14,12 +14,12 @@ class CheckpointsService {
      */
     public async comprobarVersiones(): Promise<void> {
 
-        let camposResetearUsuarios = new Set<string>();
-        let camposResetearProblemas = new Set<string>();
+        const camposResetearUsuarios = await this.comprobarVersionesStats(estadosService.getActualizadoresUsuarios());
+        const camposResetearProblemas = await this.comprobarVersionesStats(estadosService.getActualizadoresProblemas());
 
-        camposResetearUsuarios = await this.comprobarVersionesStats(estadosService.getActualizadoresUsuarios());
-        camposResetearProblemas = await this.comprobarVersionesStats(estadosService.getActualizadoresProblemas());
-        await this.comprobarVersionesLogros();
+        const { camposUsuariosLogros, camposProblemasLogros } = await this.comprobarVersionesLogros();
+        for (const id of camposUsuariosLogros) camposResetearUsuarios.add(id);
+        for (const id of camposProblemasLogros) camposResetearProblemas.add(id);
 
         if (camposResetearUsuarios.size > 0)
             await usuarioService.resetearCamposUsuarios(camposResetearUsuarios);
@@ -50,11 +50,16 @@ class CheckpointsService {
 
     /**
      * Comprueba si algun logro ha cambiado de version, resetea su checkpoint y lo reevalua si es asi.
+     * Tambien resetea el checkpoint de las estadisticas de las que cuelga el logro y devuelve sus
+     * ids para que el llamante borre los registros correspondientes de la base de datos.
+     * @returns Conjuntos de ids de estadisticas de usuario y de problema cuyos registros hay que borrar.
      */
-    private async comprobarVersionesLogros(): Promise<void> {
+    private async comprobarVersionesLogros(): Promise<{ camposUsuariosLogros: Set<string>, camposProblemasLogros: Set<string> }> {
 
-        const logrosReevaluar = [];
-        
+        const camposUsuariosLogros = new Set<string>();
+        const camposProblemasLogros = new Set<string>();
+        const logrosABorrar = new Set<string>();
+
         for (const logro of logrosService.getDefiniciones()) {
 
             //se comprueba si ha cambiado la version del logro
@@ -64,22 +69,33 @@ class CheckpointsService {
                 //si ha cambiado se actualiza la version en la base de datos
                 console.log(` - version cambiada en logro '${logro.nombre}': ${versionGuardada} -> ${logro.version}, reseteando checkpoint`);
                 await checkpointsDAO.setVersionLogro(logro.nombre, logro.version);
-                
-                //si es en tiempo real se pone su checkpoint a 0 y se empieza la carga de envios
-                if (logro.enTiempoReal) {
-                    await checkpointsDAO.setCheckpointLogro(logro.nombre, 0);
-                    await gestionService.resetContadorEnvios();
+
+                //se pone su checkpoint a 0 y se empieza la carga de envios
+                await checkpointsDAO.setCheckpointLogro(logro.nombre, 0);
+
+                //se resetean los checkpoints de las estadisticas de las que cuelga el logro
+                //y se acumulan sus ids para que el llamante borre sus registros
+                for (const id of logro.requiereEstadisticasUsuario) {
+                    await checkpointsDAO.setCheckpointStat(id, 0);
+                    camposUsuariosLogros.add(id);
                 }
-                    
-                //si no es a tiempo real se reevalua
-                else
-                    logrosReevaluar.push(logro);
+                for (const id of logro.requiereEstadisticasProblemas) {
+                    await checkpointsDAO.setCheckpointStat(id, 0);
+                    camposProblemasLogros.add(id);
+                }
+
+                //se marca el logro para borrar su registro de la base de datos
+                logrosABorrar.add(logro.nombre);
             }
         }
-        
-        //se mandan los logros a reevaluar
-        if (logrosReevaluar.length > 0)
-            await logrosService.reevaluarLogros(logrosReevaluar);
+
+        //si algun logro cambio de version se borran sus registros y se reinicia la carga de envios
+        if (logrosABorrar.size > 0) {
+            await logrosService.borrarLogros(logrosABorrar);
+            await gestionService.resetContadorEnvios();
+        }
+
+        return { camposUsuariosLogros, camposProblemasLogros };
     }
 
     /**

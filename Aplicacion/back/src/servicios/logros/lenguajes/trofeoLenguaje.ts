@@ -2,6 +2,7 @@ import { Logro  } from "../logro.js";
 import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 import { EstadoUsuario } from "../../../types/estados/estadoUsuario.js";
+import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 /**
  * Trofeo parametrizado que se otorga al resolver 25 problemas distintos en un lenguaje concreto.
@@ -13,10 +14,10 @@ export class TrofeoLenguaje implements Logro {
     public readonly categoria = CategoriaLogro.LENGUAJES;
     public readonly nivel = NivelLogro.ORO;
     public readonly sorpresa = false;
-    public readonly enTiempoReal = false;
 
     public readonly version = 1;
-    public readonly requiereEstadisticas = ["problemasUsuario"];
+    public readonly requiereEstadisticasUsuario = [CampoUsuario.LENGUAJES];
+    public readonly requiereEstadisticasProblemas = [];
 
     public readonly nombre: string;
     public readonly descripcion: string;

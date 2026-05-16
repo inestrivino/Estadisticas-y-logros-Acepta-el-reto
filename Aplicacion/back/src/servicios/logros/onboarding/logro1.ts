@@ -12,9 +12,9 @@ const logro1: Logro = {
     sorpresa: false,
 
     version: 1,
-    requiereEstadisticas: [],
+    requiereEstadisticasUsuario: [],
+    requiereEstadisticasProblemas: [],
 
-    enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio) => true
 };

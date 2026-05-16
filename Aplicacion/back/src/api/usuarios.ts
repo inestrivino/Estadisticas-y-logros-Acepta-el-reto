@@ -26,11 +26,16 @@ router.get("/:usuario/logros", async (req, res) => {
     return res.json(await logrosService.getLogrosUsuario(usuario, clasificacion as string));
 });
 
+router.get("/:usuario/logrosRecientes", async (req, res) => {
+    const { usuario } = req.params;
+    return res.json(await logrosService.getUltimosLogros(usuario));
+});
+
 router.get("/ranking", async (req, res) => {
-    const { pag, tam, usuario } = req.query;
-    const existeUsuario = usuario ? true : false;
-    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), existeUsuario, usuario ? String(usuario) : "");
-    const totalUsuarios = await xpService.getNumUsuarios(existeUsuario, (usuario ? String(usuario) : ""));
+    const { pag, tam, nivel } = req.query;
+    const nivelStr = nivel ? String(nivel) : "";
+    const usuarios = await xpService.getUsuariosRanking(Number(pag), Number(tam), nivelStr);
+    const totalUsuarios = await xpService.getNumUsuarios(nivelStr);
     return res.json({ usuarios, totalUsuarios });
 });
 

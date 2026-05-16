@@ -1,6 +1,7 @@
 import { Logro } from "../logro.js";
 import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
+import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 
 const logro17: Logro = {
     id: 1,
@@ -12,9 +13,9 @@ const logro17: Logro = {
     sorpresa: true,
 
     version: 1,
-    requiereEstadisticas: ["enviosProblema", "tiemposProblema"],
+    requiereEstadisticasUsuario: [],
+    requiereEstadisticasProblemas: [CampoProblema.ENVIOS, CampoProblema.TIEMPOS],
 
-    enTiempoReal: true,
 
     //tras actualizarEstado el mejorTiempo del problema ya refleja este envio, asi que si lo igualo o mejoro se cumple
     condicion: (estadoUsuario, estadoProblema, envio) => {

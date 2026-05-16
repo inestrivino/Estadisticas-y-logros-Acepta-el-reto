@@ -12,9 +12,9 @@ const logro3: Logro = {
     sorpresa: false,
 
     version: 1,
-    requiereEstadisticas: ["logrosUsuario"],
+    requiereEstadisticasUsuario: [],
+    requiereEstadisticasProblemas: [],
 
-    enTiempoReal: false,
 
     condicion: (estadoUsuario, estadoProblema, envio, logrosACtuales) => logrosACtuales!.size >= 5
 };
