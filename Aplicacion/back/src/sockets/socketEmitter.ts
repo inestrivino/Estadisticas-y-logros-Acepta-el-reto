@@ -30,6 +30,8 @@ export async function routerEmitter(envio: EnvioProcesado) {
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_NUM_PROBLEMAS_RESUELTOS), await usuarioService.getNumProblemasResueltos(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_ACTUAL_ENVIOS_AC), await usuarioService.getRachaActualEnviosCorrectos(envio.usuario));
     io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_MAX_ENVIOS_AC), await usuarioService.getRachaEnviosCorrectos(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_ACTUAL_DIAS), await usuarioService.getRachaActualDiasEnviosConsecutivos(envio.usuario));
+    io.emit(formatEvent(envio.usuario, EventType.USUARIO_RACHA_MAX_DIAS), await usuarioService.getRachaDiasEnviosConsecutivos(envio.usuario));
 
     //se actualizan los logros del usuario
     io.emit(formatEvent(envio.usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(envio.usuario, "nivel"));
@@ -72,6 +74,8 @@ export async function conjuntoEmitter(problemas: Set<string>, usuarios: Set<stri
         io.emit(formatEvent(usuario, EventType.USUARIO_NUM_PROBLEMAS_RESUELTOS), await usuarioService.getNumProblemasResueltos(usuario));
         io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_ACTUAL_ENVIOS_AC), await usuarioService.getRachaActualEnviosCorrectos(usuario));
         io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_MAX_ENVIOS_AC), await usuarioService.getRachaEnviosCorrectos(usuario));
+        io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_ACTUAL_DIAS), await usuarioService.getRachaActualDiasEnviosConsecutivos(usuario));
+        io.emit(formatEvent(usuario, EventType.USUARIO_RACHA_MAX_DIAS), await usuarioService.getRachaDiasEnviosConsecutivos(usuario));
 
         //se actualizan los logros del usuario
         io.emit(formatEvent(usuario, EventType.LOGROS_USUARIO_NIVEL), await logrosService.getLogrosUsuario(usuario, "nivel"));

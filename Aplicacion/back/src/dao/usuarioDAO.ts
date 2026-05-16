@@ -512,6 +512,17 @@ class UsuarioDAO extends DAO {
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
     }
+
+    /**
+     * Devuelve la racha actual de dias consecutivos con envios del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha actual de dias consecutivos.
+     */
+    public async getRachaActualDiasEnviosConsecutivos(usuario: string): Promise<number> {
+        const rachaStr = await this.redis.get(`usuario:${usuario}:rachaDiasEnvio`);
+        const racha = rachaStr ? Number(rachaStr) : 0;
+        return racha;
+    }
 }
 
 export default new UsuarioDAO();
