@@ -117,6 +117,7 @@
   margin: 0;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
 }
 
 .ranking-table thead th {
@@ -129,6 +130,10 @@
   padding: 14px 16px;
   border-bottom: 2px solid #d3dfe9;
 }
+
+.ranking-table thead th:nth-child(1) { width: 60px; }
+.ranking-table thead th:nth-child(3) { width: 500px; }
+.ranking-table thead th:nth-child(4) { width: 90px; }
 
 .ranking-table tbody td {
   padding: 12px 16px;

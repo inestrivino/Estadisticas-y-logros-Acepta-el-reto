@@ -218,7 +218,7 @@ class UsuarioService {
      * @param usuario - Identificador del usuario.
      * @returns Numero de dias consecutivos con envio.
      */
-    async getRachaDiasEnviosConsecutivosActual(usuario: string): Promise<number> {
+    async getRachaDiasEnviosConsecutivosActual(usuario: string): Promise<number> {        
         return usuarioDAO.getRachaDiasEnviosConsecutivosActual(usuario);
     }
 
@@ -277,6 +277,18 @@ class UsuarioService {
      * @returns Numero de dias consecutivos actuales con envio.
      */
     async getRachaActualDiasEnviosConsecutivos(usuario: string): Promise<number> {
+        const ultimoEnvio = await usuarioDAO.getUltimoEnvioUsuario(usuario);
+        
+        const hoy = new Date();
+        hoy.setHours(0,0,0,0);
+        const hoyTimestamp:number = hoy.getTime()/1000;
+        const ayerTimestamp = hoyTimestamp - 24 * 60 * 60;
+
+        //excepcion si no se ha hecho un envio entre ayer y hoy 
+        //ya que la racha actual se actualiza cuando haga el siguiente envio
+        if (ultimoEnvio !== hoyTimestamp && ultimoEnvio !== ayerTimestamp)
+            return 0;
+
         return usuarioDAO.getRachaActualDiasEnviosConsecutivos(usuario);
     }
 
