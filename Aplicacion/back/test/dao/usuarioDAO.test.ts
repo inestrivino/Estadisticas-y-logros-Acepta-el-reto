@@ -4,6 +4,18 @@ import { EstadoUsuario } from '../../src/types/estados/estadoUsuario.js';
 import { CampoUsuario } from '../../src/types/estados/camposEstadoUsuario.js';
 import setUpTestFile from './setUptTest.ts';
 
+async function registrar(usuario: string, estado: EstadoUsuario) {
+    const pipeline = usuarioDAO.iniciarPipeline();
+    usuarioDAO.guardarEnvios(pipeline, usuario, estado);
+    usuarioDAO.guardarRachas(pipeline, usuario, estado);
+    usuarioDAO.guardarProblemas(pipeline, usuario, estado);
+    usuarioDAO.guardarHoras(pipeline, usuario, estado);
+    usuarioDAO.guardarResultados(pipeline, usuario, estado);
+    usuarioDAO.guardarLenguajes(pipeline, usuario, estado);
+    usuarioDAO.guardarDiasValor(pipeline, usuario, estado);
+    await pipeline.exec();
+}
+
 setUpTestFile(usuarioDAO);
 
 const dato = {
@@ -57,7 +69,7 @@ describe("Registrar datos de usuario", () => {
             logros: new Set(),
         };
 
-        await usuarioDAO.registrarEstadosUsuarios(new Map([["user1", estado]]));
+        await registrar("user1", estado);
 
         const timeIni = 1742169600;
         const timeFin = 1773619200;
@@ -117,7 +129,7 @@ describe("Lecturas vacias", () => {
     });
 
     test("coge bien lo dias", async () => {
-        await usuarioDAO.registrarEstadosUsuarios(new Map([[dato.usuario, {
+        await registrar(dato.usuario, {
             [CampoUsuario.NUM_ENVIOS]: true,
             numEnvios: 1,
             [CampoUsuario.PROBLEMAS]: true,
@@ -142,7 +154,7 @@ describe("Lecturas vacias", () => {
             horas: new Set([dato.hora]),
             [CampoUsuario.LOGROS]: true,
             logros: new Set(),
-        }]]));
+        });
 
         const timeIni = 1742169600;
         const timeFin = 1773619200;

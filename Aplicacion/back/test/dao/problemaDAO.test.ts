@@ -27,7 +27,12 @@ function estadoBase(): EstadoProblema {
 }
 
 async function registrar(estado: EstadoProblema) {
-    await problemaDAO.registrarEstadosProblemas(new Map([[PROBLEMA, estado]]));
+    const pipeline = problemaDAO.iniciarPipeline();
+    problemaDAO.guardarEnvios(pipeline, PROBLEMA, estado);
+    problemaDAO.guardarTiempos(pipeline, PROBLEMA, estado);
+    problemaDAO.guardarResultados(pipeline, PROBLEMA, estado);
+    problemaDAO.guardarLenguajes(pipeline, PROBLEMA, estado);
+    await pipeline.exec();
 }
 
 describe("Registrar estado de un problema", () => {
