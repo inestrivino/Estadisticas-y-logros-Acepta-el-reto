@@ -1,6 +1,6 @@
 import { EstadoUsuario } from '../../types/estados/estadoUsuario.js';
 import { CampoUsuarioKey } from '../../types/estados/camposEstadoUsuario.js';
-import { Pipeline } from '../../dao/usuarioDAO.js';
+import { Pipeline } from '../../dao/DAO.js';
 
 export interface RegistradorUsuario {
 

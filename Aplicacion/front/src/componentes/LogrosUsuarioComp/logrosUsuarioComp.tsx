@@ -4,8 +4,7 @@ import { Container, Tab, Tabs } from "react-bootstrap";
 import { EventType, formatEvent } from "shared";
 import { socket } from "../../services/socket.js";
 
-import { ListadoLogros } from "shared/LogroTypes";
-import { CategoriaLogro, NivelLogro } from "shared/LogroConsts";
+import { ListadoLogros, CategoriaLogro, NivelLogro } from "shared";
 import "./logrosUsuarioComp.css";
 
 // COMPONENTES

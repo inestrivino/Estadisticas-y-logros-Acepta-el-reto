@@ -1,4 +1,4 @@
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
 
 /**
  * Devuelve el color asociado a un nivel de usuario.
@@ -29,8 +29,8 @@ export const colorTextoDelNivel = (n: string): string => {
         case NivelUsuario.APRENDIZ:     return "#fefefe";
         case NivelUsuario.COMPETENTE:   return "#f9f9f9";
         case NivelUsuario.HABIL:        return "#ffffff";
-        case NivelUsuario.ESPECIALISTA: return "#1a4e78";
-        case NivelUsuario.PROFESIONAL:      return "#0d3358";
+        case NivelUsuario.ESPECIALISTA: return "#064772";
+        case NivelUsuario.PROFESIONAL:      return "#064772";
         default:                        return "#fff";
     }
 };

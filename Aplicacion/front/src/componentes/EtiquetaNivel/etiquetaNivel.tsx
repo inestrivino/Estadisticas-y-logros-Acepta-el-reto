@@ -1,6 +1,6 @@
 import { socket } from "../../services/socket.ts";
 import { useState, useEffect } from "react";
-import { NivelUsuario } from "shared/NivelUsuarios.ts"
+import { NivelUsuario } from "shared"
 import { colorDelNivel, colorTextoDelNivel } from "./colorDelNivel.ts";
 import "./etiquetaNivel.css";
 

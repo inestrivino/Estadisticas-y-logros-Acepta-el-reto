@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import { describe, expect, beforeAll, afterEach, afterAll, test, vi, beforeEach } from "vitest";
 
 import DiagramaSectores from "../../src/componentes/DiagramaSectores/diagramaSectores.tsx";
-import { EventType, formatEvent } from "shared/EventTypes.ts";
+import { EventType, formatEvent } from "shared";
 import { socket } from "../../src/services/socket.ts";
 
 //MOCKS DE COMPONENTES

@@ -1,7 +1,7 @@
 import { Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { EventType, formatEvent } from "shared";
-import { TGrupoLogros } from "shared/LogroTypes";
+import { TGrupoLogros } from "shared";
 
 // COMPONENTES
 import Logro from "./logro";

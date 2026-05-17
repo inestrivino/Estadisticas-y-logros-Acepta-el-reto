@@ -1,5 +1,5 @@
 import { EventType, formatEvent } from "shared";
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
 import Buscador from "../Buscador/buscador.tsx";
 import EtiquetaNivel from "../EtiquetaNivel/etiquetaNivel.tsx";
 

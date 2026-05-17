@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { EventType } from "shared/EventTypes.js";
-import { formatEvent } from "shared/EventTypes.js";
+import { EventType, formatEvent } from "shared";
 
 //COMPONENTES
 import PanelParticipacion from "../PanelParticipacion/panelParticipacion.js";
@@ -10,7 +9,7 @@ import DiagramaSectores from "../DiagramaSectores/diagramaSectores.js";
 import DatoNumerico from "../DatoNumerico/datoNumerico.js";
 import DatoNumericoDoble from "../DatoNumerico/datoNumericoDoble.js";
 import DatoNumericoRanking from "../DatoNumerico/datoNumericoRanking.js";
-import { DatosLogro } from "shared/LogroTypes.js";
+import { DatosLogro } from "shared";
 import "./estadisticasUsuarioComp.css";
 
 const COLORES_SECTORES = [

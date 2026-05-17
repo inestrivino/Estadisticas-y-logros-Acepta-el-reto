@@ -1,6 +1,6 @@
 import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
 import { Logro } from "../logros/logro.js";
-import { Pipeline } from "../../dao/usuarioDAO.js";
+import { Pipeline } from "../../dao/DAO.js";
 
 /**
  * Estadistica que contribuye a la experiencia del usuario.

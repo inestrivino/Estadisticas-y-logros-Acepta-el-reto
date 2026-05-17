@@ -1,4 +1,4 @@
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
 import { NIVELES_FILTRO, colorDelNivel, colorTextoDelNivel } from "./utils.ts";
 
 /**

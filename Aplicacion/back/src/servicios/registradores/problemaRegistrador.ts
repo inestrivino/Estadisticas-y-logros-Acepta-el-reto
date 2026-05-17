@@ -1,6 +1,6 @@
 import { EstadoProblema } from '../../types/estados/estadoProblema.js';
 import { CampoProblemaKey } from '../../types/estados/camposEstadoProblema.js';
-import { Pipeline } from '../../dao/problemaDAO.js';
+import { Pipeline } from '../../dao/DAO.js';
 
 export interface RegistradorProblema {
 

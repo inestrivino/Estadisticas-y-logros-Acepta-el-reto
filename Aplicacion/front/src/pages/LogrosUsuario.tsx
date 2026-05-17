@@ -7,7 +7,7 @@ import Buscador from "../componentes/Buscador/buscador";
 import LogrosUsuarioComp from "../componentes/LogrosUsuarioComp/logrosUsuarioComp";
 import EtiquetaNivel from "../componentes/EtiquetaNivel/etiquetaNivel";
 import { EventType, formatEvent } from "shared";
-import { NivelUsuario } from "shared/NivelUsuarios";
+import { NivelUsuario } from "shared";
 
 export default function LogrosUsuario() {
     const params = useParams();

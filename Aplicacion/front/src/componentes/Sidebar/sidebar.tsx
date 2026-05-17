@@ -4,7 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLightbulb, faBars, faChartLine, faChartPie, faTableList, faAward, faHouseChimney } from "@fortawesome/free-solid-svg-icons";
 import "./sidebar.css";
-import { EventType } from "shared/EventTypes.ts";
+import { EventType } from "shared";
 import BarraCarga from "./barraCarga";
 
 export default function Sidebar() {

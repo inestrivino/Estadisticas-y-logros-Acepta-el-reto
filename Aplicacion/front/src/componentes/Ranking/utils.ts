@@ -1,4 +1,4 @@
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
 
 //reexportado desde EtiquetaNivel para que filtros y tabla compartan la misma fuente de colores
 export { colorDelNivel, colorTextoDelNivel } from "../EtiquetaNivel/colorDelNivel.ts";
