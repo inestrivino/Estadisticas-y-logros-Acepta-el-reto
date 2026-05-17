@@ -440,12 +440,34 @@ class UsuarioDAO extends DAO {
     }
 
     /**
+     * Devuelve la racha actual de envios correctos consecutivos del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha actual de envios correctos consecutivos.
+     */
+    public async getRachaEnviosCorrectosActual(usuario: string): Promise<number> {
+        const rachaStr = await this.redis.get(`usuario:${usuario}:rachaEnviosAC`);
+        const racha = rachaStr ? Number(rachaStr) : 0;
+        return racha;
+    }
+
+    /**
      * Devuelve la racha maxima de envios correctos consecutivos del usuario.
      * @param usuario - Identificador del usuario.
      * @returns Longitud de la racha maxima de envios correctos.
      */
-    public async getRachaEnviosCorrectos(usuario: string): Promise<number> {
+    public async getRachaEnviosCorrectosMax(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaEnviosACMax`);
+        const racha = rachaStr ? Number(rachaStr) : 0;
+        return racha;
+    }
+
+    /**
+     * Devuelve la racha actual de dias consecutivos con envios del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha actual de dias consecutivos con envios.
+     */
+    public async getRachaDiasEnviosConsecutivosActual(usuario: string): Promise<number> {
+        const rachaStr = await this.redis.get(`usuario:${usuario}:rachaDiasEnvio`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;
     }
@@ -455,7 +477,7 @@ class UsuarioDAO extends DAO {
      * @param usuario - Identificador del usuario.
      * @returns Longitud de la racha maxima de dias consecutivos.
      */
-    public async getRachaDiasEnviosConsecutivos(usuario: string): Promise<number> {
+    public async getRachaDiasEnviosConsecutivosMax(usuario: string): Promise<number> {
         const rachaStr = await this.redis.get(`usuario:${usuario}:rachaDiasEnvioMax`);
         const racha = rachaStr ? Number(rachaStr) : 0;
         return racha;

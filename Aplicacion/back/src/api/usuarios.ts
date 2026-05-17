@@ -94,7 +94,7 @@ router.get("/:usuario/rachaActualEnvios", async (req, res) => {
 
 router.get("/:usuario/rachaMaxEnvios", async (req, res) => {
     const { usuario } = req.params;
-    const numEjs = await usuarioService.getRachaEnviosCorrectos(usuario);
+    const numEjs = await usuarioService.getRachaEnviosCorrectosMax(usuario);
     return res.json(numEjs);
 });
 
@@ -106,7 +106,7 @@ router.get("/:usuario/rachaActualDias", async (req, res) => {
 
 router.get("/:usuario/rachaMaxDias", async (req, res) => {
     const { usuario } = req.params;
-    const racha = await usuarioService.getRachaDiasEnviosConsecutivos(usuario);
+    const racha = await usuarioService.getRachaDiasEnviosConsecutivosMax(usuario);
     return res.json(racha);
 });
 

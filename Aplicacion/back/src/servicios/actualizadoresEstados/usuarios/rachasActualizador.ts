@@ -12,16 +12,18 @@ class RachasActualizador extends ActualizadorUsuario {
     estadoVacio(estado: EstadoUsuario): void {
         estado.rachaEnviosAC = 0;
         estado.rachaEnviosACMax = 0;
-        estado.rachaDiasEnvio = 0;
-        estado.rachaDiasEnvioMax = 0;
+        estado.rachaDiasEnvio = 1;
+        estado.rachaDiasEnvioMax = 1;
         estado.ultimoDiaEnvio = 0;
     }
 
     async cargarInicial(estado: EstadoUsuario, usuario: string): Promise<void> {
-        estado.rachaEnviosAC = await usuarioService.getRachaEnviosCorrectos(usuario);
-        estado.rachaEnviosACMax = estado.rachaEnviosAC;
-        estado.rachaDiasEnvio = await usuarioService.getRachaDiasEnviosConsecutivos(usuario);
-        estado.rachaDiasEnvioMax = estado.rachaDiasEnvio;
+        estado.rachaEnviosAC = await usuarioService.getRachaEnviosCorrectosActual(usuario);
+        estado.rachaEnviosACMax = await usuarioService.getRachaEnviosCorrectosMax(usuario);
+
+        estado.rachaDiasEnvio = await usuarioService.getRachaDiasEnviosConsecutivosActual(usuario); 
+        estado.rachaDiasEnvioMax = await usuarioService.getRachaDiasEnviosConsecutivosMax(usuario);
+        
         estado.ultimoDiaEnvio = await usuarioService.getUltimoEnvioUsuario(usuario);
     }
 
@@ -31,9 +33,10 @@ class RachasActualizador extends ActualizadorUsuario {
         //si el ultimo envio fue exactamente el dia anterior, se incrementa la racha de dias consecutivos
         //si fue hace mas de un dia, la racha se reinicia a 0
         if (estado.ultimoDiaEnvio! < (envio.fecha - 24 * 60 * 60))
-            estado.rachaDiasEnvio = 0;
-        else if (estado.ultimoDiaEnvio === envio.fecha - 24 * 60 * 60)
+            estado.rachaDiasEnvio = 1;
+        else if (estado.ultimoDiaEnvio === envio.fecha - 24 * 60 * 60) {
             estado.rachaDiasEnvio!++;
+        }
 
         if (estado.rachaDiasEnvio! > estado.rachaDiasEnvioMax!)
             estado.rachaDiasEnvioMax = estado.rachaDiasEnvio;
@@ -41,7 +44,7 @@ class RachasActualizador extends ActualizadorUsuario {
         estado.ultimoDiaEnvio = envio.fecha;
 
         //RACHA DE ENVIOS AC
-        //un envio AC incrementa la racha actual; uno incorrecto la rompe a 0
+        //un envio AC incrementa la racha actual, uno incorrecto la rompe a 0
         if (envio.resultado === "AC") {
             estado.rachaEnviosAC!++;
             if (estado.rachaEnviosAC! > estado.rachaEnviosACMax!)

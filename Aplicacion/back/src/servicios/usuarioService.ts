@@ -200,8 +200,17 @@ class UsuarioService {
      * @param usuario - Identificador del usuario.
      * @returns Numero de envios correctos consecutivos.
      */
-    async getRachaEnviosCorrectos(usuario: string): Promise<number> {
-        return usuarioDAO.getRachaEnviosCorrectos(usuario);
+    async getRachaEnviosCorrectosActual(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaEnviosCorrectosActual(usuario);
+    }
+
+    /**
+     * Devuelve la racha maxima de envios correctos consecutivos del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha maxima de envios correctos consecutivos.
+     */
+    async getRachaEnviosCorrectosMax(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaEnviosCorrectosMax(usuario);
     }
 
     /**
@@ -209,8 +218,17 @@ class UsuarioService {
      * @param usuario - Identificador del usuario.
      * @returns Numero de dias consecutivos con envio.
      */
-    async getRachaDiasEnviosConsecutivos(usuario: string): Promise<number> {
-        return usuarioDAO.getRachaDiasEnviosConsecutivos(usuario);
+    async getRachaDiasEnviosConsecutivosActual(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaDiasEnviosConsecutivosActual(usuario);
+    }
+
+    /**
+     * Devuelve la racha maxima de dias consecutivos con al menos un envio del usuario.
+     * @param usuario - Identificador del usuario.
+     * @returns Longitud de la racha maxima de dias consecutivos con envio.
+     */
+    async getRachaDiasEnviosConsecutivosMax(usuario: string): Promise<number> {
+        return usuarioDAO.getRachaDiasEnviosConsecutivosMax(usuario);
     }
 
     /**
