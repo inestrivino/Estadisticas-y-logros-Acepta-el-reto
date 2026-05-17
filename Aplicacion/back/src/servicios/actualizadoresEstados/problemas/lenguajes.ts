@@ -1,10 +1,10 @@
-import { CalculadorProblema } from "../calculadorProblemaInterface.js";
+import { ActualizadorProblema } from "../problemaActualizadorInterface.js";
 import { EstadoProblema } from "../../../types/estados/estadoProblema.js";
 import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 import { EnvioProcesado } from "../../../types/envios/envioProcesado.js";
 import problemaService from "../../problemaService.js";
 
-class LenguajesActualizador extends CalculadorProblema {
+class LenguajesActualizador extends ActualizadorProblema {
 
     id = CampoProblema.LENGUAJES;
     version = 1;
