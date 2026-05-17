@@ -7,7 +7,16 @@ import { EstadisticaExperiencia } from "./experiencia/estadistica.js";
 import { enviosEstadistica } from "./experiencia/estadisticas/envios.js";
 import { problemasACEstadistica } from "./experiencia/estadisticas/problemasAC.js";
 import { logrosEstadistica } from "./experiencia/estadisticas/logros.js";
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
+
+//valor a partir del cual el usuario tiene ese nivel
+enum UmbralNivel {
+    APRENDIZ     = 0,
+    COMPETENTE   = 500,
+    HABIL        = 1000,
+    ESPECIALISTA = 2000,
+    PROFESIONAL  = 5000,
+}
 
 class XPService {
 
@@ -150,7 +159,7 @@ class XPService {
      * Devuelve la posicion del usuario en el ranking de su nivel.
      * @param nivel - Identificador del nivel del usuario
      * @param usuario - Identificador del usuario si se quiere filtrar por nivel o no.
-     * @returns Entero positivo. //TODO lanzar error en caso de que la posicion sea negativa
+     * @returns Entero positivo. 
      */
     private async getPosUsuarioEnRankingPorNivel(usuario: string, nivel: string) {
         // rango de xp correspondiente al nivel del usuario
@@ -223,10 +232,10 @@ class XPService {
      */
     private getNivelFromXP(xp: number): NivelUsuario {
         if (xp !== -1) {
-            if (xp <= 100) return NivelUsuario.APRENDIZ;
-            if (xp <= 500) return NivelUsuario.COMPETENTE;
-            if (xp <= 1000) return NivelUsuario.HABIL;
-            if (xp <= 2000) return NivelUsuario.ESPECIALISTA;
+            if (xp < UmbralNivel.COMPETENTE) return NivelUsuario.APRENDIZ;
+            if (xp < UmbralNivel.HABIL) return NivelUsuario.COMPETENTE;
+            if (xp < UmbralNivel.ESPECIALISTA) return NivelUsuario.HABIL;
+            if (xp < UmbralNivel.PROFESIONAL) return NivelUsuario.ESPECIALISTA;
             return NivelUsuario.PROFESIONAL;
         }
         return NivelUsuario.SIN_NIVEL;
@@ -239,15 +248,20 @@ class XPService {
      */
     public getXPRangeFromNivel(nivel: string): { iniXP: number, finXP: number } {
         switch (nivel.normalize("NFC")) {
-            case NivelUsuario.APRENDIZ: return { iniXP: 0, finXP: 100 };
-            case NivelUsuario.COMPETENTE: return { iniXP: 101, finXP: 500 };
-            case NivelUsuario.HABIL: return { iniXP: 501, finXP: 1000 };
-            case NivelUsuario.ESPECIALISTA: return { iniXP: 1001, finXP: 2000 };
-            case NivelUsuario.PROFESIONAL: return { iniXP: 2001, finXP: Number.MAX_VALUE };
+            case NivelUsuario.APRENDIZ: return { iniXP: UmbralNivel.APRENDIZ, finXP: UmbralNivel.COMPETENTE-1 };
+            case NivelUsuario.COMPETENTE: return { iniXP: UmbralNivel.COMPETENTE, finXP: UmbralNivel.HABIL-1 };
+            case NivelUsuario.HABIL: return { iniXP: UmbralNivel.HABIL, finXP: UmbralNivel.ESPECIALISTA-1 };
+            case NivelUsuario.ESPECIALISTA: return { iniXP: UmbralNivel.ESPECIALISTA, finXP: UmbralNivel.PROFESIONAL-1 };
+            case NivelUsuario.PROFESIONAL: return { iniXP: UmbralNivel.PROFESIONAL, finXP: Number.MAX_VALUE };
             default: return { iniXP: Number.MIN_VALUE, finXP: Number.MAX_VALUE };
         }
     }
 
+    /**
+     * Devuelve la posicion del usuario en el ranking global.
+     * @param usuario - Identificador del usuario.
+     * @returns Entero positivo con la posicion en el ranking global.
+     */
     async getPosUsuarioEnRanking(usuario: string): Promise<number> {
         return await xpDAO.getPosUsuarioEnRanking(usuario);
     }
