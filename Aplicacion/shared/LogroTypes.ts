@@ -1,8 +1,9 @@
-import { NivelLogro, CategoriaLogro } from "./LogroConsts.ts";
+import { NivelLogro, CategoriaLogro } from "./LogroConsts.js";
 
 export type DatosLogro = {
   nombre: string;
   descripcion: string;
+  descripcionBorrosa?: string;
   imagen: string;
   nivel: NivelLogro;
   categoria: CategoriaLogro;

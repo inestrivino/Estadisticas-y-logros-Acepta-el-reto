@@ -1,5 +1,5 @@
 {
   "name": "shared",
   "type": "module",
-  "main": "EventTypes.ts"
+  "main": "index.ts"
 }
