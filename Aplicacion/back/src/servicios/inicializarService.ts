@@ -57,7 +57,7 @@ class InicializarService {
 
         //DEBUG
         const ultimoEnvioManual = process.env.ULTIMOENVIO;
-        if (ultimoEnvioManual !== undefined && Number(ultimoEnvioManual))
+        if (ultimoEnvioManual !== undefined && Number(ultimoEnvioManual) !== -1)
             ultimoEnvio = Number(ultimoEnvioManual);
 
         //si no habia envios aun se pone 1
