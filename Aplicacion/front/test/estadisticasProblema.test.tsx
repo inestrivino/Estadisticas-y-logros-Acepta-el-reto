@@ -9,6 +9,12 @@ import EstadisticasProblema from "../src/pages/EstadisticasProblema"
 
 //HANDLERS PARA LOS ENDPOINTS
 export const handlers = [
+  http.get("/api/problemas", () =>
+    HttpResponse.json([])
+  ),
+  http.get("/api/problemas/:problema", () =>
+    HttpResponse.json({ existe: true })
+  ),
   http.get("/api/problemas/:problema/envios", () =>
     HttpResponse.json(100000)
   ),

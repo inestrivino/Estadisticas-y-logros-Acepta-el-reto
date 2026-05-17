@@ -1,5 +1,5 @@
 import procesarEnviosService from "../servicios/procesarEnviosService.js";
-import { EnvioSinProcesarEvent } from "../types/envioSinProcesarEvent.js";
+import { EnvioSinProcesarEvent } from "../types/envios/envioSinProcesarEvent.js";
 import { setTimeout } from "timers/promises";
 import amqp from "amqplib"; //Libreria que implementa el protocolo AMQP para hablar con RabbitMQ
 

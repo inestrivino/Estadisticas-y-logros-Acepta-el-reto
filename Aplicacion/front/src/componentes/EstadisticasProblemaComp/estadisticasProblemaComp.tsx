@@ -5,8 +5,8 @@ import { EventType, formatEvent } from "shared";
 import "./estadisticasProblemaComp.css";
 
 //COMPONENTES
-import DatoNumerico from "../datoNumerico"
-import DiagramaSectores from "../diagramaSectores";
+import DatoNumerico from "../DatoNumerico/datoNumerico"
+import DiagramaSectores from "../DiagramaSectores/diagramaSectores";
 
 export default function EstadisticasProblemaComp(props: {
     problema: string
@@ -54,17 +54,19 @@ export default function EstadisticasProblemaComp(props: {
             .then(data => setLenguajes(data));
     }, [problema]);
 
-    return (
-        <>
-            {/* Contenedor principal */}
-            <div className="w-full mt-4">
+    //carga unificada: el shimmer se mantiene en todos los paneles hasta que todos los fetch han terminado
+    const loading = envios === null || mejorTiempo === null || tiempoPromedio === null
+        || resultados === undefined || lenguajes === undefined;
 
-                {/* Fila de datos numéricos - responsive */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
+    return (
+        <div className="estadisticas-problema w-full flex flex-col gap-6 lg:h-full pb-4 lg:pb-0">
+
+            {/* Fila de datos numéricos */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
 
                     <div className="flex justify-center">
                         <DatoNumerico
-                            loading={envios === null}
+                            loading={loading}
                             evento={formatEvent(problema as string, EventType.ENVIOS_PROBLEMA)}
                             dimensiones={{ width: 200, height: 100 }}
                             dato={{ value: envios ?? 0, description: "Envios" }}
@@ -73,7 +75,7 @@ export default function EstadisticasProblemaComp(props: {
 
                     <div className="flex justify-center">
                         <DatoNumerico
-                            loading={mejorTiempo === null}
+                            loading={loading}
                             evento={formatEvent(problema as string, EventType.MEJOR_TIEMPO_PROBLEMA)}
                             dimensiones={{ width: 200, height: 100 }}
                             dato={{ value: mejorTiempo ?? 0, description: "Mejor tiempo" }}
@@ -82,7 +84,7 @@ export default function EstadisticasProblemaComp(props: {
 
                     <div className="flex justify-center">
                         <DatoNumerico
-                            loading={tiempoPromedio === null}
+                            loading={loading}
                             evento={formatEvent(problema as string, EventType.TIEMPO_PROM_PROBLEMA)}
                             dimensiones={{ width: 200, height: 100 }}
                             dato={{ value: tiempoPromedio ?? 0, description: "Tiempo Promedio" }}
@@ -90,37 +92,40 @@ export default function EstadisticasProblemaComp(props: {
                     </div>
                 </div>
 
-                {/* Fila de diagramas - responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-">
+            {/* Fila de diagramas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 lg:[grid-template-rows:1fr]">
 
-                    {resultados && (
-                        <DiagramaSectores
-                            evento={formatEvent(problema as string, EventType.PROBLEMA_RESULTADOS)}
-                            dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
-                            colores={[
-                                "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
-                                "#E84C88", "#6BCF63", "#4c5df2", "#b351e0",
-                                "#EB5757", "#56CCF2", "#2F80ED",
-                            ]}
-                            datos={resultados as { name: string; value: number }[]}
-                        />
-                    )}
-
-                    {lenguajes && (
-                        <DiagramaSectores
-                            evento={formatEvent(problema as string, EventType.PROBLEMA_LENGUAJES)}
-                            dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
-                            colores={[
-                                "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
-                                "#E84C88", "#6BCF63", "#4c5df2", "#b351e0",
-                                "#EB5757", "#56CCF2", "#2F80ED",
-                            ]}
-                            datos={lenguajes as { name: string; value: number }[]}
-                        />
-                    )}
-
+                <div className="min-h-[350px] lg:min-h-[300px] lg:h-full flex flex-col">
+                    <DiagramaSectores
+                        loading={loading}
+                        evento={formatEvent(problema as string, EventType.PROBLEMA_RESULTADOS)}
+                        titulo="Resultados de envíos"
+                        dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
+                        colores={[
+                            "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
+                            "#E84C88", "#6BCF63", "#4c5df2", "#b351e0",
+                            "#EB5757", "#56CCF2", "#2F80ED",
+                        ]}
+                        datos={resultados ?? []}
+                    />
                 </div>
+
+                <div className="min-h-[350px] lg:min-h-[300px] lg:h-full flex flex-col">
+                    <DiagramaSectores
+                        loading={loading}
+                        evento={formatEvent(problema as string, EventType.PROBLEMA_LENGUAJES)}
+                        titulo="Lenguajes utilizados"
+                        dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
+                        colores={[
+                            "#7947CF", "#35D0BC", "#DF9350", "#4F8EF7",
+                            "#E84C88", "#6BCF63", "#4c5df2", "#b351e0",
+                            "#EB5757", "#56CCF2", "#2F80ED",
+                        ]}
+                        datos={lenguajes ?? []}
+                    />
+                </div>
+
             </div>
-        </>
+        </div>
     )
 }

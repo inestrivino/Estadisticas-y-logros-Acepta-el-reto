@@ -1,8 +1,12 @@
-import { datosXP } from '../types/datosXP.js';
+import { datosXP } from '../types/datos/datosXP.js';
 import DAO from './DAO.js'
 
 class XPDAO extends DAO {
 
+    /**
+     * Incrementa la XP de cada usuario del bloque en el ranking global.
+     * @param datos - Array de pares usuario/xp a acumular.
+     */
     async registrarBloqueXP(datos: datosXP[]) {
         const pipeline = this.redis.multi();
         for (const { usuario, xp } of datos) {
@@ -10,6 +14,34 @@ class XPDAO extends DAO {
         }
         await pipeline.exec();
     }
+
+    /**
+     * Incrementa la XP de cada usuario del bloque en el ranking del mes indicado.
+     * @param mes - Mes (0-11) al que pertenece el bloque.
+     * @param datos - Array de pares usuario/xp a acumular.
+     */
+    async registrarBloqueXPMes(datos:{mes: number, puntos: datosXP[]}[]) {
+        const pipeline = this.redis.multi();
+        for (const { mes, puntos } of datos) {
+            for (const { usuario, xp } of puntos) {
+                pipeline.zIncrBy(`usuario:ranking:mes:${mes}`, xp, usuario);
+            }
+        }
+        await pipeline.exec();
+    }
+
+    /**
+     * Pone a 0 la XP de todos los usuarios del ranking.
+     */
+    async resetearXP() {
+        const pipeline = this.redis.multi();
+        pipeline.del(`usuario:ranking`);
+        for (let i = 0; i < 12; i++)
+            pipeline.del(`usuario:ranking:mes:${i}`);
+        await pipeline.exec();
+    }
+
+    //============================== CONSULTAS ==============================
 
     /**
      * Devuelve los usuarios que se encuentran entre las posiciones ini y fin del ranking.
@@ -51,7 +83,6 @@ class XPDAO extends DAO {
         return pos !== null ? pos + 1 : -1;
     }
 
-    //TODO tener en cuenta que aqui saldran solo los que han realizado por lo menos un envio, y por tanto tienen algo de xp
     /**
      * Devuelve el numero de usuarios que hay en el ranking.
      * @returns Entero >= 0 que indica el numero de usuario en el ranking.
@@ -80,6 +111,20 @@ class XPDAO extends DAO {
     async getXPUsuario(usuario: string): Promise<number> {
         const xp = await this.redis.zScore(`usuario:ranking`, usuario);
         return xp !== null ? xp : -1
+    }
+
+    /**
+     * Devuelve la XP acumulada por el usuario en cada mes (0-11).
+     * @param usuario - Identificador del usuario.
+     * @returns Array de 12 entradas con el mes (0-11) y su XP (0 si no tiene datos).
+     */
+    async getXPUsuarioPorMes(usuario: string): Promise<{ mes: number, xp: number }[]> {
+        const pipeline = this.redis.multi();
+        for (let mes = 0; mes < 12; mes++) {
+            pipeline.zScore(`usuario:ranking:mes:${mes}`, usuario);
+        }
+        const resultados = await pipeline.exec();
+        return resultados.map((xp, mes) => ({ mes, xp: Number(xp) ?? 0 }));
     }
 }
 

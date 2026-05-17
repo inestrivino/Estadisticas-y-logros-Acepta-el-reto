@@ -1,0 +1,23 @@
+.logro-sorpresa-wrapper {
+    position: relative;
+}
+
+.logro-sorpresa-wrapper .card-text {
+    margin-bottom: 0;
+}
+
+.logro-sorpresa-mensaje {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #D9EDF7;
+    border: 1px solid #86e7ffa8;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    color: #0c527a;
+    font-weight: 600;
+    z-index: 1;
+    white-space: nowrap;
+}

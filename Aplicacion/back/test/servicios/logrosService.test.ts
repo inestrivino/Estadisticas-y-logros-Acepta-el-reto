@@ -1,9 +1,13 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { EstadoUsuario } from '../../src/types/estadoUsuario.js';
-import { EstadoProblema } from '../../src/types/estadoProblema.js';
-import { EnvioProcesado } from '../../src/types/envioProcesado.js';
-import logrosService from '../../src/servicios/logros/logrosService.js';
+import { EstadoUsuario } from '../../src/types/estados/estadoUsuario.js';
+import { EstadoProblema } from '../../src/types/estados/estadoProblema.js';
+import { EnvioProcesado } from '../../src/types/envios/envioProcesado.js';
+import { CampoUsuario } from '../../src/types/estados/camposEstadoUsuario.js';
+import { CampoProblema } from '../../src/types/estados/camposEstadoProblema.js';
+import logrosService from '../../src/servicios/logrosService.js';
 import logrosDAO from '../../src/dao/logrosDAO.js';
+import { Logro } from '../../src/servicios/logros/logro.js';
+import logro14 from '../../src/servicios/logros/calidad/logro14.js';
 
 //se sustituye logrosDAO por un objeto falso para que los tests no dependan de Redis:
 //guardarBloqueLogros no hace nada y getLogros devuelve [] por defecto,
@@ -17,35 +21,47 @@ vi.mock('../../src/dao/logrosDAO.js', () => ({
 
 function estadoBase(): EstadoUsuario {
   return {
+    [CampoUsuario.NUM_ENVIOS]: true,
     numEnvios: 0,
+    [CampoUsuario.PROBLEMAS]: true,
     problemasAC: new Set(),
     problemasNoAC: new Set(),
+    [CampoUsuario.RESULTADOS]: true,
     resultados: new Map(),
+    [CampoUsuario.LENGUAJES]: true,
     lenguajes: new Set(),
     lenguajesConteo: new Map(),
     lenguajesAC: new Map(),
     lenguajesProblemasResueltos: new Map(),
+    [CampoUsuario.DIAS_VALOR]: true,
     diasValor: new Map(),
+    [CampoUsuario.RACHAS]: true,
     rachaEnviosAC: 0,
     rachaEnviosACMax: 0,
     rachaDiasEnvio: 0,
     rachaDiasEnvioMax: 0,
     ultimoDiaEnvio: 0,
+    [CampoUsuario.HORAS]: true,
     horas: new Set(),
+    [CampoUsuario.LOGROS]: true,
     logros: new Set(),
   };
 }
 
 function problemaBase(): EstadoProblema {
   return {
+    [CampoProblema.ENVIOS]: true,
     envios: 0,
     enviosAC: 0,
+    [CampoProblema.TIEMPOS]: true,
     mejorTiempo: Infinity,
     tiempoTotal: 0,
     tiemposOrdenados: [],
     posUltimoEnvio: -1,
     tiemposEnvios: new Map(),
+    [CampoProblema.RESULTADOS]: true,
     resultados: new Map(),
+    [CampoProblema.LENGUAJES]: true,
     lenguajes: new Map(),
   };
 }
@@ -74,138 +90,130 @@ function logrosGuardados(usuario: string): string[] {
   return lastCall.find(d => d.usuario === usuario)?.logros ?? [];
 }
 
-beforeEach(async () => {
-  //resetea el estado interno del singleton y limpia el historial de mocks
-  await logrosService.cargarTrofeos(new Set(), new Map(), new Map());
+//helper: evalua logros para el usuario del envio y persiste el resultado
+//inicializa logrosActuales combinando estado.logros (nombres) con logrosYaObtenidos (objetos)
+async function evaluar(
+    estado: EstadoUsuario,
+    problema: EstadoProblema = problemaBase(),
+    envio: EnvioProcesado = envioBase(),
+    logrosYaObtenidos: Set<Logro> = new Set()
+): Promise<void> {
+    const definiciones = logrosService.getDefiniciones();
+    const delEstado = new Set<Logro>(
+        [...(estado.logros ?? [])].map(n => definiciones.find(l => l.nombre === n)!).filter(Boolean)
+    );
+    const logrosActuales = new Set<Logro>([...delEstado, ...logrosYaObtenidos]);
+
+    const nuevos = logrosService.comprobarLogros({
+        checkpointsLogro: new Map(),
+        logrosActuales: new Map([[envio.usuario, logrosActuales]]),
+        estadosUsuarios: new Map([[envio.usuario, estado]]),
+        estadosProblemas: new Map([[envio.problema, problema]]),
+        envio
+    });
+    await logrosService.guardarLogros(nuevos);
+}
+
+beforeEach(() => {
   vi.clearAllMocks();
-});
-
-describe('getLogroByName', () => {
-
-  test('devuelve el logro si existe', () => {
-    const logro = logrosService.getLogroByName('logro4');
-    expect(logro).toBeDefined();
-    expect(logro!.nombre).toBe('logro4');
-  });
-
-  test('devuelve undefined si no existe', () => {
-    expect(logrosService.getLogroByName('noexiste')).toBeUndefined();
-  });
 });
 
 describe('getLogros', () => {
 
   test('delega en logrosDAO y devuelve sus logros', async () => {
     vi.mocked(logrosDAO.getLogros).mockResolvedValueOnce(['logro4', 'logro5']);
-    const result = await logrosService.getLogros('user1');
-    expect(result).toEqual(['logro4', 'logro5']);
+    const result = await logrosService.getLogros(['user1']);
+    const nombres = Array.from(result.get('user1')!).map(l => l.nombre);
+    expect(nombres).toContain('logro4');
+    expect(nombres).toContain('logro5');
     expect(logrosDAO.getLogros).toHaveBeenCalledWith('user1');
   });
 });
 
-describe('procesarEstado (logros en tiempo real)', () => {
+describe('comprobarLogros (logros en tiempo real)', () => {
 
   test('logro14: envio AC en primer intento', async () => {
-    const estado = estadoBase();
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problemaBase(), envioBase({ resultado: 'AC' }));
     expect(logrosGuardados('user1')).toContain('logro14');
   });
 
   test('logro14: no se otorga con envio WA', async () => {
-    const estado = estadoBase();
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'WA' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problemaBase(), envioBase({ resultado: 'WA' }));
     expect(logrosGuardados('user1')).not.toContain('logro14');
   });
 
   test('logro14: no se otorga si el problema ya tiene envios WA previos', async () => {
     const estado = estadoBase();
-    estado.problemasNoAC.add('p1');
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC', problema: 'p1' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    estado.problemasNoAC!.add('p1');
+    await evaluar(estado, problemaBase(), envioBase({ resultado: 'AC', problema: 'p1' }));
     expect(logrosGuardados('user1')).not.toContain('logro14');
   });
 
   test('logro12: racha de 5 envios AC consecutivos', async () => {
     const estado = estadoBase();
     estado.rachaEnviosAC = 5;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).toContain('logro12');
   });
 
   test('logro12: no se otorga con racha menor de 5', async () => {
     const estado = estadoBase();
     estado.rachaEnviosAC = 4;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).not.toContain('logro12');
   });
 
   test('logro13: racha de 7 dias consecutivos con envios', async () => {
     const estado = estadoBase();
     estado.rachaDiasEnvio = 7;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).toContain('logro13');
   });
 
   test('logro13: no se otorga con racha menor de 7 dias', async () => {
     const estado = estadoBase();
     estado.rachaDiasEnvio = 6;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).not.toContain('logro13');
   });
 
   test('logro15: AC en el 25% mas rapido con >= 100 envios en el problema', async () => {
-    const estado = estadoBase();
     const problema = problemaBase();
     problema.envios = 100;
-    problema.posUltimoEnvio = 24; //posicion 24 < 25 (25% de 100)
-    logrosService.procesarEstado(estado, problema, envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    problema.posUltimoEnvio = 24;
+    await evaluar(estadoBase(), problema, envioBase({ resultado: 'AC' }));
     expect(logrosGuardados('user1')).toContain('logro15');
   });
 
   test('logro15: no se otorga si la posicion es exactamente el 25%', async () => {
-    const estado = estadoBase();
     const problema = problemaBase();
     problema.envios = 100;
-    problema.posUltimoEnvio = 25; //posicion 25 no es < 25
-    logrosService.procesarEstado(estado, problema, envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    problema.posUltimoEnvio = 25;
+    await evaluar(estadoBase(), problema, envioBase({ resultado: 'AC' }));
     expect(logrosGuardados('user1')).not.toContain('logro15');
   });
 
   test('logro15: no se otorga si el problema tiene menos de 100 envios', async () => {
-    const estado = estadoBase();
     const problema = problemaBase();
     problema.envios = 99;
     problema.posUltimoEnvio = 0;
-    logrosService.procesarEstado(estado, problema, envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problema, envioBase({ resultado: 'AC' }));
     expect(logrosGuardados('user1')).not.toContain('logro15');
   });
 
   test('logro17: AC que iguala el mejor tiempo con >= 100 envios en el problema', async () => {
-    const estado = estadoBase();
     const problema = problemaBase();
     problema.envios = 100;
     problema.mejorTiempo = 100;
-    logrosService.procesarEstado(estado, problema, envioBase({ resultado: 'AC', tiempo: 100 }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problema, envioBase({ resultado: 'AC', tiempo: 100 }));
     expect(logrosGuardados('user1')).toContain('logro17');
   });
 
   test('logro17: no se otorga si el problema tiene menos de 100 envios', async () => {
-    const estado = estadoBase();
     const problema = problemaBase();
     problema.envios = 99;
     problema.mejorTiempo = 100;
-    logrosService.procesarEstado(estado, problema, envioBase({ resultado: 'AC', tiempo: 100 }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problema, envioBase({ resultado: 'AC', tiempo: 100 }));
     expect(logrosGuardados('user1')).not.toContain('logro17');
   });
 
@@ -214,37 +222,29 @@ describe('procesarEstado (logros en tiempo real)', () => {
 describe('comportamiento general', () => {
 
   test('un logro ya obtenido no se vuelve a conceder', async () => {
-    const estado = estadoBase();
-    estado.logros.add('logro14');
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase(), problemaBase(), envioBase({ resultado: 'AC' }), new Set([logro14]));
     expect(logrosGuardados('user1')).not.toContain('logro14');
   });
 });
 
-describe('cargarTrofeos (logros de onboarding)', () => {
+describe('comprobarLogros (logros de onboarding)', () => {
 
   test('logro1: se otorga siempre al primer bloque del usuario', async () => {
-    const estado = estadoBase();
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estadoBase());
     expect(logrosGuardados('user1')).toContain('logro1');
   });
 
   test('logro2: primer envio realizado', async () => {
     const estado = estadoBase();
     estado.numEnvios = 1;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).toContain('logro2');
   });
 
   test('logro3: 5 logros obtenidos', async () => {
     const estado = estadoBase();
-    //solo logros enTiempoReal:false para que procesarEstado pueda otorgar logro14 y añadir el usuario al mapa
     estado.logros = new Set(['logro1', 'logro2', 'logro4', 'logro5', 'logro6']);
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado, problemaBase(), envioBase({ resultado: 'AC' }));
     expect(logrosGuardados('user1')).toContain('logro3');
   });
 
@@ -253,66 +253,63 @@ describe('cargarTrofeos (logros de onboarding)', () => {
     //2 logros globales + logro12 (racha) + logro14 (AC) otorgados en tiempo real = 4 total
     estado.logros = new Set(['logro1', 'logro2']);
     estado.rachaEnviosAC = 5;
-    logrosService.procesarEstado(estado, problemaBase(), envioBase());
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado);
     expect(logrosGuardados('user1')).not.toContain('logro3');
   });
 });
 
-describe('cargarTrofeos (logros de estado global)', () => {
+describe('comprobarLogros (logros de estado global)', () => {
 
-  //inicializa el usuario en el mapa via un AC de primer intento y llama a cargarTrofeos
   async function ejecutar(estado: EstadoUsuario): Promise<string[]> {
-    logrosService.procesarEstado(estado, problemaBase(), envioBase({ resultado: 'AC' }));
-    await logrosService.cargarTrofeos(new Set(['user1']), new Map([['user1', estado]]), new Map());
+    await evaluar(estado, problemaBase(), envioBase({ resultado: 'AC' }));
     return logrosGuardados('user1');
   }
 
   test('logro4: 10 problemas resueltos', async () => {
     const estado = estadoBase();
-    for (let i = 0; i < 10; i++) estado.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 10; i++) estado.problemasAC!.add(`p${i}`);
     expect(await ejecutar(estado)).toContain('logro4');
   });
 
   test('logro4: no se otorga con 9 problemas', async () => {
     const estado = estadoBase();
-    for (let i = 0; i < 9; i++) estado.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 9; i++) estado.problemasAC!.add(`p${i}`);
     expect(await ejecutar(estado)).not.toContain('logro4');
   });
 
   test('logro5: 50 problemas resueltos', async () => {
     const estado = estadoBase();
-    for (let i = 0; i < 50; i++) estado.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 50; i++) estado.problemasAC!.add(`p${i}`);
     expect(await ejecutar(estado)).toContain('logro5');
   });
 
   test('logro6: 100 problemas resueltos', async () => {
     const estado = estadoBase();
-    for (let i = 0; i < 100; i++) estado.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 100; i++) estado.problemasAC!.add(`p${i}`);
     expect(await ejecutar(estado)).toContain('logro6');
   });
 
   test('logro7: 500 problemas resueltos', async () => {
     const estado = estadoBase();
-    for (let i = 0; i < 500; i++) estado.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 500; i++) estado.problemasAC!.add(`p${i}`);
     expect(await ejecutar(estado)).toContain('logro7');
   });
 
   test('logro8: 25 problemas resueltos en C', async () => {
     const estado = estadoBase();
-    estado.lenguajesProblemasResueltos.set('c', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
+    estado.lenguajesProblemasResueltos!.set('c', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
     expect(await ejecutar(estado)).toContain('logro8');
   });
 
   test('logro9: 25 problemas resueltos en C++', async () => {
     const estado = estadoBase();
-    estado.lenguajesProblemasResueltos.set('cpp', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
+    estado.lenguajesProblemasResueltos!.set('cpp', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
     expect(await ejecutar(estado)).toContain('logro9');
   });
 
   test('logro10: 25 problemas resueltos en Java', async () => {
     const estado = estadoBase();
-    estado.lenguajesProblemasResueltos.set('java', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
+    estado.lenguajesProblemasResueltos!.set('java', new Set(Array.from({ length: 25 }, (_, i) => `p${i}`)));
     expect(await ejecutar(estado)).toContain('logro10');
   });
 
@@ -340,19 +337,34 @@ describe('cargarTrofeos (logros de estado global)', () => {
     expect(await ejecutar(estado)).not.toContain('logro18');
   });
 
-  //TODO esto fuera de este describe
   test('varios usuarios reciben solo sus propios logros', async () => {
     const estadoUser1 = estadoBase();
-    for (let i = 0; i < 10; i++) estadoUser1.problemasAC.add(`p${i}`);
+    for (let i = 0; i < 10; i++) estadoUser1.problemasAC!.add(`p${i}`);
 
     const estadoUser2 = estadoBase();
     estadoUser2.rachaEnviosAC = 5;
 
-    logrosService.procesarEstado(estadoUser1, problemaBase(), envioBase({ usuario: 'user1', resultado: 'AC' }));
-    logrosService.procesarEstado(estadoUser2, problemaBase(), envioBase({ usuario: 'user2', resultado: 'AC' }));
-
     const estadosUsuarios = new Map([['user1', estadoUser1], ['user2', estadoUser2]]);
-    await logrosService.cargarTrofeos(new Set(['user1', 'user2']), estadosUsuarios, new Map());
+    const estadosProblemas = new Map([['p1', problemaBase()]]);
+    const logrosActuales = new Map<string, Set<Logro>>([['user1', new Set()], ['user2', new Set()]]);
+
+    const nuevos1 = logrosService.comprobarLogros({
+        checkpointsLogro: new Map(),
+        logrosActuales,
+        estadosUsuarios,
+        estadosProblemas,
+        envio: envioBase({ usuario: 'user1', resultado: 'AC' })
+    });
+
+    const nuevos2 = logrosService.comprobarLogros({
+        checkpointsLogro: new Map(),
+        logrosActuales,
+        estadosUsuarios,
+        estadosProblemas,
+        envio: envioBase({ usuario: 'user2', resultado: 'AC' })
+    });
+
+    await logrosService.guardarLogros(new Map([...nuevos1, ...nuevos2]));
 
     const datos = vi.mocked(logrosDAO.guardarBloqueLogros).mock.calls[0][0];
     const logrosUser1 = datos.find(d => d.usuario === 'user1')?.logros ?? [];

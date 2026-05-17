@@ -1,6 +1,11 @@
 import procesarEnviosService from './procesarEnviosService.js';
 import gestionDAO from '../dao/gestionDAO.js';
-import { EnvioSinProcesarInicial } from "../types/envioSinProcesarInicial.js";
+import { EnvioSinProcesarInicial } from "../types/envios/envioSinProcesarInicial.js";
+import gestionService from './gestionService.js';
+
+type RespuestaApi = { submission: EnvioSinProcesarInicial[] };
+type PaginaFetched = { data: RespuestaApi, pagina: number };
+type EnvioConPagina = { envio: EnvioSinProcesarInicial, numPagina: number };
 
 class InicializarService {
 
@@ -10,7 +15,6 @@ class InicializarService {
     private poolSize = 20; //numero de peticiones que hay a la vez a la api
     private expected = -1; //numero de envio que se espera
 
-
     /**
      * Arranca la carga inicial de envios desde la API, retomando desde donde se quedo en
      * el ultimo arranque gracias al ultimo envio y la ultima pagina almacenados en Redis.
@@ -18,12 +22,43 @@ class InicializarService {
      */
     public async inicializar() {
 
-        //saca el ultimo envio que se metio en la base de datos
-        let ultimoEnvio: number = await gestionDAO.getUltimoEnvio();
-        let referenciaPagina: number = -1;
+        //se busca el primer envio a procesar y la pagina donde esta
+        const { envio, pagina } = await this.buscarPrimerEnvio();
 
-        //TODO quitar esto
-        //gestionDAO.flushAll();
+        this.expected = envio;
+
+        let cola: Promise<void> = Promise.resolve();
+
+        for await (const { promesa, numBloque } of this.peticiones(pagina, envio)) {
+
+            //le llega la cadena de promesas a procesarBloque y le dice que cuando se procese mande el resultado a procesarEnviosService
+            cola = cola.then(async () => {
+                const bloque = await promesa;
+                await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
+                console.log(` + Bloque ${numBloque} insertado en la base de datos\n`);
+            });
+
+        }
+
+        //se procesa el ultimo bloque de la cola
+        await cola;
+    }
+
+    /**
+     * Localiza el primer envio a procesar y la pagina de la API donde se encuentra.
+     * Si no hay envios previos arranca desde el principio, si los hay retoma desde el siguiente al ultimo procesado.
+     * @returns Objeto con el numero de envio y la pagina de referencia donde buscarlo.
+     */
+    private async buscarPrimerEnvio(): Promise<{ envio: number, pagina: number }> {
+
+        //saca el ultimo envio que se metio en la base de datos
+        let ultimoEnvio: number = await gestionService.getUltimoEnvio();
+        let referenciaPagina: number = 1;
+
+        //DEBUG
+        const ultimoEnvioManual = process.env.ULTIMOENVIO;
+        if (ultimoEnvioManual !== undefined && Number(ultimoEnvioManual))
+            ultimoEnvio = Number(ultimoEnvioManual);
 
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {
@@ -33,7 +68,7 @@ class InicializarService {
             const url = this.generarUrl(1);
             const res = await fetch(url);
             const text = await res.text();
-            const json = await JSON.parse(text);
+            const json: RespuestaApi = JSON.parse(text);
             const ultimoEnvioNumber = Math.round(json.submission[0].num / 20) * 20 + 1;
 
             referenciaPagina = ultimoEnvioNumber;
@@ -55,31 +90,7 @@ class InicializarService {
         if (ultimoEnvio === 1)
             await gestionDAO.setPrimeraPagina(firstPagina);
 
-        //se comienza a hacer las peticones para traer los bloques de envios
-        for await (const bloque of this.bloques(firstPagina, ultimoEnvio)) {
-
-            await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
-
-        }
-    }
-
-    /**
-     * Generador asincrono que orquesta la obtencion paginada de envios desde la API.
-     * Primero localiza la pagina que contiene el primer envio a procesar mediante una
-     * busqueda por intervalos seguida de busqueda binaria, y luego emite los bloques
-     * procesados en orden.
-     * @yields Bloque de envios procesados.
-     */
-    private async * bloques(firstPagina: number, firstEnvio: number): AsyncGenerator<{ envio: EnvioSinProcesarInicial; numPagina: number }[]> {
-
-        //se marca cual va a ser el primer envio a procesar
-        this.expected = firstEnvio;
-
-        //se comienzan las peticiones
-        for await (const promesaBloque of this.peticiones(firstPagina, firstEnvio)) {
-            const bloqueProcesado = await promesaBloque;
-            yield bloqueProcesado;
-        }
+        return { envio: ultimoEnvio, pagina: firstPagina };
     }
 
     /**
@@ -107,7 +118,7 @@ class InicializarService {
         let url = this.generarUrl(firstPagina);
         const res = await fetch(url);
         const text = await res.text();
-        const json = await JSON.parse(text);
+        const json: RespuestaApi = JSON.parse(text);
         if (json.submission.length === 0 || json.submission[json.submission.length - 1].num < firstEnvio)
             haciaAbajo = true;
         if (haciaAbajo && json.submission.length !== 0 && json.submission[0].num > firstEnvio) //se encuentra directamente en la primera pagina
@@ -135,7 +146,7 @@ class InicializarService {
             url = this.generarUrl(pagina);
             const response = await fetch(url);
             const text = await response.text();
-            const current = await JSON.parse(text);
+            const current: RespuestaApi = JSON.parse(text);
 
             saltoAux *= 2;
             console.log(`Pagina ${pagina}`);
@@ -177,7 +188,7 @@ class InicializarService {
 
             const response = await fetch(url);
             const text = await response.text();
-            const current = await JSON.parse(text);
+            const current: RespuestaApi = JSON.parse(text);
 
             console.log(`Ini: ${ini}, Pagina: ${mitad}, Fin: ${fin}`);
 
@@ -200,31 +211,25 @@ class InicializarService {
     }
 
     /**
-     * Generador asincrono que lanza las peticiones HTTP a la API en paralelo
-     * respetando el tamaño del pool
+     * Lanza las peticiones HTTP a la API en paralelo respetando el tamaño del pool.
+     * Cuando acumula un bloque lo cede con yield sin pausar el bucle de fetch,
+     * de modo que el pool nunca queda ocioso en los limites de bloque.
      * @param firstPagina - Numero de la primera pagina desde la que empezar a pedir.
      * @param firstEnvio - Numero del primer envio que se debe incluir en el resultado.
-     * @yields Promesa de un bloque procesado de envios.
+     * @yields Objeto con la promesa del bloque procesado listo para consumir.
      */
-    private async * peticiones(firstPagina: number, firstEnvio: number) {
+    private async * peticiones(firstPagina: number, firstEnvio: number): AsyncGenerator<{promesa: Promise<EnvioConPagina[]>, numBloque: number}> {
 
         console.log(`\nComienza el procesamiento de los envios desde la pagina ${firstPagina}:`);
 
         let i = 0;
         let contadorBloque = 0;
-        const enCurso = new Map<number, Promise<{ data: any, pagina: number }>>();
-        const promesasBloque = new Set<Promise<{ data: any, pagina: number }>>();
+        const enCurso = new Map<number, Promise<PaginaFetched>>();
+        let promesasBloque = new Set<Promise<PaginaFetched>>();
+        let colaBloque: Promise<EnvioConPagina[]> = Promise.resolve([]);
 
         //se va pidiendo urls al generador
         for await (const { url, pagina } of this.generadorUrls(firstPagina)) {
-
-            //si ya se han hecho todas las peticiones de un bloque
-            if (i === this.tamanioBloque) {
-                yield this.procesarBloque(firstEnvio, contadorBloque, promesasBloque);
-                promesasBloque.clear();
-                i = 0;
-                contadorBloque++;
-            }
 
             //crea la promesa en la que se hace la peticion a esta pagina
             const promesa = this.fetchUrl(url, pagina, contadorBloque, i);
@@ -242,9 +247,29 @@ class InicializarService {
             }
 
             i++;
+
+            //si ya se han hecho todas las peticiones de un bloque se encola su procesamiento
+            if (i === this.tamanioBloque) {
+                const promesasCurrent = promesasBloque;
+                const bloqueCurrent = contadorBloque;
+
+                //se encandenan los procesamientos de los bloques para que vayan en serie pero sin bloquear las peticiones
+                colaBloque = colaBloque.then(() => this.procesarBloque(firstEnvio, bloqueCurrent, promesasCurrent));
+                yield { promesa: colaBloque, numBloque: bloqueCurrent };
+
+                //se reinicia el contador de peticiones por bloque
+                promesasBloque = new Set();
+                i = 0;
+                contadorBloque++;
+            }
         }
 
-        yield this.procesarBloque(firstEnvio, contadorBloque, promesasBloque);
+        if (promesasBloque.size > 0) {
+            const promesasCurrent = promesasBloque;
+            const bloqueCurrent = contadorBloque;
+            colaBloque = colaBloque.then(() => this.procesarBloque(firstEnvio, bloqueCurrent, promesasCurrent));
+            yield { promesa: colaBloque, numBloque: bloqueCurrent};
+        }
 
         console.log(" * Procesamiento completado");
     }
@@ -290,7 +315,8 @@ class InicializarService {
      * @param posBloque - Posicion dentro del bloque (usado para logging).
      * @returns Objeto `{ data, pagina }` con el JSON parseado y el numero de pagina.
      */
-    private async fetchUrl(url: string, pagina: number, bloque: number, posBloque: number): Promise<any> {
+    private async fetchUrl(url: string, pagina: number, bloque: number, posBloque: number): Promise<PaginaFetched> {
+        //console.log(`[enviada]  Pagina ${pagina} bloque: ${bloque}, posBloque ${posBloque}`);
         let res;
         do {
             res = await fetch(url);
@@ -298,8 +324,8 @@ class InicializarService {
                 console.error(`Error con url: ${url}, reintentando`);
         } while (!res.ok)
 
-        const data = JSON.parse(await res.text());
-        console.log(`Pagina ${pagina} bloque: ${bloque}, posBloque: ${posBloque}`);
+        const data: RespuestaApi = JSON.parse(await res.text());
+        console.log(`[recibida] Pagina ${pagina} bloque: ${bloque}, posBloque: ${posBloque}`);
 
         return { data, pagina };
     }
@@ -313,7 +339,11 @@ class InicializarService {
      * @param promesasBloque - Conjunto de promesas pendientes del bloque actual.
      * @returns Array con envios procesados y la pagina donde estaban.
      */
-    private async procesarBloque(firstEnvio: number, bloque: number, promesasBloque: Set<Promise<{ data: any, pagina: number }>>): Promise<any> {
+    private async procesarBloque(
+        firstEnvio: number,
+        bloque: number,
+        promesasBloque: Set<Promise<PaginaFetched>>
+    ): Promise<EnvioConPagina[]> {
 
         //una vez es su turno espera a que todas las peticiones a las paginas del bloque se hayan hecho
         const datosBloque = await Promise.all(promesasBloque);
@@ -324,7 +354,7 @@ class InicializarService {
         let ultimoProcesadoIdx = -1;
 
         //bloque con los envios procesados a devolver
-        const datosProcesados = new Array<{ envio: {}, numPagina: number }>();
+        const datosProcesados = new Array<EnvioConPagina>();
 
         //se itera por cada pagina del bloque
         for (const pagina of datosBloque) {
@@ -342,7 +372,6 @@ class InicializarService {
                     continue;
                 }
 
-
                 //si el que llega es mayor al que se esperaba nos hemos saltado alguno
                 else if (this.expected < envio.num) {
                     console.log(`\n - Procesados del ${primerProcesadoIdx} al ${ultimoProcesadoIdx}`)
@@ -352,10 +381,10 @@ class InicializarService {
                     //se crea un array con los que nos hemos saltado
                     const envios: number[] = new Array();
                     for (let j = this.expected; j < Number(envio.num); j++)
-                        envios.push(this.expected);
+                        envios.push(j);
 
                     //se recuperan yendo hacia atras los que perdimos
-                    const recuperados = await this.recuperarEnvios(envios, numPagina + this.salto);
+                    const recuperados = await this.recuperarEnvios(envios, numPagina);
 
                     //los que se encuentran se encuentran se meten en el array de procesados
                     for (const envioRecuperado of recuperados) {
@@ -372,7 +401,7 @@ class InicializarService {
             }
         }
         console.log(`\n - Procesados del ${primerProcesadoIdx} al ${ultimoProcesadoIdx}`)
-        console.log(` + Procesado el bloque ${bloque}`);
+        console.log(` + Bloque ${bloque} procesado`);
 
         return datosProcesados;
     }
@@ -392,7 +421,7 @@ class InicializarService {
             const url = this.generarUrl(pagina);
             const response = await fetch(url);
             const text = await response.text();
-            const json = await JSON.parse(text);
+            const json: RespuestaApi = JSON.parse(text);
 
             for (const currentSubmission of json.submission) {
                 if (pendientes.has(currentSubmission.num)) {
@@ -406,7 +435,7 @@ class InicializarService {
 
             pagina += this.salto;
         }
-        return recuperados;
+        return recuperados.reverse();
     }
 }
 

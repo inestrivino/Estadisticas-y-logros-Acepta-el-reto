@@ -70,9 +70,28 @@ class GestionDAO extends DAO {
         return porcentaje ? Number(porcentaje) : 0;
     }
 
-    //DEBUG
-    //TODO
-    /** Elimina todos los datos de Redis. Solo para uso en depuracion. */
+    //=============================== VERSIONES ===============================
+
+    /**
+     * Devuelve la version de la aplicacion almacenada en Redis, o 0 si no hay ninguna.
+     * @returns Version de la aplicacion.
+     */
+    public async getVersion(): Promise<number> {
+        const v = await this.redis.get(`app:version`);
+        return v ? Number(v) : 0;
+    }
+
+    /**
+     * Persiste la version de la aplicacion en Redis.
+     * @param version - Version de la aplicacion.
+     */
+    public async setVersion(version: number) {
+        await this.redis.set(`app:version`, String(version));
+    }
+
+    /**
+     * Elimina todos los datos de Redis.
+     */
     public async flushAll() {
         await this.redis.flushAll();
     }

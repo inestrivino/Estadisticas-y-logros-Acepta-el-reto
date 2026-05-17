@@ -1,39 +1,134 @@
 import DAO from "./DAO.js"
-import redisClient from '../redis/redisClient.js';
-import { datosProblema } from "../types/datosProblema.js";
-import { EstadoProblema } from "../types/estadoProblema.js";
+import { EstadoProblema } from "../types/estados/estadoProblema.js";
+import { borrarPatrones } from "./borrarPatrones.js";
+import { Pipeline } from "./DAO.js"
 
 class ProblemaDAO extends DAO {
 
+    //============================== PIPELINE ==============================
+
     /**
-     * Persiste en Redis el estado completo de cada problema del mapa usando un pipeline.
-     * Sobreescribe todos los campos calculados durante el procesamiento del bloque.
-     * @param estadosProblemas - Mapa de identificador de problema a su estado final.
+     * Crea un nuevo pipeline (transaccion MULTI) de Redis para batchear escrituras.
+     * @returns Pipeline listo para acumular comandos antes de ejecutar con `exec()`.
      */
-    public async registrarEstadosProblemas(estadosProblemas: Map<string, EstadoProblema>): Promise<void> {
-        const pipeline = this.redis.multi();
+    public iniciarPipeline(): Pipeline {
+        return this.redis.multi();
+    }
 
-        for (const [problema, estado] of estadosProblemas) {
+    //============================== REGISTRO DE PROBLEMA ==============================
 
-            pipeline.set(`problema:${problema}:envios`, String(estado.envios));
-            pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
-            pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
+    /**
+     * Anade el identificador del problema al indice global de problemas.
+     * @param pipeline - Pipeline donde encolar el comando.
+     * @param problema - Identificador del problema.
+     */
+    public guardarProblema(pipeline: Pipeline, problema: string): void {
+        pipeline.zAdd(`problemas`, { score: 0, value: problema });
+    }
 
-            if (estado.resultados.size > 0)
-                pipeline.hSet(`problema:${problema}:resultados`, Object.fromEntries(
-                    Array.from(estado.resultados.entries()).map(([k, v]) => [k, String(v)])
-                ));
+    //============================== GUARDAR CAMPOS ==============================
 
-            if (estado.lenguajes.size > 0)
-                pipeline.hSet(`problema:${problema}:lenguajes`, Object.fromEntries(
-                    Array.from(estado.lenguajes.entries()).map(([k, v]) => [k, String(v)])
-                ));
+    /**
+     * Encola en el pipeline el guardado del numero de envios totales y AC del problema.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param problema - Identificador del problema.
+     * @param estado - Estado del problema con los campos `envios` y `enviosAC`.
+     */
+    public guardarEnvios(pipeline: Pipeline, problema: string, estado: EstadoProblema): void {
+        pipeline.set(`problema:${problema}:envios`, String(estado.envios));
+        pipeline.set(`problema:${problema}:enviosAC`, String(estado.enviosAC));
+    }
 
-            for (const [envioId, tiempo] of estado.tiemposEnvios)
-                pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
-        }
+    /**
+     * Encola en el pipeline el guardado del tiempo total y del ranking de tiempos del problema.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param problema - Identificador del problema.
+     * @param estado - Estado del problema con los campos `tiempoTotal` y `tiemposEnvios`.
+     */
+    public guardarTiempos(pipeline: Pipeline, problema: string, estado: EstadoProblema): void {
+        pipeline.set(`problema:${problema}:tiempoTotal`, String(estado.tiempoTotal));
+        for (const [envioId, tiempo] of estado.tiemposEnvios!)
+            pipeline.zAdd(`problema:${problema}:tiemposEnvios`, [{ score: tiempo, value: String(envioId) }]);
+    }
 
-        await pipeline.exec();
+    /**
+     * Encola en el pipeline el guardado del conteo de resultados del problema.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param problema - Identificador del problema.
+     * @param estado - Estado del problema con el campo `resultados`.
+     */
+    public guardarResultados(pipeline: Pipeline, problema: string, estado: EstadoProblema): void {
+        const datos: Record<string, string> = {};
+        for (const [k, v] of estado.resultados!)
+            datos[k] = String(v);
+        if (Object.keys(datos).length > 0)
+            pipeline.hSet(`problema:${problema}:resultados`, datos);
+    }
+
+    /**
+     * Encola en el pipeline el guardado del conteo de envios por lenguaje del problema.
+     * @param pipeline - Pipeline donde encolar los comandos.
+     * @param problema - Identificador del problema.
+     * @param estado - Estado del problema con el campo `lenguajes`.
+     */
+    public guardarLenguajes(pipeline: Pipeline, problema: string, estado: EstadoProblema): void {
+        const datos: Record<string, string> = {};
+        for (const [k, v] of estado.lenguajes!)
+            datos[k] = String(v);
+        if (Object.keys(datos).length > 0)
+            pipeline.hSet(`problema:${problema}:lenguajes`, datos);
+    }
+
+    //============================== BORRAR CAMPOS ==============================
+
+    /**
+     * Borra de Redis las claves de envios totales y AC de todos los problemas.
+     */
+    public async borrarEnvios(): Promise<void> {
+        await borrarPatrones(['problema:*:envios', 'problema:*:enviosAC']);
+    }
+
+    /**
+     * Borra de Redis las claves de tiempo total y ranking de tiempos de todos los problemas.
+     */
+    public async borrarTiempos(): Promise<void> {
+        await borrarPatrones(['problema:*:tiempoTotal', 'problema:*:tiemposEnvios']);
+    }
+
+    /**
+     * Borra de Redis las claves de conteo de resultados de todos los problemas.
+     */
+    public async borrarResultados(): Promise<void> {
+        await borrarPatrones(['problema:*:resultados']);
+    }
+
+    /**
+     * Borra de Redis las claves de conteo de lenguajes de todos los problemas.
+     */
+    public async borrarLenguajes(): Promise<void> {
+        await borrarPatrones(['problema:*:lenguajes']);
+    }
+
+    //============================== CONSULTAS ==============================
+
+    /**
+     * Devuelve si existe un problema con el nombre problema.
+     * @param problema - Identificador del problema.
+     * @returns True si existe y false si no.
+     */
+    async existeProblema(problema: string): Promise<boolean> {
+        const score = await this.redis.zScore(`problemas`, problema);
+        return score !== null;
+    }
+
+    /**
+     * Devuelve los problemas cuyo nombre comienzan por el string patron.
+     * @param patron - String.
+     * @returns Array con los nombres de los problemas`.
+     */
+    async getProblemasSugeridos(patron: string): Promise<string[]> {
+        const problemas = await this.redis.zRangeByLex(`problemas`, `[${patron}`, `[${patron}\xff`, { LIMIT: { offset: 0, count: 5 } });
+        return problemas;
     }
 
     /**

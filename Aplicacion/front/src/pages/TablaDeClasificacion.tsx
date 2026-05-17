@@ -1,102 +1,184 @@
-import Table from "react-bootstrap/Table";
-import Pagination from "react-bootstrap/Pagination";
-import Spinner from "react-bootstrap/Spinner";
-import Form from 'react-bootstrap/Form';
 import { useState, useEffect } from "react";
-import { useAppContext } from "../contexto/contextos";
+import { useSearchParams } from "react-router-dom";
+import { socket } from "../services/socket.ts";
+import { EventType } from "shared";
+import { useQueryState } from "../hooks/useQueryState.tsx";
+import { NivelUsuario } from "shared";
+import "./TablaDeClasificaion.css";
 
-type datoUsuario = {
-    nombre: string,
-    nivel?: string,
-    xp: number
-};
+import BuscadorRanking from "../componentes/Ranking/BuscadorRanking.tsx";
+import FiltrosNivel from "../componentes/Ranking/FiltrosNivel.tsx";
+import TablaRanking from "../componentes/Ranking/TablaRanking.tsx";
+import Paginacion from "../componentes/Ranking/Paginacion.tsx";
+import { datoUsuario, pagSize } from "../componentes/Ranking/utils.ts";
 
 export default function TablaDeClasificacion() {
 
-    const [porNivel, setPorNivel] = useState(false);
+    //datos de la pagina actual del ranking
     const [users, setUsers] = useState<datoUsuario[]>([]);
-    const [pag, setPag] = useState(1);
     const [totalPags, setTotalPags] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    const pagSize = 10;
+    //usuario destacado en el ranking y si existe en el sistema
+    const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
+    const usuario = usuarioQuery;
+    const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
 
-    const appContext = useAppContext();
+    //pagina actual sincronizada con la URL
+    const [pagStr, setPagStr] = useQueryState("pagina", "1");
+    const pag = parseInt(pagStr) || 1;
+    const setPag = (val: number) => setPagStr(String(val));
 
-    const usuario = appContext?.usuarioActual;
+    //nivel seleccionado como filtro, cadena vacia significa "todos"
+    const [nivelFiltro] = useQueryState("nivel", "");
 
-    useEffect(() => {
-        fetchRanking(pag);
-    }, [pag, porNivel]);
+    //escritura directa de la URL para cambios que afectan a varios params a la vez
+    const [, setSearchParams] = useSearchParams();
 
-    const fetchRanking = async (pag: number) => {
+    //nivel del usuario destacado, para los chips de filtro y el aviso de paginacion
+    const [nivelUsuario, setNivelUsuario] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
+
+    /**
+     * Pide al backend el bloque de usuarios correspondiente a la pagina y nivel indicados, y actualiza el estado.
+     * @param paginaActual - Numero de pagina a cargar.
+     * @param nivel - Nivel por el que filtrar, o cadena vacia para no filtrar.
+     */
+    const fetchRanking = async (paginaActual: number, nivel: string) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/usuarios/ranking?pag=${pag}&tam=${pagSize}` + (porNivel ? `&usuario=${usuario}` : ""));
+            const params = new URLSearchParams({ pag: String(paginaActual), tam: String(pagSize) });
+            if (nivel) params.set("nivel", nivel);
+            const res = await fetch(`/api/usuarios/ranking?${params.toString()}`);
             const data = await res.json();
-
             setUsers(data.usuarios);
-            setTotalPags(Math.ceil(data.totalUsuarios / pagSize));
+            setTotalPags(Math.max(1, Math.ceil(data.totalUsuarios / pagSize)));
         } catch (err) {
             console.error(err);
         }
         setLoading(false);
     };
 
+    useEffect(() => {
+        fetchRanking(pag, nivelFiltro);
+    }, [pag, nivelFiltro]);
+
+    useEffect(() => {
+        if (!usuario) {
+            setUsuarioExiste(false);
+            setNivelUsuario(NivelUsuario.SIN_NIVEL);
+            return;
+        }
+        fetch(`/api/usuarios/${usuario}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.existe) {
+                    setUsuarioExiste(false);
+                    setUsuarioQuery("");
+                    localStorage.removeItem("usuarioActual");
+                    setSearchParams(prev => {
+                        const next = new URLSearchParams(prev);
+                        next.delete("usuarioActual");
+                        return next;
+                    }, { replace: true });
+                } else {
+                    setUsuarioExiste(true);
+                    fetch(`/api/usuarios/${usuario}/nivel`)
+                        .then(r => r.json())
+                        .then(n => setNivelUsuario(n));
+                }
+            });
+    }, [usuario]);
+
+    useEffect(() => {
+        const handler = () => {
+            fetchRanking(pag, nivelFiltro);
+            //tambien se refresca el nivel del usuario seleccionado para que el aviso del boton "Ir a usuario" reaccione a subidas/bajadas de nivel propagadas por el socket
+            if (usuario) {
+                fetch(`/api/usuarios/${usuario}/nivel`)
+                    .then(r => r.json())
+                    .then(n => setNivelUsuario(n))
+                    .catch(err => console.error(err));
+            }
+        };
+        socket.on(EventType.ACTUALIZACION_RANKING, handler);
+        return () => { socket.off(EventType.ACTUALIZACION_RANKING, handler); };
+    }, [pag, nivelFiltro, usuario]);
+
+    /**
+     * Cambia el filtro de nivel y vuelve a la primera pagina en una sola actualizacion de URL.
+     * @param nuevoNivel - Nuevo valor de nivel ("" para "Todos").
+     */
+    const cambiarNivel = (nuevoNivel: string) => {
+        localStorage.setItem("nivel", nuevoNivel);
+        localStorage.setItem("pagina", "1");
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            next.set("nivel", nuevoNivel);
+            next.set("pagina", "1");
+            return next;
+        }, { replace: true });
+    };
+
+    /**
+     * Tras validar al usuario en el buscador, salta a la pagina donde aparece dentro del filtro actual.
+     * Si no pertenece al filtro, se queda en la pagina actual pero registra al usuario destacado.
+     * @param valor - Nombre del usuario buscado.
+     */
+    const irAUsuario = async (valor: string) => {
+        const normalizado = valor.toLowerCase().normalize("NFC").trim();
+        try {
+            const filtrar = !!nivelFiltro;
+            const res = await fetch(`/api/usuarios/ranking/${normalizado}?filtrarNivel=${filtrar}`);
+            const info = await res.json();
+            //si hay filtro y el usuario no es de ese nivel, no saltamos de pagina (no aparece en la lista filtrada)
+            const matchesFiltro = !nivelFiltro || info?.nivel === nivelFiltro;
+            const paginaDestino = info?.pos > 0 && matchesFiltro ? Math.ceil(info.pos / pagSize) : pag;
+            localStorage.setItem("usuarioActual", normalizado);
+            localStorage.setItem("pagina", String(paginaDestino));
+            setSearchParams(prev => {
+                const next = new URLSearchParams(prev);
+                next.set("usuarioActual", normalizado);
+                next.set("pagina", String(paginaDestino));
+                return next;
+            }, { replace: true });
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
-        <div>
-            <h1 className="p-4 text-3xl font-bold">
-                Ranking usuarios ¡Acepta el reto!
-            </h1>
+        <div className="w-full px-4 sm:px-6 lg:px-8 pb-4">
+            <div className="max-w-6xl mx-auto mt-3">
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {usuario && <Form.Check
-                    className="mb-2"
-                    type="switch"
-                    id="toggle-check"
-                    dir="rtl"
-                    label="Filtrar por nivel"
-                    checked={porNivel}
-                    onChange={(e) => { setPorNivel(e.currentTarget.checked); setPag(1) }}
-                />}
-                {loading ? (
-                    <Spinner animation="border" />
-                ) : (
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Usuario</th>
-                                <th>Nivel</th>
-                                <th>XP</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((u: datoUsuario, index) => (
-                                <tr key={u.nombre}>
-                                    <td>{(pag - 1) * pagSize + index + 1}</td>
-                                    <td>{u.nombre}</td>
-                                    <td>{u.nivel}</td>
-                                    <td>{u.xp}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                )}
+                <BuscadorRanking
+                    usuario={usuario}
+                    nivelUsuario={nivelUsuario}
+                    onResultado={irAUsuario}
+                />
 
-                <div className="aligne-items-center">
-                    <Pagination>
-                        <Pagination.Prev onClick={() => setPag(pag - 1)} disabled={pag === 1} />
-                        {pag !== 1 && <Pagination.Ellipsis />}
+                <FiltrosNivel
+                    nivelActual={nivelFiltro}
+                    onCambio={cambiarNivel}
+                    usuario={usuarioExiste ? usuario : ""}
+                    nivelUsuario={nivelUsuario}
+                />
 
-                        <Pagination.Item key={pag} active={true} onClick={() => setPag(pag)}>
-                            {pag}
-                        </Pagination.Item>
+                <TablaRanking
+                    users={users}
+                    loading={loading}
+                    usuarioDestacado={usuarioExiste ? usuario : ""}
+                    onMarcarUsuario={irAUsuario}
+                />
 
-                        {pag !== totalPags && <Pagination.Ellipsis />}
-                        <Pagination.Next onClick={() => setPag(pag + 1)} disabled={pag === totalPags} />
-                    </Pagination>
-                </div>
+                <Paginacion
+                    pag={pag}
+                    totalPags={totalPags}
+                    setPag={setPag}
+                    usuario={usuarioExiste ? usuario : ""}
+                    onIrAUsuario={() => irAUsuario(usuario)}
+                    fueraDeFiltro={!!nivelFiltro && usuarioExiste === true && nivelUsuario !== NivelUsuario.SIN_NIVEL && nivelUsuario !== nivelFiltro}
+                    nivelFiltro={nivelFiltro}
+                />
 
             </div>
         </div>

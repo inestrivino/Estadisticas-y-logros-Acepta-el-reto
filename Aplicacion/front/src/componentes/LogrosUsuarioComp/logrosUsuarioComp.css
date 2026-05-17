@@ -1,15 +1,16 @@
 .app-tabs {
-  border-bottom: 3px solid var(--tab-color);
+  border-bottom: 3px solid #446E9B !important;
 }
 
 .app-tabs .nav-link {
   font-size: 1.2rem;
-  color: var(--tab-color);
+  color: #446E9B;
   border: none;
 }
 
 .app-tabs .nav-link.active {
-  color: var(--tab-color);
-  border: 3px solid var(--tab-color);
+  color: #446E9B;
+  border: 3px solid #446E9B;
   border-bottom: none;
+  /*margin-bottom: -2px;*/
 }

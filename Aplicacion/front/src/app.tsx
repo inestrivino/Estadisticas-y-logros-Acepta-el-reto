@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import PruebaSocket from "./pages/PruebaSocket"
 import Layout from "./pages/Layout/Layout.js"
 import LogrosUsuario from "./pages/LogrosUsuario"
 import TablaDeClasificacion from "./pages/TablaDeClasificacion.js"
@@ -17,7 +16,6 @@ export default function App() {
             <Route path="/" element={<Inicio />} />
             <Route path="/problemas" element={<EstadisticasProblema />} />
             <Route path="/problemas/:problema" element={<EstadisticasProblema />} />
-            <Route path="/pruebaSocket" element={<PruebaSocket />} />
             <Route path="/usuarios/estadisticas" element={<EstadisticasUsuario />} />
             <Route path="/usuarios/estadisticas/:usuario" element={<EstadisticasUsuario />} />
             <Route path="/usuarios/logros/" element={<LogrosUsuario />} />

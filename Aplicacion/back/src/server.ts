@@ -3,6 +3,7 @@ import express from 'express';
 import 'dotenv/config'
 //archivos
 import redisClient from './redis/redisClient.js';
+import redisLoading from './redis/redisLoading.js';
 import { initSocket } from './sockets/socketInit.js';
 import inicializarService from './servicios/inicializarService.js';
 import gestionService from './servicios/gestionService.js';
@@ -11,6 +12,8 @@ import initConsumer from "./consumer/cosumer.js";
 import rutasProblemas from "./api/problemas.js";
 import rutasUsuarios from "./api/usuarios.js";
 import rutasGestion from "./api/gestion.js";
+import usuarioService from './servicios/usuarioService.js';
+import checkpointsService from './servicios/checkpointsService.js';
 
 //============== CONFIGURACION ==============
 const app = express();
@@ -31,6 +34,16 @@ app.listen(3000, (error) => {
 //============== INICIAR EL SERVIDOR ==============
 //se conecta a la base de datos
 await redisClient.connect();
+await redisLoading();
+
+//comprueba si hay que volver a lanzar la aplicacion de 0
+await gestionService.checkVersion();
+
+//se mira si algun actualizador ha cambiado de version o si hay alguno nuevo
+await checkpointsService.comprobarVersiones();
+
+//se eliminan los envios anteriores a un año
+await usuarioService.eliminarEnviosAntiguos(); 
 
 //incializo el socket
 initSocket(app);

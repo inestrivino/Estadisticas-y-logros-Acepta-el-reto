@@ -5,7 +5,7 @@
     "dev-local": "tsx watch --clear-screen=false src/server.ts",
     "dev": "cross-env CHOKIDAR_USEPOLLING=true tsx watch --clear-screen=false --inspect=0.0.0.0:9229 src/server.ts",
     "build": "tsc",
-    "minify": "npx esbuild ./dist-server/server.js --bundle --minify --platform=node --format=esm --packages=external --outfile=dist-server/server.min.js",
+    "minify": "npx esbuild ./dist-server/server.js --bundle --minify --platform=node --format=esm --packages=external --alias:shared=../shared --outfile=dist-server/server.min.js",
     "test": "vitest run --coverage",
     "graph": "madge src --extensions ts,tsx --image graph.svg"
   },
@@ -26,6 +26,7 @@
     "@types/ws": "^8.18.1",
     "@vitest/coverage-istanbul": "^4.1.2",
     "@vitest/ui": "^4.0.18",
+    "cross-env": "^10.1.0",
     "esbuild": "^0.27.2",
     "madge": "^8.0.0",
     "tsx": "^4.21.0",
