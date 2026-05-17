@@ -11,6 +11,7 @@ const logro17: Logro = {
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: true,
+    descripcionBorrosa: "¡Cuarenta y dos! chilló Loonquawl. ¿Eso es todo lo que tienes que decirnos después de siete millores y medio de años detrabajo?",
 
     version: 1,
     requiereEstadisticasUsuario: [],

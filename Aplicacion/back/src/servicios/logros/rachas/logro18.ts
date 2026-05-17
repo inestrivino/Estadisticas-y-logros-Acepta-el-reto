@@ -7,10 +7,11 @@ const logro18: Logro = {
     id: 1,
     nombre: "logro18",
     descripcion: "He realizado envíos en cada hora del día",
-    imagen: "trofeo_plata_placeholder.png",
-    nivel: NivelLogro.PLATA,
+    imagen: "trofeo_oro_placeholder.png",
+    nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.RACHAS,
     sorpresa: true,
+    descripcionBorrosa: "https://youtu.be/dQw4w9WgXcQ",
 
     version: 1,
     requiereEstadisticasUsuario: [CampoUsuario.HORAS],

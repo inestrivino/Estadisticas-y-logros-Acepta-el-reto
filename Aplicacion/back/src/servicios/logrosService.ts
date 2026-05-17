@@ -187,15 +187,21 @@ class LogrosService {
         const setLogros = new Set(await logrosDAO.getLogros(usuario));
 
         //agrega el atributo de si el usuario tiene ese logro o no
-        const logrosUsuario = this.logros.map(logro => ({
-            nombre: logro.nombre,
-            descripcion: logro.descripcion,
-            imagen: logro.imagen,
-            nivel: logro.nivel,
-            categoria: logro.categoria,
-            sorpresa: logro.sorpresa,
-            obtenido: setLogros.has(logro.nombre)
-        }));
+        const logrosUsuario = this.logros.map(logro => {
+            const obtenido = setLogros.has(logro.nombre);
+            const ocultar = logro.sorpresa && !obtenido;
+            return {
+                nombre: logro.nombre,
+                //si es sorpresa y aun no se ha obtenido se manda solo la descripcion borrosa para que la real no sea visible desde devtools
+                descripcion: ocultar ? "" : logro.descripcion,
+                descripcionBorrosa: ocultar ? logro.descripcionBorrosa : undefined,
+                imagen: logro.imagen,
+                nivel: logro.nivel,
+                categoria: logro.categoria,
+                sorpresa: logro.sorpresa,
+                obtenido,
+            };
+        });
 
         //agrupa todos los logros segun la clasificacion seleccionada
         const gruposMap = new Map();

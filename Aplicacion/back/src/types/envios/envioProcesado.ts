@@ -2,7 +2,7 @@ export type EnvioProcesado = {
     envioId: number,        //id unico del envio
     usuario: string,        //identificador del usuario que hizo el envio
     problema: string,       //identificador del problema enviado
-    //categoria: string,    //TODO categorias problemas
+    //categoria: string,    ///para trofeos y estadisticas futuras
     resultado: string,      //veredicto del juez (AC, WA, TLE, ...)
     lenguaje: string,       //lenguaje de programacion usado
     tiempo: number,         //tiempo de ejecucion en milisegundos

@@ -222,7 +222,7 @@ class ProcesarEnviosService {
             envioId: envio.num,
             usuario: this.normalizar(envio.user.nick),
             problema: this.normalizar(envio.problem.title),
-            //categoria: envio.categoria, //TODO categorias problemas
+            //categoria: envio.categoria, //para trofeos y estadisticas futuras
             resultado: envio.result,
             lenguaje: this.normalizar(envio.language),
             tiempo: envio.executionTime,
@@ -254,7 +254,7 @@ class ProcesarEnviosService {
             envioId: envio.sid,
             usuario: this.normalizar(envio.nick),
             problema: this.normalizar(problema.title),
-            //categoria: envio.categoria, //TODO categorias problemas
+            //categoria: envio.categoria, //para trofeos y estadisticas futuras
             resultado: envio.ver,
             lenguaje: this.normalizar(envio.lan),
             tiempo: envio.run / 1000,

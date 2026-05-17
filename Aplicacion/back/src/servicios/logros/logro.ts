@@ -11,6 +11,7 @@ export interface Logro {
   id: number;
   nombre: string;
   descripcion: string;
+  descripcionBorrosa?: string;     //texto que se muestra (con efecto borroso) cuando el logro es sorpresa y aun no se ha obtenido
   imagen: string;
   categoria: CategoriaLogro;
   nivel: NivelLogro;
