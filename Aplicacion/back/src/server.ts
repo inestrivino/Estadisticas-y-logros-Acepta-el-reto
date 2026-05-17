@@ -36,9 +36,6 @@ app.listen(3000, (error) => {
 await redisClient.connect();
 await redisLoading();
 
-//incializo el socket
-initSocket(app);
-
 //comprueba si hay que volver a lanzar la aplicacion de 0
 await gestionService.checkVersion();
 
@@ -47,6 +44,9 @@ await checkpointsService.comprobarVersiones();
 
 //se eliminan los envios anteriores a un año
 await usuarioService.eliminarEnviosAntiguos(); 
+
+//incializo el socket
+initSocket(app);
 
 //inicializo la base de datos de redis con los datos historicos
 await inicializarService.inicializar();

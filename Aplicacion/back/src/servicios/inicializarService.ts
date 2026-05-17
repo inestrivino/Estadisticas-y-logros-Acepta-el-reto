@@ -50,16 +50,15 @@ class InicializarService {
      * @returns Objeto con el numero de envio y la pagina de referencia donde buscarlo.
      */
     private async buscarPrimerEnvio(): Promise<{ envio: number, pagina: number }> {
+
         //saca el ultimo envio que se metio en la base de datos
         let ultimoEnvio: number = await gestionService.getUltimoEnvio();
-        let referenciaPagina: number = -1;
+        let referenciaPagina: number = 1;
 
-        //TODO quitar esto al final que es debug
-        /*
-        gestionDAO.flushAll();
-        ultimoEnvio = 1037429;
-        referenciaPagina = 1;
-        */
+        //DEBUG
+        const ultimoEnvioManual = process.env.ULTIMOENVIO;
+        if (ultimoEnvioManual !== undefined && Number(ultimoEnvioManual))
+            ultimoEnvio = Number(ultimoEnvioManual);
 
         //si no habia envios aun se pone 1
         if (ultimoEnvio === 0) {

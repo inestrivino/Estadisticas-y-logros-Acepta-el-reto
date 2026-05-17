@@ -6,7 +6,7 @@ data
 test-report
 coverage
 graph.svg
-redis_data
+redis_data*
 
 .vscode/*
 !.vscode/launch.json 

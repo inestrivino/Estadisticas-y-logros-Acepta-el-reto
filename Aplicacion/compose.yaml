@@ -29,7 +29,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
     env_file:
-      - ./.env.back
+      - ./.env.back.dev
     depends_on:
       - redis
       - rabbitmq
@@ -40,7 +40,7 @@ services:
   redis:
     image: "redis:alpine"
     volumes:
-      - ./redis_data:/data
+      - ./redis_data_dev:/data
 
   redisinsight:
     image: redis/redisinsight:latest
@@ -55,7 +55,7 @@ services:
       - redis
 
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4-management-alpine
     restart: unless-stopped
     ports:
       - "15672:15672"

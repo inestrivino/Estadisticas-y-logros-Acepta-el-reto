@@ -30,10 +30,10 @@ services:
     image: "redis:alpine"
     restart: unless-stopped
     volumes:
-      - ./redis_data:/data
+      - ./redis_data_prod:/data
 
   rabbitmq:
-    image: rabbitmq:4
+    image: rabbitmq:4-alpine
     restart: unless-stopped
     env_file:
       - ./.env.rabbitmq
