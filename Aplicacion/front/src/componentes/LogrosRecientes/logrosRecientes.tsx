@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { socket } from "../../services/socket.ts";
-import { DatosLogro } from "shared/LogroTypes.js";
-import { NivelLogro } from "shared/LogroConsts.js";
+import { DatosLogro, NivelLogro } from "shared";
 import Skeleton from "../Skeleton/skeleton.tsx";
 
 const NIVEL_COLOR: Record<string, string> = {
@@ -69,15 +68,21 @@ export default function LogrosRecientes(props: {
                     <div key={i} style={{
                         position: "relative",
                         height: "100%",
-                        boxSizing: "border-box",
-                        overflow: "hidden",
                         minHeight: 0,
-                        background: "#ffffffa0",
-                        borderRadius: "8px",
-                        padding: "0.3rem 0.5rem",
-                        borderLeft: `4px solid ${NIVEL_COLOR[logro.nivel] ?? "#2675a6"}`,
+                        padding: "0.4rem 0",
+                        boxSizing: "border-box",
+                        borderTop: i > 0 ? "1px solid transparent" : "none",
+                        borderImage: i > 0 ? "linear-gradient(to right, transparent, #86e7ffa8 50%, transparent) 1" : undefined,
                     }}>
-                        <img style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", maxHeight: "100%", width: "auto" }}
+                        <img style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                maxHeight: "calc(100% - 0.8rem)",
+                                width: "auto",
+                                filter: `drop-shadow(0 0 6px ${NIVEL_COLOR[logro.nivel] ?? "#2675a6"}aa)`,
+                            }}
                             src={`/logros/${logro.imagen}`}
                             alt={logro.nombre}
                         />

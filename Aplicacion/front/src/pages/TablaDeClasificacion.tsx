@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { socket } from "../services/socket.ts";
 import { EventType } from "shared";
 import { useQueryState } from "../hooks/useQueryState.tsx";
-import { NivelUsuario } from "shared/NivelUsuarios.ts";
+import { NivelUsuario } from "shared";
 import "./TablaDeClasificaion.css";
 
 import BuscadorRanking from "../componentes/Ranking/BuscadorRanking.tsx";
@@ -14,22 +14,28 @@ import { datoUsuario, pagSize } from "../componentes/Ranking/utils.ts";
 
 export default function TablaDeClasificacion() {
 
+    //datos de la pagina actual del ranking
     const [users, setUsers] = useState<datoUsuario[]>([]);
     const [totalPags, setTotalPags] = useState(1);
     const [loading, setLoading] = useState(false);
 
+    //usuario destacado en el ranking y si existe en el sistema
     const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
     const usuario = usuarioQuery;
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
 
+    //pagina actual sincronizada con la URL
     const [pagStr, setPagStr] = useQueryState("pagina", "1");
     const pag = parseInt(pagStr) || 1;
     const setPag = (val: number) => setPagStr(String(val));
 
+    //nivel seleccionado como filtro, cadena vacia significa "todos"
     const [nivelFiltro] = useQueryState("nivel", "");
 
+    //escritura directa de la URL para cambios que afectan a varios params a la vez
     const [, setSearchParams] = useSearchParams();
 
+    //nivel del usuario destacado, para los chips de filtro y el aviso de paginacion
     const [nivelUsuario, setNivelUsuario] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
 
     /**
@@ -84,10 +90,19 @@ export default function TablaDeClasificacion() {
     }, [usuario]);
 
     useEffect(() => {
-        const handler = () => fetchRanking(pag, nivelFiltro);
+        const handler = () => {
+            fetchRanking(pag, nivelFiltro);
+            //tambien se refresca el nivel del usuario seleccionado para que el aviso del boton "Ir a usuario" reaccione a subidas/bajadas de nivel propagadas por el socket
+            if (usuario) {
+                fetch(`/api/usuarios/${usuario}/nivel`)
+                    .then(r => r.json())
+                    .then(n => setNivelUsuario(n))
+                    .catch(err => console.error(err));
+            }
+        };
         socket.on(EventType.ACTUALIZACION_RANKING, handler);
         return () => { socket.off(EventType.ACTUALIZACION_RANKING, handler); };
-    }, [pag, nivelFiltro]);
+    }, [pag, nivelFiltro, usuario]);
 
     /**
      * Cambia el filtro de nivel y vuelve a la primera pagina en una sola actualizacion de URL.
@@ -152,6 +167,7 @@ export default function TablaDeClasificacion() {
                     users={users}
                     loading={loading}
                     usuarioDestacado={usuarioExiste ? usuario : ""}
+                    onMarcarUsuario={irAUsuario}
                 />
 
                 <Paginacion
@@ -160,6 +176,8 @@ export default function TablaDeClasificacion() {
                     setPag={setPag}
                     usuario={usuarioExiste ? usuario : ""}
                     onIrAUsuario={() => irAUsuario(usuario)}
+                    fueraDeFiltro={!!nivelFiltro && usuarioExiste === true && nivelUsuario !== NivelUsuario.SIN_NIVEL && nivelUsuario !== nivelFiltro}
+                    nivelFiltro={nivelFiltro}
                 />
 
             </div>

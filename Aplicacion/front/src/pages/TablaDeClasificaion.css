@@ -2,11 +2,68 @@
   color: inherit;
   text-decoration: none;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .usuario-link:hover {
   color: #446E9B;
   text-decoration: underline;
+}
+
+.ranking-popover-flotante {
+  position: fixed;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem;
+  background: #fff;
+  border: 1px solid #d3dfe9;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  max-width: 220px;
+}
+
+.ranking-popover-aviso {
+  transform: translate(-50%, -100%);
+  width: max-content;
+  max-width: none;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.8rem;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.ranking-popover-aviso::before {
+  top: 100%;
+  bottom: auto;
+  right: auto;
+  left: 0;
+  width: 100%;
+  height: 12px;
+}
+
+.ranking-popover-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ranking-popover-item:hover,
+.ranking-popover-item:focus {
+  background: #eef3f8;
+  color: #446E9B;
+  text-decoration: none;
+  outline: none;
 }
 
 .ranking-controles {
@@ -171,7 +228,7 @@
   padding: 0 10px;
 }
 
-.ranking-paginacion .ranking-page-btn:hover:not(:disabled) {
+.ranking-paginacion .ranking-page-btn:hover:not(:disabled):not(.activo) {
   background: #eef3f8;
 }
 
