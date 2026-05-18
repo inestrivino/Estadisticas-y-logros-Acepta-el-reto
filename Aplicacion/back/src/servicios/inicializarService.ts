@@ -14,6 +14,13 @@ class InicializarService {
     private salto = 20; //resultados por pagina
     private poolSize = 20; //numero de peticiones que hay a la vez a la api
     private expected = -1; //numero de envio que se espera
+    private diferenciaDeProcesado = 10; //diferencia máximo entre el último bloque que se proceso y el que ya se recibieron sus paginas
+    private numPaginasRecuperar = 10; //numero de paginas que se miran hacia atras al recuperar envios perdidos
+
+    //NUMERO DE PETICIONES QUE SE ESTAN EJECUTANDO
+    private currentInPool = 0;
+    private ultimoBloquePaginaRecibidas = -1;
+    private ultimoBloqueProcesado = -1;
 
     /**
      * Arranca la carga inicial de envios desde la API, retomando desde donde se quedo en
@@ -31,9 +38,12 @@ class InicializarService {
 
         for await (const { promesa, numBloque } of this.peticiones(pagina, envio)) {
 
+            this.ultimoBloquePaginaRecibidas = numBloque;
+
             //le llega la cadena de promesas a procesarBloque y le dice que cuando se procese mande el resultado a procesarEnviosService
             cola = cola.then(async () => {
                 const bloque = await promesa;
+                this.ultimoBloqueProcesado = numBloque;
                 await procesarEnviosService.procesarBloqueEnviosInicial(bloque);
                 console.log(` + Bloque ${numBloque} insertado en la base de datos\n`);
             });
@@ -236,14 +246,17 @@ class InicializarService {
 
             //se pone en curso
             enCurso.set(pagina, promesa);
+            this.currentInPool++;
 
             //se pone tambien con el resto de promesas de su grupo
             promesasBloque.add(promesa);
 
             //se espera hasta que haya espacio en el pool
-            if (enCurso.size >= this.poolSize) {
+            const diferenciaAux = this.ultimoBloquePaginaRecibidas - this.ultimoBloqueProcesado;
+            if (this.currentInPool >= this.poolSize || diferenciaAux >= this.diferenciaDeProcesado) {
                 const aux = await Promise.race(enCurso.values());
                 enCurso.delete(aux.pagina);
+                this.currentInPool--;
             }
 
             i++;
@@ -325,7 +338,7 @@ class InicializarService {
         } while (!res.ok)
 
         const data: RespuestaApi = JSON.parse(await res.text());
-        console.log(`[recibida] Pagina ${pagina} bloque: ${bloque}, posBloque: ${posBloque}`);
+        console.log(`[recibida] Pagina ${pagina} bloque: ${bloque}, posBloque: ${posBloque}`); //TODO poner un logger donde se pueda configurar que mensajes ver
 
         return { data, pagina };
     }
@@ -414,27 +427,33 @@ class InicializarService {
      * @returns Array con los objetos de envio recuperados (puede ser menor que `envios` si no se encontraron todos).
      */
     private async recuperarEnvios(envios: number[], pagina: number) {
-        //va como maximo 10 paginas atras a buscar los envios
-        const pendientes = new Set(envios);
-        const recuperados = new Array();
-        for (let i = 0; i < 10; i++) {
-            const url = this.generarUrl(pagina);
-            const response = await fetch(url);
-            const text = await response.text();
-            const json: RespuestaApi = JSON.parse(text);
 
+        //limita a 10 el numero de peticiones que puede haber mientras se recuperan otras paginas
+        this.currentInPool += this.numPaginasRecuperar;
+
+        //va como maximo numPaginasRecuperar paginas atras a buscar los envios, lanzando todas las peticiones a la vez
+        const pendientes = new Set(envios);
+        const promesas = Array.from({ length: this.numPaginasRecuperar }, (_, i) =>
+            fetch(this.generarUrl(pagina + i * this.salto))
+                .then(r => r.text())
+                .then(t => JSON.parse(t) as RespuestaApi)
+        );
+
+        const recuperados = new Array();
+        for (const promesa of promesas) {
+            const json = await promesa;
             for (const currentSubmission of json.submission) {
                 if (pendientes.has(currentSubmission.num)) {
                     recuperados.push(currentSubmission);
                     pendientes.delete(currentSubmission.num);
                 }
             }
-
-            if (pendientes.size === 0)
-                break;
-
-            pagina += this.salto;
+            if (pendientes.size === 0) break;
         }
+
+        //devuelve el pool a su cifra normal
+        this.currentInPool -= this.numPaginasRecuperar;
+
         return recuperados.reverse();
     }
 }

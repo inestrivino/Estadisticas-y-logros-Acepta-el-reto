@@ -9,6 +9,9 @@
 
     "start-prod": "docker compose -f compose.prod.yaml up --build",
 
+    "insight": "docker start redisinsight || docker run -d --name redisinsight --network app-prod_default -p 5540:5540 -e RI_REDIS_HOST=redis redis/redisinsight:latest",
+    "stop-insight": "docker stop redisinsight",
+
     "start-prueba": "docker compose -f compose.prueba.yaml up --build",
     "push": "npm run build:back && npm run build:front && npm run push:back && npm run push:front",
     "build:back": "docker build -t n3stor173/app-back:latest -f ./back/Dockerfile.prod .",
