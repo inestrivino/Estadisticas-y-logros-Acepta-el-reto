@@ -78,7 +78,7 @@ export default function Buscador(props: {
             return;
 
         if (props.tipo === "problema_estadistica") {
-            fetch(`/api/problemas/${valor}`)
+            fetch(`/api/problemas/${encodeURIComponent(valor)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (!data.existe)
@@ -86,13 +86,13 @@ export default function Buscador(props: {
                     else {
                         setMensajeError(``);
                         localStorage.setItem("problemaActual", valor);
-                        navigate(`/problemas/${valor}`);
+                        navigate(`/problemas/${encodeURIComponent(valor)}`);
                     }
                 });
 
         } else {
 
-            fetch(`/api/usuarios/${valor}`)
+            fetch(`/api/usuarios/${encodeURIComponent(valor)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (!data.existe) {
@@ -103,14 +103,14 @@ export default function Buscador(props: {
                         if (props.onResultado) {
                             props.onResultado(valor);
                         } else if (props.tipo === "usuario_estadistica") {
-                            navigate(`/usuarios/estadisticas/${valor}`);
+                            navigate(`/usuarios/estadisticas/${encodeURIComponent(valor)}`);
 
                         } else if (props.tipo === "usuario_logro") {
                             const clasificacionGuardada = searchParams.get("clasificacion")
                                 ?? localStorage.getItem("clasificacion")
                                 ?? "nivel";
 
-                            navigate(`/usuarios/logros/${valor}?clasificacion=${clasificacionGuardada}`);
+                            navigate(`/usuarios/logros/${encodeURIComponent(valor)}?clasificacion=${clasificacionGuardada}`);
                         }
                     }
                 });

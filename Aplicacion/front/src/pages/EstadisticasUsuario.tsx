@@ -19,7 +19,7 @@ export default function EstadisticasUsuario() {
     useEffect(() => {
         if (!usuario) return;
         setUsuarioExiste(null);
-        fetch(`/api/usuarios/${usuario}`)
+        fetch(`/api/usuarios/${encodeURIComponent(usuario)}`)
             .then(res => res.json())
             .then(data => {
                 setUsuarioExiste(data.existe);
@@ -32,7 +32,7 @@ export default function EstadisticasUsuario() {
     const navigate = useNavigate();
     useEffect(() => {
         if(!usuarioExiste) return;
-        navigate(`/usuarios/estadisticas/${usuario}`, { replace: true });
+        navigate(`/usuarios/estadisticas/${encodeURIComponent(usuario)}`, { replace: true });
     }, [usuario, usuarioExiste, navigate]);
 
     // NIVEL

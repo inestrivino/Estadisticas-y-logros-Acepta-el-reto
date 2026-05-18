@@ -19,7 +19,7 @@ export default function LogrosUsuario() {
     useEffect(() => {
         if (!usuario) return;
         setUsuarioExiste(null);
-        fetch(`/api/usuarios/${usuario}`)
+        fetch(`/api/usuarios/${encodeURIComponent(usuario)}`)
             .then(res => res.json())
             .then(data => {
                 setUsuarioExiste(data.existe);
@@ -36,7 +36,7 @@ export default function LogrosUsuario() {
         const clasificacionGuardada = searchParams.get("clasificacion")
             ?? localStorage.getItem("clasificacion")
             ?? "nivel";
-        navigate(`/usuarios/logros/${usuario}?clasificacion=${clasificacionGuardada}`, { replace: true });
+        navigate(`/usuarios/logros/${encodeURIComponent(usuario)}?clasificacion=${clasificacionGuardada}`, { replace: true });
     }, [usuario, usuarioExiste, navigate]);
 
     // NIVEL

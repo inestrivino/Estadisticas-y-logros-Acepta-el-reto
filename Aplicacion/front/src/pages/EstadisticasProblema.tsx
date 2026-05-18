@@ -15,7 +15,7 @@ export default function EstadisticasProblema() {
         if (!problema) return;
 
         setProblemaExiste(null);
-        fetch(`/api/problemas/${problema}`)
+        fetch(`/api/problemas/${encodeURIComponent(problema)}`)
             .then(res => res.json())
             .then(data => {
                 setProblemaExiste(data.existe);
@@ -24,7 +24,7 @@ export default function EstadisticasProblema() {
 
     const navigate = useNavigate();
     useEffect(() => {
-        navigate(`/problemas/${problema}`, { replace: true });
+        navigate(`/problemas/${encodeURIComponent(problema)}`, { replace: true });
     }, [problema, navigate]);
 
     return (

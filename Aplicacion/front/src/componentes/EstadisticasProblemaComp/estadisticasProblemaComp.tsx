@@ -13,46 +13,47 @@ export default function EstadisticasProblemaComp(props: {
 }) {
 
     const problema = props.problema;
+    const problemaEncoded = encodeURIComponent(problema);
 
     //ENVIOS
     const [envios, setEnvios] = useState<number | null>(null);
     useEffect(() => {
-        fetch(`/api/problemas/${problema}/envios`)
+        fetch(`/api/problemas/${problemaEncoded}/envios`)
             .then(response => response.json())
             .then(data => setEnvios(data));
-    }, [problema]);
+    }, [problemaEncoded]);
 
     //MEJOR TIEMPO
     const [mejorTiempo, setMejorTiempo] = useState<number | null>(null);
     useEffect(() => {
-        fetch(`/api/problemas/${problema}/mejorTiempo`)
+        fetch(`/api/problemas/${problemaEncoded}/mejorTiempo`)
             .then(response => response.json())
             .then(data => setMejorTiempo(data));
-    }, [problema]);
+    }, [problemaEncoded]);
 
     //TIEMPO PROMEDIO
     const [tiempoPromedio, setTiempoPromedio] = useState<number | null>(null);
     useEffect(() => {
-        fetch(`/api/problemas/${problema}/tiempoPromedio`)
+        fetch(`/api/problemas/${problemaEncoded}/tiempoPromedio`)
             .then(response => response.json())
             .then(data => setTiempoPromedio(data));
-    }, [problema]);
+    }, [problemaEncoded]);
 
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
-        fetch(`/api/problemas/${problema}/resultados`)
+        fetch(`/api/problemas/${problemaEncoded}/resultados`)
             .then(response => response.json())
             .then(data => setResultados(data));
-    }, [problema]);
+    }, [problemaEncoded]);
 
     //LENGUAJES
     const [lenguajes, setLenguajes] = useState<{ name: string; value: number }[]>();
     useEffect(() => {
-        fetch(`/api/problemas/${problema}/lenguajes`)
+        fetch(`/api/problemas/${problemaEncoded}/lenguajes`)
             .then(response => response.json())
             .then(data => setLenguajes(data));
-    }, [problema]);
+    }, [problemaEncoded]);
 
     //carga unificada: el shimmer se mantiene en todos los paneles hasta que todos los fetch han terminado
     const loading = envios === null || mejorTiempo === null || tiempoPromedio === null
