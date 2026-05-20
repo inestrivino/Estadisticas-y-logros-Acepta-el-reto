@@ -4,7 +4,6 @@ import { socket } from "../services/socket.ts";
 import { EventType } from "shared";
 import { useQueryState } from "../hooks/useQueryState.tsx";
 import { NivelUsuario } from "shared";
-import "./TablaDeClasificaion.css";
 
 import BuscadorRanking from "../componentes/Ranking/BuscadorRanking.tsx";
 import FiltrosNivel from "../componentes/Ranking/FiltrosNivel.tsx";
@@ -18,6 +17,7 @@ export default function TablaDeClasificacion() {
     const [users, setUsers] = useState<datoUsuario[]>([]);
     const [totalPags, setTotalPags] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [tickSocket, setTickSocket] = useState(0);
 
     //usuario destacado en el ranking y si existe en el sistema
     const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
@@ -60,7 +60,7 @@ export default function TablaDeClasificacion() {
 
     useEffect(() => {
         fetchRanking(pag, nivelFiltro);
-    }, [pag, nivelFiltro]);
+    }, [pag, nivelFiltro, tickSocket]);
 
     useEffect(() => {
         if (!usuario) {
@@ -91,8 +91,8 @@ export default function TablaDeClasificacion() {
 
     useEffect(() => {
         const handler = () => {
-            fetchRanking(pag, nivelFiltro);
-            //tambien se refresca el nivel del usuario seleccionado para que el aviso del boton "Ir a usuario" reaccione a subidas/bajadas de nivel propagadas por el socket
+            //incrementa el tick para que el effect principal relance fetchRanking con el pag actual
+            setTickSocket(n => n + 1);
             if (usuario) {
                 fetch(`/api/usuarios/${usuario}/nivel`)
                     .then(r => r.json())
@@ -102,7 +102,7 @@ export default function TablaDeClasificacion() {
         };
         socket.on(EventType.ACTUALIZACION_RANKING, handler);
         return () => { socket.off(EventType.ACTUALIZACION_RANKING, handler); };
-    }, [pag, nivelFiltro, usuario]);
+    }, [usuario]);
 
     /**
      * Cambia el filtro de nivel y vuelve a la primera pagina en una sola actualizacion de URL.

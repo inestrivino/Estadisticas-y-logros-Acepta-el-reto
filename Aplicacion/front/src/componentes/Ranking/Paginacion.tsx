@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import "./ranking.css";
 
 /**
  * Paginacion con numeros de pagina, flechas, un input para ir a una pagina concreta

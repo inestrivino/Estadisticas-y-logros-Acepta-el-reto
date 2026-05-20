@@ -15,7 +15,7 @@ export default function BuscadorRanking(props: {
     const { usuario, nivelUsuario, onResultado } = props;
 
     return (
-        <div className="w-full flex justify-center">
+        <div className="justify-center">
             <Buscador
                 tipo="usuario_estadistica"
                 ruta=""
@@ -24,13 +24,14 @@ export default function BuscadorRanking(props: {
                 //si hay usuario, se muestra como titulo del buscador junto a su etiqueta de nivel
                 prefijo={usuario
                     ? <>
-                        <span className="text-truncate">
+                        <span className="text-truncate min-w-0">
                             Posición de <b className="ms-1">{usuario}</b>
                         </span>
                         {nivelUsuario &&
                             <EtiquetaNivel
                                 evento={formatEvent(usuario, EventType.USUARIO_NIVEL)}
                                 nivel={nivelUsuario}
+                                className="flex-shrink-0"
                             />
                         }
                     </>

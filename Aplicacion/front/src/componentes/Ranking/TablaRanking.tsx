@@ -6,6 +6,7 @@ import { EventType, formatEvent } from "shared";
 import { NivelUsuario } from "shared";
 import { datoUsuario } from "./utils.ts";
 import EtiquetaNivel from "../EtiquetaNivel/etiquetaNivel.tsx";
+import "./ranking.css";
 
 /**
  * Tabla del ranking con el listado de usuarios.
@@ -23,9 +24,11 @@ export default function TablaRanking(props: {
     usuarioDestacado: string,
     onMarcarUsuario: (nombre: string) => void,
 }) {
-    
+
     //se sacan los parametros del props
     const { users, loading, usuarioDestacado, onMarcarUsuario } = props;
+
+    const esTactil = !window.matchMedia("(hover: hover)").matches;
 
     //popover activo (compartido para toda la tabla), abrir uno nuevo reemplaza al anterior
     //con un temporizador para quitarse despues de 100 milisegundos de tener el raton fuera
@@ -90,19 +93,29 @@ export default function TablaRanking(props: {
                         return (
                             <tr key={usuario.nombre} className={esUsuario ? "fila-usuario" : ""}>
                                 <td className={`ranking-pos ${claseTop}`}>{usuario.pos}</td>
-                                <td>
-                                    {/*el nombre es un link directo a las estadisticas*/}
-                                    <Link
-                                        to={`/usuarios/estadisticas/${usuario.nombre}`}
-                                        className="usuario-link"
-                                        onMouseEnter={(evento) => abrir(usuario.nombre, evento)}
-                                        onMouseLeave={cerrar}
-                                        onFocus={(evento) => abrir(usuario.nombre, evento)}
-                                        onBlur={cerrar}
-                                    >
-                                        {usuario.nombre}
-                                    </Link>
+
+                                {/*en tactil el td captura el toque y abre el popover, el span evita la navegacion*/}
+                                <td
+                                    onMouseLeave={cerrar}
+                                >
+                                    {esTactil ?
+                                        <span className="usuario-link"
+                                            onClick={(e) => { if (esTactil) abrir(usuario.nombre, e as any); }} >
+                                            {usuario.nombre}
+                                        </span>
+                                        : <Link
+                                            to={`/usuarios/estadisticas/${usuario.nombre}`}
+                                            className="usuario-link"
+                                            onMouseEnter={(evento) => abrir(usuario.nombre, evento)}
+                                            onMouseLeave={cerrar}
+                                            onFocus={(evento) => abrir(usuario.nombre, evento)}
+                                            onBlur={cerrar}
+                                        >
+                                            {usuario.nombre}
+                                        </Link>
+                                    }
                                 </td>
+
                                 <td className="ranking-nivel">
                                     <EtiquetaNivel
                                         evento={formatEvent(usuario.nombre, EventType.USUARIO_NIVEL)}

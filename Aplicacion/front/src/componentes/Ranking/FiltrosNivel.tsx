@@ -1,5 +1,6 @@
 import { NivelUsuario } from "shared";
 import { NIVELES_FILTRO, colorDelNivel, colorTextoDelNivel } from "./utils.ts";
+import "./ranking.css";
 
 /**
  * Chips para filtrar el ranking por nivel. Incluye un boton extra para filtrar
