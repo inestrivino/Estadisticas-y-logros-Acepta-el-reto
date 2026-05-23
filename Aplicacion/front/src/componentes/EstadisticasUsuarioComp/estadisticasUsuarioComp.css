@@ -53,6 +53,22 @@
     min-height: 400px;
 }
 
+.panel-participacion-scroll-wrapper {
+    min-width: 0;
+    width: 0;
+    min-width: 100%;
+}
+
+@media (max-width: 1023px) {
+    .panel-participacion-scroll-wrapper {
+        overflow-x: auto;
+    }
+    
+    .panel-participacion-container {
+        min-width: 600px;
+    }
+}
+
 @media (min-width: 1024px) {
     .estadisticas-usuario-wrapper {
         height: 100%;

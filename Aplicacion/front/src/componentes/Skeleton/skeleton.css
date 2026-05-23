@@ -17,3 +17,18 @@
     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.53) 70%, transparent 100%);
     animation: skeleton-shimmer 2s infinite;
 }
+
+.logros-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    gap: 0.4rem;
+}
+
+/* en movil los logros en fila */
+@media (max-width: 600px) {
+    .logros-grid.logros-grid--multi {
+        grid-template-rows: minmax(0, 1fr) !important;
+        grid-template-columns: repeat(var(--logros-count), minmax(0, 1fr));
+    }
+}

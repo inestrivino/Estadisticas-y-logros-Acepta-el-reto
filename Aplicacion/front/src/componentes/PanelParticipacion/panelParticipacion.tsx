@@ -64,6 +64,23 @@ export default function PanelParticipacion(props: {
         );
     }
 
+    function calcPosTooltip(x: number, y: number): { x: number, y: number } {
+        const margin = 12;
+        const tooltipW = 180; //ancho aprox del tooltip
+        const tooltipH = 36; //alto aprox del tooltip
+
+        let tx = x + margin;
+        let ty = y + margin;
+
+        if (tx + tooltipW > window.innerWidth)
+            tx = x - tooltipW - margin;
+
+        if (ty + tooltipH > window.innerHeight)
+            ty = y - tooltipH - margin;
+
+        return { x: tx, y: ty };
+    }
+
     function cuadrado(dia: number) {
         const color = getColor(dia);
         const entry = data[dia];
@@ -74,8 +91,14 @@ export default function PanelParticipacion(props: {
                 key={`dia-${dia}`}
                 className="panel-participacion-celda panel-participacion-celda-llena"
                 style={{ background: color }}
-                onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, value: envios, fecha })}
-                onMouseMove={(e) => setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : null)}
+                onMouseEnter={(e) => {
+                    const pos = calcPosTooltip(e.clientX, e.clientY);
+                    setTooltip({ x: pos.x, y: pos.y, value: envios, fecha });
+                }}
+                onMouseMove={(e) => {
+                    const pos = calcPosTooltip(e.clientX, e.clientY);
+                    setTooltip(t => t ? { ...t, x: pos.x, y: pos.y } : null);
+                }}
             />
         );
     }
@@ -102,24 +125,27 @@ export default function PanelParticipacion(props: {
                 </div>,
                 document.body
             )}
-            <Skeleton loading={props.loading} className="panel-participacion-container">
-                {/* Columna de etiquetas de dias */}
-                <div className="panel-participacion-dias">
-                    {dias.map((dia) => (
-                        <div key={dia} className="panel-participacion-dia">
-                            {dia}
-                        </div>
-                    ))}
-                </div>
+            <div className="panel-participacion-scroll-wrapper">
+                <Skeleton loading={props.loading} className="panel-participacion-container">
+                    {/* Columna de etiquetas de dias */}
+                    <div className="panel-participacion-dias">
+                        {dias.map((dia) => (
+                            <div key={dia} className="panel-participacion-dia">
+                                {dia}
+                            </div>
+                        ))}
+                    </div>
 
-                {/* Grid de cuadrados */}
-                <div
-                    className="panel-participacion-grid"
-                    onMouseLeave={() => setTooltip(null)}
-                >
-                    {cuadrados}
-                </div>
-            </Skeleton>
+                    {/* Grid de cuadrados */}
+                    <div
+                        className="panel-participacion-grid"
+                        onMouseLeave={() => setTooltip(null)}
+                    >
+                        {cuadrados}
+                    </div>
+                </Skeleton>
+            </div>
+
         </>
     );
 }

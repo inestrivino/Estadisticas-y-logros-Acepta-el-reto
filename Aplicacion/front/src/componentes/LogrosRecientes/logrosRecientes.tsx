@@ -52,7 +52,13 @@ export default function LogrosRecientes(props: {
                 Últimos logros
             </p>
 
-            <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateRows: `repeat(${recientes.length || 1}, minmax(0, 1fr))`, gap: "0.4rem" }}>
+            <div
+                className={`logros-grid${recientes.length > 1 ? " logros-grid--multi" : ""}`}
+                style={{
+                    gridTemplateRows: `repeat(${recientes.length || 1}, minmax(0, 1fr))`,
+                    ["--logros-count" as any]: recientes.length,
+                }}
+            >
                 {recientes.length === 0 && (
                     <p style={{
                         color: "#2675a6",
@@ -75,14 +81,14 @@ export default function LogrosRecientes(props: {
                         borderImage: i > 0 ? "linear-gradient(to right, transparent, #86e7ffa8 50%, transparent) 1" : undefined,
                     }}>
                         <img style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                                maxHeight: "calc(100% - 0.8rem)",
-                                width: "auto",
-                                filter: `drop-shadow(0 0 6px ${NIVEL_COLOR[logro.nivel] ?? "#2675a6"}aa)`,
-                            }}
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            maxHeight: "calc(100% - 0.8rem)",
+                            width: "auto",
+                            filter: `drop-shadow(0 0 6px ${NIVEL_COLOR[logro.nivel] ?? "#2675a6"}aa)`,
+                        }}
                             src={`/logros/${logro.imagen}`}
                             alt={logro.nombre}
                         />
