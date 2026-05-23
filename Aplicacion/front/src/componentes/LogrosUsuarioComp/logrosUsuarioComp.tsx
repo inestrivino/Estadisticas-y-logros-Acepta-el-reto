@@ -10,6 +10,7 @@ import "./logrosUsuarioComp.css";
 // COMPONENTES
 import GrupoLogro from "../Logro/grupoLogros.js";
 import { useQueryState } from "../../hooks/useQueryState.js";
+import { colorCategoriaLogro } from "../Logro/colorDeCategoriaLogro.js";
 
 
 export default function LogrosUsuarioComp(props: {
@@ -79,17 +80,12 @@ export default function LogrosUsuarioComp(props: {
     )
 
     function getGroupColor(grupo: string) {
-        let color = "black"
+        let color = ""
         switch (grupo) {
             case NivelLogro.ORO: color = "#f9c22b"; break;
             case NivelLogro.PLATA: color = "#9babb2"; break;
             case NivelLogro.BRONCE: color = "#Cd683d"; break;
-            case CategoriaLogro.ONBOARDING: color = "#3c6e71"; break;
-            case CategoriaLogro.PROBLEMAS: color = "#80AEAB"; break;
-            case CategoriaLogro.LENGUAJES: color = "#7A99C7"; break;
-            case CategoriaLogro.RACHAS: color = "#0078A7"; break;
-            case CategoriaLogro.CALIDAD: color = "#848F95"; break;
-            case CategoriaLogro.CATEGORIAS: color = "#d9d9d9"; break;
+            default: color = colorCategoriaLogro(grupo); break;
         }
         return color;
     }

@@ -12,7 +12,7 @@ export const colorDelNivel = (n: string): string => {
         case NivelUsuario.COMPETENTE:   return "#3989a8";
         case NivelUsuario.HABIL:        return "#4ca3b6";
         case NivelUsuario.ESPECIALISTA: return "#86c6e0";
-        case NivelUsuario.PROFESIONAL:      return "#a4d3fc";
+        case NivelUsuario.PROFESIONAL:  return "#a4d3fc";
         default:                        return "#7a8a99";
     }
 };

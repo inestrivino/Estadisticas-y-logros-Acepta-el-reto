@@ -1,0 +1,172 @@
+/* general */
+.titulo-apartado {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #446E9B;
+  margin: 1.4rem 0 0.15rem;
+}
+
+.lista-informacion {
+  list-style: none;
+  padding-left: 0.5rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.lista-informacion li {
+  font-size: 0.875rem;
+  color: #555;
+  padding: 2px 0;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.lista-informacion li::before {
+  content: "–";
+  color: #72ACD3;
+  flex-shrink: 0;
+}
+
+.lista-dos-columnas .lista-informacion + .lista-informacion {
+  margin-top: 0 !important;
+}
+
+.lista-dos-columnas .lista-informacion:first-child {
+  margin-bottom: 0 !important;
+}
+
+/* tarjeta xp y niveles */
+
+.xp-div {
+  line-height: 1.6;
+  color: #333;
+  font-size: 0.875rem;
+}
+
+/* tabla de niveles xp */
+.tabla-niveles-xp {
+  width: fit-content;
+  table-layout: auto;
+  border-collapse: collapse;
+  margin: 5px 0 12px;
+}
+
+.tabla-niveles-xp th,
+.tabla-niveles-xp td {
+  padding: 5px 14px;
+}
+
+.tabla-niveles-xp th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding-bottom: 6px;
+}
+
+.tabla-niveles-xp thead tr {
+  border-bottom: 2px solid #72ACD3;
+}
+
+.tabla-niveles-xp th:first-child,
+.tabla-niveles-xp td:first-child {
+  border-right: 2px solid #72ACD3;
+  padding-right: 18px;
+}
+
+.tabla-niveles-xp td:last-child {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.rango-xp {
+  font-family: monospace;
+  display: grid;
+  grid-template-columns: 40px 20px 40px 20px;
+  align-items: center;
+}
+
+.rango-xp span:first-child {
+  text-align: right;
+}
+
+.rango-xp span:nth-child(2) {
+  text-align: center;
+}
+
+
+/*-----tarjeta logros-----*/
+
+/* niveles logros */
+.nivel-logro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 8px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 0.5px solid;
+}
+
+.nivel-logro.bronce { background: rgba(180,106,54,0.1);  border-color: rgba(180,106,54,0.35);  color: #8a4e20; }
+.nivel-logro.plata { background: rgba(154,160,166,0.1); border-color: rgba(154,160,166,0.35); color: #737880; }
+.nivel-logro.oro { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.35); color: #9a7a1a; }
+
+/* tabla descripcion categorias */
+.tabla-categorias-logros {
+  width: fit-content;
+  table-layout: auto;
+  border-collapse: collapse;
+  margin: 4px 0 12px;
+}
+
+.tabla-categorias-logros th,
+.tabla-categorias-logros td {
+  padding: 5px 14px;
+}
+
+.tabla-categorias-logros thead th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  /*text-transform: uppercase;*/
+  letter-spacing: 0.05em;
+  /*color: #446E9B;*/
+  padding-bottom: 6px;
+  border-bottom: 2px solid #72ACD3;
+  text-align: left;
+}
+
+.tabla-categorias-logros tbody tr {
+  border-bottom: 0.5px solid #72ACD3;
+}
+
+.tabla-categorias-logros tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tabla-categorias-logros tbody td:first-child {
+  font-weight: 500;
+  color: #446E9B;
+}
+
+.tabla-categorias-logros tbody td:last-child {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* texto sobre logros sorpresa */
+.logros-sorpresa {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: #72acd34b;
+  border-left: 3px solid #72ACD3;
+  font-size: 0.825rem;
+  color: #555;
+}
