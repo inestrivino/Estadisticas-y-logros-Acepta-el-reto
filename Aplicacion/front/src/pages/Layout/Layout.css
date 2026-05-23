@@ -1,5 +1,12 @@
+.layout-wrapper {
+  min-height: 100dvh;
+}
+
 .contenido {
+  min-height: 0;
   margin-left: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 992px) {
@@ -8,8 +15,9 @@
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 991.98px) {
   .contenido {
-    margin-top: 75px;
+    margin-top: 70px; /*esto hace referencia a la altura de la navbar cuando esta arriba, tiene que ser siempre el mismo valor
+                          (el correspondiente a height de .app-navbar-top de sidebar.css*/
   }
 }

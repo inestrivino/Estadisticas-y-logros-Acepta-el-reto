@@ -4,10 +4,10 @@ import { Container } from "react-bootstrap";
 import "./Layout.css";
 
 export default function Layout() {
-    return(
-        <div className="d-flex h-full">
+    return (
+        <div className="d-flex layout-wrapper">
             <Sidebar />
-            <div className="contenido h-full overflow-auto" style={{width: "100%", boxSizing: "border-box"}}>
+            <div className="contenido">
                 <Outlet />
             </div>
         </div>
