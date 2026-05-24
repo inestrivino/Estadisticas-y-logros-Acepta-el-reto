@@ -5,6 +5,7 @@
   display: flex;
   justify-content: space-between !important;
   align-items: center;
+  height: 70px;
 }
 
 /* boton para desplegar navbar en pantallas pequeñas */

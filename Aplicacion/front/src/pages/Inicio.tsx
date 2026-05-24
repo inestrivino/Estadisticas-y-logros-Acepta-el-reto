@@ -15,9 +15,15 @@ export default function Inicio() {
     const topRef = useRef<HTMLElement>(null)
     const [topVisible, setTopVisible] = useState(true)
 
+    const esMobil = window.innerWidth < 992;
+
 
     const irATarjetas = () => {
-        tarjetasRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (tarjetasRef.current) {
+            const offset = esMobil ? 70 : 0; // altura de la topbar, igual que el margin-top del .contenido
+            const top = tarjetasRef.current.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({ top, behavior: "smooth" });
+        }
     }
 
     useEffect(() => {
@@ -27,16 +33,16 @@ export default function Inicio() {
         )
         if (topRef.current) observer.observe(topRef.current)
         return () => observer.disconnect()
-    }, [])
+    }, []);
 
     return (
-        <div style={{ height: "100vh" }}>
+        <div style={{ height: "100dvh" }}>
             <section
                 ref={topRef}
-                style={{ minHeight: "100vh" }}
-                className="d-flex flex-column justify-content-center align-items-center text-center px-4 position-relative"
+                style={{ minHeight: "100dvh", scrollMarginTop: "200px" }} /*el margin top es por la topbar en movil*/
+                className="seccion-inicio d-flex flex-column justify-content-center align-items-center text-center px-4 position-relative"
             >
-                <div className="mb-3 d-flex align-items-center gap-2" style={{ color: "#446E9B", marginLeft: "-4rem" }}>
+                <div className="mb-3 d-flex flex-column flex-lg-row align-items-center gap-2" style={{ color: "#446E9B" }}>
                     <FontAwesomeIcon icon={faLightbulb} style={{ fontSize: "3rem" }} />
                     <div style={{ lineHeight: 1.25 }}>
                         <div style={{ fontWeight: 700, fontSize: "2.5rem" }}>¡Acepta el reto!</div>
@@ -55,9 +61,9 @@ export default function Inicio() {
                         onClick={irATarjetas}
                         className="d-flex flex-column align-items-center gap-1 border-0 bg-transparent 
                             hover:scale-[1.1] duration-200"
-                        style={{ position: "absolute", bottom: "2rem", cursor: "pointer", color: "#446E9B", opacity: 0.7 }}
+                        style={{ position: "absolute", bottom: esMobil ? "6rem" : "2rem", cursor: "pointer", color: "#446E9B", opacity: 0.7 }}
                     >
-                        Descubrir sobre la plataforma
+                        Descubre sobre la plataforma
                         <FontAwesomeIcon icon={faChevronDown} />
                     </button>
                 )}

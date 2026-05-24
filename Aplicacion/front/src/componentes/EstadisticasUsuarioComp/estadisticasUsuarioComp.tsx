@@ -47,7 +47,7 @@ export default function EstadisticasUsuarioComp(props: {
     //RESULTADOS
     const [resultados, setResultados] = useState<{ name: string; value: number }[] | null>(null);
     useEffect(() => {
-        if(!usuario) return;
+        if (!usuario) return;
         fetch(`/api/usuarios/${usuario}/resultados`)
             .then(response => response.json())
             .then(data => setResultados(data));
@@ -200,25 +200,30 @@ export default function EstadisticasUsuarioComp(props: {
 
                 {/* Columna derecha - 1/3 del ancho con los dos diagramas */}
                 <div className="estadisticas-usuario-columna-derecha">
-                    <DiagramaSectores
-                        loading={loading}
-                        evento={formatEvent(usuario as string, EventType.USUARIO_RESULTADOS)}
-                        titulo="Resultados de envíos"
-                        mostrarTotal={true}
-                        dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
-                        colores={COLORES_SECTORES}
-                        datos={resultados ?? []}
-                    />
+                    <div className="min-h-[280px] lg:h-full flex flex-col">
+                        <DiagramaSectores
+                            loading={loading}
+                            evento={formatEvent(usuario as string, EventType.USUARIO_RESULTADOS)}
+                            titulo="Resultados de envíos"
+                            mostrarTotal={true}
+                            dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
+                            colores={COLORES_SECTORES}
+                            datos={resultados ?? []}
+                        />
+                    </div>
 
-                    <DiagramaSectores
-                        loading={loading}
-                        evento={formatEvent(usuario as string, EventType.USUARIO_LENGUAJES)}
-                        titulo="Lenguajes utilizados"
-                        mostrarTotal={true}
-                        dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
-                        colores={COLORES_SECTORES}
-                        datos={lenguajes ?? []}
-                    />
+                    <div className="min-h-[280px] lg:h-full flex flex-col">
+                        <DiagramaSectores
+                            loading={loading}
+                            evento={formatEvent(usuario as string, EventType.USUARIO_LENGUAJES)}
+                            titulo="Lenguajes utilizados"
+                            mostrarTotal={true}
+                            dimensiones={{ width: 350, height: 350, outerRadius: 75 }}
+                            colores={COLORES_SECTORES}
+                            datos={lenguajes ?? []}
+                        />
+                    </div>
+
                 </div>
             </div>
         </div>
