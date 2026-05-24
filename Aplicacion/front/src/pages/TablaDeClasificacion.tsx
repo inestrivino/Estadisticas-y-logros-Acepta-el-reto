@@ -19,9 +19,10 @@ export default function TablaDeClasificacion() {
     const [loading, setLoading] = useState(false);
     const [tickSocket, setTickSocket] = useState(0);
 
-    //usuario destacado en el ranking y si existe en el sistema
-    const [usuarioQuery, setUsuarioQuery] = useQueryState("usuarioActual", "");
-    const usuario = usuarioQuery;
+    //usuario destacado, solo cambia en commits (URL inicial o irAUsuario), no en cada tecla
+    const [usuario, setUsuario] = useState<string>(() =>
+        new URLSearchParams(window.location.search).get("usuario") || ""
+    );
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
 
     //pagina actual sincronizada con la URL
@@ -73,13 +74,7 @@ export default function TablaDeClasificacion() {
             .then(data => {
                 if (!data.existe) {
                     setUsuarioExiste(false);
-                    setUsuarioQuery("");
-                    localStorage.removeItem("usuarioActual");
-                    setSearchParams(prev => {
-                        const next = new URLSearchParams(prev);
-                        next.delete("usuarioActual");
-                        return next;
-                    }, { replace: true });
+                    setUsuario("");
                 } else {
                     setUsuarioExiste(true);
                     fetch(`/api/usuarios/${usuario}/nivel`)
@@ -133,14 +128,10 @@ export default function TablaDeClasificacion() {
             //si hay filtro y el usuario no es de ese nivel, no saltamos de pagina (no aparece en la lista filtrada)
             const matchesFiltro = !nivelFiltro || info?.nivel === nivelFiltro;
             const paginaDestino = info?.pos > 0 && matchesFiltro ? Math.ceil(info.pos / pagSize) : pag;
-            localStorage.setItem("usuarioActual", normalizado);
+            localStorage.setItem("usuario", normalizado);
             localStorage.setItem("pagina", String(paginaDestino));
-            setSearchParams(prev => {
-                const next = new URLSearchParams(prev);
-                next.set("usuarioActual", normalizado);
-                next.set("pagina", String(paginaDestino));
-                return next;
-            }, { replace: true });
+            setUsuario(normalizado);
+            setPagStr(String(paginaDestino));
         } catch (err) {
             console.error(err);
         }

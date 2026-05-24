@@ -104,7 +104,7 @@ export default function TablaRanking(props: {
                                             {usuario.nombre}
                                         </span>
                                         : <Link
-                                            to={`/usuarios/estadisticas/${usuario.nombre}`}
+                                            to={`/usuarios/estadisticas?usuario=${encodeURIComponent(usuario.nombre)}`}
                                             className="usuario-link"
                                             onMouseEnter={(evento) => abrir(usuario.nombre, evento)}
                                             onMouseLeave={cerrar}
@@ -137,13 +137,13 @@ export default function TablaRanking(props: {
                     onMouseLeave={cerrar}
                 >
                     <Link
-                        to={`/usuarios/estadisticas/${activo.nombre}`}
+                        to={`/usuarios/estadisticas?usuario=${encodeURIComponent(activo.nombre)}`}
                         className="ranking-popover-item"
                     >
                         Ver estadísticas
                     </Link>
                     <Link
-                        to={`/usuarios/logros/${activo.nombre}`}
+                        to={`/usuarios/logros?usuario=${encodeURIComponent(activo.nombre)}`}
                         className="ranking-popover-item"
                     >
                         Ver logros

@@ -4,6 +4,7 @@ import { Form, Button, InputGroup } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useSearchParams } from "react-router-dom";
+import { useQueryState, parseAsString } from "nuqs";
 
 import "./buscador.css";
 
@@ -13,19 +14,15 @@ export default function Buscador(props: {
     valorInicial?: string,
     prefijo?: React.ReactNode,
     onResultado?: (valor: string) => void,
+    paramKey: string,
 }) {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const [elem, setElem] = useState(props.valorInicial ?? "");
+    const [elem, setElem] = useQueryState(props.paramKey, parseAsString.withDefault(props.valorInicial ?? "").withOptions({ history: "replace", clearOnDefault: false }));
     const [editando, setEditando] = useState(!props.prefijo);
     const inputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
-
-    //sincroniza editando con la presencia de prefijo (p.ej. cuando el padre actualiza usuario tras una busqueda)
-    useEffect(() => {
-        setEditando(!props.prefijo);
-    }, [!!props.prefijo]);
 
     //sincroniza elem con valorInicial cuando cambia desde fuera
     useEffect(() => {
@@ -85,8 +82,12 @@ export default function Buscador(props: {
                         setMensajeError(`El problema "${valor}" no existe`);
                     else {
                         setMensajeError(``);
-                        localStorage.setItem("problemaActual", valor);
-                        navigate(`/problemas/${encodeURIComponent(valor)}`);
+                        localStorage.setItem("problema", valor);
+                        setEditando(false);
+                        if (props.onResultado)
+                            props.onResultado(valor);
+                        else
+                            navigate(`/problemas?problema=${encodeURIComponent(valor)}`);
                     }
                 });
 
@@ -99,23 +100,23 @@ export default function Buscador(props: {
                         setMensajeError(`El usuario "${valor}" no existe`);
                     } else {
                         setMensajeError("");
-                        localStorage.setItem("usuarioActual", valor);
+                        localStorage.setItem("usuario", valor);
+                        setEditando(false);
                         if (props.onResultado) {
                             props.onResultado(valor);
                         } else if (props.tipo === "usuario_estadistica") {
-                            navigate(`/usuarios/estadisticas/${encodeURIComponent(valor)}`);
+                            navigate(`/usuarios/estadisticas?usuario=${encodeURIComponent(valor)}`);
 
                         } else if (props.tipo === "usuario_logro") {
                             const clasificacionGuardada = searchParams.get("clasificacion")
                                 ?? localStorage.getItem("clasificacion")
                                 ?? "nivel";
 
-                            navigate(`/usuarios/logros/${encodeURIComponent(valor)}?clasificacion=${clasificacionGuardada}`);
+                            navigate(`/usuarios/logros?usuario=${encodeURIComponent(valor)}&clasificacion=${clasificacionGuardada}`);
                         }
                     }
                 });
         }
-        if (props.prefijo) setEditando(false);
     }
 
     const handleBusqueda = (e?: any, valorOverride?: string) => {

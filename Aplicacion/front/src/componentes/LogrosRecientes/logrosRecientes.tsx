@@ -97,7 +97,7 @@ export default function LogrosRecientes(props: {
             </div>
 
             <Link
-                to={`/usuarios/logros/${props.usuario}`}
+                to={`/usuarios/logros?usuario=${encodeURIComponent(props.usuario)}`}
                 style={{
                     display: "block",
                     textAlign: "center",

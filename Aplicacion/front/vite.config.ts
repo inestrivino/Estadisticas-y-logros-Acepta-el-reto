@@ -26,7 +26,7 @@ export default defineConfig({
     },
   },
   resolve: {
-    dedupe: ["react", "react-dom", "react-router-dom"]
+    dedupe: ["react", "react-dom", "react-router-dom", "react-router"]
   },
   css: {
     postcss: {

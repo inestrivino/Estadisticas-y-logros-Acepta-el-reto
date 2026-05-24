@@ -1,4 +1,3 @@
-import { useNavigate, useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import PlantillaBusqueda from "../componentes/plantillaBusqueda";
 import Buscador from "../componentes/Buscador/buscador";
@@ -6,9 +5,10 @@ import EstadisticasProblemaComp from "../componentes/EstadisticasProblemaComp/es
 
 export default function EstadisticasProblema() {
 
-    const params = useParams();
-
-    const problema = params.problema || localStorage.getItem("problemaActual") || "";
+    //problema confirmado tras pulsar buscar, solo cambia en commits (URL inicial, localStorage o onResultado), no en cada tecla
+    const [problema, setProblema] = useState<string>(() =>
+        new URLSearchParams(window.location.search).get("problema") || localStorage.getItem("problema") || ""
+    );
 
     const [problemaExiste, setProblemaExiste] = useState<boolean | null>(null);
     useEffect(() => {
@@ -22,11 +22,6 @@ export default function EstadisticasProblema() {
             });
     }, [problema]);
 
-    const navigate = useNavigate();
-    useEffect(() => {
-        navigate(`/problemas/${encodeURIComponent(problema)}`, { replace: true });
-    }, [problema, navigate]);
-
     return (
         <PlantillaBusqueda
             hasResult={problemaExiste === true}
@@ -36,8 +31,10 @@ export default function EstadisticasProblema() {
             buscador={
                 <Buscador
                     tipo="problema_estadistica"
-                    ruta={`/problemas/estadisticas/${problema}`}
+                    ruta={`/problemas?problema=${problema}`}
                     valorInicial={problema}
+                    paramKey="problema"
+                    onResultado={(valor) => setProblema(valor)}
                     prefijo={problema
                         ? <>
                             <span className="text-truncate">

@@ -16,15 +16,17 @@ export default function PlantillaTarjetaInformacio(props: {
 
     return (
         <div className="xp-div" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-            <Card style={{ flex: 1 }}
+            <Card
+                style={{ flex: 1, background: "linear-gradient(160deg, #ffffff 0%, #f4f9fd 100%)" }}
                 className="
                     !rounded-3xl
                     !border-2
                     !border-[#72ACD3]
                     overflow-hidden
                     h-full
+                    tarjeta-info
                 "
-            >{/*[#446e9b]/30, !bg-[#D9EDF7]/50*/}
+            >
                 <Card.Title className="text-center mt-4 fw-bold text-xl">{props.titulo}</Card.Title>
 
                 <div className="flex justify-content-center py-3">

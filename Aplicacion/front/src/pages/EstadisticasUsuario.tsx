@@ -1,4 +1,3 @@
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Badge from 'react-bootstrap/Badge';
 
@@ -11,9 +10,10 @@ import { NivelUsuario } from "shared";
 
 export default function EstadisticasUsuario() {
 
-    const params = useParams();
-
-    const usuario = params.usuario || localStorage.getItem("usuarioActual") || "";
+    //usuario confirmado tras pulsar buscar, solo cambia en commits (URL inicial, localStorage o onResultado), no en cada tecla
+    const [usuario, setUsuario] = useState<string>(() =>
+        new URLSearchParams(window.location.search).get("usuario") || localStorage.getItem("usuario") || ""
+    );
 
     const [usuarioExiste, setUsuarioExiste] = useState<boolean | null>(null);
     useEffect(() => {
@@ -23,17 +23,11 @@ export default function EstadisticasUsuario() {
             .then(res => res.json())
             .then(data => {
                 setUsuarioExiste(data.existe);
-                if (data.existe && usuario !== localStorage.getItem("usuarioActual")) {
-                    localStorage.setItem("usuarioActual", usuario);
+                if (data.existe && usuario !== localStorage.getItem("usuario")) {
+                    localStorage.setItem("usuario", usuario);
                 }
             });
     }, [usuario]);
-
-    const navigate = useNavigate();
-    useEffect(() => {
-        if(!usuarioExiste) return;
-        navigate(`/usuarios/estadisticas/${encodeURIComponent(usuario)}`, { replace: true });
-    }, [usuario, usuarioExiste, navigate]);
 
     // NIVEL
     const [nivel, setNivel] = useState<NivelUsuario>(NivelUsuario.SIN_NIVEL);
@@ -55,8 +49,10 @@ export default function EstadisticasUsuario() {
             buscador={
                 <Buscador
                     tipo="usuario_estadistica"
-                    ruta={`/usuarios/estadisticas/${usuario}`}
+                    ruta={`/usuarios/estadisticas?usuario=${usuario}`}
                     valorInicial={usuario}
+                    paramKey="usuario"
+                    onResultado={(valor) => setUsuario(valor)}
                     prefijo={usuario
                         ? <>
                             <span className="text-truncate">

@@ -21,6 +21,7 @@ export default function BuscadorRanking(props: {
                 ruta=""
                 valorInicial={usuario}
                 onResultado={onResultado}
+                paramKey="usuario"
                 //si hay usuario, se muestra como titulo del buscador junto a su etiqueta de nivel
                 prefijo={usuario
                     ? <>

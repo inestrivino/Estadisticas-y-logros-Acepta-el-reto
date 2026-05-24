@@ -44,9 +44,9 @@ export default function Sidebar() {
     return "¡Acepta el reto!";
   };
 
-  const usuario = localStorage.getItem("usuarioActual");
+  const usuario = localStorage.getItem("usuario");
   const rutaRanking = usuario
-    ? `/usuarios/ranking?usuarioActual=${usuario}`
+    ? `/usuarios/ranking?usuario=${encodeURIComponent(usuario)}`
     : "/usuarios/ranking";
 
   const links = (

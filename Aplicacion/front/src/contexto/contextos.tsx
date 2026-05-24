@@ -13,21 +13,21 @@ const AppContext = createContext<AppContecxtType | undefined>(undefined);
 export default function AppProvider({ children }: { children: ReactNode }) {
 
     const [problemaActual, setProblemaActualState] = useState(
-        localStorage.getItem("problemaActual") || ""
+        localStorage.getItem("problema") || ""
     );
 
     const [usuarioActual, setUsuarioActualState] = useState(
-        localStorage.getItem("usuarioActual") || ""
+        localStorage.getItem("usuario") || ""
     );
 
     const setProblemaActual = (problema: string) => {
         setProblemaActualState(problema);
-        localStorage.setItem("problemaActual", problema);
+        localStorage.setItem("problema", problema);
     }
 
     const setUsuarioActual = (usuario: string) => {
         setUsuarioActualState(usuario);
-        localStorage.setItem("usuarioActual", usuario);
+        localStorage.setItem("usuario", usuario);
     }
 
     return(
