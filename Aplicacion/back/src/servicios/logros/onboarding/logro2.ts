@@ -4,7 +4,7 @@ import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 const logro2: Logro = {
-    id: 1,
+    id: 2,
     nombre: "logro2",
     descripcion: "He realizado mi primer envío",
     imagen: "trofeo_bronce_placeholder.png",

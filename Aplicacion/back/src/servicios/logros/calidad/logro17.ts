@@ -4,7 +4,7 @@ import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 
 const logro17: Logro = {
-    id: 1,
+    id: 16,
     nombre: "logro17",
     descripcion: "He realizado un envío correcto que iguale o mejore el tiempo de ejecución récord para un problema que tiene al menos 100 envios",
     imagen: "trofeo_oro_placeholder.png",

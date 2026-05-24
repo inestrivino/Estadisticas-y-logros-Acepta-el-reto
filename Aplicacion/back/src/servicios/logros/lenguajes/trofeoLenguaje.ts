@@ -10,7 +10,6 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
  */
 export class TrofeoLenguaje implements Logro {
 
-    public readonly id = 1;
     public readonly categoria = CategoriaLogro.LENGUAJES;
     public readonly nivel = NivelLogro.ORO;
     public readonly sorpresa = false;
@@ -19,12 +18,14 @@ export class TrofeoLenguaje implements Logro {
     public readonly requiereEstadisticasUsuario = [CampoUsuario.LENGUAJES];
     public readonly requiereEstadisticasProblemas = [];
 
+    public readonly id: number;
     public readonly nombre: string;
     public readonly descripcion: string;
     private readonly lenguaje: string;
     public readonly imagen: string;
 
-    constructor(nombre: string, lenguaje: string, lenguajeDisplay: string, imagen: string) {
+    constructor(id: number, nombre: string, lenguaje: string, lenguajeDisplay: string, imagen: string) {
+        this.id = id;
         this.nombre = nombre;
         this.lenguaje = lenguaje;
         this.descripcion = `He resuelto 25 problemas en ${lenguajeDisplay}`;

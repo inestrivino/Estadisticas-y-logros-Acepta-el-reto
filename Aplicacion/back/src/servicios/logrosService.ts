@@ -57,20 +57,20 @@ class LogrosService {
         logro3,
 
         //problemas
-        new TrofeoProblema("logro4", 10, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
-        new TrofeoProblema("logro5", 50, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
-        new TrofeoProblema("logro6", 100, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
-        new TrofeoProblema("logro7", 500, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
+        new TrofeoProblema(4, "logro4", 10, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
+        new TrofeoProblema(5, "logro5", 50, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
+        new TrofeoProblema(6, "logro6", 100, NivelLogro.PLATA, "trofeo_plata_placeholder.png"),
+        new TrofeoProblema(7, "logro7", 500, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
 
         //lenguajes
-        new TrofeoLenguaje("logro8", "c", "C", "trofeo_oro_placeholder.png"),
-        new TrofeoLenguaje("logro9", "cpp", "C++", "trofeo_oro_placeholder.png"),
-        new TrofeoLenguaje("logro10", "java", "Java", "trofeo_oro_placeholder.png"),
+        new TrofeoLenguaje(8, "logro8", "c", "C", "trofeo_oro_placeholder.png"),
+        new TrofeoLenguaje(9, "logro9", "cpp", "C++", "trofeo_oro_placeholder.png"),
+        new TrofeoLenguaje(10, "logro10", "java", "Java", "trofeo_oro_placeholder.png"),
         logro11,
 
         //rachas
-        new TrofeoRachaEnviosAC("logro12", 5, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
-        new TrofeoRachaDias("logro13", 7, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
+        new TrofeoRachaEnviosAC(12, "logro12", 5, NivelLogro.ORO, "trofeo_oro_placeholder.png"),
+        new TrofeoRachaDias(13, "logro13", 7, NivelLogro.BRONCE, "trofeo_bronce_placeholder.png"),
         logro18,
 
         //calidad

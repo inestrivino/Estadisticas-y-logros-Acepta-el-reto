@@ -3,7 +3,7 @@ import { NivelLogro } from "../../../types/enums/nivelLogro.js";
 import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro3: Logro = {
-    id: 1,
+    id: 3,
     nombre: "logro3",
     descripcion: "He obtenido 5 logros",
     imagen: "trofeo_plata_placeholder.png",

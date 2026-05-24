@@ -10,7 +10,6 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
  */
 export class TrofeoRachaDias implements Logro {
 
-    public readonly id = 1;
     public readonly categoria = CategoriaLogro.RACHAS;
     public readonly sorpresa = false;
 
@@ -18,13 +17,15 @@ export class TrofeoRachaDias implements Logro {
     public readonly requiereEstadisticasUsuario = [CampoUsuario.RACHAS];
     public readonly requiereEstadisticasProblemas = [];
 
+    public readonly id: number;
     public readonly nombre: string;
     public readonly descripcion: string;
     public readonly nivel: NivelLogro;
     private readonly umbral: number;
     public readonly imagen: string;
 
-    constructor(nombre: string, umbral: number, nivel: NivelLogro, imagen: string) {
+    constructor(id:number, nombre: string, umbral: number, nivel: NivelLogro, imagen: string) {
+        this.id = id;
         this.nombre = nombre;
         this.umbral = umbral;
         this.nivel = nivel;

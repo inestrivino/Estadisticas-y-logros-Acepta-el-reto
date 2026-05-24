@@ -10,7 +10,6 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
  */
 export class TrofeoProblema implements Logro {
 
-    public readonly id = 1;
     public readonly categoria = CategoriaLogro.PROBLEMAS;
     public readonly sorpresa = false;
 
@@ -18,13 +17,15 @@ export class TrofeoProblema implements Logro {
     public readonly requiereEstadisticasUsuario = [CampoUsuario.PROBLEMAS];
     public readonly requiereEstadisticasProblemas = [];
 
+    public readonly id: number;
     public readonly nombre: string;
     public readonly descripcion: string;
     public readonly nivel: NivelLogro;
     private readonly cantidad: number;
     public readonly imagen: string;
 
-    constructor(nombre: string, cantidad: number, nivel: NivelLogro, imagen: string) {
+    constructor(id: number, nombre: string, cantidad: number, nivel: NivelLogro, imagen: string) {
+        this.id = id;
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.nivel = nivel;
