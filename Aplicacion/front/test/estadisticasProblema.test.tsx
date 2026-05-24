@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { describe, expect, beforeAll, afterEach, afterAll, vi, test, beforeEach } from "vitest";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 
 import EstadisticasProblema from "../src/pages/EstadisticasProblema"
 
@@ -51,23 +52,34 @@ vi.mock("../src/services/socket", () => ({
 //SETUP
 const server = setupServer(...handlers);
 beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
-beforeEach(() => {cleanup();});
+beforeEach(() => { cleanup(); });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-function renderWithRouter(problema: string) {
+function renderWithRouter() {
+  window.history.pushState(
+    {},
+    "",
+    "/problemas?problema=problema1"
+  );
+
   return render(
-    <MemoryRouter initialEntries={[`/problemas/${problema}`]}>
-      <Routes>
-        <Route path="/problemas/:problema" element={<EstadisticasProblema />} />
-      </Routes>
-    </MemoryRouter>
+    <NuqsAdapter>
+      <MemoryRouter initialEntries={["/problemas?problema=problema1"]}>
+        <Routes>
+          <Route
+            path="/problemas"
+            element={<EstadisticasProblema />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </NuqsAdapter>
   );
 }
 
 describe("La pagina carga correctamente", () => {
   test("Cargan los componentes de la pagina", async () => {
-    renderWithRouter("problema1");
+    renderWithRouter();
 
     await waitFor(() => {
       expect(screen.getByText("Envios")).toBeInTheDocument();
