@@ -22,18 +22,18 @@ En comparación con la arquitectura tradicional descrita para \aer\ en \cite{Ped
 \subsection{Patrones de diseño del \textit{backend}}
 \label{sec:patronesDiseno}
 
-El \textit{backend} organiza su lógica de negocio en torno a cuatro grupos de componentes especializados: actualizadores de estado, registradores, estadísticas de experiencia y logros. En todos ellos se aplica el \textbf{patrón Strategy}: cada grupo define un contrato común (interfaz o clase abstracta) y el servicio que los gestiona delega el trabajo iterando sobre una colección de implementaciones intercambiables. Este diseño permite incorporar nuevos comportamientos sin modificar el código existente.
+El \textit{backend} organiza su lógica de negocio en torno a cuatro grupos de componentes especializados: actualizadores de estado, registradores, estadísticas de experiencia y logros. En todos ellos cada grupo define un contrato común (interfaz o clase abstracta) y el servicio que los gestiona delega el trabajo iterando sobre una colección de implementaciones intercambiables, lo que permite incorporar nuevos comportamientos sin modificar el código existente.
 
 \subsubsection{Actualizadores}
 
 Los actualizadores calculan y mantienen el estado de usuarios y problemas a medida que se procesan envíos. Cada actualizador encapsula la lógica de una estadística concreta.
 
-En este grupo se combina el patrón Strategy con el \textbf{patrón Template Method}: la clase abstracta define el flujo del algoritmo de inicialización en un método concreto, que a su vez invoca métodos abstractos que cada subclase implementa de forma específica. El método de actualización, también abstracto, es invocado por el servicio para cada envío procesado. El diagrama de clases correspondiente se muestra en la figura~\ref{fig:patrones-actualizadores}.
+En este grupo se aplica el \textbf{patrón Template Method}: la clase abstracta define el flujo del algoritmo de inicialización en un método concreto, que a su vez invoca métodos abstractos que cada subclase implementa de forma específica. El método de actualización, también abstracto, es invocado por el servicio para cada envío procesado. El diagrama de clases correspondiente se muestra en la figura~\ref{fig:patrones-actualizadores}.
 
 \begin{figure}[H]
     \centering
     \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-actualizadores.png}
-    \caption{Diagrama de clases del patrón Strategy y Template Method en los actualizadores}
+    \caption{Diagrama de clases del patrón Template Method en los actualizadores}
     \label{fig:patrones-actualizadores}
 \end{figure}
 
@@ -120,6 +120,8 @@ Un requisito fundamental del sistema es poder incorporar nuevas estadísticas, m
 Cada calculador de estadísticas y cada logro dispone de un número de versión declarado en el código. Al arrancar, el sistema compara estas versiones con las almacenadas en Redis y actúa de forma selectiva según lo que haya cambiado: las estadísticas modificadas se recalculan desde cero sin afectar al resto, los logros cuya definición haya variado se reevalúan junto con las estadísticas de las que dependen, y la experiencia se recalcula automáticamente siempre que cambie cualquier componente que contribuya a su cómputo. Además, es posible forzar el recálculo de la experiencia de forma independiente mediante una variable de entorno, sin necesidad de modificar ningún componente.
 
 De este modo, añadir una estadística nueva, ajustar los umbrales de un logro o modificar el peso de algún factor en el cálculo de experiencia no requiere intervención manual sobre los datos almacenados: basta con incrementar el número de versión del componente afectado para que el sistema detecte el cambio en el siguiente arranque y reconstruya únicamente lo necesario.
+
+En la práctica, el mecanismo se activa de dos formas. Para un reinicio total basta con incrementar la variable de entorno \texttt{VERSION}, lo que provoca que el sistema borre completamente Redis al arrancar y reconstruya todos los datos desde cero. Para recargar un componente concreto basta con incrementar su número de versión en el código: las estadísticas y los logros pueden resetearse de forma independiente, y la experiencia se recalcula automáticamente cuando el sistema detecta que alguno de los componentes de los que depende ha cambiado. Si se desea forzar el recálculo de la experiencia sin modificar ningún otro componente, basta con incrementar la variable de entorno \texttt{XPVERSION}.
 
 \begin{figure}[H]
     \centering
