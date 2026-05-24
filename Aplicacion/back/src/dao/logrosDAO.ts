@@ -13,7 +13,7 @@ class LogrosDAO extends DAO {
         const pipeline = this.redis.multi();
         for (const dato of datos) {
             if (dato.logros.length > 0) {
-                pipeline.sAdd(`logros:${dato.usuario}`, dato.logros);
+                pipeline.sAdd(`logros:${dato.usuario}`, dato.logros.map(String));
                 for (const logro of dato.logros)
                     pipeline.sAdd(`usuarios:${logro}`, dato.usuario);
             }
@@ -30,7 +30,7 @@ class LogrosDAO extends DAO {
         for (const dato of datos) {
             if (dato.logros.length > 0) {
                 for (const logro of dato.logros)
-                    pipeline.lPush(`logros:recientes:${dato.usuario}`, logro);
+                    pipeline.lPush(`logros:recientes:${dato.usuario}`, String(logro));
                 pipeline.lTrim(`logros:recientes:${dato.usuario}`, 0, 2);
             }
         }
@@ -42,10 +42,10 @@ class LogrosDAO extends DAO {
      * @param pipeline - Pipeline donde encolar el comando.
      * @param usuario - Identificador del usuario.
      * @param mes - Mes (0-11) al que pertenecen los logros.
-     * @param nombres - Nombres de los logros obtenidos en ese mes.
+     * @param ids - Ids de los logros obtenidos en ese mes.
      */
-    public registrarLogrosUsuarioMes(pipeline: Pipeline, usuario: string, mes: number, nombres: string[]): void {
-        pipeline.sAdd(`logros:${usuario}:mes:${mes}`, nombres);
+    public registrarLogrosUsuarioMes(pipeline: Pipeline, usuario: string, mes: number, ids: number[]): void {
+        pipeline.sAdd(`logros:${usuario}:mes:${mes}`, ids.map(String));
     }
 
 
@@ -54,35 +54,35 @@ class LogrosDAO extends DAO {
      * tanto del set global como de los sets por mes.
      * Se usa al recalcular un logro cuya version cambio: se quita de todos los usuarios
      * para que se reevalue su condicion durante el reproceso de envios.
-     * @param logro - Nombre del logro a eliminar.
+     * @param logro - Id del logro a eliminar.
      */
-    public async borrarLogro(logro: string): Promise<void> {
+    public async borrarLogro(logro: number): Promise<void> {
         const usuarios = await this.redis.sMembers(`usuarios:${logro}`);
         const pipeline = this.redis.multi();
         for (const usuario of usuarios) {
-            pipeline.sRem(`logros:${usuario}`, logro);
-            pipeline.lRem(`logros:recientes:${usuario}`, 0, logro);
+            pipeline.sRem(`logros:${usuario}`, String(logro)); //TODO aqui
+            pipeline.lRem(`logros:recientes:${usuario}`, 0, String(logro));
             //tambien se quita el logro de cada set por mes del usuario
             for await (const claves of this.redis.scanIterator({ MATCH: `logros:${usuario}:mes:*`, COUNT: 100 }))
                 for (const clave of claves)
-                    pipeline.sRem(clave, logro);
+                    pipeline.sRem(clave, String(logro));
         }
         pipeline.del(`usuarios:${logro}`);
         await pipeline.exec();
     }
 
     /**
-     * Devuelve los nombres de los logros obtenidos por cada usuario en el mes indicado.
+     * Devuelve los ids de los logros obtenidos por cada usuario en el mes indicado.
      * @param mes - Mes (0-11) a consultar.
-     * @returns Mapa de usuario al conjunto de nombres de logros obtenidos en ese mes.
+     * @returns Mapa de usuario al conjunto de ids de logros obtenidos en ese mes.
      */
-    public async getLogrosMes(mes: number): Promise<Map<string, Set<string>>> {
-        const resultado = new Map<string, Set<string>>();
+    public async getLogrosMes(mes: number): Promise<Map<string, Set<number>>> {
+        const resultado = new Map<string, Set<number>>();
         for await (const claves of this.redis.scanIterator({ MATCH: `logros:*:mes:${mes}`, COUNT: 100 })) {
             for (const clave of claves) {
                 const usuario = clave.split(':')[1];
-                const nombres = await this.redis.sMembers(clave);
-                if (nombres.length > 0) resultado.set(usuario, new Set(nombres));
+                const ids = await this.redis.sMembers(clave);
+                if (ids.length > 0) resultado.set(usuario, new Set((ids.map(Number))));
             }
         }
         return resultado;
@@ -91,21 +91,23 @@ class LogrosDAO extends DAO {
     //============================== CONSULTAS ==============================
 
     /**
-     * Devuelve los nombres de los logros obtenidos por el usuario.
+     * Devuelve los ids de los logros obtenidos por el usuario.
      * @param usuario - Identificador del usuario.
-     * @returns Array con los nombres de los logros.
+     * @returns Array con los ids de los logros.
      */
-    async getLogros(usuario: string): Promise<string[]> {
-        return await this.redis.sMembers(`logros:${usuario}`);
+    async getLogros(usuario: string): Promise<number[]> {
+        const ids = await this.redis.sMembers(`logros:${usuario}`);
+        return ids.map(Number);
     }
 
     /**
-     * Devuelve los nombres de los 3 logros mas recientes del usuario en orden de obtencion.
+     * Devuelve los ids de los 3 logros mas recientes del usuario en orden de obtencion.
      * @param usuario - Identificador del usuario.
-     * @returns Array con los nombres de los logros recientes.
+     * @returns Array con los ids de los logros recientes.
      */
-    async getUltimosLogros(usuario: string): Promise<string[]> {
-        return await this.redis.lRange(`logros:recientes:${usuario}`, 0, 2);
+    async getUltimosLogros(usuario: string): Promise<number[]> {
+        const ids = await this.redis.lRange(`logros:recientes:${usuario}`, 0, 2);
+        return ids.map(Number);
     }
 }
 

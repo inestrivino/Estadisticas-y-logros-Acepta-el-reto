@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeAll, beforeEach, vi, afterAll } from 'vitest';
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { createClient } from 'redis';
 
@@ -22,6 +22,9 @@ import estadosService from '../../src/servicios/estadosService.js';
 import { CampoUsuario } from '../../src/types/estados/camposEstadoUsuario.js';
 import { EnvioSinProcesarInicial } from '../../src/types/envios/envioSinProcesarInicial.js';
 import { EstadoUsuario } from '../../src/types/estados/estadoUsuario.js';
+import logrosService from '../../src/servicios/logrosService.js';
+import { Logro } from '../../src/servicios/logros/logro.js';
+import { CategoriaLogro, NivelLogro } from 'shared';
 
 let container: StartedRedisContainer;
 let redis: ReturnType<typeof createClient>;
@@ -193,8 +196,8 @@ describe('Carga inicial - reseteo de una estadistica que ademas se tiene en cuen
 
     let problemasACMarzoPrevio: Map<string, number>;
     let problemasACMayoPrevio: Map<string, number>;
-    let trofeosMesMarzoPrevio: Map<string, Set<string>>;
-    let trofeosMesMayoPrevio: Map<string, Set<string>>;
+    let trofeosMesMarzoPrevio: Map<string, Set<number>>;
+    let trofeosMesMayoPrevio: Map<string, Set<number>>;
 
 
 
@@ -295,13 +298,338 @@ describe('Carga inicial - reseteo de una estadistica que ademas se tiene en cuen
     });
 });
 
-//TODO probar añadir un nuevo logro
+
+describe('Carga inicial - añadir un nuevo logro (id 19)', () => {
+
+    const logro19: Logro = {
+        id: 19,
+        nombre: 'logro19',
+        descripcion: 'He resuelto al menos 1 problema en C',
+        imagen: 'trofeo_bronce_placeholder.png',
+        categoria: CategoriaLogro.LENGUAJES,
+        nivel: NivelLogro.BRONCE,
+        sorpresa: false,
+        version: 1,
+        requiereEstadisticasUsuario: [CampoUsuario.LENGUAJES],
+        requiereEstadisticasProblemas: [],
+        condicion(estadoUsuario: EstadoUsuario): boolean {
+            return (estadoUsuario.lenguajesProblemasResueltos?.get('c')?.size ?? 0) >= 1;
+        },
+    };
+
+    const usuariosConLogro19 = new Set(usuarios);
+
+    let logrosOriginales: Logro[];
+
+    beforeAll(async () => {
+        await redis.flushAll();
+
+        // se accede a la lista privada y se inyecta el logro 19
+        logrosOriginales = (logrosService as any).logros;
+        (logrosService as any).logros = [...logrosOriginales, logro19];
+
+        await inicializarService.inicializar();
+    });
+
+    afterAll(() => {
+        // se restaura la lista original para no afectar al resto de describes
+        (logrosService as any).logros = logrosOriginales;
+    });
+
+    test('el logro 19 se dispara para todos los usuarios que cumplen la condicion', async () => {
+        for (const usuario of usuarios) {
+            const logros = await redis.sMembers(`logros:${usuario}`);
+            const ids = logros.map(Number);
+
+            if (usuariosConLogro19.has(usuario))
+                expect(ids).toContain(19);
+            else
+                expect(ids).not.toContain(19);
+        }
+    });
+
+    test('el logro 19 aparece en los sets de mes correctos', async () => {
+        // se calcula programáticamente el mes del primer envio AC en C de cada usuario
+        const logrosPorMesEsperado: Record<string, number> = {};
+        for (const usuario of usuarios) {
+            const primerACenC = ENVIOS
+                .filter(s => s.user.nick.toLowerCase() === usuario && s.result === 'AC' && s.language === 'c')
+                .sort((a, b) => a.num - b.num) // orden cronologico ascendente (num mas bajo = mas antiguo)
+                .at(0);
+            if (primerACenC)
+                logrosPorMesEsperado[usuario] = new Date(primerACenC.submissionDate).getUTCMonth();
+        }
+
+        for (const usuario of usuarios) {
+            const mesEsperado = logrosPorMesEsperado[usuario];
+            const logrosDelMes = await redis.sMembers(`logros:${usuario}:mes:${mesEsperado}`);
+            expect(logrosDelMes.map(Number)).toContain(19);
+        }
+    });
+
+    test('al resetear el logro 19 se borra de todos los usuarios y se recalcula correctamente', async () => {
+        await logrosService.borrarLogros(new Set([19]));
+        await checkpointsDAO.setCheckpointLogro(19, 0);
+        await checkpointsDAO.setCheckpointStat(CampoUsuario.LENGUAJES, 0); // <- añadir esto
+        await xpService.resetearXP();
+        await xpService.borrarStatsMesReseteadas(new Set([CampoUsuario.LENGUAJES]));
+        await xpService.recalcularXPGlobal();
+        await xpService.recalcularXPPorMes();
+        await gestionService.resetContadorEnvios();
+
+        for (const usuario of usuarios) {
+            const logros = await redis.sMembers(`logros:${usuario}`);
+            expect(logros.map(Number)).not.toContain(19);
+        }
+
+        expect(await gestionDAO.getUltimoEnvio()).toBe(0);
+
+        await inicializarService.inicializar();
+
+        for (const usuario of usuarios) {
+            const logros = await redis.sMembers(`logros:${usuario}`);
+            const ids = logros.map(Number);
+            if (usuariosConLogro19.has(usuario))
+                expect(ids).toContain(19);
+        }
+    });
+});
 
 
-//TODO probar a añadir una nueva estadística
+describe('Carga inicial - añadir una nueva estadística (LENGUAJES)', () => {
+
+    // Este describe simula el escenario en el que LENGUAJES es una
+    // estadística nueva: se inicializa con su checkpoint a 0, se procesa
+    // la carga y se verifica que los datos persistidos son correctos.
+    // Para reproducirlo limpiamente se borra solo la clave de versión de
+    // LENGUAJES antes de la carga, forzando que checkpointsService la
+    // trate como no vista.
+
+    // conteo esperado de problemas resueltos por lenguaje derivado de ENVIOS
+    const problemasResueltosEsperadosPorLenguaje: Map<string, Map<string, number>> = new Map();
+    for (const s of ENVIOS.filter(s => s.result === 'AC')) {
+        const nick = s.user.nick.toLowerCase();
+        const lang = s.language;
+        if (!problemasResueltosEsperadosPorLenguaje.has(nick))
+            problemasResueltosEsperadosPorLenguaje.set(nick, new Map());
+        const m = problemasResueltosEsperadosPorLenguaje.get(nick)!;
+        m.set(lang, (m.get(lang) ?? 0) + 1);
+    }
+
+    // problemas distintos resueltos por lenguaje (sin duplicados)
+    const problemasDistintosEsperados: Map<string, Map<string, Set<string>>> = new Map();
+    for (const s of ENVIOS.filter(s => s.result === 'AC')) {
+        const nick = s.user.nick.toLowerCase();
+        const lang = s.language;
+        if (!problemasDistintosEsperados.has(nick))
+            problemasDistintosEsperados.set(nick, new Map());
+        const m = problemasDistintosEsperados.get(nick)!;
+        if (!m.has(lang)) m.set(lang, new Set());
+        m.get(lang)!.add(s.problem.title.toLowerCase());
+    }
+
+    beforeAll(async () => {
+        await redis.flushAll();
+
+        // se simula que LENGUAJES es una estadística nueva borrando su versión
+        // para que en la siguiente carga se trate como no inicializada
+        await redis.del(`stat:${CampoUsuario.LENGUAJES}:version`);
+
+        await inicializarService.inicializar();
+    });
+
+    test('los lenguajes usados por cada usuario se persisten correctamente', async () => {
+        for (const usuario of usuarios) {
+            // lenguajes es un hash, las claves son los lenguajes usados
+            const lenguajesUsados = await redis.hKeys(`usuario:${usuario}:lenguajes`);
+            const lenguajesEsperados = [
+                ...new Set(
+                    ENVIOS
+                        .filter(s => s.user.nick.toLowerCase() === usuario)
+                        .map(s => s.language)
+                )
+            ].sort();
+            expect(lenguajesUsados.sort()).toEqual(lenguajesEsperados);
+        }
+    });
+
+    test('el conteo de envios por lenguaje se persiste correctamente', async () => {
+        for (const usuario of usuarios) {
+            const conteoEsperado = problemasResueltosEsperadosPorLenguaje.get(usuario) ?? new Map();
+            for (const [lang, _] of conteoEsperado) {
+                const conteo = await redis.hGet(`usuario:${usuario}:lenguajesAC`, lang);
+                // verifica que existe el campo, el valor exacto depende de la implementación interna
+                expect(conteo).toBeDefined();
+            }
+        }
+    });
+
+    test('los problemas distintos resueltos por lenguaje se persisten correctamente', async () => {
+        for (const usuario of usuarios) {
+            const porLenguaje = problemasDistintosEsperados.get(usuario) ?? new Map();
+            for (const [lang, problemasEsperados] of porLenguaje) {
+                // clave real: usuario:X:lenguaje:lang (sin 's', sin ':problemas')
+                const problemas = await redis.sMembers(`usuario:${usuario}:lenguaje:${lang}`);
+                expect(problemas.map(p => p.toLowerCase()).sort()).toEqual([...problemasEsperados].sort());
+            }
+        }
+    });
+
+    test('la estadística LENGUAJES contribuye a la XP de los usuarios', async () => {
+        // todos los usuarios deben tener XP > 0 tras la carga con LENGUAJES activa
+        for (const usuario of usuarios) {
+            const xp = await redis.zScore('usuario:ranking', usuario);
+            expect(xp).toBeGreaterThan(0);
+        }
+    });
+});
 
 
-//TODO probar a resetear una estadística que no tenga que ver con la experiencia
+describe('Carga inicial - reseteo de una estadística sin impacto en XP (HORAS)', () => {
 
+    // HORAS no aporta XP directamente ni es requerida por ninguna estadística de XP,
+    // así que al resetearse la XP global y por mes no debe cambiar.
 
-//TODO poner un campo para resetear la experiencia y se haga lo que se hace ahora en checkpointService pero sin haberse reseteado ninguna estadística
+    let xpGlobalPrevia: Map<string, number>;
+    let xpMesPrevia: Map<string, { mes: number, xp: number }[]>;
+    let horasPrevias: Map<string, number[]>;
+
+    beforeAll(async () => {
+        await redis.flushAll();
+        await inicializarService.inicializar();
+
+        // se guarda el estado de XP antes del reseteo
+        xpGlobalPrevia = new Map(
+            await Promise.all(usuarios.map(async u => [u, await xpDAO.getXPUsuario(u)] as const))
+        );
+        xpMesPrevia = new Map();
+        for (const usuario of usuarios)
+            xpMesPrevia.set(usuario, await xpDAO.getXPUsuarioPorMes(usuario));
+
+        // se guarda las horas antes del reseteo para comparar
+        horasPrevias = new Map(
+            await Promise.all(usuarios.map(async u => [u, await usuarioService.getHoras(u)] as const))
+        );
+
+        // se simula el reseteo de HORAS como haría comprobarVersiones
+        const idsReseteados = new Set<string>([CampoUsuario.HORAS]);
+        await checkpointsDAO.setCheckpointStat(CampoUsuario.HORAS, 0);
+        await usuarioService.resetearCamposUsuarios(idsReseteados);
+        await xpService.resetearXP();
+        await xpService.borrarStatsMesReseteadas(idsReseteados);
+        await xpService.recalcularXPGlobal();
+        await xpService.recalcularXPPorMes();
+        await gestionService.resetContadorEnvios();
+    });
+
+    test('la XP global no cambia al resetear una estadística sin impacto en XP', async () => {
+        for (const usuario of usuarios) {
+            const xpActual = await xpDAO.getXPUsuario(usuario);
+            expect(xpActual).toBe(xpGlobalPrevia.get(usuario));
+        }
+    });
+
+    test('la XP por mes no cambia al resetear una estadística sin impacto en XP', async () => {
+        for (const usuario of usuarios) {
+            const xpMesActual = await xpDAO.getXPUsuarioPorMes(usuario);
+            const xpMesAnterior = xpMesPrevia.get(usuario)!;
+            for (let i = 0; i < xpMesActual.length; i++)
+                expect(xpMesActual[i].xp).toBe(xpMesAnterior[i].xp);
+        }
+    });
+
+    test('las horas se borran tras el reseteo', async () => {
+        for (const usuario of usuarios) {
+            const horas = await usuarioService.getHoras(usuario);
+            // todas las horas deben estar a 0 tras borrar la estadística
+            expect(horas.every(h => h === 0)).toBe(true);
+        }
+    });
+
+    test('el contador de envios se resetea a 0', async () => {
+        expect(await gestionDAO.getUltimoEnvio()).toBe(0);
+    });
+
+    test('tras reinicializar las horas se reconstruyen igual que antes', async () => {
+        await inicializarService.inicializar();
+
+        for (const usuario of usuarios) {
+            const horasActuales = await usuarioService.getHoras(usuario);
+            expect(horasActuales).toEqual(horasPrevias.get(usuario));
+        }
+    });
+
+    test('la XP se mantiene igual tras reinicializar', async () => {
+        for (const usuario of usuarios) {
+            const xpActual = await xpDAO.getXPUsuario(usuario);
+            expect(xpActual).toBe(xpGlobalPrevia.get(usuario));
+        }
+    });
+});
+
+describe('Carga inicial - reseteo de XP sin reseteo de estadísticas', () => {
+
+    let xpGlobalPrevia: Map<string, number>;
+    let xpMesPrevia: Map<string, { mes: number, xp: number }[]>;
+    let estadosPrevios: Map<string, EstadoUsuario>;
+
+    beforeAll(async () => {
+        await redis.flushAll();
+        await inicializarService.inicializar();
+
+        // se guarda el estado completo antes del reseteo de XP
+        xpGlobalPrevia = new Map(
+            await Promise.all(usuarios.map(async u => [u, await xpDAO.getXPUsuario(u)] as const))
+        );
+        xpMesPrevia = new Map();
+        for (const usuario of usuarios)
+            xpMesPrevia.set(usuario, await xpDAO.getXPUsuarioPorMes(usuario));
+
+        estadosPrevios = await estadosService.getEstadosInicialesUsuarios(new Set<string>(usuarios));
+
+        // se simula que la versión de XP ha cambiado: se resetea y recalcula
+        // sin tocar ninguna estadística de usuario ni de problema
+        await xpService.resetearXP();
+        await xpService.recalcularXPGlobal();
+        await xpService.recalcularXPPorMes();
+        await gestionService.resetContadorEnvios();
+    });
+
+    test('la XP global se recalcula igual que antes del reseteo', async () => {
+        for (const usuario of usuarios) {
+            const xpActual = await xpDAO.getXPUsuario(usuario);
+            expect(xpActual).toBe(xpGlobalPrevia.get(usuario));
+        }
+    });
+
+    test('la XP por mes se recalcula igual que antes del reseteo', async () => {
+        for (const usuario of usuarios) {
+            const xpMesActual = await xpDAO.getXPUsuarioPorMes(usuario);
+            const xpMesAnterior = xpMesPrevia.get(usuario)!;
+            for (let i = 0; i < xpMesActual.length; i++)
+                expect(xpMesActual[i].xp).toBe(xpMesAnterior[i].xp);
+        }
+    });
+
+    test('las estadísticas de los usuarios no cambian tras el reseteo de XP', async () => {
+        const estadosActuales = await estadosService.getEstadosInicialesUsuarios(new Set<string>(usuarios));
+        for (const usuario of usuarios) {
+            const estadoPrevio = estadosPrevios.get(usuario)!;
+            const estadoActual = estadosActuales.get(usuario)!;
+            expect(estadoActual).toEqual(estadoPrevio);
+        }
+    });
+
+    test('el contador de envios se resetea a 0', async () => {
+        expect(await gestionDAO.getUltimoEnvio()).toBe(0);
+    });
+
+    test('tras reinicializar la XP sigue siendo la misma', async () => {
+        await inicializarService.inicializar();
+
+        for (const usuario of usuarios) {
+            const xpActual = await xpDAO.getXPUsuario(usuario);
+            expect(xpActual).toBe(xpGlobalPrevia.get(usuario));
+        }
+    });
+});

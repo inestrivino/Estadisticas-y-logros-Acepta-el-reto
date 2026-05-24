@@ -10,48 +10,48 @@ const usuarioAux = ("Nestor").toLowerCase().normalize("NFC").trim();
 describe("Guardar logros", () => {
 
     test("guarda un logro de un usuario", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["primer_ac"] }]);
-        expect(await logrosDAO.getLogros(usuario)).toContain("primer_ac");
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [1] }]);
+        expect(await logrosDAO.getLogros(usuario)).toContain(1);
     });
 
     test("guarda varios logros de un usuario", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["primer_ac", "racha_7"] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [1, 2] }]);
         const logros = await logrosDAO.getLogros(usuario);
-        expect(logros).toContain("primer_ac");
-        expect(logros).toContain("racha_7");
+        expect(logros).toContain(1);
+        expect(logros).toContain(2);
     });
 
     test("guarda logros de varios usuarios en el mismo bloque", async () => {
         await logrosDAO.guardarBloqueLogros([
-            { usuario: usuario, logros: ["primer_ac"] },
-            { usuario: usuarioAux, logros: ["racha_7"] }
+            { usuario: usuario, logros: [1] },
+            { usuario: usuarioAux, logros: [2] }
         ]);
-        expect(await logrosDAO.getLogros(usuario)).toContain("primer_ac");
-        expect(await logrosDAO.getLogros(usuarioAux)).toContain("racha_7");
+        expect(await logrosDAO.getLogros(usuario)).toContain(1);
+        expect(await logrosDAO.getLogros(usuarioAux)).toContain(2);
     });
 
     test("no mezcla logros entre usuarios", async () => {
         await logrosDAO.guardarBloqueLogros([
-            { usuario: usuario, logros: ["primer_ac"] },
-            { usuario: usuarioAux, logros: ["racha_7"] }
+            { usuario: usuario, logros: [1] },
+            { usuario: usuarioAux, logros: [2] }
         ]);
-        expect(await logrosDAO.getLogros(usuario)).not.toContain("racha_7");
-        expect(await logrosDAO.getLogros(usuarioAux)).not.toContain("primer_ac");
+        expect(await logrosDAO.getLogros(usuario)).not.toContain(2);
+        expect(await logrosDAO.getLogros(usuarioAux)).not.toContain(1);
     });
 
     test("acumula logros en llamadas sucesivas", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["primer_ac"] }]);
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["racha_7"] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [1] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [2] }]);
         const logros = await logrosDAO.getLogros(usuario);
-        expect(logros).toContain("primer_ac");
-        expect(logros).toContain("racha_7");
+        expect(logros).toContain(1);
+        expect(logros).toContain(2);
     });
 
     test("no duplica un logro ya guardado", async () => {
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["primer_ac"] }]);
-        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: ["primer_ac"] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [1] }]);
+        await logrosDAO.guardarBloqueLogros([{ usuario: usuario, logros: [1] }]);
         const logros = await logrosDAO.getLogros(usuario);
-        expect(logros.filter(l => l === "primer_ac")).toHaveLength(1);
+        expect(logros.filter(l => l === 1)).toHaveLength(1);
     });
 
     test("ignora usuarios con array de logros vacio", async () => {
@@ -62,10 +62,10 @@ describe("Guardar logros", () => {
     test("ignora entradas vacias y guarda las que tienen logros", async () => {
         await logrosDAO.guardarBloqueLogros([
             { usuario: usuario, logros: [] },
-            { usuario: usuarioAux, logros: ["primer_ac"] }
+            { usuario: usuarioAux, logros: [1] }
         ]);
         expect(await logrosDAO.getLogros(usuario)).toEqual([]);
-        expect(await logrosDAO.getLogros(usuarioAux)).toContain("primer_ac");
+        expect(await logrosDAO.getLogros(usuarioAux)).toContain(1);
     });
 });
 

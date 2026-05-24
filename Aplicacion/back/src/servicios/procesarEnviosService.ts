@@ -86,7 +86,7 @@ class ProcesarEnviosService {
      * @param problemas - Conjunto de identificadores de problema presentes en el bloque.
      */
     private async procesarBloqueEnvios(enviosProcesados: EnvioProcesado[], usuarios: Set<string>, problemas: Set<string>) {
-        
+
         //se cargan los checkpoints actuales de cada calculador y logro
         const checkpointsUsuarios = await checkpointsService.cargarCheckpointsUsuarios();
         const checkpointsProblemas = await checkpointsService.cargarCheckpointProblemas();
@@ -106,13 +106,13 @@ class ProcesarEnviosService {
         const copiaLogrosActuales: Map<string, Set<Logro>> = new Map([...logrosActuales].map(([key, values]) => [key, new Set(values)]))
 
         //se actualizan los estados aplicando cada envio del bloque en orden, y se procesan los logros de estado global con cada envio
-        let { 
-            estadosUsuarios, 
-            estadosProblemas, 
-            estadosFinalesPorMes, 
-            nuevosLogros, 
-            nuevosLogrosPorMes, 
-            nuevosLogrosOrdenados 
+        let {
+            estadosUsuarios,
+            estadosProblemas,
+            estadosFinalesPorMes,
+            nuevosLogros,
+            nuevosLogrosPorMes,
+            nuevosLogrosOrdenados
         } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints, estadosUsuariosIniciales);
 
         //SE PERSISTEN LOS logros, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
@@ -144,18 +144,23 @@ class ProcesarEnviosService {
      * @returns Estados finales de usuarios y problemas tras recorrer el bloque, y los estados finales agrupados por mes.
      */
     private async iterarBloque(
-            enviosProcesados: EnvioProcesado[],
-            logrosActuales: Map<string, Set<Logro>>,
-            checkpoints: Map<string, Map<string, number>>,
-            estadosUsuariosIniciales: Map<string, EstadoUsuario>
-        ): Promise<ResultadoActualizarEstados>
-        {
+        enviosProcesados: EnvioProcesado[],
+        logrosActuales: Map<string, Set<Logro>>,
+        checkpoints: Map<string, Map<string, number>>,
+        estadosUsuariosIniciales: Map<string, EstadoUsuario>
+    ): Promise<ResultadoActualizarEstados> {
 
         //ultimo envio que proceso cada calculador
         const checkpointsUsuarios = checkpoints.get("usuarios")!;
         const checkpointsProblemas = checkpoints.get("problemas")!;
-        const checkpointsLogro = checkpoints.get("logros")!;
-        
+        const checkpointsLogroString = checkpoints.get("logros")!;
+        const checkpointsLogro = new Map<number, number>(
+            [...checkpointsLogroString].map(([key, value]) => [
+                Number(key),
+                value
+            ])
+        );
+
         //se actualizan los estados aplicando solo los calculadores y logros cuyo checkpoint
         //sea menor que el envioId actual, los ya al dia se saltan ese envio
         let envio: EnvioProcesado = enviosProcesados[0];
@@ -195,7 +200,7 @@ class ProcesarEnviosService {
             }
 
             //se guarda el estado final del mes si es uno de los ultimos meses
-            const hoy = new Date().setUTCHours(0,0,0,0);
+            const hoy = new Date().setUTCHours(0, 0, 0, 0);
             const haceUnAnio = hoy.valueOf() / 1000 - 365 * 24 * 60 * 60;
             if (envio.fecha >= haceUnAnio) {
 

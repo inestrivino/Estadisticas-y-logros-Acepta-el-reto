@@ -109,22 +109,22 @@ class CheckpointsService {
         logros: Logro[], 
         camposResetearUsuarios: Set<string>, 
         camposResetearProblemas: Set<string>
-    ): Promise<Set<string>> {
+    ): Promise<Set<number>> {
 
-        const logrosResetear = new Set<string>();
+        const logrosResetear = new Set<number>();
 
         for (const logro of logros) {
 
             //se comprueba si ha cambiado la version del logro
-            const versionGuardada = await checkpointsDAO.getVersionLogro(logro.nombre);
+            const versionGuardada = await checkpointsDAO.getVersionLogro(logro.id);
             if (versionGuardada !== logro.version) {
 
                 //si ha cambiado se actualiza la version en la base de datos
-                console.log(` - version cambiada en logro '${logro.nombre}': ${versionGuardada} -> ${logro.version}, reseteando checkpoint`);
-                await checkpointsDAO.setVersionLogro(logro.nombre, logro.version);
+                console.log(` - version cambiada en logro '${logro.nombre}' (id: ${logro.id}): ${versionGuardada} -> ${logro.version}, reseteando checkpoint`);
+                await checkpointsDAO.setVersionLogro(logro.id, logro.version);
 
                 //se pone su checkpoint a 0 y se empieza la carga de envios
-                await checkpointsDAO.setCheckpointLogro(logro.nombre, 0);
+                await checkpointsDAO.setCheckpointLogro(logro.id, 0);
 
                 //se resetean los checkpoints de las estadisticas de las que cuelga el logro
                 //y se acumulan sus ids para que el llamante borre sus registros
@@ -138,7 +138,7 @@ class CheckpointsService {
                 }
 
                 //se marca el logro para borrar su registro de la base de datos
-                logrosResetear.add(logro.nombre);
+                logrosResetear.add(logro.id);
             }
         }
 
@@ -189,13 +189,13 @@ class CheckpointsService {
     }
 
     /**
-     * Carga el checkpoint actual de cada logro registrado en un mapa por nombre.
+     * Carga el checkpoint actual de cada logro registrado en un mapa por id.
      * @returns Mapa con el checkpoint actual de cada logro registrado.
      */
     public async cargarCheckpointsLogro(): Promise<Map<string, number>> {
         const checkpoints = new Map<string, number>();
         for (const logro of logrosService.getDefiniciones())
-            checkpoints.set(logro.nombre, await checkpointsDAO.getCheckpointLogro(logro.nombre));
+            checkpoints.set(String(logro.id), await checkpointsDAO.getCheckpointLogro(logro.id));
         return checkpoints;
     }
 
@@ -209,7 +209,7 @@ class CheckpointsService {
         for (const [tipo, mapa] of checkpoints) {
             for (const [id, cp] of mapa) {
                 if (cp < lastEnvioId) {
-                    await (tipo === "logros" ? checkpointsDAO.setCheckpointLogro(id, lastEnvioId) : checkpointsDAO.setCheckpointStat(id, lastEnvioId));
+                    await (tipo === "logros" ? checkpointsDAO.setCheckpointLogro(Number(id), lastEnvioId) : checkpointsDAO.setCheckpointStat(id, lastEnvioId));
                 }
             }
         }

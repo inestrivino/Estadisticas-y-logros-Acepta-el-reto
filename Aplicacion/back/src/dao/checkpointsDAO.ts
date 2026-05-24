@@ -44,7 +44,7 @@ class CheckpointsDAO extends DAO {
      * Devuelve la version aplicada del logro indicado, o 0 si nunca se aplico.
      * @param id - Identificador del logro.
      */
-    public async getVersionLogro(id: string): Promise<number> {
+    public async getVersionLogro(id: number): Promise<number> {
         const v = await this.redis.get(`logro:${id}:version`);
         return v ? Number(v) : 0;
     }
@@ -54,7 +54,7 @@ class CheckpointsDAO extends DAO {
      * @param id - Identificador del logro.
      * @param version - Version a persistir.
      */
-    public async setVersionLogro(id: string, version: number) {
+    public async setVersionLogro(id: number, version: number) {
         await this.redis.set(`logro:${id}:version`, String(version));
     }
 
@@ -82,7 +82,7 @@ class CheckpointsDAO extends DAO {
      * Devuelve el numero del ultimo envio procesado por el logro indicado, o 0 si ninguno.
      * @param id - Identificador del logro.
      */
-    public async getCheckpointLogro(id: string): Promise<number> {
+    public async getCheckpointLogro(id: number): Promise<number> {
         const v = await this.redis.get(`logro:${id}:envio`);
         return v ? Number(v) : 0;
     }
@@ -92,7 +92,7 @@ class CheckpointsDAO extends DAO {
      * @param id - Identificador del logro.
      * @param envio - Id del ultimo envio procesado.
      */
-    public async setCheckpointLogro(id: string, envio: number) {
+    public async setCheckpointLogro(id: number, envio: number) {
         await this.redis.set(`logro:${id}:envio`, String(envio));
     }
 }

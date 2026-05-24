@@ -32,7 +32,7 @@ import logro15 from "./logros/calidad/logro15.js";
 import logro17 from "./logros/calidad/logro17.js";
 
 type Contexto = {
-    checkpointsLogro: Map<string, number>
+    checkpointsLogro: Map<number, number>
     logrosActuales: Map<string, Set<Logro>>
     estadosUsuarios: Map<string, EstadoUsuario>
     estadosProblemas: Map<string, EstadoProblema>
@@ -40,7 +40,7 @@ type Contexto = {
 }
 
 type InfoParaCondicion = {
-    checkpointsLogro: Map<string, number>
+    checkpointsLogro: Map<number, number>
     logrosActuales: Set<Logro>
     estadoUsuario: EstadoUsuario
     estadoProblema: EstadoProblema
@@ -112,7 +112,7 @@ class LogrosService {
                 continue;
 
             //se omiten los logros cuyo checkpoint ya cubre el envio o estado actual
-            const checkpoint = info.checkpointsLogro.get(logro.nombre) as number;
+            const checkpoint = info.checkpointsLogro.get(logro.id) as number;
             if (checkpoint >= contexto.envio.envioId)
                 continue;
 
@@ -138,7 +138,7 @@ class LogrosService {
     public async guardarLogros(nuevosLogros: Map<string, Set<Logro>>): Promise<void> {
         const datos: datosLogro[] = [];
         for (const [usuario, logros] of nuevosLogros)
-            datos.push({ usuario, logros: Array.from(logros).map(l => l.nombre) });
+            datos.push({ usuario, logros: Array.from(logros).map(l => l.id) });
         await logrosDAO.guardarBloqueLogros(datos);
     }
 
@@ -149,7 +149,7 @@ class LogrosService {
     public async guardarUltimosLogros(nuevosLogros: Map<string, Logro[]>): Promise<void> {
         const datos: datosLogro[] = [];
         for (const [usuario, logros] of nuevosLogros)
-            datos.push({ usuario, logros: logros.map(l => l.nombre) });
+            datos.push({ usuario, logros: logros.map(l => l.id) });
         await logrosDAO.guardarUltimosLogros(datos);
     }
 
@@ -175,17 +175,17 @@ class LogrosService {
      */
     public registrarMes(pipeline: Pipeline, usuario: string, mes: number, nuevosLogrosMes: Set<Logro>): void {
         if (nuevosLogrosMes.size === 0) return;
-        const nombres = [...nuevosLogrosMes].map(l => l.nombre);
-        logrosDAO.registrarLogrosUsuarioMes(pipeline, usuario, mes, nombres);
+        const ids = [...nuevosLogrosMes].map(l => l.id);
+        logrosDAO.registrarLogrosUsuarioMes(pipeline, usuario, mes, ids);
     }
 
     /**
      * Borra de la base de datos los registros de los logros indicados para que se reevaluen al reprocesar.
-     * @param nombres - Conjunto de nombres de logros cuyos registros hay que borrar.
+     * @param ids - Conjunto de ids de logros cuyos registros hay que borrar.
      */
-    public async borrarLogros(nombres: Set<string>): Promise<void> {
-        for (const nombre of nombres)
-            await logrosDAO.borrarLogro(nombre);
+    public async borrarLogros(ids: Set<number>): Promise<void> {
+        for (const id of ids)
+            await logrosDAO.borrarLogro(id);
     }
 
     /**
@@ -196,12 +196,12 @@ class LogrosService {
      */
     public async calcularXPMes(mes: number): Promise<Map<string, number>> {
         const porUsuario = await logrosDAO.getLogrosMes(mes);
-        const definicionesPorNombre = new Map(this.logros.map(l => [l.nombre, l]));
+        const definicionesPorId = new Map(this.logros.map(l => [l.id, l]));
         const xp = new Map<string, number>();
-        for (const [usuario, nombres] of porUsuario) {
+        for (const [usuario, ids] of porUsuario) {
             let total = 0;
-            for (const nombre of nombres) {
-                const logro = definicionesPorNombre.get(nombre);
+            for (const id of ids) {
+                const logro = definicionesPorId.get(id);
                 if (logro) total += XP_LOGRO[logro.nivel] ?? 0;
             }
             if (total > 0) xp.set(usuario, total);
@@ -217,9 +217,9 @@ class LogrosService {
      * @returns Array con los datos de los logros recientes.
      */
     public async getUltimosLogros(usuario: string) {
-        const nombres = await logrosDAO.getUltimosLogros(usuario);
-        return nombres
-            .map(nombre => this.logros.find(l => l.nombre === nombre))
+        const ids = await logrosDAO.getUltimosLogros(usuario);
+        return ids
+            .map(id => this.logros.find(l => l.id === id))
             .filter(Boolean)
             .map(logro => ({
                 nombre: logro!.nombre,
@@ -243,7 +243,7 @@ class LogrosService {
 
         //agrega el atributo de si el usuario tiene ese logro o no
         const logrosUsuario = this.logros.map(logro => {
-            const obtenido = setLogros.has(logro.nombre);
+            const obtenido = setLogros.has(logro.id);
             const ocultar = logro.sorpresa && !obtenido;
             return {
                 nombre: logro.nombre,
@@ -281,8 +281,8 @@ class LogrosService {
         const logrosPorUsuario: Map<string, Set<Logro>> = new Map();
 
         for (const usuario of usuarios) {
-            const nombres = await logrosDAO.getLogros(usuario);
-            const logros = new Set(nombres.map(n => this.logros.find(l => l.nombre === n)!).filter(Boolean));
+            const ids = await logrosDAO.getLogros(usuario);
+            const logros = new Set(ids.map(i => this.logros.find(l => l.id === i)!).filter(Boolean));
             logrosPorUsuario.set(usuario, logros);
         }
 
