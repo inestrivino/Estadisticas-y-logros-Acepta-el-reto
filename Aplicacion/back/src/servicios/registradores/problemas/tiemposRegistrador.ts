@@ -5,7 +5,7 @@ import problemaDAO from '../../../dao/problemaDAO.js';
 const registradorTiempos: RegistradorProblema = {
     id: CampoProblema.TIEMPOS,
     registrar: (pipeline, problema, estado) => problemaDAO.guardarTiempos(pipeline, problema, estado),
-    borrar: () => problemaDAO.borrarTiempos(),
+    borrar: (problemas) => problemaDAO.borrarTiempos(problemas),
 };
 
 export default registradorTiempos;

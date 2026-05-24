@@ -5,7 +5,7 @@ import usuarioDAO from '../../../dao/usuarioDAO.js';
 const registradorLenguajes: RegistradorUsuario = {
     id: CampoUsuario.LENGUAJES,
     registrar: (pipeline, usuario, estado) => usuarioDAO.guardarLenguajes(pipeline, usuario, estado),
-    borrar: () => usuarioDAO.borrarLenguajes(),
+    borrar: (usuarios) => usuarioDAO.borrarLenguajes(usuarios),
 };
 
 export default registradorLenguajes;

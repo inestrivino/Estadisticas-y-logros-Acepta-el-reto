@@ -71,6 +71,23 @@ class LogrosDAO extends DAO {
         await pipeline.exec();
     }
 
+    /**
+     * Devuelve los nombres de los logros obtenidos por cada usuario en el mes indicado.
+     * @param mes - Mes (0-11) a consultar.
+     * @returns Mapa de usuario al conjunto de nombres de logros obtenidos en ese mes.
+     */
+    public async getLogrosMes(mes: number): Promise<Map<string, Set<string>>> {
+        const resultado = new Map<string, Set<string>>();
+        for await (const claves of this.redis.scanIterator({ MATCH: `logros:*:mes:${mes}`, COUNT: 100 })) {
+            for (const clave of claves) {
+                const usuario = clave.split(':')[1];
+                const nombres = await this.redis.sMembers(clave);
+                if (nombres.length > 0) resultado.set(usuario, new Set(nombres));
+            }
+        }
+        return resultado;
+    }
+
     //============================== CONSULTAS ==============================
 
     /**

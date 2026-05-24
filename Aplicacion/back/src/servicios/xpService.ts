@@ -6,7 +6,8 @@ import { Logro } from "./logros/logro.js";
 import { EstadisticaExperiencia } from "./experiencia/estadistica.js";
 import { enviosEstadistica } from "./experiencia/estadisticas/envios.js";
 import { problemasACEstadistica } from "./experiencia/estadisticas/problemasAC.js";
-import { logrosEstadistica } from "./experiencia/estadisticas/logros.js";
+import logrosService from "./logrosService.js";
+import estadosService from "./estadosService.js";
 import { NivelUsuario } from "shared";
 
 //valor a partir del cual el usuario tiene ese nivel
@@ -26,48 +27,57 @@ class XPService {
     private estadisticas: EstadisticaExperiencia[] = [
         enviosEstadistica,
         problemasACEstadistica,
-        logrosEstadistica,
     ];
 
     /**
      * Calcula y persiste la XP global y por mes de cada usuario y la persistencia por mes
-     * de cada estadistica registrada en `estadisticas`.
+     * de cada estadistica registrada en `estadisticas`. Solo se tienen en cuenta las
+     * estadisticas cuyo checkpoint este por detras del bloque (las que aun no han
+     * procesado los envios del bloque), para evitar acumular XP que ya fue contada.
      * @param estadosIniciales - Estados de usuario antes del bloque.
      * @param estadosFinales - Estados de usuario despues del bloque.
      * @param estadosFinalesPorMes - Estados finales de usuario agrupados por mes (ultimos 12 meses).
      * @param nuevosLogros - Logros nuevos obtenidos en el bloque (todos, sin filtro por fecha).
      * @param nuevosLogrosPorMes - Logros nuevos obtenidos agrupados por mes (solo ultimos 12 meses).
+     * @param checkpointsStats - Checkpoint actual de cada estadistica por id.
+     * @param lastEnvioId - Id del ultimo envio del bloque procesado.
      */
     public async procesarExperiencia(
         estadosIniciales: Map<string, EstadoUsuario>,
         estadosFinales: Map<string, EstadoUsuario>,
         estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>>,
         nuevosLogros: Map<string, Set<Logro>>,
-        nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>>
+        nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>>,
+        checkpointsStats: Map<string, number>,
+        lastEnvioId: number
     ) {
-        //se registra la xp global del bloque
-        await xpDAO.registrarBloqueXP(this.calcularXP(estadosIniciales, estadosFinales, nuevosLogros));
+        //se filtran las estadisticas cuyo checkpoint ya cubre el bloque (su XP ya esta contada)
+        const estadisticasActivas = this.estadisticas.filter(estadistica => (checkpointsStats.get(estadistica.id) ?? 0) < lastEnvioId);
 
-        //se recorre cada mes para calcular su xp y encolar la persistencia por mes de cada estadistica
+        //se registra la xp global del bloque
+        await xpDAO.registrarBloqueXP(this.calcularXP(estadisticasActivas, estadosIniciales, estadosFinales, nuevosLogros));
+
+        //se recorre cada mes para calcular su xp y persistir las estadisticas del mes
         const meses = [...estadosFinalesPorMes.keys()].sort((a, b) => a - b);
         const pipeline = usuarioDAO.iniciarPipeline();
-        const estadosPrevios = new Map<string, EstadoUsuario>(estadosIniciales);
         const bloquesMes: { mes: number, puntos: datosXP[] }[] = [];
 
         for (const mes of meses) {
-            const estadosFinalesMes = estadosFinalesPorMes.get(mes)!;
+            //los estados ya contienen solo el delta del mes, no el acumulado
+            const deltasMes = estadosFinalesPorMes.get(mes)!;
             const nuevosLogrosMes = nuevosLogrosPorMes.get(mes) ?? new Map<string, Set<Logro>>();
 
-            //se calcula la xp del mes comparando el estado final del mes con el inicial del bloque
-            bloquesMes.push({ mes, puntos: this.calcularXP(estadosIniciales, estadosFinalesMes, nuevosLogrosMes) });
+            //la xp del mes se calcula directamente del delta
+            bloquesMes.push({ mes, puntos: this.calcularXP(estadisticasActivas, new Map(), deltasMes, nuevosLogrosMes) });
 
-            //se encola por mes cada estadistica comparando el final del mes anterior con el final del mes actual
-            for (const [usuario, estadoFinalMes] of estadosFinalesMes) {
-                const anterior = estadosPrevios.get(usuario) ?? {} as EstadoUsuario;
+            //se persisten las estadisticas del mes usando el delta
+            for (const [usuario, deltaMes] of deltasMes) {
                 const logrosMes = nuevosLogrosMes.get(usuario) ?? new Set<Logro>();
-                for (const est of this.estadisticas)
-                    est.registrarMes?.(pipeline, usuario, mes, anterior, estadoFinalMes, logrosMes);
-                estadosPrevios.set(usuario, estadoFinalMes);
+
+                for (const estadistica of estadisticasActivas)
+                    estadistica.registrarMes(pipeline, usuario, mes, {}, deltaMes, logrosMes);
+
+                logrosService.registrarMes(pipeline, usuario, mes, logrosMes);
             }
         }
 
@@ -76,33 +86,107 @@ class XPService {
     }
 
     /**
-     * Calcula la XP de cada usuario sumando la aportacion de cada estadistica registrada.
+     * Calcula la XP de cada usuario sumando la aportacion de las estadisticas indicadas.
+     * @param estadisticas - Estadisticas que aportan XP en este calculo.
      * @param estadosIniciales - Mapa de estados de usuario antes del periodo.
      * @param estadosFinales - Mapa de estados de usuario al final del periodo.
      * @param nuevosLogros - Logros nuevos obtenidos por cada usuario en el periodo.
      * @returns Array de objetos { usuario, xp } con la XP calculada para cada usuario.
      */
     private calcularXP(
+        estadisticas: EstadisticaExperiencia[],
         estadosIniciales: Map<string, EstadoUsuario>,
         estadosFinales: Map<string, EstadoUsuario>,
         nuevosLogros: Map<string, Set<Logro>>
     ): datosXP[] {
-        return Array.from(estadosFinales.entries()).map(([usuario, estadoFinal]) => {
+        const resultado: datosXP[] = [];
+        for (const [usuario, estadoFinal] of estadosFinales) {
+            
             const estadoInicial = estadosIniciales.get(usuario) ?? {} as EstadoUsuario;
+            
             const logros = nuevosLogros.get(usuario) ?? new Set<Logro>();
-            const xp = this.estadisticas.reduce(
-                (suma, est) => suma + est.calcularXP(estadoInicial, estadoFinal, logros),
-                0
-            );
-            return { usuario, xp };
-        });
+            
+            let xp = logrosService.calcularXP(logros);
+            
+            for (const est of estadisticas)
+                xp += est.calcularXP(estadoInicial, estadoFinal, logros);
+            resultado.push({ usuario, xp });
+        }
+        return resultado;
     }
+
+
 
     /**
      * Resetea todos los registros de la xp en la base de datos para todos los usuarios.
      */
     public async resetearXP() {
         await xpDAO.resetearXP();
+    }
+
+    /**
+     * Borra los datos mensuales de cada estadistica registrada cuyo id este en `idsAfectados`,
+     * para que se reconstruyan limpios al reprocesar los envios.
+     * @param idsAfectados - Conjunto de ids de estadisticas que han cambiado de version.
+     */
+    public async borrarStatsMesReseteadas(idsAfectados: Set<string>): Promise<void> {
+        for (const estadistica of this.estadisticas)
+            if (idsAfectados.has(estadistica.id))
+                await estadistica.borrarMes();
+    }
+
+    /**
+     * Recalcula los rankings mensuales de XP a partir de los datos mensuales persistidos
+     * de cada estadistica y de los logros. Sobrescribe los 12 rankings mensuales.
+     */
+    public async recalcularXPPorMes(): Promise<void> {
+        for (let mes = 0; mes < 12; mes++) {
+            const xpPorUsuario = new Map<string, number>();
+
+            //se suman las aportaciones de cada estadistica para el mes
+            for (const estadistica of this.estadisticas) {
+                const aportes = await estadistica.calcularXPMes(mes);
+                for (const [usuario, xp] of aportes)
+                    xpPorUsuario.set(usuario, (xpPorUsuario.get(usuario) ?? 0) + xp);
+            }
+
+            //se suman las aportaciones de los logros para el mes
+            const aportesLogros = await logrosService.calcularXPMes(mes);
+            for (const [usuario, xp] of aportesLogros)
+                xpPorUsuario.set(usuario, (xpPorUsuario.get(usuario) ?? 0) + xp);
+
+            const datos: datosXP[] = [...xpPorUsuario].map(([usuario, xp]) => ({ usuario, xp }));
+            await xpDAO.setRankingMes(mes, datos);
+        }
+    }
+
+    /**
+     * Recalcula el ranking global de XP a partir de los registros persistidos en la base de datos.
+     * Se invoca tras borrar los campos de las estadisticas reseteadas: como sus datos persistidos
+     * ya estan a 0, su aportacion es 0 automaticamente sin necesidad de filtrarlas.
+     */
+    public async recalcularXPGlobal(): Promise<void> {
+        const usuarios = await usuarioDAO.getTodosUsuarios();
+        if (usuarios.length === 0) {
+            await xpDAO.setRankingGlobal([]);
+            return;
+        }
+
+        //se cargan los estados actuales y los logros de cada usuario para reconstruir su XP
+        const estados = await estadosService.getEstadosInicialesUsuarios(new Set(usuarios));
+        const logrosPorUsuario = await logrosService.getLogros(usuarios);
+
+        const datos: datosXP[] = usuarios.map(usuario => {
+            const estado = estados.get(usuario) ?? {} as EstadoUsuario;
+            const logros = logrosPorUsuario.get(usuario) ?? new Set<Logro>();
+            const xpEstadisticas = this.estadisticas.reduce(
+                (suma, est) => suma + est.calcularXP({} as EstadoUsuario, estado, logros),
+                0
+            );
+            return { usuario, xp: xpEstadisticas + logrosService.calcularXP(logros) };
+        });
+
+        await xpDAO.setRankingGlobal(datos);
     }
 
     //============================== CONSULTAS ==============================

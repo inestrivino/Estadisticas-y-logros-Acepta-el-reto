@@ -46,18 +46,26 @@ class GestionService {
     }
 
     /**
-     * Comprueba si la version de la aplicacion en el .env ha aumentado respecto a la almacenada.
-     * Si es asi, elimina todos los datos de Redis y persiste la nueva version.
-     * @returns condicional de si se ha reiniciado o no.
+     * Devuelve la version de la aplicacion almacenada en Redis.
+     * @returns Version almacenada.
      */
-    public async checkVersion() {
-        const currentVersion = Number(process.env.VERSION ?? 0);
-        const storedVersion = await gestionDAO.getVersion();
-        if (currentVersion > storedVersion || currentVersion === -1) { 
-            console.log(` * version detectada: ${currentVersion}, version almacenada: ${storedVersion}. Reiniciando Redis.`);
-            await gestionDAO.flushAll();
-            await gestionDAO.setVersion(currentVersion);
-        }
+    public async getVersion(): Promise<number> {
+        return await gestionDAO.getVersion();
+    }
+
+    /**
+     * Elimina todos los datos de Redis.
+     */
+    public async flushAll() {
+        await gestionDAO.flushAll();
+    }
+
+    /**
+     * Persiste la version actual de la aplicacion en Redis.
+     * @param version - Version a guardar.
+     */
+    public async setVersion(version: number) {
+        await gestionDAO.setVersion(version);
     }
 }
 

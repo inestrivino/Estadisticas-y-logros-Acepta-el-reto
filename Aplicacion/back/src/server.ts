@@ -36,10 +36,7 @@ app.listen(3000, (error) => {
 await redisClient.connect();
 await redisLoading();
 
-//comprueba si hay que volver a lanzar la aplicacion de 0
-await gestionService.checkVersion();
-
-//se mira si algun actualizador ha cambiado de version o si hay alguno nuevo
+//comprueba versiones y resetea lo necesario
 await checkpointsService.comprobarVersiones();
 
 //se eliminan los envios anteriores a un año

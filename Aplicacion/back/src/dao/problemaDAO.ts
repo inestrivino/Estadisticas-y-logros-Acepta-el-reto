@@ -1,6 +1,5 @@
 import DAO from "./DAO.js"
 import { EstadoProblema } from "../types/estados/estadoProblema.js";
-import { borrarPatrones } from "./borrarPatrones.js";
 import { Pipeline } from "./DAO.js"
 
 class ProblemaDAO extends DAO {
@@ -82,31 +81,51 @@ class ProblemaDAO extends DAO {
     //============================== BORRAR CAMPOS ==============================
 
     /**
-     * Borra de Redis las claves de envios totales y AC de todos los problemas.
+     * Borra de Redis las claves de envios totales y AC de los problemas indicados.
+     * @param problemas - Identificadores de los problemas cuyos envios se borraran.
      */
-    public async borrarEnvios(): Promise<void> {
-        await borrarPatrones(['problema:*:envios', 'problema:*:enviosAC']);
+    public async borrarEnvios(problemas: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const problema of problemas) {
+            pipeline.del(`problema:${problema}:envios`);
+            pipeline.del(`problema:${problema}:enviosAC`);
+        }
+        await pipeline.exec();
     }
 
     /**
-     * Borra de Redis las claves de tiempo total y ranking de tiempos de todos los problemas.
+     * Borra de Redis las claves de tiempo total y ranking de tiempos de los problemas indicados.
+     * @param problemas - Identificadores de los problemas cuyos tiempos se borraran.
      */
-    public async borrarTiempos(): Promise<void> {
-        await borrarPatrones(['problema:*:tiempoTotal', 'problema:*:tiemposEnvios']);
+    public async borrarTiempos(problemas: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const problema of problemas) {
+            pipeline.del(`problema:${problema}:tiempoTotal`);
+            pipeline.del(`problema:${problema}:tiemposEnvios`);
+        }
+        await pipeline.exec();
     }
 
     /**
-     * Borra de Redis las claves de conteo de resultados de todos los problemas.
+     * Borra de Redis las claves de conteo de resultados de los problemas indicados.
+     * @param problemas - Identificadores de los problemas cuyos resultados se borraran.
      */
-    public async borrarResultados(): Promise<void> {
-        await borrarPatrones(['problema:*:resultados']);
+    public async borrarResultados(problemas: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const problema of problemas)
+            pipeline.del(`problema:${problema}:resultados`);
+        await pipeline.exec();
     }
 
     /**
-     * Borra de Redis las claves de conteo de lenguajes de todos los problemas.
+     * Borra de Redis las claves de conteo de lenguajes de los problemas indicados.
+     * @param problemas - Identificadores de los problemas cuyos lenguajes se borraran.
      */
-    public async borrarLenguajes(): Promise<void> {
-        await borrarPatrones(['problema:*:lenguajes']);
+    public async borrarLenguajes(problemas: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const problema of problemas)
+            pipeline.del(`problema:${problema}:lenguajes`);
+        await pipeline.exec();
     }
 
     //============================== CONSULTAS ==============================
@@ -119,6 +138,14 @@ class ProblemaDAO extends DAO {
     async existeProblema(problema: string): Promise<boolean> {
         const score = await this.redis.zScore(`problemas`, problema);
         return score !== null;
+    }
+
+    /**
+     * Devuelve los identificadores de todos los problemas registrados.
+     * @returns Array con los nombres de los problemas.
+     */
+    async getTodosProblemas(): Promise<string[]> {
+        return await this.redis.zRange(`problemas`, 0, -1);
     }
 
     /**

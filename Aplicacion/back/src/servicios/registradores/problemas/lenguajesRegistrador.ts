@@ -5,7 +5,7 @@ import problemaDAO from '../../../dao/problemaDAO.js';
 const registradorLenguajes: RegistradorProblema = {
     id: CampoProblema.LENGUAJES,
     registrar: (pipeline, problema, estado) => problemaDAO.guardarLenguajes(pipeline, problema, estado),
-    borrar: () => problemaDAO.borrarLenguajes(),
+    borrar: (problemas) => problemaDAO.borrarLenguajes(problemas),
 };
 
 export default registradorLenguajes;

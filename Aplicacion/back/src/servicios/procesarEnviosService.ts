@@ -86,11 +86,10 @@ class ProcesarEnviosService {
      * @param problemas - Conjunto de identificadores de problema presentes en el bloque.
      */
     private async procesarBloqueEnvios(enviosProcesados: EnvioProcesado[], usuarios: Set<string>, problemas: Set<string>) {
-
-        //TODO quizas separar esto en dos funciones para que quede mejor
         
         //se cargan los checkpoints actuales de cada calculador y logro
-        const { checkpointsUsuarios, checkpointsProblemas } = await checkpointsService.cargarCheckpointsStat(); //TODO separar y que esto sea una funcion cada uno
+        const checkpointsUsuarios = await checkpointsService.cargarCheckpointsUsuarios();
+        const checkpointsProblemas = await checkpointsService.cargarCheckpointProblemas();
         const checkpointsLogro = await checkpointsService.cargarCheckpointsLogro();
         const checkpoints = new Map<string, Map<string, number>>([
             ["usuarios", checkpointsUsuarios],
@@ -103,13 +102,18 @@ class ProcesarEnviosService {
         //const estadosProblemasIniciales: Map<string, EstadoProblema> = await estadosService.getEstadosInicialesProblemas(problemas);
         const logrosActuales: Map<string, Set<Logro>> = await logrosService.getLogros([...usuarios]);
 
-        //============ACTUALIZACION DE LOS ESTADOS============
-
         //copia de los logrosActuales para no perder la referencia a los que se tienen al principio del bloque
         const copiaLogrosActuales: Map<string, Set<Logro>> = new Map([...logrosActuales].map(([key, values]) => [key, new Set(values)]))
 
         //se actualizan los estados aplicando cada envio del bloque en orden, y se procesan los logros de estado global con cada envio
-        let { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints);
+        let { 
+            estadosUsuarios, 
+            estadosProblemas, 
+            estadosFinalesPorMes, 
+            nuevosLogros, 
+            nuevosLogrosPorMes, 
+            nuevosLogrosOrdenados 
+        } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints, estadosUsuariosIniciales);
 
         //SE PERSISTEN LOS logros, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
 
@@ -125,7 +129,9 @@ class ProcesarEnviosService {
 
         //se procesa la experiencia: xp global, xp por mes y persistencia por mes de cada
         //estadistica registrada en xpService (envios, problemas AC, logros, ...)
-        await xpService.procesarExperiencia(estadosUsuariosIniciales, estadosUsuarios, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes);
+        //se le pasa el checkpoint de cada stat para que ignore las que ya cubren el bloque
+        const checkpointsStats = new Map<string, number>([...checkpointsUsuarios, ...checkpointsProblemas]);
+        await xpService.procesarExperiencia(estadosUsuariosIniciales, estadosUsuarios, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, checkpointsStats, lastEnvioId);
 
         //se avanzan los checkpoints en Redis de las stats y logros que quedaron por detras del bloque
         await checkpointsService.avanzarCheckpoints(checkpoints, lastEnvioId);
@@ -140,7 +146,8 @@ class ProcesarEnviosService {
     private async iterarBloque(
             enviosProcesados: EnvioProcesado[],
             logrosActuales: Map<string, Set<Logro>>,
-            checkpoints: Map<string, Map<string, number>>
+            checkpoints: Map<string, Map<string, number>>,
+            estadosUsuariosIniciales: Map<string, EstadoUsuario>
         ): Promise<ResultadoActualizarEstados>
         {
 
@@ -157,6 +164,10 @@ class ProcesarEnviosService {
 
         //se guardan los meses que hayan cambiado de experiencia con este bloque de envios
         const estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>> = new Map();
+
+        //estado al inicio de cada mes para calcular solo lo que se consiguio ese mes
+        const estadosInicialesPorMes = new Map<number, Map<string, EstadoUsuario>>();
+        let estadosAnteriores: Map<string, EstadoUsuario> = estadosUsuariosIniciales;
         const nuevosLogros: Map<string, Set<Logro>> = new Map();
         const nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>> = new Map();
         const nuevosLogrosOrdenados: Map<string, Logro[]> = new Map();
@@ -188,19 +199,68 @@ class ProcesarEnviosService {
             const haceUnAnio = hoy.valueOf() / 1000 - 365 * 24 * 60 * 60;
             if (envio.fecha >= haceUnAnio) {
 
-                estadosFinalesPorMes.set(envio.mes, structuredClone(estadosUsuarios));
-
-                if (!nuevosLogrosPorMes.has(envio.mes))
+                //primer envio del mes: se fijan los estados y logros previos como referencia de inicio del mes
+                if (!estadosInicialesPorMes.has(envio.mes)) {
+                    estadosInicialesPorMes.set(envio.mes, estadosAnteriores);
                     nuevosLogrosPorMes.set(envio.mes, new Map());
+                }
+
+                //se calcula y guarda solo la diferencia de estadisticas conseguida en este mes
+                const inicialesMes = estadosInicialesPorMes.get(envio.mes)!;
+                const deltaEstados = new Map<string, EstadoUsuario>();
+                for (const [usuario, estadoFinal] of estadosUsuarios)
+                    deltaEstados.set(usuario, this.diferenciaEstado(inicialesMes.get(usuario) ?? {}, estadoFinal));
+                estadosFinalesPorMes.set(envio.mes, deltaEstados);
+
+                //se acumulan los logros nuevos obtenidos este mes
                 const meslogros = nuevosLogrosPorMes.get(envio.mes)!;
                 for (const [usuario, logros] of nuevoslogroEnvio) {
                     if (!meslogros.has(usuario)) meslogros.set(usuario, new Set());
                     for (const logro of logros) meslogros.get(usuario)!.add(logro);
                 }
             }
+
+            //se actualiza el estado anterior para poder detectar el inicio de un nuevo mes
+            estadosAnteriores = structuredClone(estadosUsuarios);
         }
 
         return { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados };
+    }
+
+    /**
+     * Calcula la diferencia entre dos estados de usuario campo a campo.
+     * Para numeros resta, para Sets devuelve los elementos nuevos en final,
+     * para Maps de numeros resta los valores, para Maps de Sets devuelve los elementos nuevos por clave.
+     * @param inicial - Estado de usuario de referencia.
+     * @param final - Estado de usuario posterior.
+     * @returns Nuevo EstadoUsuario con la diferencia entre ambos.
+     */
+    public diferenciaEstado(inicial: EstadoUsuario, final: EstadoUsuario): EstadoUsuario {
+        const delta: EstadoUsuario = {};
+        for (const key of Object.keys(final)) {
+            const v0 = inicial[key];
+            const v1 = final[key];
+            if (v1 === undefined) continue;
+            if (typeof v1 === 'number')
+                delta[key] = v1 - (typeof v0 === 'number' ? v0 : 0);
+            else if (v1 instanceof Set)
+                delta[key] = new Set([...v1].filter(x => !(v0 instanceof Set) || !v0.has(x)));
+            else if (v1 instanceof Map) {
+                const m = new Map();
+                for (const [k, val] of v1) {
+                    if (typeof val === 'number') {
+                        const prev = (v0 instanceof Map && typeof v0.get(k) === 'number') ? v0.get(k) : 0;
+                        m.set(k, val - prev);
+                    } else if (val instanceof Set) {
+                        const prevSet = (v0 instanceof Map && v0.get(k) instanceof Set) ? v0.get(k) : new Set();
+                        m.set(k, new Set([...val].filter(x => !prevSet.has(x))));
+                    }
+                }
+                delta[key] = m;
+            } else
+                delta[key] = v1;
+        }
+        return delta;
     }
 
     /**

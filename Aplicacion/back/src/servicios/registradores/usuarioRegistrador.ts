@@ -11,5 +11,5 @@ export interface RegistradorUsuario {
     registrar(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void;
 
     //borra todas las claves de Redis que gestiona este registrador
-    borrar(): Promise<void>;
+    borrar(usuarios: string[]): Promise<void>;
 }

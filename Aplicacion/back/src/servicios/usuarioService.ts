@@ -46,9 +46,12 @@ class UsuarioService {
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
     async resetearCamposUsuarios(ids: Set<string>): Promise<void> {
+
+        const usuarios: string[] = await usuarioDAO.getTodosUsuarios();
+
         for (const registrador of this.registradores)
             if (ids.has(registrador.id))
-                await registrador.borrar();
+                await registrador.borrar(usuarios);
     }
     
     /**

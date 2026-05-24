@@ -1,5 +1,6 @@
 import { EstadisticaExperiencia } from "../estadistica.js";
 import usuarioDAO from "../../../dao/usuarioDAO.js";
+import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 /**
  * Aporta 15 puntos de XP por cada problema nuevo resuelto con AC y persiste por mes
@@ -7,7 +8,7 @@ import usuarioDAO from "../../../dao/usuarioDAO.js";
  */
 export const problemasACEstadistica: EstadisticaExperiencia = {
 
-    id: "problemasAC",
+    id: CampoUsuario.PROBLEMAS,
 
     calcularXP(estadoInicial, estadoFinal) {
         return ((estadoFinal.problemasAC?.size ?? 0) - (estadoInicial.problemasAC?.size ?? 0)) * 15;
@@ -16,8 +17,21 @@ export const problemasACEstadistica: EstadisticaExperiencia = {
     registrarMes(pipeline, usuario, mes, anterior, finalMes) {
         const antes = anterior.problemasAC ?? new Set<string>();
         const ahora = finalMes.problemasAC ?? new Set<string>();
-        const nuevos = [...ahora].filter(p => !antes.has(p));
-        if (nuevos.length > 0)
+        let nuevos = 0;
+        for (const p of ahora) if (!antes.has(p)) nuevos++;
+        if (nuevos > 0)
             usuarioDAO.registrarProblemasACMes(pipeline, usuario, mes, nuevos);
+    },
+
+    async borrarMes() {
+        await usuarioDAO.borrarProblemasACMes();
+    },
+
+    async calcularXPMes(mes) {
+        const problemas = await usuarioDAO.getProblemasACMes(mes);
+        const xp = new Map<string, number>();
+        for (const [usuario, cantidad] of problemas)
+            xp.set(usuario, cantidad * 15);
+        return xp;
     }
 };

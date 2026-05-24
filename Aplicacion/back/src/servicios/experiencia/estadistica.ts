@@ -1,6 +1,7 @@
 import { EstadoUsuario } from "../../types/estados/estadoUsuario.js";
 import { Logro } from "../logros/logro.js";
 import { Pipeline } from "../../dao/DAO.js";
+import { CampoUsuarioKey } from "../../types/estados/camposEstadoUsuario.js";
 
 /**
  * Estadistica que contribuye a la experiencia del usuario.
@@ -8,7 +9,7 @@ import { Pipeline } from "../../dao/DAO.js";
  * logros nuevos del periodo y, opcionalmente, (2) como persistirse por mes.
  */
 export interface EstadisticaExperiencia {
-    id: string;
+    id: CampoUsuarioKey;
 
     /**
      * Puntos de XP que esta estadistica aporta al usuario en el periodo cubierto
@@ -26,7 +27,7 @@ export interface EstadisticaExperiencia {
      * dentro del bloque (o el inicial si es el primer mes) con el final del mes actual.
      * Opcional: si una estadistica no necesita persistencia por mes se omite.
      */
-    registrarMes?(
+    registrarMes(
         pipeline: Pipeline,
         usuario: string,
         mes: number,
@@ -34,4 +35,18 @@ export interface EstadisticaExperiencia {
         estadoFinalMes: EstadoUsuario,
         nuevosLogrosMes: Set<Logro>
     ): void;
+
+    /**
+     * Borra de la base de datos los datos mensuales de esta estadistica para
+     * todos los usuarios.
+     */
+    borrarMes(): Promise<void>;
+
+    /**
+     * Calcula la XP que aporta esta estadistica en el mes indicado a partir
+     * de los datos mensuales persistidos en la base de datos.
+     * @param mes - Mes (0-11) a consultar.
+     * @returns Mapa de usuario a XP aportada por esta estadistica en ese mes.
+     */
+    calcularXPMes(mes: number): Promise<Map<string, number>>;
 }

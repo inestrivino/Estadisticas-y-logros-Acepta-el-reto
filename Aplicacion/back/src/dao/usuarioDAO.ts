@@ -1,6 +1,5 @@
 import DAO from "./DAO.js";
 import { EstadoUsuario } from "../types/estados/estadoUsuario.js";
-import { borrarPatrones } from "./borrarPatrones.js";
 import { Pipeline } from "./DAO.js"
 
 class UsuarioDAO extends DAO {
@@ -46,10 +45,10 @@ class UsuarioDAO extends DAO {
      */
     public guardarRachas(pipeline: Pipeline, usuario: string, estado: EstadoUsuario): void {
         pipeline.set(`usuario:${usuario}:fechaUltimoEnvio`, String(estado.ultimoDiaEnvio));
-        pipeline.set(`usuario:${usuario}:rachaEnviosAC`,    String(estado.rachaEnviosAC));
+        pipeline.set(`usuario:${usuario}:rachaEnviosAC`, String(estado.rachaEnviosAC));
         pipeline.set(`usuario:${usuario}:rachaEnviosACMax`, String(estado.rachaEnviosACMax));
-        pipeline.set(`usuario:${usuario}:rachaDiasEnvio`,   String(estado.rachaDiasEnvio));
-        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`,String(estado.rachaDiasEnvioMax));
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvio`, String(estado.rachaDiasEnvio));
+        pipeline.set(`usuario:${usuario}:rachaDiasEnvioMax`, String(estado.rachaDiasEnvioMax));
     }
 
     /**
@@ -130,6 +129,100 @@ class UsuarioDAO extends DAO {
         }
     }
 
+    //============================== BORRAR CAMPOS ==============================
+
+    /**
+     * Borra de Redis las claves del numero de envios de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyo contador de envios se borrara.
+     */
+    public async borrarEnvios(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios)
+            pipeline.del(`usuario:${usuario}:envios`);
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves de rachas (envios AC y dias) de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyas rachas se borraran.
+     */
+    public async borrarRachas(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios) {
+            pipeline.del(`usuario:${usuario}:fechaUltimoEnvio`);
+            pipeline.del(`usuario:${usuario}:rachaEnviosAC`);
+            pipeline.del(`usuario:${usuario}:rachaEnviosACMax`);
+            pipeline.del(`usuario:${usuario}:rachaDiasEnvio`);
+            pipeline.del(`usuario:${usuario}:rachaDiasEnvioMax`);
+        }
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves de problemas resueltos de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyos problemas AC se borraran.
+     */
+    public async borrarProblemas(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios)
+            pipeline.del(`usuario:${usuario}:problemasAC`);
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves de horas de envios de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyas horas se borraran.
+     */
+    public async borrarHoras(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios)
+            pipeline.del(`usuario:${usuario}:horas`);
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves del conteo de resultados de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyos resultados se borraran.
+     */
+    public async borrarResultados(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios)
+            pipeline.del(`usuario:${usuario}:resultados`);
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves de lenguajes (conteo, AC y problemas por lenguaje) de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyos lenguajes se borraran.
+     */
+    public async borrarLenguajes(usuarios: string[]): Promise<void> {
+        const lenguajesPorUsuario: string[][] = await Promise.all(
+            usuarios.map(usuario => this.redis.hKeys(`usuario:${usuario}:lenguajes`))
+        );
+
+        const pipeline = this.redis.multi();
+        for (let i = 0; i < usuarios.length; i++) {
+            pipeline.del(`usuario:${usuarios[i]}:lenguajes`);
+            pipeline.del(`usuario:${usuarios[i]}:lenguajesAC`);
+            for (const lenguaje of lenguajesPorUsuario[i])
+                pipeline.del(`usuario:${usuarios[i]}:lenguaje:${lenguaje}`);
+        }
+        await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis las claves del historial de envios por dia de los usuarios indicados.
+     * @param usuarios - Identificadores de los usuarios cuyo historial diario se borrara.
+     */
+    public async borrarDiasValor(usuarios: string[]): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (const usuario of usuarios) {
+            pipeline.del(`usuario:${usuario}:diasValor`);
+            pipeline.del(`usuario:${usuario}:dias`);
+        }
+        await pipeline.exec();
+    }
+
     //============================== GUARDAR CAMPOS POR MES ==============================
 
     /**
@@ -144,75 +237,64 @@ class UsuarioDAO extends DAO {
     }
 
     /**
-     * Encola en el pipeline el guardado de los problemas resueltos con AC por el usuario en el mes indicado.
+     * Encola en el pipeline el incremento del contador de problemas AC del usuario en el mes indicado.
      * @param pipeline - Pipeline donde encolar el comando.
      * @param usuario - Identificador del usuario.
-     * @param mes - Mes (0-11) al que pertenecen los problemas.
-     * @param nuevos - Lista de identificadores de problema resueltos en ese mes.
+     * @param mes - Mes (0-11) al que pertenece el incremento.
+     * @param nuevos - Numero de problemas AC nuevos a sumar al contador del mes.
      */
-    public registrarProblemasACMes(pipeline: Pipeline, usuario: string, mes: number, nuevos: string[]): void {
-        pipeline.sAdd(`usuario:${usuario}:problemasAC:mes:${mes}`, nuevos);
+    public registrarProblemasACMes(pipeline: Pipeline, usuario: string, mes: number, nuevos: number): void {
+        pipeline.zIncrBy(`usuario:problemasAC:mes:${mes}`, nuevos, usuario);
     }
 
-    //============================== BORRAR CAMPOS ==============================
+    //============================== CONSULTAS CAMPOS POR MES ==============================
 
     /**
-     * Borra de Redis las claves del numero de envios de todos los usuarios.
+     * Devuelve el numero de envios por mes de cada usuario.
+     * @param mes - Mes (0-11) a consultar.
+     * @returns Mapa de usuario a numero de envios en ese mes.
      */
-    public async borrarEnvios(): Promise<void> {
-        await borrarPatrones(['usuario:*:envios']);
-    }
-
-    /**
-     * Borra de Redis las claves de rachas (envios AC y dias) de todos los usuarios.
-     */
-    public async borrarRachas(): Promise<void> {
-        await borrarPatrones([
-            'usuario:*:fechaUltimoEnvio',
-            'usuario:*:rachaEnviosAC',
-            'usuario:*:rachaEnviosACMax',
-            'usuario:*:rachaDiasEnvio',
-            'usuario:*:rachaDiasEnvioMax',
-        ]);
+    public async getNumEnviosMes(mes: number): Promise<Map<string, number>> {
+        const resultado = new Map<string, number>();
+        const datos = await this.redis.zRangeWithScores(`usuario:numEnvios:mes:${mes}`, 0, -1);
+        for (const { value, score } of datos)
+            resultado.set(value, score);
+        return resultado;
     }
 
     /**
-     * Borra de Redis las claves de problemas resueltos de todos los usuarios.
+     * Devuelve el numero de problemas AC persistidos en el mes indicado para cada usuario.
+     * @param mes - Mes (0-11) a consultar.
+     * @returns Mapa de usuario a cantidad de problemas resueltos con AC en ese mes.
      */
-    public async borrarProblemas(): Promise<void> {
-        await borrarPatrones(['usuario:*:problemasAC']);
+    public async getProblemasACMes(mes: number): Promise<Map<string, number>> {
+        const resultado = new Map<string, number>();
+        const datos = await this.redis.zRangeWithScores(`usuario:problemasAC:mes:${mes}`, 0, -1);
+        for (const { value, score } of datos)
+            resultado.set(value, score);
+        return resultado;
+    }
+
+    //============================== BORRAR CAMPOS MES ==============================
+
+    /**
+     * Borra de Redis los rankings mensuales del numero de envios.
+     */
+    public async borrarNumEnviosMes(): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (let mes = 0; mes < 12; mes++)
+            pipeline.del(`usuario:numEnvios:mes:${mes}`);
+        await pipeline.exec();
     }
 
     /**
-     * Borra de Redis las claves de horas de envios de todos los usuarios.
+     * Borra de Redis los rankings mensuales del numero de problemas resueltos con AC.
      */
-    public async borrarHoras(): Promise<void> {
-        await borrarPatrones(['usuario:*:horas']);
-    }
-
-    /**
-     * Borra de Redis las claves del conteo de resultados de todos los usuarios.
-     */
-    public async borrarResultados(): Promise<void> {
-        await borrarPatrones(['usuario:*:resultados']);
-    }
-
-    /**
-     * Borra de Redis las claves de lenguajes (conteo, AC y problemas por lenguaje) de todos los usuarios.
-     */
-    public async borrarLenguajes(): Promise<void> {
-        await borrarPatrones([
-            'usuario:*:lenguajes',
-            'usuario:*:lenguajesAC',
-            'usuario:*:lenguaje:*',
-        ]);
-    }
-
-    /**
-     * Borra de Redis las claves del historial de envios por dia de todos los usuarios.
-     */
-    public async borrarDiasValor(): Promise<void> {
-        await borrarPatrones(['usuario:*:diasValor', 'usuario:*:dias']);
+    public async borrarProblemasACMes(): Promise<void> {
+        const pipeline = this.redis.multi();
+        for (let mes = 0; mes < 12; mes++)
+            pipeline.del(`usuario:problemasAC:mes:${mes}`);
+        await pipeline.exec();
     }
 
     ////============================== MODIFICADORES ==============================
@@ -252,7 +334,7 @@ class UsuarioDAO extends DAO {
     }
 
     //============================== CONSULTAS ==============================
-    
+
     /**
      * Devuelve si el usuario usuario existe.
      * @param usuario - Identificador del usuario.
@@ -264,11 +346,6 @@ class UsuarioDAO extends DAO {
     }
 
     /**
-     * Devuelve los usuarios cuyo nombre (nick) comienzan por el string patron.
-     * @param patron - String.
-     * @returns Array con los nombres de los usuarios`.
-     */
-    /**
      * Devuelve todos los usuarios registrados.
      * @returns Array con los nombres de todos los usuarios.
      */
@@ -276,6 +353,11 @@ class UsuarioDAO extends DAO {
         return await this.redis.zRange(`usuarios`, 0, -1);
     }
 
+    /**
+     * Devuelve los usuarios cuyo nombre (nick) comienzan por el string patron.
+     * @param patron - String.
+     * @returns Array con los nombres de los usuarios`.
+     */
     async getUsuariosSugeridos(patron: string): Promise<string[]> {
         const usuarios = await this.redis.zRangeByLex(`usuarios`, `[${patron}`, `[${patron}\xff`);
         return usuarios;
@@ -523,7 +605,7 @@ class UsuarioDAO extends DAO {
         const datos = await this.redis.hGetAll(`usuario:${usuario}:diasValor`);
         return Object.entries(datos).map(([timestamp, value]) => ({ timestamp: Number(timestamp), value: Number(value) }));
     }
-    
+
     /**
      * Devuelve la racha actual de envios correctos consecutivos del usuario.
      * @param usuario - Identificador del usuario.

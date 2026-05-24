@@ -5,7 +5,7 @@ import usuarioDAO from '../../../dao/usuarioDAO.js';
 const registradorDiasValor: RegistradorUsuario = {
     id: CampoUsuario.DIAS_VALOR,
     registrar: (pipeline, usuario, estado) => usuarioDAO.guardarDiasValor(pipeline, usuario, estado),
-    borrar: () => usuarioDAO.borrarDiasValor(),
+    borrar: (usuarios) => usuarioDAO.borrarDiasValor(usuarios),
 };
 
 export default registradorDiasValor;

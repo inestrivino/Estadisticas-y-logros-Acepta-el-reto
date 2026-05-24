@@ -5,6 +5,14 @@ import { datosLogro } from "../types/datos/datosLogro.js";
 import { EnvioProcesado } from "../types/envios/envioProcesado.js";
 import { Logro } from "./logros/logro.js";
 import { NivelLogro } from "../types/enums/nivelLogro.js";
+import { Pipeline } from "../dao/DAO.js";
+
+//puntos de XP que aporta cada logro segun su nivel
+const XP_LOGRO: Record<NivelLogro, number> = {
+    [NivelLogro.BRONCE]: 20,
+    [NivelLogro.PLATA]: 40,
+    [NivelLogro.ORO]: 60,
+};
 
 import logro1 from "./logros/onboarding/logro1.js";
 import logro2 from "./logros/onboarding/logro2.js";
@@ -146,12 +154,59 @@ class LogrosService {
     }
 
     /**
+     * Calcula la XP aportada por los logros nuevos obtenidos en un periodo.
+     * @param nuevosLogros - Conjunto de logros nuevos obtenidos en el periodo.
+     * @returns XP total aportada por los logros segun su nivel.
+     */
+    public calcularXP(nuevosLogros: Set<Logro>): number {
+        let total = 0;
+        for (const logro of nuevosLogros)
+            total += XP_LOGRO[logro.nivel] ?? 0;
+        return total;
+    }
+
+    /**
+     * Encola en el pipeline la persistencia por mes de los logros nuevos
+     * obtenidos por el usuario en ese mes.
+     * @param pipeline - Pipeline de Redis sobre el que encolar la operacion.
+     * @param usuario - Identificador del usuario.
+     * @param mes - Mes (0-11) al que pertenecen los logros.
+     * @param nuevosLogrosMes - Logros nuevos obtenidos por el usuario en ese mes.
+     */
+    public registrarMes(pipeline: Pipeline, usuario: string, mes: number, nuevosLogrosMes: Set<Logro>): void {
+        if (nuevosLogrosMes.size === 0) return;
+        const nombres = [...nuevosLogrosMes].map(l => l.nombre);
+        logrosDAO.registrarLogrosUsuarioMes(pipeline, usuario, mes, nombres);
+    }
+
+    /**
      * Borra de la base de datos los registros de los logros indicados para que se reevaluen al reprocesar.
      * @param nombres - Conjunto de nombres de logros cuyos registros hay que borrar.
      */
     public async borrarLogros(nombres: Set<string>): Promise<void> {
         for (const nombre of nombres)
             await logrosDAO.borrarLogro(nombre);
+    }
+
+    /**
+     * Calcula la XP aportada por los logros obtenidos en el mes indicado a partir
+     * de los datos mensuales persistidos en la base de datos.
+     * @param mes - Mes (0-11) a consultar.
+     * @returns Mapa de usuario a XP aportada por sus logros en ese mes.
+     */
+    public async calcularXPMes(mes: number): Promise<Map<string, number>> {
+        const porUsuario = await logrosDAO.getLogrosMes(mes);
+        const definicionesPorNombre = new Map(this.logros.map(l => [l.nombre, l]));
+        const xp = new Map<string, number>();
+        for (const [usuario, nombres] of porUsuario) {
+            let total = 0;
+            for (const nombre of nombres) {
+                const logro = definicionesPorNombre.get(nombre);
+                if (logro) total += XP_LOGRO[logro.nivel] ?? 0;
+            }
+            if (total > 0) xp.set(usuario, total);
+        }
+        return xp;
     }
 
     //============================== CONSULTAS ==============================

@@ -40,9 +40,12 @@ class ProblemaService {
      * @param ids - Conjunto de ids de registradores cuyos campos hay que borrar.
      */
     public async resetearCamposProblemas(ids: Set<string>): Promise<void> {
+
+        const problemas: string[] = await problemaDAO.getTodosProblemas();
+
         for (const registrador of this.registradores)
             if (ids.has(registrador.id))
-                await registrador.borrar();
+                await registrador.borrar(problemas);
     }
 
     //============================== CONSULTAS ==============================

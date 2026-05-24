@@ -31,6 +31,33 @@ class XPDAO extends DAO {
     }
 
     /**
+     * Sobrescribe el ranking global de XP con los valores indicados,
+     * eliminando el contenido anterior.
+     * @param datos - Array de pares usuario/xp a fijar como valor exacto en el ranking.
+     */
+    async setRankingGlobal(datos: datosXP[]) {
+        const pipeline = this.redis.multi();
+        pipeline.del(`usuario:ranking`);
+        if (datos.length > 0)
+            pipeline.zAdd(`usuario:ranking`, datos.map(({ usuario, xp }) => ({ score: xp, value: usuario })));
+        await pipeline.exec();
+    }
+
+    /**
+     * Sobrescribe el ranking de XP del mes indicado con los valores indicados,
+     * eliminando el contenido anterior de ese mes.
+     * @param mes - Mes (0-11) cuyo ranking se va a sobrescribir.
+     * @param datos - Array de pares usuario/xp a fijar como valor exacto en el ranking del mes.
+     */
+    async setRankingMes(mes: number, datos: datosXP[]) {
+        const pipeline = this.redis.multi();
+        pipeline.del(`usuario:ranking:mes:${mes}`);
+        if (datos.length > 0)
+            pipeline.zAdd(`usuario:ranking:mes:${mes}`, datos.map(({ usuario, xp }) => ({ score: xp, value: usuario })));
+        await pipeline.exec();
+    }
+
+    /**
      * Pone a 0 la XP de todos los usuarios del ranking.
      */
     async resetearXP() {
