@@ -29,14 +29,14 @@
 
 \documentclass[12pt,a4paper,twoside]{book}
 
+\usepackage[english,activeacute,spanish]{babel}
+\shorthandoff{>}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning}
+\usetikzlibrary{arrows.meta, positioning, babel}
 \usepackage{graphicx}
 
-\usepackage[spanish]{babel}
-\usepackage[utf8]{inputenc} 
-\usepackage[T1]{fontenc}
-
+\usepackage{lmodern}
+\usepackage{float}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -87,6 +87,7 @@ constantes,guionado,Cascaras/bibliografia,config%
 
 % Paquete de la plantilla
 \usepackage{TeXiS/TeXiS}
+\usepackage{enumitem}
 
 % Incluimos el fichero con comandos de constantes
 \include{constantes}

@@ -18,27 +18,139 @@ Para el control de versiones del proyecto se empleó Git \footnote{\url{https://
 En comparación con la arquitectura tradicional descrita para \aer\ en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, basada en Tomcat, PHP y MySQL, la solución desarrollada en este trabajo adopta un enfoque más moderno. El uso de las tecnologías elegidas permite mejorar aspectos como la escalabilidad, la modularidad y el rendimiento, a la vez que la arquitectura desacoplada sigue permitiendo integrar el sistema de estadísticas y logros dentro de \aer sin tener que realizar cambios en el OJ.
 
 \section{Arquitectura del sistema}
-Insertar aquí todo lo referido a la arquitectura técnica del sistema. Qué elecciones de tecnologías hemos realizado, diagramas de interacción, justificación, etc.
-Insertar aquí el diseño de la base de datos.
+
+\subsection{Patrones de diseño del \textit{backend}}
+\label{sec:patronesDiseno}
+
+El \textit{backend} organiza su lógica de negocio en torno a cuatro grupos de componentes especializados: actualizadores de estado, registradores, estadísticas de experiencia y logros. En todos ellos se aplica el \textbf{patrón Strategy}: cada grupo define un contrato común (interfaz o clase abstracta) y el servicio que los gestiona delega el trabajo iterando sobre una colección de implementaciones intercambiables. Este diseño permite incorporar nuevos comportamientos sin modificar el código existente.
+
+\subsubsection{Actualizadores}
+
+Los actualizadores calculan y mantienen el estado de usuarios y problemas a medida que se procesan envíos. Cada actualizador encapsula la lógica de una estadística concreta.
+
+En este grupo se combina el patrón Strategy con el \textbf{patrón Template Method}: la clase abstracta define el flujo del algoritmo de inicialización en un método concreto, que a su vez invoca métodos abstractos que cada subclase implementa de forma específica. El método de actualización, también abstracto, es invocado por el servicio para cada envío procesado. El diagrama de clases correspondiente se muestra en la figura~\ref{fig:patrones-actualizadores}.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-actualizadores.png}
+    \caption{Diagrama de clases del patrón Strategy y Template Method en los actualizadores}
+    \label{fig:patrones-actualizadores}
+\end{figure}
+
+\subsubsection{Registradores}
+
+Los registradores persisten en Redis el estado calculado por los actualizadores. Cada registrador implementa una interfaz común que define las operaciones de escritura y borrado.
+
+A diferencia de los actualizadores, aquí se aplica únicamente el patrón Strategy sin herencia: las implementaciones son objetos que cumplen la interfaz directamente. El servicio itera sobre la colección de registradores y cada uno persiste el fragmento del estado que le corresponde. El diagrama de clases se muestra en la figura~\ref{fig:patrones-registradores}.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-registradores.png}
+    \caption{Diagrama de clases del patrón Strategy en los registradores}
+    \label{fig:patrones-registradores}
+\end{figure}
+
+\subsubsection{Estadísticas de experiencia}
+
+Las estadísticas de experiencia calculan la puntuación XP que corresponde a cada usuario a partir de su estado. Cada estadística implementa una interfaz común que expone métodos para el cálculo global y mensual de la XP.
+
+Se aplica el patrón Strategy: el servicio de experiencia mantiene una lista de estadísticas y las agrega para obtener la XP total del usuario. El diagrama de clases se muestra en la figura~\ref{fig:patrones-estadistica-experiencia}.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-estadistica-experiencia.png}
+    \caption{Diagrama de clases del patrón Strategy en las estadísticas de experiencia}
+    \label{fig:patrones-estadistica-experiencia}
+\end{figure}
+
+\subsubsection{Logros}
+
+Los logros comprueban si un usuario ha alcanzado una condición determinada. Todos implementan una interfaz común que, entre otros campos, expone el método que evalúa dicha condición.
+
+También se aplica el patrón Strategy: el servicio de logros delega en cada instancia la evaluación de su condición particular. Las implementaciones más complejas son clases parametrizadas que reciben sus umbrales por constructor, mientras que los logros más simples se implementan como objetos literales. El diagrama de clases se muestra en la figura~\ref{fig:patrones-logros}.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-logros.png}
+    \caption{Diagrama de clases del patrón Strategy en los logros}
+    \label{fig:patrones-logros}
+\end{figure}
 
 \section{Desarrollo del \textit{backend}}
-Hablar sobre la obtención y manejo de los datos respecto al sistema existente.
-Qué eventos son importantes.
-Lógica de asignación de logros.
-Cómo se calculan los logros y las estadísticas de manera eficiente: 
-- Donde va actualizando los estados los actualiza y llama al logro service que comprueba si se ha obtenido un logro (se cumple la condición) y luego una segunda vez cuando se ha terminado de parsear el batch entero de datos (para los logros acumulativos).
-- Las estadísticas se actualizan con la actualización del estado
-- Al terminar de procesarse el batch se calcula el xp en base a las estadísticas (se compara el estado actual con el estado final para comparar cuánto se suma entonces no puede bajar nunca).
 
-ESTO ES FUTURO: Mencionar de pasada lo de que al obtener un logro se lanza un evento, para facilitar la futura integración con el juez. 
+La pieza central del desarrollo del \textit{backend} es el proceso de carga inicial de envíos, encargado de obtener, parsear y procesar el histórico completo de envíos registrados en \aer\ de forma eficiente y tolerante a interrupciones. Junto a este proceso, se implementó un mecanismo de actualización selectiva basado en versiones que permite incorporar nuevas estadísticas, modificar logros o recalibrar la experiencia sin necesidad de reprocesar la totalidad de los datos históricos.
 
-En fases tempranas se uso un script en el back que se ejecuta al crear npm run graph para mostrar un diagrama visual de las dependencias. 
+\subsection{Carga inicial de envíos}
+
+El proceso de carga inicial constituye la operación más significativa del \textit{backend}, ya que transforma los datos crudos del juez en estadísticas, logros y puntuaciones de experiencia de los usuarios. Este proceso se activa al arrancar el sistema y está diseñado para poder reanudarse en caso de interrupción, gracias al sistema de \textit{checkpoints} descrito en la siguiente sección.
+
+Para localizar el punto de inicio en la paginación de la API externa, se aplica primero una búsqueda de saltos exponenciales que acota el intervalo de páginas relevante y, a continuación, una búsqueda binaria que identifica la página exacta desde la que comenzar. Una vez determinado ese punto, los envíos se procesan en bloques de 50 páginas con un \textit{pool} de 20 peticiones paralelas, lo que permite aprovechar la concurrencia sin saturar la API. Al finalizar cada bloque se persisten los resultados en Redis y se emite un evento de progreso al cliente.
+
+El proceso está compuesto por varios servicios, cada uno con una responsabilidad claramente delimitada: la orquestación de la carga, la gestión del estado de progreso, el mantenimiento de los \textit{checkpoints} por componente, la acumulación de estados en memoria, la evaluación y persistencia de logros, y el cálculo de experiencia. Esta separación de responsabilidades facilita tanto el mantenimiento como la extensión del sistema, ya que cada servicio puede evolucionar de forma independiente.
+
+Un aspecto clave del diseño es que cada estadística y cada logro mantiene su propio \textit{checkpoint}, de forma que el progreso de cada uno se registra por separado. Esto cobra especial importancia cuando se necesita recargar algún componente: si una estadística lleva procesada la mitad del histórico y en ese momento se decide incorporar otra nueva, el sistema puede reiniciarse sin perder el trabajo ya realizado. Al reanudar, la estadística nueva comienza desde el principio, mientras que la que ya estaba en curso retoma desde su \textit{checkpoint}. Cuando la nueva alcanza ese punto ambas avanzan juntas, de modo que nunca es necesario reprocesar más de lo imprescindible.
+
+Por la complejidad del proceso, su flujo se distribuye en tres diagramas de secuencia. El primero (Figura~\ref{fig:carga-inicial-envios}) muestra la orquestación general: cómo se localiza la página de inicio, cómo se descargan los envíos en paralelo por bloques y cómo se actualiza el progreso al finalizar cada uno. El segundo (Figura~\ref{fig:procesar-bloque-envios}) detalla el procesamiento interno de cada bloque: la carga de \textit{checkpoints}, la actualización de estadísticas, la evaluación de logros y su persistencia. El tercero (Figura~\ref{fig:procesar-experiencia}) se centra en el cálculo de experiencia, mostrando cómo se agrega la XP global y mensual a partir de los estados del bloque.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/carga-inicial-envios.png}
+    \caption{Diagrama de secuencia del proceso de carga inicial de envíos}
+    \label{fig:carga-inicial-envios}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/procesar-bloque-envios.png}
+    \caption{Diagrama de secuencia del procesamiento interno de un bloque de envíos}
+    \label{fig:procesar-bloque-envios}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/procesar-experiencia.png}
+    \caption{Diagrama de secuencia del cálculo y persistencia de experiencia por bloque}
+    \label{fig:procesar-experiencia}
+\end{figure}
+
+\subsection{Actualización selectiva mediante versiones}
+
+Un requisito fundamental del sistema es poder incorporar nuevas estadísticas, modificar el comportamiento de las existentes o redefinir logros sin tener que reprocesar la totalidad de los envíos históricos. Para satisfacerlo se implementó un mecanismo de versiones que se ejecuta al arrancar el servidor, cuya secuencia se ilustra en la Figura~\ref{fig:secuencia-arranque}.
+
+Cada calculador de estadísticas y cada logro dispone de un número de versión declarado en el código. Al arrancar, el sistema compara estas versiones con las almacenadas en Redis y actúa de forma selectiva según lo que haya cambiado: las estadísticas modificadas se recalculan desde cero sin afectar al resto, los logros cuya definición haya variado se reevalúan junto con las estadísticas de las que dependen, y la experiencia se recalcula automáticamente siempre que cambie cualquier componente que contribuya a su cómputo. Además, es posible forzar el recálculo de la experiencia de forma independiente mediante una variable de entorno, sin necesidad de modificar ningún componente.
+
+De este modo, añadir una estadística nueva, ajustar los umbrales de un logro o modificar el peso de algún factor en el cálculo de experiencia no requiere intervención manual sobre los datos almacenados: basta con incrementar el número de versión del componente afectado para que el sistema detecte el cambio en el siguiente arranque y reconstruya únicamente lo necesario.
+
+\begin{figure}[H]
+    \centering
+    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/secuencia-arranque.png}
+    \caption{Diagrama de secuencia del proceso de comprobación de versiones al arrancar el servidor}
+    \label{fig:secuencia-arranque}
+\end{figure}
 
 \section{Desarrollo del \textit{frontend}}
-TO DO : HABLAR DE LOS CAMBIOS DE DISEÑO QUE SE PRODUJERON DURANTE EL DESARROLLO DE LA APLICACIÓN
 
-Hablar sobre el desarrollo del dashboard de estadísticas, la visualización de datos.
-Hablar sobre la interacción con el backend (manejo del estado).
+El \textit{frontend} se construyó como una SPA (\textit{Single Page Application}) estructurada en cinco vistas principales: la página de inicio, las estadísticas de usuario, el medallero de logros, las estadísticas de problema y la tabla de clasificación. Los \textit{wireframes} elaborados durante el diseño sirvieron de base orientativa, pero a lo largo del desarrollo se introdujeron ajustes.
+
+\subsection{Cambios respecto al diseño inicial}
+
+El cambio estructural más relevante fue la migración desde una arquitectura multipágina a una SPA. Este cambio mejoró la fluidez de la navegación y permitió mantener el estado de la aplicación entre vistas sin recargas innecesarias, a costa de asumir una mayor complejidad en la gestión del enrutamiento del lado del cliente.
+
+A nivel de interfaz, la página de inicio evolucionó desde el \textit{wireframe} inicial incorporando tarjetas de presentación que resumen brevemente cada sección de la aplicación, con el objetivo de orientar a los usuarios nuevos sin necesidad de texto explicativo. La vista del medallero de logros añadió el tratamiento visual de los logros sorpresa: su descripción aparece con un efecto de desenfoque hasta que el usuario los desbloquea, reforzando la sensación de descubrimiento descrita en el diseño del sistema de gamificación.
+
+La barra lateral (\textit{sidebar}) se adaptó progresivamente para soportar distintos tamaños de pantalla, requiriendo varias iteraciones hasta conseguir un comportamiento coherente en dispositivos móviles. De forma análoga, la tabla de clasificación fue rediseñada para incluir filtros por nivel de dominio y paginación, funcionalidades que no estaban contempladas en el \textit{wireframe} original pero que mejoraban la navegabilidad y la experiencia de uso.
+
+\subsection{Visualización de datos}
+
+Las estadísticas se presentan mediante una combinación de componentes numéricos y gráficos. Los valores individuales (número de problemas resueltos, puntos de experiencia, posición en el ranking) se muestran a través de tarjetas reutilizables que admiten distintas variantes visuales según el contexto. Para los datos con distribución porcentual, como la proporción de veredictos o los lenguajes de programación utilizados, se emplearon diagramas de sectores implementados con la librería Recharts\footnote{\url{https://recharts.org/}}. La evolución de la experiencia a lo largo del tiempo se representa mediante un gráfico de líneas mensual, también con Recharts, que muestra los valores en formato compacto cuando superan el millar.
+
+Con el objetivo de evitar saltos bruscos en la interfaz durante la carga de datos, se implementaron componentes de \textit{skeleton loading}: marcadores de posición animados que replican la estructura visual del contenido definitivo y se sustituyen por los datos reales una vez que la respuesta del servidor está disponible.
+
+\subsection{Interacción con el \textit{backend}}
+
+La comunicación con el \textit{backend} se realiza mediante dos mecanismos complementarios. Para la consulta de estadísticas de usuarios y problemas se realizan peticiones a la API REST. Para las actualizaciones en tiempo real, como el progreso durante la carga inicial o los cambios en la tabla de clasificación, se utilizan \textit{sockets} a través de Socket.io, de forma que el \textit{frontend} reacciona automáticamente a los eventos emitidos por el servidor sin necesidad de que el usuario recargue la página.
+
+El estado global de la aplicación —principalmente el usuario o problema seleccionado en cada momento— se gestiona mediante la Context API de React, que permite compartir ese estado entre componentes sin necesidad de propagarlo manualmente por cada nivel del árbol de componentes. Los parámetros de búsqueda se sincronizan además con la URL mediante la librería nuqs\footnote{\url{https://nuqs.47ng.com/}}.
 
 \section{Problemas críticos y soluciones}
 Esto sería dentro de las otras dos selecciones.

@@ -487,7 +487,8 @@ Dentro del sistema se emplean además diversos patrones de diseño relevantes:
     \item Patrón Observer en la comunicación reactiva mediante \textit{sockets} y eventos.
     \item Arquitectura MVC implícita derivada de la separación entre frontend, servicios y persistencia.
     \item Patrón Singleton en servicios, routers y DAOs, dado que las instancias exportadas son únicas dentro de la aplicación.
-    \item Patrón Strategy o Specification en los actualizadores de estado, permitiendo intercambiar comportamientos específicos según el tipo de actualización.
+    \item Patrón Strategy en los registradores, los logros y las estadísticas de experiencia, permitiendo añadir nuevas implementaciones sin modificar el código existente.
+    \item Patrón Template Method en los actualizadores de estado, donde la clase base fija el flujo del algoritmo de inicialización y las subclases implementan los pasos específicos para cada estadística. Estos patrones se describen en detalle en la sección~\ref{sec:patronesDiseno}.
 \end{itemize}
 
 Esta arquitectura permite satisfacer adecuadamente los requisitos funcionales definidos. La separación entre frontend y backend facilita la visualización eficiente de estadísticas de usuarios y ejercicios (REQ-FUN-001 y REQ-FUN-002), mientras que el uso de \textit{sockets} y procesamiento basado en eventos garantiza la actualización automática de información y clasificaciones (REQ-FUN-003 y REQ-FUN-006).
