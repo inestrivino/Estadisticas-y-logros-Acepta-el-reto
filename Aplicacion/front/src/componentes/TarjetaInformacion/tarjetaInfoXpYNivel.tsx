@@ -34,41 +34,41 @@ export default function TarjetaInfoXpYNivel() {
                                     <td className="rango-xp">
                                         <span>1</span>
                                         <span>–</span>
-                                        <span>100</span>
+                                        <span>499</span>
                                         <span>XP</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ color: colorDelNivel(NivelUsuario.COMPETENTE) }}>Competente</td>
                                     <td className="rango-xp">
-                                        <span>101</span>
-                                        <span>–</span>
                                         <span>500</span>
+                                        <span>–</span>
+                                        <span>999</span>
                                         <span>XP</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ color: colorDelNivel(NivelUsuario.HABIL) }}>Hábil</td>
                                     <td className="rango-xp">
-                                        <span>501</span>
-                                        <span>–</span>
                                         <span>1000</span>
+                                        <span>–</span>
+                                        <span>1999</span>
                                         <span>XP</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ color: colorDelNivel(NivelUsuario.ESPECIALISTA) }}>Especialista</td>
                                     <td className="rango-xp">
-                                        <span>1001</span>
-                                        <span>–</span>
                                         <span>2000</span>
+                                        <span>–</span>
+                                        <span>4999</span>
                                         <span>XP</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ color: colorDelNivel(NivelUsuario.PROFESIONAL) }}>Profesional</td>
                                     <td className="rango-xp">
-                                        <span>2000</span>
+                                        <span>5000</span>
                                         <span>–</span>
                                         <span></span>
                                         <span>XP</span>
