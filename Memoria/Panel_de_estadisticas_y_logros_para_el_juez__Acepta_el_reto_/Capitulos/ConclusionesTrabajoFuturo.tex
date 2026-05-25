@@ -2,16 +2,33 @@
 \label{cap:conclusiones}
 
 \section{Conclusiones}
-Resumen de lo implementado
-Logros obtenidos con la implementación
-Mencionar las conclusiones de la evaluación 
 
-Cuales han sido las lecciones aprendidas durante el proyecto y qué haríamos diferente.
+Durante el desarrollo de este TFG se ha diseñado, desarrollado y desplegado con éxito una plataforma web SPA (\textit{Single Page Application}) dedicada a la gamificación y análisis estadístico avanzado para el juez en línea \aer. La solución se ha construido siguiendo un enfoque de arquitectura modular basada en servicios contenerizados, lo que garantiza su portabilidad y una integración no intrusiva con el sistema original de \aer.
 
-Mencionar las limitaciones que hayamos tenido.
+La infraestructura del \textit{backend} destaca por un robusto proceso de carga inicial y un mecanismo de actualización selectiva por versiones, capaces de digerir de forma eficiente e interrumpible el histórico masivo de envíos del juez en línea.
+
+Por su parte, el \textit{frontend} incorpora componentes altamente reutilizables como un buscador indexado en tiempo real con persistencia en \textit{localStorage}, y un sistema de actualización de métricas en tiempo real.
+
+Además, se realizó un trabajo de investigación sobre la arquitectura de los jueces en línea, las tecnologías para el desarrollo web que fue esencial para este desarrollo exitoso, junto al profundo trabajo de captura de requisitos y diseño detallado en el capítulo \ref{cap:disenoDeLaAplicacion}.
+
+En general, se ha sido capaz de alcanzar varios hitos que aportan al sistema calidad. En específico destacan la arquitectura modular, el uso correcto de tecnologías modernas, el procesamiento a gran escala de datos de envíos y el uso de patrones de diseño.
+
+La evaluación funcional y de usabilidad realizada con usuarios reales y detallada en el capítulo \ref{cap:evaluacion} ha validado la viabilidad técnica de la propuesta y su nivel de aceptación. Las pruebas empíricas demuestran que las tareas principales fueron completadas de manera ágil, fluida y sin errores críticos por la práctica totalidad de los participantes.
+
+Los datos cualitativos también respaldan esta conclusión. Aunque se notaron ciertas fricciones en la usabilidad (como la falta de autocompletado para los ejercicios y usuarios), estas se debían en general al uso de una versión de desarrollo, y no aparecen en la versión final del proyecto. Incluso con las limitaciones descritas, en los cuestionarios de satisfacción subjetiva posteriores a las pruebas, los atributos de facilidad de uso, claridad de la interfaz y utilidad percibida de las nuevas herramientas alcanzaron puntuaciones medias consistentemente superiores a 4 sobre un máximo de 5 puntos. Los usuarios valoraron muy positivamente el valor añadido que ofrece el desglose visual de su rendimiento académico y el incentivo de la experiencia.
+
+Por último, el entorno de pruebas funcionales automatizadas integrado en el pipeline de CI/CD demostró ser una herramienta fundamental para el mantenimiento del sistema. Ha permitido asegurar de manera objetiva el cumplimiento de los requisitos de software ante cada modificación del código, minimizando la regresión de errores y certificando que el sistema es técnicamente confiable, escalable y listo para su despliegue seguro en producción. 
+
+En resumen, los resultados obtenidos corroboran que la solución cumple con los objetivos iniciales del proyecto, equilibrando el rendimiento ingenieril con una óptima experiencia de usuario.
 
 \section{Trabajo futuro}
-Listas mejoras inmediatas que nos gustaría haber tenido tiempo a implementar.
-Posibles extensiones a largo plazo.
-Integración más profunda dentro de \aer.
-Investigación adicional de los resultados del proyecto a largo plazo.
+
+Aunque la aplicación cubre la mayoría de objetivos establecidos al principio del proyecto, existen mejoras y funcionalidades que no pudieron implementarse debido a las limitaciones de tiempo que podrían integrarse en \textit{sprints} de desarrollo futuro. 
+
+Destaca en primero lugar el requisito funcional sobre la compartición social de las estadísticas de un usuario o ejercicio (REQ-FUN-008) descrito en la \ref{cap:SRS}. Este requisito, que no fue implementado debido a las limitaciones de tiempo y su baja prioridad, sí que cuenta con una implementación alternativa o parcial (auque no visual, como se había ideado originalemente), ya que los usuarios pueden, tras acceder a las estadísticas de un usuario o ejercicio, copiar y compartir la URL resultante para mostrar a otros usuarios las estadísticas correspondientes. 
+
+Por otro lado se barajó una idea para mejorar la futura integración con \aer que finalmente no pudo ponerse en práctica por las limitaciones técnicas en la comunicación con los servicios web internos de \aer La idea consiste en que la comunicación entre los dos sistemas (\aer y el panel de estadísticas y logros) vaya en ambos sentidos en lugar de ser \aer exclusivamente remitente y el panel exlusivamente receptor. Esta nueva vía de comunicación serviría para dar conocimiento a \aer (mediante un sistema de "notificaciones") de cuándo un usuario ha obtenido un nuevo logro o ha alcanzado un nuevo nivel en el ranking. Esto permitiría al \aer a su vez informar al usuario de su progreso desde la página web principal.
+
+Por último en el campo de la implementación, ya que \aer cuenta con un sistema de categorías para ejercicios\footnote{\url{https://aceptaelreto.com/problems/categories.php}}, por lo que se planteó la idea de crear logros basados en las categorías de los ejercicios que ha resuelto el usuario (por ejemplo: si se ha resuelto un logro de cada categoría). Sin embargo, estas categorías están ideadas actualmente como una ayuda para el descubrimiento de ejercicios en la página web, y por lo tanto la indexación de estos no es exhaustiva ni eficiente. Sin embargo, este sistema de categorías podría repensarse en el futuro permitiendo la creación de nuevos logros correspondientes.
+
+Finalmente, se destaca la limitación mencionada en el capítulo \ref{cap:evaluacion}. Con más tiempo y tras el despliegue completo del presente sistema de gamificación para \aer, podría hacerse un estudio más exhaustivo sobre los efectos en la motivación y participación de los usuarios a largo plazo, así como otras métricas que no se pudieron probar, como posibles mejoras en la calidad de los envíos. El resultado de estos estudios, permitirían a su vez encontrar nuevos problemas, deseos o necesidades que darían lugar a futuras líneas de desarrollo.
