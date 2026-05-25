@@ -5,9 +5,9 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 
 const logro15: Logro = {
     id: 15,
-    nombre: "logro15",
+    nombre: "Fugaz",
     descripcion: "He realizado un envío correcto dentro del 25% de soluciones más rápidas para un problema que tiene al menos 100 envios",
-    imagen: "trofeo_plata_placeholder.png",
+    imagen: "logro15.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,

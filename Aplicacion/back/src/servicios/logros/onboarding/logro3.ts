@@ -4,9 +4,9 @@ import { CategoriaLogro } from "../../../types/enums/categoriaLogro.js";
 
 const logro3: Logro = {
     id: 3,
-    nombre: "logro3",
+    nombre: "Cazarrecompensas",
     descripcion: "He obtenido 5 logros",
-    imagen: "trofeo_plata_placeholder.png",
+    imagen: "logro3.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.ONBOARDING,
     sorpresa: false,

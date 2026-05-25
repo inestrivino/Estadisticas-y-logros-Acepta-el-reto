@@ -35,7 +35,7 @@ export default function Logro(props: {
                             filter: !props.datos.obtenido ? "grayscale(100%) brightness(50%)" : "none"
                         }} />
                     <Card.Body className={!props.datos.obtenido ? "text-center text-muted" : "text-center"}>
-                        <Card.Title>{props.datos.nombre}</Card.Title>
+                        <Card.Title><b>{props.datos.nombre}</b></Card.Title>
                         <div className="logro-sorpresa-wrapper">
                             {sorpresaObtenido && !revelado && (
                                 <div

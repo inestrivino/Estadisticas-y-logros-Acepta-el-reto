@@ -5,9 +5,9 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 const logro11: Logro = {
     id: 11,
-    nombre: "logro11",
+    nombre: "Políglota",
     descripcion: "He realizado envíos con 3 lenguajes diferentes",
-    imagen: "trofeo_plata_placeholder.png",
+    imagen: "logro11.png",
     nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.LENGUAJES,
     sorpresa: false,

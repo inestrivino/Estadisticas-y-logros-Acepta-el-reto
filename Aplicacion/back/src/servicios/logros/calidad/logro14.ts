@@ -5,9 +5,9 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 const logro14: Logro = {
     id: 14,
-    nombre: "logro14",
+    nombre: "Eureka",
     descripcion: "He resuelto un problema en el primer intento",
-    imagen: "trofeo_bronce_placeholder.png",
+    imagen: "logro14.png",
     nivel: NivelLogro.BRONCE,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: false,

@@ -5,9 +5,9 @@ import { CampoUsuario } from "../../../types/estados/camposEstadoUsuario.js";
 
 const logro18: Logro = {
     id: 17,
-    nombre: "logro18",
+    nombre: "Cronos",
     descripcion: "He realizado envíos en cada hora del día",
-    imagen: "trofeo_oro_placeholder.png",
+    imagen: "logro17.png",
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.RACHAS,
     sorpresa: true,

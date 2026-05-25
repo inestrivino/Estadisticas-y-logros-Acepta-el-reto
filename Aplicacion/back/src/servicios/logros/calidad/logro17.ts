@@ -5,9 +5,9 @@ import { CampoProblema } from "../../../types/estados/camposEstadoProblema.js";
 
 const logro17: Logro = {
     id: 16,
-    nombre: "logro17",
+    nombre: "Speedrunner",
     descripcion: "He realizado un envío correcto que iguale o mejore el tiempo de ejecución récord para un problema que tiene al menos 100 envios",
-    imagen: "trofeo_oro_placeholder.png",
+    imagen: "logro16.png",
     nivel: NivelLogro.ORO,
     categoria: CategoriaLogro.CALIDAD,
     sorpresa: true,
