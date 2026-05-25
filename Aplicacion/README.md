@@ -37,7 +37,7 @@ Cuando estés preparado, sigue estos pasos:
 git clone https://github.com/inestrivino/Estadisticas-y-logros-Acepta-el-reto
 ```
 
-2. En la terminal, entra a la carpeta `Aplicacion` y ejecuta el siguiente comando:
+2. En la terminal, entra a la carpeta `Aplicacion` y ejecuta el siguiente comando, tras haberse asegurado de instalar las dependencias en todas las capas de la aplicación con `npm install`:
 
 ```bash
 npm start
