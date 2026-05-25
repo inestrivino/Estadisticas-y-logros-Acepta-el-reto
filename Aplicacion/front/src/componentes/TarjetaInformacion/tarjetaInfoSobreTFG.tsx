@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCodeBranch } from "@fortawesome/free-solid-svg-icons/faCodeBranch";
+import { faGithub } from "@fortawesome/free-brands-svg-icons/faGithub";
 
 import PlantillaTarjetaInformacio from "./plantillaTarjetaInformacion";
 
@@ -8,7 +8,7 @@ export default function TarjetaInfoSobreTFG() {
     return (
         <PlantillaTarjetaInformacio
             titulo="Sobre el origen de esta página"
-            icono={<FontAwesomeIcon icon={faCodeBranch} style={{ color: "rgb(114, 172, 211)", fontSize: "5rem" }} />}
+            icono={<FontAwesomeIcon icon={faGithub} style={{color: "rgb(114, 172, 211)", fontSize: "5rem" }} />}
             contenido={
                 <>
                     <div>

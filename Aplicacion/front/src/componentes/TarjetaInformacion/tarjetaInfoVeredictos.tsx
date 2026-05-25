@@ -25,7 +25,7 @@ export default function TarjetaInfoAdicional() {
                                 <li><strong>RTE:</strong> Run-time Error</li>
                             </ul>
                             <ul className="lista-informacion">
-                                <li><strong>IR:</strong></li>
+                                <li><strong>IQ:</strong> In queue</li>
                                 <li><strong>ML:</strong> Memory Limit Exceeded</li>
                                 <li><strong>OL:</strong> Output limit exceeded</li>
                                 <li><strong>PE:</strong> Presentation Error</li>
