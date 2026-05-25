@@ -91,7 +91,7 @@
 }
 
 .rango-xp {
-  font-family: monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   display: grid;
   grid-template-columns: 40px 20px 40px 20px;
   align-items: center;
