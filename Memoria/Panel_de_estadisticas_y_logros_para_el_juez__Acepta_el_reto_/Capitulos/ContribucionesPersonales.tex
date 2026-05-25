@@ -49,4 +49,33 @@ A partir de este trabajo veo varias líneas que podrían explorarse en el futuro
 
 \section*{María Pajares Vázquez}
 
+\subsection*{Aportes originales al trabajo}
+Mi contribución al proyecto al inicio se centró tanto en las partes de análisis y deseño, como en la posterior implementación de funcionalidades clave de la propia aplicación. A lo largo del trabajo participé en tareas relacionadas con la investigación sobre gamificación y visualización de estadísticas, el diseño de la interfaz de usuario y el desarrollo de componentes frontend y backend asociados al sistema de estadísticas, logros y clasificación de usuarios, así como la implementación de componentes globales de la interfaz.
+
+En las etapas iniciales del proyecto participé en la revisión de artículos sobre gamificación y diseño de dashboards, con el objetivo de identificar buenas prácticas aplicables al sistema desarrollado. Este análisis resultó útil para definir la organización visual de la información y el diseño de los wireframes iniciales de la aplicación. Además, participé en la elaboración de los cuestionarios dirigidos a usuarios, cuyos resultados ayudaron a determinar qué estadísticas y logros resultaban más relevantes e interesantes para estos. 
+
+Más adelante, mi enfoque se concentró únicamente en la parte de la implementación de la propia aplicación. Al principio desarrollé varios componentes globales reutilizables presentes en la mayoría de las vistas de la aplicación, como la sidebar responsive y la navbar dinámica y el buscador. También participé en la organización de la estructura de páginas y componentes del frontend para mantener una distribución más clara y mantenible del proyecto. Además, desarrollé la vista de inicio de la aplicación, incluyendo distintas tarjetas informativas y elementos visuales orientados a mejorar la presentación general de la plataforma.
+
+Una de mis principales contribuciones fue el desarrollo completo del sistema de búsqueda de la aplicación. Este sistema incluyó la implementación de sugerencias dinámicas, validación de usuarios y problemas tanto en frontend como en backend, manejo de errores, persistencia de filtros y parámetros en la URL, y navegación entre vistas dependientes de la búsqueda. Además, se incorporaron mejoras de experiencia de usuario, como transiciones animadas y ajustes específicos para dispositivos móviles.
+
+También desarrollé una parte importante del sistema de clasificación y experiencia de usuario. En concreto, implementé la tabla de clasificación original con paginación, filtrado por nivel de usuario y actualización en tiempo real mediante sockets. Asimismo, participé en la lógica inicial de cálculo y almacenamiento de experiencia de usuario (XP), que posteriormente fue extendida por mi compañero para incorporar mecanismos de versionado y recálculo de xp.
+
+Otra de las aportaciones más relevantes fue el desarrollo de gran parte de la lógica del sistema de logros. Esto incluye tanto la implementación de la vista de logros en el frontend como la definición inicial de tipos y estructuras de logros, y el desarrollo de la lógica backend encargada de detectar el desbloqueo de un nuevo logro durante el procesamiento de envíos, tanto en tiempo real como durante la carga inicial de datos. Para ello, también diseñé las estructuras de almacenamiento de Redis necesarias que permiten guardar la información de la manera más eficiente para facilitar el cálculo incremental de logros asociados a distintos criterios, como problemas resueltos, lenguajes utilizados o actividad continuada dentro de la plataforma. Posteriormente, este sistema de logros fue ampliado y refactorizado para incorporar mecanismos más avanzados de versionado y recálculo. 
+
+Asimismo, participé en la implementación de distintas secciones relacionadas con estadísticas de usuarios y problemas. En ambos casos desarrollé funcionalidades relacionadas con la visualización de información de los datos numéricos, como las rachas de actividad, posición en el ranking y número de problemas resueltos en las estadísticas de usuario, o como mejor tiempo o tiempo medio de resolución en las estadísticas de problemas. Esto también incluyó el desarrollo de los endpoints y servicios backend necesarios para proporcionar dicha información al frontend. 
+
+Durante el desarrollo del proyecto también participé en tareas de mantenimiento y mejora continua del código, incluyendo ajustes en tests tras refactorizaciones, reorganización de tipos y componentes del frontend, integración de ramas de desarrollo y correcciones puntuales relacionadas con el sistema de integración continua.
+
+\subsection*{Desarrollo de habilidades}
+Uno de los principales desafíos encontrados durante el desarrollo del proyecto fue el aprendizaje y utilización de tecnologías con las que no tenía experiencia previa, especialmente React, TypeScript y Redis. Además, también supuso un reto diseñar estructuras de datos eficientes que permitiesen calcular estadísticas y logros sin comprometer el rendimiento del sistema, teniendo en cuenta el elevado número de envíos gestionados por la plataforma de ¡Acepta el reto!.
+
+Todo ello me permitió ampliar conocimientos relacionados con arquitectura de aplicaciones web, diseño de interfaces, sistemas de gamificación y procesamiento de datos. Asimismo, mejoré habilidades relacionadas con el trabajo en equipo, la planificación de tareas y la integración de frontend y backend dentro de una aplicación completa.
+
+\subsection*{Impacto personal y profesional}
+El desarrollo de este proyecto me permitió comprender de forma más práctica el funcionamiento y evolución de una aplicación web completa desarrollada en equipo. Además, trabajar sobre una plataforma con un gran volumen de información y usuarios me ayudó a valorar la importancia de aspectos como la escalabilidad, el mantenimiento y la experiencia de usuario dentro de proyectos reales de software.
+
+
+
+
+
 \section*{Inés Triviño Rello}
