@@ -11,6 +11,42 @@ Conviene escribir sobre las siguientes cosas:
 
 \section*{Néstor García Mayor}
 
+\subsection*{Reflexión sobre la elección del tema y el proceso de investigación}
+
+Durante el curso de tercero cursé la asignatura de Programación Competitiva, que fue una de las que más me motivaron de la carrera, tanto por la forma en la que estaba planteada como por lo atractivo que me resultó descubrir esa rama de la programación. A ese interés se sumó el de unos profesores que supieron transmitir su pasión por la materia, y de ahí surgió la idea de buscar para el TFG un tema con el que aportar mi granito de arena a este ámbito dentro de la facultad. \aer, como herramienta que ya utilizan estudiantes reales, encajaba de forma natural con esa motivación, y un panel de estadísticas y logros añadía además el atractivo técnico de combinar retos de procesamiento de datos en tiempo real, persistencia eficiente y visualización, en un proyecto en el que la mayor parte de las decisiones técnicas estaban abiertas.
+
+La fase de investigación se concentró sobre todo durante el primer cuatrimestre del curso, antes de empezar a escribir código. En ese momento dediqué tiempo a estudiar las tecnologías que finalmente han sustentado la aplicación. En el lado del servidor, el modelo de datos en memoria de Redis y sus estructuras como base de las estadísticas agregadas, junto con RabbitMQ como sistema de mensajería para desacoplar la fuente de envíos del consumidor, y Socket.io para la comunicación en tiempo real entre el back y el front. En el lado del cliente, el ecosistema de React con Vite, además de librerías auxiliares que se incorporaron más adelante como nuqs o vitest. Por último, también se trabajó la composición de los distintos servicios con Docker. Buena parte de esta etapa consistió en leer documentación oficial, comparar alternativas, y elaborar pequeñas pruebas de concepto que dieran confianza antes de comprometerse con una arquitectura concreta.
+
+\subsection*{Aportes originales al trabajo}
+
+Mi contribución se ha centrado en construir la infraestructura del proyecto y la mayor parte de la lógica del \textit{backend}. A grandes rasgos:
+
+\begin{itemize}
+    \item Arranque y arquitectura del proyecto. Montaje inicial del entorno, paso de un prototipo a una arquitectura SPA con \textit{backend} y \textit{frontend} separados, y consolidación de un módulo compartido para los tipos comunes entre ambos.
+    \item Infraestructura. Integración y orquestación de los distintos servicios mediante Docker (Redis, RabbitMQ, el adapter, el back y el front), tanto en desarrollo como en producción, junto con la configuración de un servicio adapter propio que se encarga de la conexión con la fuente real de envíos.
+    \item Capa de datos y servicios. Diseño del patrón DAO sobre Redis y de una capa intermedia de servicios. Para el procesamiento del estado de usuarios y problemas se aplicaron los patrones de diseño descritos en la sección~\ref{sec:patronesDiseno}, con Template Method en los actualizadores de estado y Strategy en los registradores.
+    \item Procesamiento de envíos. Separación de los flujos de carga inicial y eventos en tiempo real, con tipos distintos para cada uno. Para obtener los envíos en tiempo real se desarrolló un servicio adapter independiente que los recoge de la fuente y los publica en RabbitMQ.
+    \item Sistema de logros. Refactorización del módulo para simplificar su organización, con la extracción de un DAO propio y la unificación de todas las definiciones de logros en una única colección sobre la que opera el servicio. Sobre esa base se aplicó el patrón Strategy descrito en la sección~\ref{sec:patronesDiseno}, junto con la incorporación de logros sorpresa, la persistencia de los logros recientes en Redis y el guardado mensual.
+    \item Sistema de experiencia. Diseño del cálculo modular de XP del usuario aplicando el patrón Strategy descrito en la sección~\ref{sec:patronesDiseno}, con una colección de estadísticas de experiencia que el servicio agrega para obtener la XP total. Sobre esa base se construyó el ranking mensual (DAO, API y socket), los checkpoints de XP y la visualización del progreso por mes.
+    \item CI/CD y tests. Pipeline de GitHub Actions que ejecuta los tests del back y del front con vitest y publica los informes HTML en GitHub Pages, con una versión independiente por rama. Tests unitarios de los DAOs y del servicio de logros, test de integración de la carga inicial y tests de los componentes principales del \textit{frontend}.
+    \item Componentes principales del \textit{frontend}. Primeras versiones del panel de participación y de las páginas de estadísticas, el diagrama de sectores, la barra de progreso de la carga inicial, la gráfica de progresión de XP, la lista de logros recientes, y la refactorización de los componentes del ranking.
+\end{itemize}
+
+Considero que las aportaciones más originales del trabajo son la combinación de los patrones Template Method y Strategy en el procesamiento del estado, que ha permitido que la lógica de cálculo y la de persistencia evolucionen de forma independiente, y el diseño del flujo de carga inicial por bloques con persistencia del estado intermedio, que evita tener que rehacer toda la carga para recalcular una estadística concreta y permite que el servidor disponga de datos en cuanto se reinicia, sin esperar a una nueva carga completa.
+
+\subsection*{Desarrollo de habilidades}
+
+En el plano técnico, el proyecto me ha obligado a profundizar en áreas que solo había tocado de pasada antes, como el modelado de datos en una base no relacional pensada para acceso intensivo, la orquestación de varios servicios con Docker, la comunicación en tiempo real cliente-servidor y el diseño de patrones que soporten refactorizaciones grandes sin romper la base existente.
+En el plano de la investigación y la comunicación escrita, el trabajo ha supuesto aprender a documentar decisiones de diseño justificándolas frente a alternativas, y a redactar estas de forma estructurada.
+
+\subsection*{Impacto personal y profesional}
+
+A nivel personal, llevar el peso de la infraestructura y de buena parte del \textit{backend} me ha confirmado el interés por el desarrollo de sistemas en el lado del servidor y por la arquitectura de aplicaciones. También me ha permitido practicar dinámicas de trabajo más cercanas a un entorno profesional A nivel profesional, el proyecto deja un porfolio concreto y desplegable que cubre desde Docker hasta React, pasando por Redis, RabbitMQ y la comunicación con sockets, y un repositorio en el que la evolución del diseño puede leerse commit a commit.
+
+\subsection*{Líneas de investigación futuras}
+
+A partir de este trabajo veo varias líneas que podrían explorarse en el futuro. Una primera sería un estudio empírico del efecto de la gamificación en jueces en línea, midiendo si la introducción de logros, niveles y rankings altera la frecuencia de envíos, la diversidad de problemas intentados o la persistencia de los usuarios a lo largo del curso. Otra línea pasaría por diseñar visualizaciones específicas para el aprendizaje, atendiendo a en qué momento del proceso de un usuario resulta más útil mostrar la distribución de resultados de un problema, la comparación con el resto del alumnado o la evolución temporal de su propio rendimiento. Por último, sería interesante personalizar el sistema de logros mediante condiciones adaptativas que se ajusten al perfil del usuario en lugar de aplicar umbrales fijos.
+
 \section*{María Pajares Vázquez}
 
 \section*{Inés Triviño Rello}
