@@ -1,15 +1,6 @@
 \chapter{Diseño de la Aplicación}
 \label{cap:disenoDeLaAplicacion}
 
-\begin{FraseCelebre}
-\begin{Frase}
-  En esencia, hay dos enfoques fundamentales del diseño: el ideal artístico de expresarse a sí mismo y el ideal de la ingeniería de resolver un problema para un cliente.
-\end{Frase}
-\begin{Fuente}
-  Jakob Nielsen
-\end{Fuente}
-\end{FraseCelebre}
-
 \section{Introducción}
 
 El análisis, la planificación y el diseño de un proyecto software constituyen etapas fundamentales dentro de su ciclo de desarrollo \citep{Pressman_2010}. Un enfoque basado en un análisis exhaustivo de los requisitos, junto con un diseño centrado en las necesidades del usuario, no solo permite garantizar el cumplimiento de los objetivos funcionales del sistema, sino que también contribuye a reducir la aparición de errores, optimizar los costes de desarrollo y facilitar tanto el mantenimiento como las futuras actualizaciones de la aplicación.
@@ -125,8 +116,7 @@ La figura \ref{fig:Taxonomía de jugadores de Bartle} muestra el alineamiento de
 \begin{figure}
     \centering
     \includegraphics[width=0.5\linewidth]{Imagenes/Bitmap/Character_theory_chart.png}
-    \caption{Taxonomía de jugadores de Bartle}
-    \addcontentsline{lof}{figure}{Gráfico basado en el diagrama original en ASCII propuesto por Bartle, disponible en Wikipedia: \url{https://en.wikipedia.org/wiki/Bartle_taxonomy_of_player_types#/media/File:Character_theory_chart.svg}}
+    \caption[Taxonomía de jugadores de Bartle]{Taxonomía de jugadores de Bartle. Gráfico basado en el diagrama original en ASCII propuesto por Bartle, disponible en Wikipedia: \url{https://en.wikipedia.org/wiki/Bartle_taxonomy_of_player_types#/media/File:Character_theory_chart.svg}}
     \label{fig:Taxonomía de jugadores de Bartle}
 \end{figure}
 
@@ -151,7 +141,7 @@ Estas conclusiones justifican un diseño de gamificación centrado en estadísti
 
 \subsection{Propuesta de diseño}
 
-Con toda la información relevante sobre los jugadores objetivo y las mecánicas disponibles recabada, se realiza una propuesta de diseño de sistema de gamificación basada en el marco teórico MDA (\textit{Mecánicas, Dinámicas, Estética}), presentado en \cite{Zichermann_Cunningham_2011}.  Esto quiere decir que la propuesta está dividida en las mecánicas a introducir, las dinámicas deseadas de los jugadores con estas mecánicas, y el sentimiento deseado en los jugadores al interactuar con las mecánicas. 
+Con toda la información relevante sobre los jugadores objetivo y las mecánicas disponibles recabada se realiza una propuesta de diseño de sistema de gamificación basada en el marco teórico MDA (\textit{Mecánicas, Dinámicas, Estética}), presentado en \cite{Zichermann_Cunningham_2011}.  Esto quiere decir que la propuesta está dividida en las mecánicas a introducir, las dinámicas deseadas de los jugadores con estas mecánicas, y el sentimiento deseado en los jugadores al interactuar con las mecánicas. 
 
 \subsubsection{Mecánicas}
 
@@ -211,8 +201,6 @@ Resolución de un problema en el primer intento & Bronce & Calidad \\
 \midrule
 Envío correcto dentro del 25\% de soluciones más rápidas para un problema & Plata & Calidad \\
 \midrule
-Resolución de un problema de cada categoría & Oro & Categorías \\
-\midrule
 Envío correcto que iguale o mejore el tiempo de ejecución récord para un problema & Oro & Calidad (sorpresa) \\
 \midrule
 Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
@@ -222,7 +210,7 @@ Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
 \label{tab:logros}
 \end{table}
 
-La distribución final de los logros queda establecida en 5 de nivel \textit{Bronce}, 6 de nivel \textit{Plata} y 7 de nivel \textit{Oro}. Esta proporción garantiza un equilibrio en la progresión del usuario, al tiempo que diversifica las categorías de logros según su tipo. Asimismo, se han incluido solo dos logros sorpresa, una decisión que busca satisfacer, en la mayor medida posible, las preferencias de los usuarios encuestados, cuyas opiniones sobre este aspecto estuvieron divididas.
+La distribución final de los logros queda establecida en 5 de nivel \textit{Bronce}, 6 de nivel \textit{Plata} y 7 de nivel \textit{Oro}. Esta proporción garantiza un equilibrio en la progresión del usuario, al tiempo que diversifica las categorías de logros según su tipo. Asimismo, se han incluido solo dos logros sorpresa, una decisión que busca satisfacer, en la mayor medida posible, las preferencias de los usuarios encuestados (cuyos resultados pueden leerse en el Apéndice \ref{cap:FormularioJugadores}), cuyas opiniones sobre este aspecto estuvieron divididas.
 
 La siguiente mecánica a definir son las estadísticas. Se dispondrá tanto de estadísticas de cada usuario, como de cada ejercicio. 
 
@@ -245,7 +233,7 @@ Se eliminarían además las estadísticas actualmente existentes de número de p
 
 El sistema de puntos implementado se basa en el modelo de puntos de experiencia (XP), el cual se diferencia de otros sistemas de puntos por cumplir tres condiciones fundamentales:
 
-\begin{itemize}
+\begin{enumerate}
     \item No monetizable: Los puntos de experiencia no pueden canjearse por recompensas ni utilizarse como moneda dentro del sistema. Su función es exclusivamente indicativa del progreso del usuario.
     \item Acumulación por actividad: Los usuarios obtienen XP por todas las acciones relevantes realizadas en la plataforma, específicamente por:
     \begin{itemize}
@@ -253,7 +241,7 @@ El sistema de puntos implementado se basa en el modelo de puntos de experiencia 
         \item Desbloqueo de logros.
     \end{itemize}
     \item Incremento permanente: Los puntos de XP solo pueden aumentar; nunca decrecen, lo que garantiza un progreso constante y sin penalizaciones.
-\end{itemize}
+\end{enumerate}
 
 Para facilitar la visualización del progreso, se introduce el concepto de \textbf{niveles de dominio}, que asignan un título al usuario según el rango de XP acumulado. Estos niveles permiten una comprensión inmediata de la posición del usuario dentro del sistema y fomentan la motivación mediante metas claras.
 
@@ -266,22 +254,22 @@ Los niveles de dominio establecidos se detallan en la Tabla~\ref{tab:niveles_dom
 \toprule
 \textbf{Nivel de dominio} & \textbf{Rango de XP} \\
 \midrule
-Aprendiz     & 0 - 100 XP \\
+Aprendiz     & 0 - 499 XP \\
 \midrule
-Competente   & 101 - 500 XP \\
+Competente   & 500 - 999 XP \\
 \midrule
-Hábil        & 501 - 1,000 XP \\
+Hábil        & 1000 - 1,999 XP \\
 \midrule
-Especialista & 1,001 - 2,000 XP \\
+Especialista & 2000 - 4999 XP \\
 \midrule
-Maestro      & Más de 2,000 XP \\
+Profesional      & Más de 5000 XP \\
 \bottomrule
 \end{tabular}
 \caption{Niveles de dominio según puntos de experiencia (XP)}
 \label{tab:niveles_dominio}
 \end{table}
 
-Está planteado de tal manera que sea relativamente fácil abandonar los primeros niveles, pero la progresión sea más compleja con el tiempo. Por ejemplo, para pasar de aprendiz a competente se necesitan solo 100 puntos, mientras que para pasar de especialista a maestro se necesitan 1000. 
+Está planteado de tal manera que sea relativamente fácil abandonar los primeros niveles, pero la progresión sea más compleja con el tiempo. Por ejemplo, para pasar de aprendiz a competente se necesitan solo 100 puntos, mientras que para pasar de especialista a profesional se necesitan 1000. 
 El sistema de XP permite generar una tabla de clasificación con dos vistas complementarias:
 
 \begin{itemize}
@@ -291,7 +279,7 @@ El sistema de XP permite generar una tabla de clasificación con dos vistas comp
 
 Este diseño fomenta la interacción competitiva entre los usuarios, al tiempo que ofrece una recompensa\textbf{ }tangible por interactuar con el sistema. Además, al vincularse directamente con el desbloqueo de logros, el sistema refuerza la sensación de progreso y logro personal.
 
-Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobretodo uno que se introduce en en un sistema ya existente con años de experiencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inituliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
+Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobre todo uno que se introduce en en un sistema ya existente con años de existencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inutiliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
 En este caso, las estadísticas no cuentan con un \enquote{nivel máximo} y por lo tanto no corren riesgo de volverse obsoletas, ya que su único objetivo es mostrarle su situación al usuario, no evaluarle o recompensarle por ésta. Por otro lado, el sistema de logros es facilmente extensible añadiendo nuevos logros que cumplan las condiciones de diseño anteriormente definidas. Por ejemplo, podrían añadirse nuevos logros que recompensen la cantidad de ejercicios resueltos según se añadan más ejercicios a la plataforma. Finalmente, los niveles de dominio del sistema de puntos podrían ser reasignados a cantidades de XP diferentes, o definirse un nuevo nivel con su rango de XP correspondiente.
 
  \subsubsection{Dinámicas}
@@ -359,21 +347,14 @@ La motivación extrínseca en este sistema se centra en el reconocimiento social
 En conjunto, estas estrategias buscan crear una experiencia donde los usuarios se sientan capaces, reconocidos y motivados, equilibrando el deseo de superación personal con el disfrute del proceso.
 
 \section{Diseño de la interfaz}
-El primer paso para el diseño de la interfaz, es establecer los parámetros que guiarán el diseño de la interfaz, es decir, la guía de estilo. Los elementos de la guía de estilos se han elegido con la idea de mantener consistencia visual con la aplicación actual de acepta el reto, a la vez que se respetan las necesidades de contraste y accesibilidad:
+El primer paso para el diseño de la interfaz, es establecer los parámetros que guiarán el diseño de la interfaz, es decir, la guía de estilo. Los elementos de la guía de estilos se han elegido con la idea de mantener consistencia visual con la aplicación actual de \aer, a la vez que se respetan las necesidades de contraste y accesibilidad:
 \begin{enumerate}
     \item Para la paleta de colores se han seleccionado 8 colores distintos: 3 tonos azules originarios de \aer, donde sirven para indicar selecciones, títulos o menús, un tono claro y un tono oscuro que pueden servir para color del fondo de la página y color de la letra o viceversa según qué tema se esté utilizando, y 3 tonos rojos obtenidos a partir de los tonos azules para representar situaciones de peligro o como color de resalte. 
     \item La tipografía es la misma que en \aer: Open Sans\footnote{\url{https://fonts.google.com/specimen/Open+Sans}}, tanto para el texto general como para títulos.
     \item En cuanto a la iconografía usaremos la versión más moderna de los iconos de Font Awesome\footnote{\url{https://fontawesome.com/icons}}, en concreto los paquetes gratuitos con licencia CC-BY 4.0\footnote{\url{https://fontawesome.com/license/Free}}. \aer usa los iconos de Font Awesome en la versión 3.2.1\footnote{\url{https://fontawesome.com/v3/}}, sin embargo, esta versión ya no recibe soporte. De esta manera hemos optado por un balance entre la modernidad y usabilidad a largo plazo (garantizando soporte durante más tiempo), y la coherencia visual con \aer (ya que ambos paquetes de iconos son de la misma compañía y tienen fuertes similitudes). 
 \end{enumerate}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{Imagenes/Vectorial/Guía de estilos.pdf}
-    \caption{Colores y tipografía seleccionados para la guía de estilos}
-    \label{fig:guiaEstilos}
-\end{figure}
-
-Para representar los logros de usuario que crearon 3 bases (una de bronce, otra de plata y una tercera de oro) de \textit{pixel art}\footnote{Más información sobre el \textit{pixel art}: \url{https://es.wikipedia.org/wiki/Pixel_art}} sobre las que construir más adelante todas las versiones correspondientes a cada logro. Estas imágenes son \textit{placeholders} para servir de visualización en este proyecto académico. Por ello los diseños son simples (tan solo 32x32 píxeles) y poco elaborados, aunque se ha buscado que fuesen visualmente agradables. Además, empezar con bases sobre las que dibujar los elementos que diferencien a cada logro es una buena forma de mantener una fácil modularidad y refactorización en caso de querer editar algún logro o añadir nuevos. Además, su diseño similar a una copa deportiva, mantiene el principio anteriormente descrito de similitud con el mundo real y fácil comprensión por parte del usuario.
+Para representar los logros de usuario se crearon 3 bases (una de bronce, otra de plata y una tercera de oro) de \textit{pixel art}\footnote{Más información sobre el \textit{pixel art}: \url{https://es.wikipedia.org/wiki/Pixel_art}} sobre las que construir más adelante todas las versiones correspondientes a cada logro. Estas imágenes son \textit{placeholders} para servir de visualización en este proyecto académico. Por ello los diseños son simples (tan solo 32x32 píxeles) y poco elaborados, aunque se ha buscado que fuesen visualmente agradables. Además, empezar con bases sobre las que dibujar los elementos que diferencien a cada logro es una buena forma de mantener una fácil modularidad y refactorización en caso de querer editar algún logro o añadir nuevos. Además, su diseño similar a una copa deportiva, mantiene el principio anteriormente descrito de similitud con el mundo real y fácil comprensión por parte del usuario.
 
 \begin{figure}
     \centering
@@ -382,14 +363,14 @@ Para representar los logros de usuario que crearon 3 bases (una de bronce, otra 
     \label{fig:baseBronce}
 \end{figure}
 
-En cuanto a los elementos de la interacción humano-máquina, se tienen en cuenta las heurísticas presentadas en \cite{Nielsen_1994} para garantizar una experiencia de usuario intuitiva y eficiente. En concreto para esta aplicación son importantes la visibilidad del estado del sistema y una representación de la información que simplifique el reconocimiento de la información por parte de los usuarios, en lugar de apelar a su memoria. 
+En cuanto a los elementos de la interacción humano--máquina, se tienen en cuenta las heurísticas presentadas en \cite{Nielsen_1994} para garantizar una experiencia de usuario intuitiva y eficiente. En concreto para esta aplicación son importantes la visibilidad del estado del sistema y una representación de la información que simplifique el reconocimiento de la información por parte de los usuarios, en lugar de apelar a su memoria. 
 
 El sistema constará de 5 pantallas, todas con una barra de navegación común que permite navegar entre ellas:
 \begin{itemize}
     \item Inicio: Una pantalla de bienvenida a la aplicación, con una breve explicación de su contexto y propósito, así como un acceso rápido a búsqueda de estadísticas de usuario y ejercicio. Su \textit{wireframe} se muestra en la figura \ref{fig:wireInicio}. Esta colocación de elementos en la interfaz, permite al usuario informarse del sistema y su estado, para pasar cuanto antes a utilizar las funcionalidades que le interesen.
     \begin{figure}
         \centering
-        \includegraphics[width=0.5\linewidth]{Imagenes/Vectorial/Todo.pdf}
+        \includegraphics[width=0.5\linewidth]{Imagenes/Bitmap/wireInicio.jpeg}
         \caption{\textit{Wireframe} de la página de inicio}
         \label{fig:wireInicio}
     \end{figure}
@@ -429,11 +410,17 @@ El sistema constará de 5 pantallas, todas con una barra de navegación común q
 El diseño de la aplicación es adaptable\footnote{Artículo de la W3 respecto a sus recomendaciones para el diseño adaptable: \url{https://www.w3.org/TR/mobile-bp/#OneWeb}}, pero no se realizaron \textit{wireframes} ni tests específicos para diferentes tamaños de pantalla debido a las siguientes dos razones: 
 \begin{enumerate}
     \item La adaptabilidad automática del \textit{frontend} al utilizar \textit{frameworks} que cubren esta necesidad durante el desarrollo.
-    \item Como conluye el estudio realizado en \cite{SaezLopez_SevillanoGarcia_VazquezCano_2019}, los estudiantes españoles son más propensos a optar por un portátil cuando se trata de realizar tareas académicas o complejas, categoría que engloba el uso de jueces en línea. Además, el ordenador es la plataforma preferible para la programación debido a sus cualidades (pantalla ancha y teclado) y la elegida para la participación en clases o concursos de programación competitiva. Es decir, ya que se puede concluir que la página será visitada de forma mayoritaria a través de ordenadores, se priorizó el diseño y prueba de la versión de la interfaz disponible en estos dispositivos.
+    \item Como conluye el estudio realizado en \cite{SaezLopez_SevillanoGarcia_VazquezCano_2019}, los estudiantes españoles son más propensos a optar por un portátil cuando se trata de realizar tareas académicas o complejas, categoría que engloba el uso de jueces en línea. Además, el ordenador es la plataforma preferible para la programación debido a sus cualidades (pantalla ancha y teclado) y la elegida para la participación en clases o concursos de programación competitiva. Además, se dispone de los datos de dispositivos para el acceso a \aer del último año (desde la fecha del 17 de mayo de 2026) que se muestran en la figura \ref{fig:sistemasUsoAER}, que demuestran que la gran mayoría de los accesos se realizaron por ordenador. Teniendo todos estos datos en cuenta, se puede determinar que el diseño en móvil, aunque debe existir y ser funcional, no es una prioridad. 
 \end{enumerate}
+\begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/sistemasUsoAER.png}
+        \caption{Imágen de los sistemas usados para el acceso a \aer}
+        \label{fig:sistemasUsoAER}
+    \end{figure}
 Los nombres simples para las diferentes pantallas, el uso de iconos, y los títulos (y descripciones cuando aplica) de las diferentes estadísticas y logros, fomentan el reconocimiento de los elementos, en lugar de la memorización por parte del usuario.
 
-Los wireframes iniciales aquí mostrados servieron como base, pero más adelante durante el desarrollo se realizaron ajustes para adaptarlos a la realidad técnica y a feedback de usuarios (descritos más en detalle en los capítulos \ref{cap:implementacion} y \ref{cap:evaluacion}). Es decir, su uso fue orientativo en lugar de restrictivo. 
+Los wireframes iniciales aquí mostrados sirvieron como base, pero más adelante durante el desarrollo se realizaron ajustes para adaptarlos a la realidad técnica y a feedback de usuarios (descritos más en detalle en los capítulos \ref{cap:implementacion} y \ref{cap:evaluacion}). Es decir, su uso fue orientativo en lugar de restrictivo. 
 
 \section{Arquitectura a alto nivel}
 
@@ -457,7 +444,7 @@ Además, durante el diseño se han seguido diversos principios de ingeniería so
 
 A alto nivel, la aplicación sigue una arquitectura basada en una SPA (\textit{Single Page Application}). La navegación entre las diferentes ``vistas'' de la página solo implica un cambio en lo que se muestra y una solicitud para obtener los datos que se quieren representar, en lugar de la carga de un nuevo documento HTML.
 
-Esto tiene varias ventajas a nivel de rendimiento, como la reducción del tráfico innecesario entre cliente y servidor, menores tiempos de respuesta tras la carga inicial y una experiencia de usuario más fluida y reactiva, ya que únicamente se actualizan los componentes necesarios de la interfaz \footnote{Para leer una introducción al concepto de las SPAs y sus beneficios: \url{https://www.geeksforgeeks.org/javascript/what-is-single-page-application/}}.
+Esto tiene varias ventajas a nivel de rendimiento, como la reducción del tráfico innecesario entre cliente y servidor, menores tiempos de respuesta tras la carga inicial y una experiencia de usuario más fluida y reactiva, ya que únicamente se actualizan los componentes necesarios de la interfaz\footnote{Para leer una introducción al concepto de las SPAs y sus beneficios: \url{https://www.geeksforgeeks.org/javascript/what-is-single-page-application/}}.
 
 
 De manera consistente con un sistema modular, el \textit{frontend} se encarga exclusivamente de la visualización y de la interacción con el usuario, mientras que el \textit{backend} concentra toda la lógica de negocio y el procesamiento de datos. Mantiene una comunicación reactiva con el \textit{backend} mediante \textit{sockets}. Cuando el \textit{backend} detecta la llegada de nuevos envíos o cambios relevantes en las estadísticas, envía una notificación al \textit{frontend} para actualizar automáticamente la información mostrada al usuario. Este mecanismo resulta fundamental para satisfacer los requisitos de actualización automática definidos en la especificación funcional.
@@ -465,7 +452,7 @@ El \textit{backend} por lo tanto funciona de manera similar a una API, recibiend
 
 Para acceder a la base de datos se utiliza el patrón DAO (\textit{Data Access Object}). En este modelo, los servicios no interactúan directamente con la base de datos, sino que delegan las operaciones de almacenamiento y recuperación de información a objetos DAO especializados. De esta manera, se desacopla la lógica de negocio de la lógica de persistencia, mejorando la mantenibilidad y facilitando posibles cambios futuros en la tecnología de almacenamiento.
 
-Uno de los componentes más interesantes al diseñar la arquitectura, es el sistema de integración con el juez externo, ya que esto determina en gran medida el rendimiento y consistencia de la aplicación. Debido a limitaciones temporales para poder establecer un sistema de mensajería integrado entre \aer y el presente proyecto, se desarrolló como solución temporal un adaptador intermedio basado en \textit{long polling} \footnote{Para aprender sobre las conexiones \textit{long polling}: \url{https://www.geeksforgeeks.org/javascript/what-is-long-polling-and-short-polling/}}. Este adaptador permanece continuamente consultando el endpoint de eventos proporcionado por el juez. Cuando detecta cambios o nuevos envíos, genera un evento. Posteriormente, un componente consumidor dentro del backend recibe estos mensajes y desencadena el procesamiento correspondiente.
+Uno de los componentes más interesantes al diseñar la arquitectura, es el sistema de integración con el juez externo, ya que esto determina en gran medida el rendimiento y consistencia de la aplicación. Debido a limitaciones temporales para poder establecer un sistema de mensajería integrado entre \aer y el presente proyecto, se desarrolló como solución temporal un adaptador intermedio basado en \textit{long polling}\footnote{Para aprender sobre las conexiones \textit{long polling}: \url{https://www.geeksforgeeks.org/javascript/what-is-long-polling-and-short-polling/}}. Este adaptador permanece continuamente consultando el endpoint de eventos proporcionado por el juez. Cuando detecta cambios o nuevos envíos, genera un evento. Posteriormente, un componente consumidor dentro del backend recibe estos mensajes y desencadena el procesamiento correspondiente.
 
 La figura \ref{fig:arquitectura_general} muestra una visión general de la arquitectura del sistema y del flujo de datos entre sus componentes principales.
 

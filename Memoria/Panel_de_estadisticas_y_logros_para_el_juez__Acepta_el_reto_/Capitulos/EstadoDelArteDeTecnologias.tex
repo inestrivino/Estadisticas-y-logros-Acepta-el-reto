@@ -8,13 +8,11 @@ Las aplicaciones web modernas se caracterizan por su dinamismo, interactividad, 
 
 En sus inicios, la web estaba concebida como un sistema de documentos estáticos interconectados mediante enlaces: el servidor enviaba archivos HTML que el cliente (navegador) simplemente renderizaba. En este sentido, el modelo original puede entenderse como una extensión del intercambio de documentos. Con el tiempo, este modelo básico se amplió mediante dos avances fundamentales. Por un lado, la generación dinámica de contenido en el servidor permitió construir HTML bajo demanda en función de las peticiones del usuario. Por otro lado, la ejecución de código en el lado del cliente introdujo la posibilidad de modificar la interfaz y el comportamiento de la aplicación sin necesidad de nuevas comunicaciones con el servidor. Estas dos mejoras sentaron las bases de la separación conceptual entre cliente y servidor, que posteriormente daría lugar a los términos \textit{frontend} y \textit{backend}, entendidos como los componentes que se ejecutan en cada uno de estos lados.
 
-Para cumplir con las expectativas de los usuarios y las exigencias del mercado, las aplicaciones web deben satisfacer una serie de requisitos fundamentales. Entre ellos, destacan el alto rendimiento, la escalabilidad y la mantenibilidad del código. Aunque la seguridad también puede ser una prioridad crítica dependiendo del contexto de la aplicación, estos tres primeros requisitos son universales en el desarrollo web actual.
+Para cumplir con las expectativas de los usuarios y las exigencias del mercado a largo plazo, las aplicaciones web deben satisfacer una serie de requisitos fundamentales. Entre ellos, destacan el alto rendimiento, la escalabilidad y la mantenibilidad del código. Aunque la seguridad también puede ser una prioridad crítica dependiendo del contexto de la aplicación, estos tres primeros requisitos son universales en el desarrollo web actual.
 
 En lo que respecta al rendimiento, las aplicaciones deben operar con rapidez y eficiencia. En 2016, la mitad de los usuarios de la web esperaban que una página se cargase en menos de dos segundos\footnote{\url{https://blog.google/products/admanager/the-need-for-mobile-speed/}}, lo que subraya la importancia de optimizar los tiempos de respuesta. Asimismo, la actualización constante y relevancia de los datos es crucial; de lo contrario, la aplicación podría perder utilidad y credibilidad.
 
 Por otro lado, la escalabilidad y la mantenibilidad son cualidades que garantizan la longevidad y adaptabilidad del software. Una aplicación escalable puede manejar un crecimiento en la demanda sin degradar su rendimiento, mientras que una aplicación mantenible facilita su reutilización, integración con sistemas existentes y actualización continua a lo largo de su ciclo de vida, reduciendo costos y esfuerzo en el proceso.
-
-La arquitectura modular antes mencionada ofrece ventajas significativas para alcanzar estos objetivos. Por ejemplo, permite realizar modificaciones en una capa sin afectar a las demás. Esto significa que es posible actualizar una interfaz de usuario obsoleta en el \textit{frontend} sin alterar la lógica de negocio subyacente en el \textit{backend}, o incluso migrar a un sistema de base de datos más eficiente sin impactar la experiencia del usuario final.
 
 A lo largo de los años, el desarrollo web se ha beneficiado de la aparición de \textit{frameworks} y librerías especializados, diseñados para simplificar la implementación, mejorar el rendimiento y facilitar el mantenimiento de las aplicaciones. Estas herramientas suelen estar orientadas no solo a una capa específica de la aplicación, sino también a nichos tecnológicos o tipos de aplicaciones particulares, como plataformas de comercio electrónico, redes sociales o sistemas de gestión de contenido.
 
@@ -40,11 +38,11 @@ La Tabla \ref{tab:frontend_technologies} clasifica estas tecnologías según su 
 
 \begin{table}[h!]
 \centering
-\small
-\begin{tabularx}{\textwidth}{X X X p{4.5cm}}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X p{4.5cm}}
 \toprule
 \textbf{Tecnología} & \textbf{Tipo} & \textbf{Nivel de abstracción / enfoque} & \textbf{Uso típico} \\
-\midrule
+\midrule 
 jQuery & Librería & Manipulación directa del DOM, gestión de eventos y AJAX. No impone arquitectura ni modelo de componentes. & Proyectos pequeños, mantenimiento de código legacy, soporte puntual en aplicaciones existentes. \\
 \midrule
 React & Librería & Basado en componentes, DOM virtual, enfoque declarativo para la interfaz. & Aplicaciones complejas con gestión avanzada del estado y alta interactividad. \\
@@ -63,13 +61,13 @@ Vue.js & \textit{Framework} progresivo & Basado en componentes, integración gra
 
 El \textit{backend} representa la columna vertebral de las aplicaciones web dinámicas, asumiendo la responsabilidad de implementar la lógica de negocio, procesar datos y facilitar la comunicación con servicios externos. A diferencia del \textit{frontend}, que se ejecuta en el navegador del usuario, el \textit{backend} opera en el servidor, donde gestiona operaciones críticas como la autenticación de usuarios, la validación y procesamiento de datos, la interacción con bases de datos y la integración con APIs de terceros. El diseño y la eficiencia de esta capa son factores determinantes para asegurar el rendimiento óptimo, la escalabilidad y la seguridad de las aplicaciones.
 
-De acuerdo con los resultados de la encuesta de desarrolladores de Stack Overflow anteriormente mencionada, las tecnologías \textit{backend} más utilizadas en la actualidad incluyen Node.js, Express, Flask y Django. Cada una de estas tecnologías presenta características distintivas que las hacen adecuadas para diferentes tipos de proyectos. Además, como se detalla en el estudio comparativo de \textit{Frameworks} populares para \textit{backend} realizado por \cite{Buljic_Kadusic_Cvijanovic_Hadzajlic_Zivic_2025}, estos \textit{frameworksf} se basan en lenguajes de programación y tecnologías distintas, lo que influye en su rendimiento (medido en términos de latencia y throughput) y, por tanto, en su idoneidad para distintos escenarios de aplicación.
+De acuerdo con los resultados de la encuesta de desarrolladores de Stack Overflow anteriormente mencionada, las tecnologías \textit{backend} más utilizadas en la actualidad incluyen Node.js (incluyendo Express), Flask y Django. Cada una de estas tecnologías presenta características distintivas que las hacen adecuadas para diferentes tipos de proyectos. Además, como se detalla en el estudio comparativo de \textit{Frameworks} populares para \textit{backend} realizado por \cite{Buljic_Kadusic_Cvijanovic_Hadzajlic_Zivic_2025}, estos \textit{frameworks} se basan en lenguajes de programación y tecnologías distintas, lo que influye en su rendimiento (medido en términos de latencia y \textit{throughput}) y, por tanto, en su idoneidad para distintos escenarios de aplicación.
 
 Node.js\footnote{\url{https://nodejs.org/es}} es un entorno de ejecución de JavaScript en el lado del servidor, diseñado específicamente para el desarrollo de aplicaciones escalables y de alto rendimiento. Como se muestra en los resultados del estudio comparativo realizado por \cite{Lei_Ma_Tan_2014}, su arquitectura basada en eventos y su modelo de entrada/salida (E/S) no bloqueante lo convierten en una opción ideal para aplicaciones que requieren manejar múltiples conexiones simultáneas, como sistemas en tiempo real o APIs. Además, Node.js cuenta con un ecosistema robusto, gracias a npm (Node Package Manager), que proporciona una amplia variedad de módulos para extender funcionalidades y agilizar el proceso de desarrollo.
 
 Por su parte, Express\footnote{\url{https://expressjs.com/es/}} es un \textit{framework} minimalista para Node.js, diseñado para simplificar la creación de servidores web y APIs. Le permite a los desarrolladores construir aplicaciones robustas y eficientes con una configuración mínima, ofreciendo la flexibilidad necesaria para adaptarse a las necesidades específicas de cada proyecto.
 
-Aunque Next.js\footnote{\url{https://nextjs.org/}} es reconocido principalmente como un \textit{framework} de React para el desarrollo de interfaces de usuario, su capacidad para implementar Server-Side Rendering (SSR) y rutas API lo posiciona como una herramienta híbrida que también puede gestionar lógica de \textit{backend}. Esta característica permite a los desarrolladores construir aplicaciones full-stack utilizando un único \textit{framework}, lo que simplifica la arquitectura del proyecto y reduce su complejidad.
+Aunque Next.js\footnote{\url{https://nextjs.org/}} es reconocido principalmente como un \textit{framework} de React para el desarrollo de interfaces de usuario (es decir, como una \textit{framework frontend}), su capacidad para implementar \textit{Server-Side Rendering} (SSR) y rutas API lo posiciona como una herramienta híbrida que también puede gestionar lógica de \textit{backend}. Esta característica permite a los desarrolladores construir aplicaciones tanto en \textit{frontend} como en \textit{backend} utilizando un único \textit{framework}, lo que simplifica la arquitectura del proyecto y reduce su complejidad.
 
 En el ecosistema de Python, tanto Django\footnote{\url{https://www.djangoproject.com/}} como Flask\footnote{\url{https://flask.palletsprojects.com/en/stable/}} son \textit{frameworks} ampliamente utilizados para el desarrollo de aplicaciones web. Sin embargo, presentan diferencias significativas en cuanto a su enfoque y funcionalidades. Django es un \textit{framework} robusto y completo, que incluye una amplia gama de herramientas integradas, lo que lo hace especialmente adecuado para el desarrollo de sistemas empresariales complejos. En contraste, Flask se caracteriza por su ligereza y flexibilidad, siendo una opción preferida para proyectos más pequeños o aquellos que requieren una mayor personalización.
 
@@ -80,13 +78,11 @@ En la tabla \ref{tab:backend_technologies} se puede ver un resumen de la compara
 \small
 \begin{tabularx}{\textwidth}{X X X p{4.5cm} p{3cm}}
 \toprule
-\textbf{Framework} & \textbf{Lenguaje} & \textbf{Tipo} & \textbf{Características} & \textbf{Uso típico} \\
+\textbf{Framework} & \textbf{Tipo} & \textbf{Características} & \textbf{Uso típico} \\
 \midrule
 Node.js & JavaScript & Entorno de ejecución & Arquitectura basada en eventos, E/S no bloqueante, escalable, ecosistema npm. & Aplicaciones en tiempo real, APIs. \\
 \midrule
 Express & JavaScript & \textit{Framework} minimalista & Minimalista, fácil configuración, ideal para APIs y servidores web. & APIs RESTful, aplicaciones web ligeras. \\
-\midrule
-Next.js & JavaScript / TypeScript & \textit{Framework} full-stack & SSR, rutas API, integración con React. & Aplicaciones full-stack, SSR. \\
 \midrule
 Django & Python & \textit{Framework} completo & Baterías incluidas, ORM, panel de administración, seguridad integrada. & Sistemas empresariales. \\
 \midrule

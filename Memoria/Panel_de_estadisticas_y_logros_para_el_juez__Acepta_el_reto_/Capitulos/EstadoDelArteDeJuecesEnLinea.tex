@@ -1,4 +1,4 @@
-\chapter{Estado del Arte de Jueces en Línea}
+\chapter{Jueces en Línea}
 \label{cap:estadoDelArteDeJuecesEnLinea}
 
 \section{Introducción}
@@ -7,9 +7,10 @@ Un \textbf{juez en línea} (OJ, del inglés \textit{Online Judge}) es un sistema
 
 \begin{figure}[h]
 \centering
-\resizebox{\textwidth}{!}{%
+% Reducimos el margen izquierdo de forma artificial para empujar el gráfico
+\nopagebreak\hspace*{-1.5cm}
 \begin{tikzpicture}[
-    node distance=1.8cm,
+    node distance=1.8cm and 3.5cm,
     every node/.style={
         draw,
         rectangle,
@@ -18,45 +19,47 @@ Un \textbf{juez en línea} (OJ, del inglés \textit{Online Judge}) es un sistema
         minimum width=4.2cm,
         minimum height=1cm
     },
-    arrow/.style={->, thick}
+    arrow/.style={->, thick, -{Latex[scale=1.2]}}
 ]
 
-% Flujo principal
+% Flujo principal: los Pasos (Cajas)
 \node (p1) {1. Selección de problema};
 \node (p2) [below of=p1] {2. Resolución local};
 \node (p3) [below of=p2] {3. Envío de solución};
 \node (p4) [below of=p3] {4. Evaluación automatizada};
 \node (p5) [below of=p4] {5. Recepción de veredicto};
 
-% Resultado aceptado (sin caja)
-\node (ac) [right=3.5cm of p5] {Solución aceptada};
-
-% Flechas principales
+% Flechas principales (verticales) con cabezas visibles
 \draw[arrow] (p1) -- (p2);
 \draw[arrow] (p2) -- (p3);
 \draw[arrow] (p3) -- (p4);
 \draw[arrow] (p4) -- (p5);
 
-% Veredicto aceptado
-\draw[arrow] (p5) -- (ac)
-    node[midway, above, draw=none] {AC};
-
-% Iteración (no aceptado)
-\draw[arrow]
-    (p5.west)
-    .. controls +(-4,0) and +(-4,0) ..
+% Iteración por error (No aceptado): De 5 a 2
+\draw[arrow, red!70!black]
+    (p5.west) 
+    .. controls +(-3.5,-0.5) and +(-3.5,0.5) .. 
     (p2.west)
-    node [midway, left, align=center, draw=none]
-    {WA, TLE, etc.};
+    node [midway, left, align=center, draw=none, black] 
+    {\textbf{Reintentar}\\[1mm]WA, TLE,\\etc.};
 
-\end{tikzpicture}%
-}
+% Retorno tras Aceptado (AC): De 5 a 1 para empezar de nuevo
+% Usamos `looseness=1.5` para dar espacio al texto del "Reintentar"
+\draw[arrow, blue!70!black]
+    (p5.east) 
+    .. controls +(4,0) and +(4,0) .. 
+    (p1.east)
+    node [midway, right, align=center, draw=none, black] 
+    {\textbf{AC} (Aceptada)\\[1mm]¡Problema\\completado!};
+
+\end{tikzpicture}
+\end{figure}
 
 \caption{Proceso de uso de un juez en línea y ciclo de iteración}
 \label{fig:online-judge-process}
 \end{figure}
 
-Los primeros concursos de programación se remontan a la década de 1970\footnote{\url{https://icpc.global/community/history-early-years}} y fueron creciendo progresivamente en popularidad, lo que generó la necesidad de contar con sistemas capaces de evaluar automáticamente grandes volúmenes de código de forma rápida y objetiva. Esta necesidad se hizo especialmente evidente en el contexto de competiciones como la ICPC (\textit{International Collegiate Programming Contest}), donde la corrección manual de soluciones resultaba inviable. En este escenario comenzaron a desarrollarse los primeros jueces en línea. Uno de los primeros OJs en alcanzar una popularidad global fue UVa Online Judge (actualmente conocido simplemente como Online Judge), creado por el profesor Miguel Ángel Revilla en la Universidad de Valladolid, y hecho disponible al público en general en 1997 \citep{Revilla_Manzoor_Liu_2008}. Desde entonces, estos sistemas han experimentado un crecimiento notable tanto en número de usuarios como en la cantidad de soluciones enviadas y problemas disponibles\footnote{Estadísticas de uso en Online Judge desde 1997: \url{https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=23}}.
+Los primeros concursos de programación se remontan a la década de 1970\footnote{\url{https://icpc.global/community/history-early-years}} y fueron creciendo progresivamente en popularidad, lo que generó la necesidad de contar con sistemas capaces de evaluar automáticamente grandes volúmenes de código de forma rápida y objetiva. Esta necesidad se hizo especialmente evidente en el contexto de competiciones como la ICPC (\textit{International Collegiate Programming Contest}), donde la corrección manual de soluciones resultaba inviable. En este escenario comenzaron a desarrollarse los primeros jueces en línea. Uno de los primeros OJs en alcanzar una popularidad global fue UVa Online Judge (actualmente conocido simplemente como Online Judge), creado por el profesor Miguel Ángel Revilla en la Universidad de Valladolid, y puesto disponible al público en general en 1997 \citep{Revilla_Manzoor_Liu_2008}. Desde entonces, estos sistemas han experimentado un crecimiento notable tanto en número de usuarios como en la cantidad de soluciones enviadas y problemas disponibles\footnote{Estadísticas de uso en Online Judge desde 1997: \url{https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=23}}.
 
 El uso de los jueces en línea se ha extendido además a múltiples ámbitos más allá de la programación competitiva. Ya en 1961, la Universidad de Stanford utilizaba un sistema automático para evaluar los programas en ALGOL desarrollados por sus estudiantes \citep{Forsythe_Wirth_1965}. En la actualidad existen numerosos jueces en línea con un enfoque educativo, como CheckiO\footnote{\url{https://checkio.org/}}, Codecademy\footnote{\url{https://www.codecademy.com/}} o Jutge.org\footnote{\url{https://jutge.org/}}, que permiten a los usuarios aprender y practicar conceptos de programación y algoritmia tanto de forma individual como colectiva, por ejemplo en asignaturas universitarias o cursos especializados. Asimismo, los jueces en línea son ampliamente utilizados en procesos de reclutamiento laboral, donde se analizan las soluciones de los candidatos para evaluar sus habilidades técnicas, o como herramienta de preparación para entrevistas.
 
@@ -66,8 +69,8 @@ Los jueces en línea pueden clasificarse en cuatro categorías principales en fu
 
  \begin{enumerate}
      \item \textbf{Jueces de programación competitiva}: Los jueces de programación competitiva están orientados principalmente a la organización y desarrollo de competiciones de programación, tanto a nivel local como internacional. Estos sistemas suelen ofrecer rankings globales o regionales, sistemas de puntuación y límites estrictos de tiempo y memoria, ya que la eficiencia de las soluciones es un aspecto central. Los problemas están diseñados para poner a prueba la capacidad de los participantes en algoritmia, estructuras de datos y optimización, y el énfasis recae en comparar el rendimiento de los usuarios bajo condiciones homogéneas. Un ejemplo representativo de esta categoría sería el OJ Codeforces\footnote{\url{www.codeforces.com}}. 
-     \item \textbf{Jueces educativos}: Los jueces educativos tienen como objetivo principal apoyar el aprendizaje de la programación. En este caso, el énfasis no se encuentra en la competición, sino en el proceso formativo. Estos sistemas suelen integrarse en contextos académicos o de autoaprendizaje, permitiendo a los usuarios practicar conceptos de programación de forma progresiva. La retroalimentación inmediata que ofrecen facilita la detección de errores y la mejora continua, siendo comunes en asignaturas universitarias, cursos especializados o plataformas de aprendizaje en línea. Un ejemplo representativo de esta categoría sería el OJ HackerRank. 
-     \item \textbf{Jueces de reclutamiento}: Los jueces de reclutamiento están diseñados para evaluar las habilidades técnicas de candidatos en procesos de selección de personal. En este contexto, los problemas planteados buscan medir la capacidad del aspirante para resolver tareas concretas de programación dentro de un tiempo limitado. El OJ actúa como una herramienta objetiva que permite comparar soluciones y analizar el desempeño de los candidatos, además de servir como medio de preparación para entrevistas técnicas. Un ejemplo representativo de este tipo de OJ sería Leetcode. 
+     \item \textbf{Jueces educativos}: Los jueces educativos tienen como objetivo principal apoyar el aprendizaje de la programación. En este caso, el énfasis no se encuentra en la competición, sino en el proceso formativo. Estos sistemas suelen integrarse en contextos académicos o de autoaprendizaje, permitiendo a los usuarios practicar conceptos de programación de forma progresiva. La retroalimentación inmediata que ofrecen facilita la detección de errores y la mejora continua, siendo comunes en asignaturas universitarias, cursos especializados o plataformas de aprendizaje en línea. Un ejemplo representativo de esta categoría sería el OJ OmegaUp\footnote{\url{https://omegaup.com/}}. 
+     \item \textbf{Jueces de reclutamiento}: Los jueces de reclutamiento están diseñados para evaluar las habilidades técnicas de candidatos en procesos de selección de personal. En este contexto, los problemas planteados buscan medir la capacidad del aspirante para resolver tareas concretas de programación dentro de un tiempo limitado. El OJ actúa como una herramienta objetiva que permite comparar soluciones y analizar el desempeño de los candidatos, además de servir como medio de preparación para entrevistas técnicas. Un ejemplo representativo de este tipo de OJ serían HackerRank y Leetcode. 
      \item \textbf{Otros jueces}: Finalmente, existen otros jueces en línea orientados a nichos o dominios específicos. Estos sistemas se centran en áreas concretas de la programación o en tecnologías particulares, como puede ser la programación concurrente, el manejo de bases de datos o lenguajes específicos. Aunque su público suele ser más reducido, cumplen un papel importante al cubrir necesidades especializadas que no siempre están contempladas en los jueces generalistas. Por ejemplo, la plataforma SQLZoo\footnote{\url{https://sqlzoo.net/wiki/SQL_Tutorial}} dispone de ejercicios a completar mediante su propio OJ, para aprender específicamente sobre el manejo de bases de datos con SQL. 
  \end{enumerate}
 
@@ -75,8 +78,7 @@ Los jueces en línea pueden clasificarse en cuatro categorías principales en fu
 
 Uno de los elementos de los jueces en línea modernos de especial interés para el tema de este trabajo es la gamificación. 
 
-La gamificación es una tendencia creciente en los jueces en línea, que busca motivar y fidelizar a los usuarios mediante la incorporación de elementos y mecánicas propias de los juegos (\textit{games} en inglés). El proceso de gamificación no consiste en convertir la plataforma en un juego, sino en enriquecer la experiencia de usuario y aumentar su participación mediante el uso de mecánicas nuevas y la creación de una fuente de motivación extrínseca.
-Para que la gamificación sea eficaz, debe integrarse de forma coherente con los objetivos del sistema y el comportamiento deseado en los usuarios \citep{Zichermann_Cunningham_2011}.
+El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la decada de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas \citep{Zichermann_Cunningham_2011}.  
 
 Los mecanismos de gamificación pueden variar según la categoría del juez, ya que cada tipo persigue objetivos diferentes:
 
@@ -98,26 +100,6 @@ Los mecanismos de gamificación pueden variar según la categoría del juez, ya 
     \end{figure}
 \end{enumerate}
 
-El OJ \aer ya incluye varias herramientas de gamificación orientadas a seguimiento del progreso individual\footnote{\url{https://aceptaelreto.com/}}. En la pestaña de perfil (capturada en la figura \ref{fig:Estadísticas de Acepta el Reto}) se muestran estadísticas como:
-
-\begin{itemize}
-    \item Cantidad de envíos realizados
-    \item Cantidad de envíos correctos
-    \item Cantidad de envíos intentados
-    \item Cantidad de ejercicios resueltos
-    \item Lenguajes más utilizados
-    \item Veredictos más recibidos
-\end{itemize}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\linewidth]{Imagenes//Bitmap/Estadísticas Acepta el Reto.png}
-    \caption{Estadísticas de \aer}
-    \label{fig:Estadísticas de Acepta el Reto}
-\end{figure}
-
-Estas métricas permiten a los usuarios analizar su evolución y focalizar sus esfuerzos en mejorar áreas concretas, lo cual es coherente con su propósito educativo. Además, la plataforma cuenta con una pestaña de estadísticas que muestra los últimos envíos\footnote{\url{https://aceptaelreto.com/statistics/submissions.php}}. En la tabla \ref{tab:Comparación de tipos de OJ} se puede observar un resumen de la comparación entre tipos de OJ.
-
 \begin{table}[h!]
 \centering
 \small
@@ -136,9 +118,7 @@ Reclutamiento & Mostrar las habilidades técnicas & Insignias, logros y estadís
 \label{tab:Comparación de tipos de OJ}
 \end{table}
 
-\section{Diseño y arquitectura}
-
-Aunque este trabajo no profundiza en la arquitectura interna de evaluación de los jueces en línea, resulta relevante comprender su estructura como aplicación web y los elementos que la distinguen de otros sistemas web convencionales.
+\section{Arquitectura}
 
 A alto nivel, un juez en línea se compone de dos componentes principales. En primer lugar, se encuentra la parte web, que incluye la interfaz de usuario (\textit{frontend}), el servidor (\textit{backend}) y la base de datos. Esta sección gestiona la interacción del usuario con la plataforma, permitiendo visualizar y seleccionar problemas, enviar código para su evaluación y consultar tanto estadísticas como resultados de sus envíos. La base de datos almacena la información necesaria para mantener un registro de los problemas disponibles, los envíos realizados y los datos de los usuarios.
 
@@ -148,6 +128,91 @@ Esta arquitectura permite separar de manera clara las funciones interactivas de 
 
 En síntesis, un juez en línea integra la infraestructura de una aplicación web tradicional con un subsistema especializado para la ejecución segura y asíncrona de código, lo que posibilita ofrecer una plataforma interactiva, confiable y segura para la resolución de problemas de programación.
 
+Aunque este trabajo no profundiza en la arquitectura interna de evaluación de los jueces en línea, resulta relevante comprender su estructura como aplicación web y los elementos que la distinguen de otros sistemas web convencionales.
+
+\begin{figure}[h]
+\centering
+\nopagebreak\hspace*{-0.5cm}
+\begin{tikzpicture}[
+    node distance=2.5cm and 2cm,
+    every node/.style={
+        draw,
+        rectangle,
+        rounded corners=4pt,
+        align=center,
+        minimum height=1.5cm,
+        line width=0.8pt
+    },
+    arrow/.style={->, thick, >=stealth},
+    biarrow/.style={<->, thick, >=stealth}
+]
+
+% 1. Caja de la Parte Web (Corregido 'draw=')
+\node (web) [fill=blue!5, draw=blue!40!black, minimum width=4.5cm] {
+    \textbf{Parte Web}\\
+    \small Frontend y Backend\\
+    \footnotesize (Interacción, estadísticas, envíos)
+};
+
+% 2. Caja de la Base de Datos (Corregido 'draw=')
+\node (db) [below=of web, fill=gray!10, draw=gray!40!black, minimum width=4.5cm, minimum height=1.2cm] {
+    \textbf{Base de Datos}\\
+    \footnotesize (Usuarios, problemas, registros)
+};
+
+% 3. Caja del Subsistema de Evaluación (Corregido 'draw=')
+\node (juez) [right=of web, fill=red!5, draw=red!40!black, minimum width=4.5cm] {
+    \textbf{Subsistema de Evaluación}\\
+    \small Demonios de evaluación\\
+    \footnotesize (Sandbox, aislamiento, asíncrono)
+};
+
+% --- Conexiones y flujos ---
+% Relación Web <-> Base de Datos
+\draw[biarrow, gray!80!black] (web) -- (db)
+    node[midway, right, font=\footnotesize, black, draw=none, fill=none] {Consulta y guarda};
+
+% Envío de código (Web -> Juez)
+\draw[arrow, blue!70!black] ([yshift=0.3cm]web.east) -- ([yshift=0.3cm]juez.west)
+    node[midway, above, font=\footnotesize, black, draw=none, fill=none] {Envío de código};
+
+% Retorno de veredicto (Juez -> Web)
+\draw[arrow, red!70!black] ([yshift=-0.3cm]juez.west) -- ([yshift=-0.3cm]web.east)
+    node[midway, below, font=\footnotesize, black, draw=none, fill=none] {Veredicto (asíncrono)};
+
+\end{tikzpicture}
+\caption[Arquitectura general del juez en línea]{Arquitectura general y componentes de alto nivel del juez en línea.}
+\label{fig:arquitectura_juez}
+\end{figure}
+
+\section{\aer}
+
+El juez en línea \aer\ constituye una de las plataformas educativas de referencia en el ámbito hispanohablante para el aprendizaje y la práctica de la programación competitiva. Con un propósito educativo, el sistema ya incorpora diversas herramientas de gamificación orientadas al seguimiento del progreso individual del estudiante\footnote{\url{https://aceptaelreto.com/}}. 
+
+Como se ilustra en la Figura \ref{fig:Estadísticas de Acepta el Reto}, el perfil de usuario contiene métricas clave para el autoaprendizaje, entre las que destacan la cantidad de envíos realizados, correctos e intentados, el volumen total de ejercicios resueltos, así como gráficos distributivos de los lenguajes de programación más utilizados y los veredictos más frecuentes.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Imagenes//Bitmap/EstadisticasAceptaElReto.png}
+    \caption{Estadísticas de \aer}
+    \label{fig:Estadísticas de Acepta el Reto}
+\end{figure}
+
+Estos componentes permiten a los usuarios monitorizar su evolución temporal y tomar decisiones sobre a qué área focalizar su progreso, aunque de manera limitada. Complementariamente, la plataforma ofrece un módulo de acceso público que monitoriza de forma continua los últimos envíos procesados por el sistema\footnote{\url{https://aceptaelreto.com/statistics/submissions.php}}, aunque no muestra estadísticas ni datos globales de estos envíos.
+
+Desde el punto de vista de la arquitectura, la arquitectura de \aer, detallada en \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, traslada la separación de responsabilidades (web y evaluación) mediante una infraestructura híbrida y singular, fundamentada en una combinación de tecnologías clásicas.
+
+En lo que respecta a \textbf{componentes web}, la plataforma segmenta su lógica:
+
+\begin{itemize}
+    \item \textbf{Capa de interacción y gestión de usuarios:} Implementada principalmente en PHP, se encarga del renderizado de la interfaz de usuario tradicional, la navegación por el catálogo de problemas y la consulta pública de envíos.
+    \item \textbf{Capa de lógica de negocio interna:} Delegada en un contenedor de servlets Apache Tomcat (Java).
+    \item \textbf{Servicio web interno de eventos}: Para la obtención de datos sobre los envíos y sus resultados en tiempo real. Este servicio es de especial importancia para el desarrollo de este proyecto.
+    \item \textbf{Evaluador}: Reciben los envíos de los usuarios y los comprueban en un sandbox para después devolver el resultado obtenido.
+\end{itemize}
+
+El nexo de unión de esta infraestructura web es un sistema de gestión de bases de datos MySQL, el cual actúa como repositorio centralizado de persistencia para los datos de la aplicación.
+
 \section{Conclusiones}
 
-El análisis del estado del arte muestra que la visualización de estadísticas y la gamificación constituyen componentes fundamentales en los jueces en línea modernos, especialmente en aquellos con fines educativos y de reclutamiento. La presentación clara de métricas como envíos correctos, problemas resueltos, veredictos obtenidos y logros alcanzados permite a los usuarios evaluar su progreso, identificar áreas de mejora y mantener la motivación a lo largo del tiempo. Por tanto, la creación de pantallas de estadísticas y logros no solo mejora la experiencia del usuario, sino que constituye un elemento esencial para el aprendizaje, la consistencia y la participación activa en la plataforma.
+El análisis del estado del arte muestra que la visualización de estadísticas y la gamificación constituyen componentes fundamentales en los jueces en línea modernos, especialmente en aquellos con fines educativos y de reclutamiento. La presentación clara de métricas como envíos correctos, problemas resueltos, veredictos obtenidos y logros alcanzados permite a los usuarios evaluar su progreso, identificar áreas de mejora y mantener la motivación a lo largo del tiempo. Por tanto, la creación de pantallas de estadísticas y logros no solo mejora la experiencia del usuario, sino que constituye un elemento esencial para el aprendizaje, la consistencia y la participación activa en la plataforma. Además, para acceder a estos datos de manera consistente, es importante contar con una arquitectura fiable a la vez que rápida.
