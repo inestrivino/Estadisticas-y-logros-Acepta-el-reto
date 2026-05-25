@@ -24,6 +24,10 @@ export const enviosEstadistica: EstadisticaExperiencia = {
         await usuarioDAO.borrarNumEnviosMes();
     },
 
+    async borrarMesEspecifico(mes) {
+        await usuarioDAO.borrarNumEnviosMesEspecifico(mes);
+    },
+
     async calcularXPMes(mes) {
         const envios = await usuarioDAO.getNumEnviosMes(mes);
         const xp = new Map<string, number>();

@@ -136,6 +136,19 @@ class XPService {
     }
 
     /**
+     * Borra todos los datos asociados a un mes concreto: estadisticas mensuales,
+     * logros mensuales y ranking de XP del mes. Se invoca al detectar que se ha
+     * entrado en un nuevo mes natural para evitar que se mezclen datos de aniadas.
+     * @param mes - Mes (0-11) cuyos datos se van a borrar.
+     */
+    public async borrarMesCompleto(mes: number): Promise<void> {
+        for (const estadistica of this.estadisticas)
+            await estadistica.borrarMesEspecifico(mes);
+        await logrosService.borrarLogrosMes(mes);
+        await xpDAO.borrarRankingMes(mes);
+    }
+
+    /**
      * Recalcula los rankings mensuales de XP a partir de los datos mensuales persistidos
      * de cada estadistica y de los logros. Sobrescribe los 12 rankings mensuales.
      */

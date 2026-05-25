@@ -39,8 +39,14 @@ await redisLoading();
 //comprueba versiones y resetea lo necesario
 await checkpointsService.comprobarVersiones();
 
-//se eliminan los envios anteriores a un año
-await usuarioService.eliminarEnviosAntiguos(); 
+//comprueba si se ha entrado en uno o mas meses naturales nuevos y limpia sus buckets
+await checkpointsService.comprobarMesActual();
+//y se reprograma cada 24h para detectar el cambio aunque el servidor no se reinicie
+setInterval(() => checkpointsService.comprobarMesActual().catch(err => console.error(err)), 24 * 60 * 60 * 1000);
+
+//se eliminan los envios anteriores a un año, y se reprograma cada 24h
+await usuarioService.eliminarEnviosAntiguos();
+setInterval(() => usuarioService.eliminarEnviosAntiguos().catch(err => console.error(err)), 24 * 60 * 60 * 1000);
 
 //incializo el socket
 initSocket(app);

@@ -189,6 +189,14 @@ class LogrosService {
     }
 
     /**
+     * Borra de la base de datos los sets de logros mensuales del mes indicado para todos los usuarios.
+     * @param mes - Mes (0-11) cuyos registros se van a borrar.
+     */
+    public async borrarLogrosMes(mes: number): Promise<void> {
+        await logrosDAO.borrarLogrosMes(mes);
+    }
+
+    /**
      * Calcula la XP aportada por los logros obtenidos en el mes indicado a partir
      * de los datos mensuales persistidos en la base de datos.
      * @param mes - Mes (0-11) a consultar.

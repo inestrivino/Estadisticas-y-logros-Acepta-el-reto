@@ -27,6 +27,10 @@ export const problemasACEstadistica: EstadisticaExperiencia = {
         await usuarioDAO.borrarProblemasACMes();
     },
 
+    async borrarMesEspecifico(mes) {
+        await usuarioDAO.borrarProblemasACMesEspecifico(mes);
+    },
+
     async calcularXPMes(mes) {
         const problemas = await usuarioDAO.getProblemasACMes(mes);
         const xp = new Map<string, number>();

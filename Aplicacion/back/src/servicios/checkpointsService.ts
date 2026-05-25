@@ -56,6 +56,38 @@ class CheckpointsService {
     }
 
     /**
+     * Comprueba si se ha entrado en uno o mas meses naturales nuevos desde la ultima ejecucion.
+     * Por cada mes atravesado, borra los datos mensuales de ese bucket (estadisticas, logros y XP)
+     * para evitar que los acumulados de anios anteriores se mezclen con los del mes en curso.
+     * Si han pasado 12 o mas meses.
+     */
+    public async comprobarMesActual(): Promise<void> {
+        const ahora = new Date();
+        const actual = ahora.getUTCFullYear() * 12 + ahora.getUTCMonth();
+        const ultimo = await gestionService.getUltimoYearMonth();
+
+        //primer arranque: solo se persiste el year-month actual, sin borrar nada
+        if (ultimo === -1) {
+            await gestionService.setUltimoYearMonth(actual);
+            return;
+        }
+
+        const diff = actual - ultimo;
+        if (diff <= 0) return;
+
+        //si han pasado 12 meses o mas, todos los buckets estan obsoletos
+        const mesesALimpiar = diff >= 12
+            ? Array.from({ length: 12 }, (_, i) => i)
+            : Array.from({ length: diff }, (_, i) => (ultimo + 1 + i) % 12);
+
+        console.log(` * cambio de mes detectado: limpiando buckets ${mesesALimpiar.join(", ")}`);
+        for (const mes of mesesALimpiar)
+            await xpService.borrarMesCompleto(mes);
+
+        await gestionService.setUltimoYearMonth(actual);
+    }
+
+    /**
      * Comprueba si la version de la aplicacion ha cambiado respecto a la almacenada.
      * Si es asi, elimina todos los datos de Redis y persiste la nueva version.
      */

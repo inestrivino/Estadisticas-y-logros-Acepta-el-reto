@@ -288,6 +288,14 @@ class UsuarioDAO extends DAO {
     }
 
     /**
+     * Borra de Redis el ranking mensual del numero de envios de un mes concreto.
+     * @param mes - Mes (0-11) cuyo ranking se va a borrar.
+     */
+    public async borrarNumEnviosMesEspecifico(mes: number): Promise<void> {
+        await this.redis.del(`usuario:numEnvios:mes:${mes}`);
+    }
+
+    /**
      * Borra de Redis los rankings mensuales del numero de problemas resueltos con AC.
      */
     public async borrarProblemasACMes(): Promise<void> {
@@ -295,6 +303,14 @@ class UsuarioDAO extends DAO {
         for (let mes = 0; mes < 12; mes++)
             pipeline.del(`usuario:problemasAC:mes:${mes}`);
         await pipeline.exec();
+    }
+
+    /**
+     * Borra de Redis el ranking mensual de problemas resueltos con AC de un mes concreto.
+     * @param mes - Mes (0-11) cuyo ranking se va a borrar.
+     */
+    public async borrarProblemasACMesEspecifico(mes: number): Promise<void> {
+        await this.redis.del(`usuario:problemasAC:mes:${mes}`);
     }
 
     ////============================== MODIFICADORES ==============================

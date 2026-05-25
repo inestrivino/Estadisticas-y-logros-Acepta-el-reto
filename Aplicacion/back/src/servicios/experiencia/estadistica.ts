@@ -43,6 +43,13 @@ export interface EstadisticaExperiencia {
     borrarMes(): Promise<void>;
 
     /**
+     * Borra de la base de datos los datos mensuales de esta estadistica del mes
+     * indicado, para todos los usuarios.
+     * @param mes - Mes (0-11) cuyos datos se van a borrar.
+     */
+    borrarMesEspecifico(mes: number): Promise<void>;
+
+    /**
      * Calcula la XP que aporta esta estadistica en el mes indicado a partir
      * de los datos mensuales persistidos en la base de datos.
      * @param mes - Mes (0-11) a consultar.

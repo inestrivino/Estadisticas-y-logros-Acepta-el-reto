@@ -72,6 +72,18 @@ class LogrosDAO extends DAO {
     }
 
     /**
+     * Borra de Redis todos los sets de logros mensuales del mes indicado, para todos los usuarios.
+     * @param mes - Mes (0-11) cuyos registros se van a borrar.
+     */
+    public async borrarLogrosMes(mes: number): Promise<void> {
+        const pipeline = this.redis.multi();
+        for await (const claves of this.redis.scanIterator({ MATCH: `logros:*:mes:${mes}`, COUNT: 100 }))
+            for (const clave of claves)
+                pipeline.del(clave);
+        await pipeline.exec();
+    }
+
+    /**
      * Devuelve los ids de los logros obtenidos por cada usuario en el mes indicado.
      * @param mes - Mes (0-11) a consultar.
      * @returns Mapa de usuario al conjunto de ids de logros obtenidos en ese mes.

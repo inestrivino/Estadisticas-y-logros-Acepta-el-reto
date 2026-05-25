@@ -29,6 +29,10 @@ class InicializarService {
      */
     public async inicializar() {
 
+        //se mira si ya se han cargado todos los envios
+        if (await this.yaCargadosTodos()) 
+            return;
+
         //se busca el primer envio a procesar y la pagina donde esta
         const { envio, pagina } = await this.buscarPrimerEnvio();
 
@@ -52,6 +56,27 @@ class InicializarService {
 
         //se procesa el ultimo bloque de la cola
         await cola;
+    }
+
+    /**
+     * Comprueba si la base de datos ya contiene todos los envios disponibles en la API.
+     * Compara el numero del ultimo envio cargado en la base de datos con el numero del
+     * ultimo envio actual de la API (normalizado al inicio de su pagina, multiplo de 20 + 1).
+     * @returns `true` si el ultimo envio cargado coincide con el ultimo envio de la API,
+     * lo que indica que no hay envios nuevos por procesar, `false` en caso contrario.
+     */
+    private async yaCargadosTodos(): Promise<boolean> {
+        
+        let ultimoEnvioCargado: number = await gestionService.getUltimoEnvio();
+
+        //se hace una primera peticion para ver el numero del ultimo envio
+        const url = this.generarUrl(1);
+        const res = await fetch(url);
+        const text = await res.text();
+        const json: RespuestaApi = JSON.parse(text);
+        const ultimoEnvioNumber = json.submission[0].num;
+
+        return ultimoEnvioNumber === ultimoEnvioCargado;
     }
 
     /**
@@ -228,7 +253,7 @@ class InicializarService {
      * @param firstEnvio - Numero del primer envio que se debe incluir en el resultado.
      * @yields Objeto con la promesa del bloque procesado listo para consumir.
      */
-    private async * peticiones(firstPagina: number, firstEnvio: number): AsyncGenerator<{promesa: Promise<EnvioConPagina[]>, numBloque: number}> {
+    private async * peticiones(firstPagina: number, firstEnvio: number): AsyncGenerator<{ promesa: Promise<EnvioConPagina[]>, numBloque: number }> {
 
         console.log(`\nComienza el procesamiento de los envios desde la pagina ${firstPagina}:`);
 
@@ -281,7 +306,7 @@ class InicializarService {
             const promesasCurrent = promesasBloque;
             const bloqueCurrent = contadorBloque;
             colaBloque = colaBloque.then(() => this.procesarBloque(firstEnvio, bloqueCurrent, promesasCurrent));
-            yield { promesa: colaBloque, numBloque: bloqueCurrent};
+            yield { promesa: colaBloque, numBloque: bloqueCurrent };
         }
 
         console.log(" * Procesamiento completado");

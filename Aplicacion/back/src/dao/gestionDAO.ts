@@ -96,6 +96,26 @@ class GestionDAO extends DAO {
         await this.redis.flushAll();
     }
 
+    //=============================== MES ACTUAL ===============================
+
+    /**
+     * Recupera el ultimo year-month (anio*12 + mes) en el que se proceso un envio,
+     * o -1 si no hay valor almacenado.
+     * @returns Entero anio*12 + mes, o -1 si no hay valor.
+     */
+    public async getUltimoYearMonth(): Promise<number> {
+        const v = await this.redis.get(`gestion:ultimoYearMonth`);
+        return v !== null ? Number(v) : -1;
+    }
+
+    /**
+     * Persiste el ultimo year-month (anio*12 + mes) en el que se proceso un envio.
+     * @param valor - Entero anio*12 + mes.
+     */
+    public async setUltimoYearMonth(valor: number): Promise<void> {
+        await this.redis.set(`gestion:ultimoYearMonth`, String(valor));
+    }
+
 }
 
 export default new GestionDAO();

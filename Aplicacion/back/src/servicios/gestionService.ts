@@ -67,6 +67,22 @@ class GestionService {
     public async setVersion(version: number) {
         await gestionDAO.setVersion(version);
     }
+
+    /**
+     * Devuelve el ultimo year-month (anio*12 + mes) almacenado en Redis, o -1 si no hay.
+     * @returns Entero anio*12 + mes, o -1 si no hay valor.
+     */
+    public async getUltimoYearMonth(): Promise<number> {
+        return await gestionDAO.getUltimoYearMonth();
+    }
+
+    /**
+     * Persiste el ultimo year-month (anio*12 + mes) en Redis.
+     * @param valor - Entero anio*12 + mes.
+     */
+    public async setUltimoYearMonth(valor: number): Promise<void> {
+        await gestionDAO.setUltimoYearMonth(valor);
+    }
 }
 
 export default new GestionService();

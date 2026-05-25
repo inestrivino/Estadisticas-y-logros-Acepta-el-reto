@@ -68,6 +68,14 @@ class XPDAO extends DAO {
         await pipeline.exec();
     }
 
+    /**
+     * Borra el ranking de XP de un mes concreto.
+     * @param mes - Mes (0-11) cuyo ranking se va a borrar.
+     */
+    async borrarRankingMes(mes: number): Promise<void> {
+        await this.redis.del(`usuario:ranking:mes:${mes}`);
+    }
+
     //============================== CONSULTAS ==============================
 
     /**
