@@ -9,7 +9,7 @@
     "strict": true,
     "esModuleInterop": true,
     "sourceMap": false,
-    "types": ["vite/client"]
+    "types": ["vite/client", "@types/node"]
   },
   "include": ["src", "test"]
 }
