@@ -68,8 +68,9 @@ export default function Buscador(props: {
     }, []);
 
     const buscar = (valor: string) => {
+        valor = String(valor).toLowerCase();
         setSugerencias([]);
-        setElem(String(valor).toLowerCase());
+        setElem(valor);
 
         if (!valor.trim())
             return;

@@ -28,7 +28,7 @@ export default function PanelParticipacion(props: {
     const data = socketData ?? props.datos;
 
     //numero del 0 al 6 que representa el dia de la semana del lunes = 0, al domingo = 6
-    let inicioSemana = new Date().getDay() - 1;
+    let inicioSemana = new Date().getUTCDay() - 1;
     if (inicioSemana === -1)
         inicioSemana = 6;
 

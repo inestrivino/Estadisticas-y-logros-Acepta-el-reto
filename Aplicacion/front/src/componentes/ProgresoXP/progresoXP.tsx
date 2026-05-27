@@ -55,7 +55,7 @@ export default function ProgresoXP(props: {
             </p>
             <div style={{ flex: 1, minHeight: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#86e7ff55" />
                     <XAxis
                         dataKey="mes"
@@ -78,7 +78,7 @@ export default function ProgresoXP(props: {
                             fontSize: "0.8rem",
                             color: "#0c527a",
                         }}
-                        formatter={(value: number) => `${formatearXP(value)} pts`}
+                        formatter={(value?: number) => `${formatearXP(value ?? 0)} pts`}
                     />
                     <Line
                         type="monotone"

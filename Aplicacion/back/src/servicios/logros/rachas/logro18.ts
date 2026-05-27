@@ -8,7 +8,7 @@ const logro18: Logro = {
     nombre: "Cronos",
     descripcion: "He realizado envíos en cada hora del día",
     imagen: "logro17.png",
-    nivel: NivelLogro.ORO,
+    nivel: NivelLogro.PLATA,
     categoria: CategoriaLogro.RACHAS,
     sorpresa: true,
     descripcionBorrosa: "https://youtu.be/dQw4w9WgXcQ",

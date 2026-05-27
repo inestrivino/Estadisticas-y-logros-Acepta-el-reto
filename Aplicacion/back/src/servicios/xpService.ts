@@ -58,26 +58,30 @@ class XPService {
         await xpDAO.registrarBloqueXP(this.calcularXP(estadisticasActivas, estadosIniciales, estadosFinales, nuevosLogros));
 
         //se recorre cada mes para calcular su xp y persistir las estadisticas del mes
-        const meses = [...estadosFinalesPorMes.keys()].sort((a, b) => a - b);
+        const meses = [...estadosFinalesPorMes.keys()];
         const pipeline = usuarioDAO.iniciarPipeline();
+        const estadosPrevios = new Map<string, EstadoUsuario>(estadosIniciales);
         const bloquesMes: { mes: number, puntos: datosXP[] }[] = [];
 
         for (const mes of meses) {
-            //los estados ya contienen solo el delta del mes, no el acumulado
-            const deltasMes = estadosFinalesPorMes.get(mes)!;
+            //estadosFinalesMes es el snapshot acumulado al final del mes
+            const estadosFinalesMes = estadosFinalesPorMes.get(mes)!;
             const nuevosLogrosMes = nuevosLogrosPorMes.get(mes) ?? new Map<string, Set<Logro>>();
 
-            //la xp del mes se calcula directamente del delta
-            bloquesMes.push({ mes, puntos: this.calcularXP(estadisticasActivas, new Map(), deltasMes, nuevosLogrosMes) });
+            //la xp del mes se calcula como la diferencia entre el snapshot del mes y el del mes anterior
+            bloquesMes.push({ mes, puntos: this.calcularXP(estadisticasActivas, estadosPrevios, estadosFinalesMes, nuevosLogrosMes) });
 
-            //se persisten las estadisticas del mes usando el delta
-            for (const [usuario, deltaMes] of deltasMes) {
+            //se persisten las estadisticas del mes encadenando el snapshot del mes anterior como referencia
+            for (const [usuario, estadoFinalMes] of estadosFinalesMes) {
+                const anterior = estadosPrevios.get(usuario)!;
                 const logrosMes = nuevosLogrosMes.get(usuario) ?? new Set<Logro>();
 
                 for (const estadistica of estadisticasActivas)
-                    estadistica.registrarMes(pipeline, usuario, mes, {}, deltaMes, logrosMes);
+                    estadistica.registrarMes(pipeline, usuario, mes, anterior, estadoFinalMes, logrosMes);
 
                 logrosService.registrarMes(pipeline, usuario, mes, logrosMes);
+
+                estadosPrevios.set(usuario, estadoFinalMes);
             }
         }
 

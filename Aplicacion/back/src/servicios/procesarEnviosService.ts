@@ -113,7 +113,7 @@ class ProcesarEnviosService {
             nuevosLogros,
             nuevosLogrosPorMes,
             nuevosLogrosOrdenados
-        } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints, estadosUsuariosIniciales);
+        } = await this.iterarBloque(enviosProcesados, copiaLogrosActuales, checkpoints);
 
         //SE PERSISTEN LOS logros, XP Y ESTADOS DE USUARIOS Y PROBLEMAS
 
@@ -139,15 +139,17 @@ class ProcesarEnviosService {
 
     /**
      * Itera los envios del bloque en orden, actualizando estados y evaluando logros en tiempo real por el camino.
+     * Para los envios de los ultimos 12 meses, guarda un snapshot del estado acumulado al final
+     * de cada mes y agrupa los logros nuevos por mes, conservando el orden cronologico de aparicion de los meses.
      * @param enviosProcesados - Array de envios ya parseados al formato interno.
+     * @param logrosActuales - Logros que tenia cada usuario al inicio del bloque, usados como referencia al comprobar logros nuevos.
      * @param checkpoints - Checkpoints actuales de cada calculador y logro para filtrar los envios ya procesados por cada uno.
-     * @returns Estados finales de usuarios y problemas tras recorrer el bloque, y los estados finales agrupados por mes.
+     * @returns Estructura ResultadoActualizarEstados definida arriba.
      */
     private async iterarBloque(
         enviosProcesados: EnvioProcesado[],
         logrosActuales: Map<string, Set<Logro>>,
-        checkpoints: Map<string, Map<string, number>>,
-        estadosUsuariosIniciales: Map<string, EstadoUsuario>
+        checkpoints: Map<string, Map<string, number>>
     ): Promise<ResultadoActualizarEstados> {
 
         //ultimo envio que proceso cada calculador
@@ -167,12 +169,9 @@ class ProcesarEnviosService {
         let estadosUsuarios: Map<string, EstadoUsuario> = new Map();
         let estadosProblemas: Map<string, EstadoProblema> = new Map();
 
-        //se guardan los meses que hayan cambiado de experiencia con este bloque de envios
+        //se guardan los estados finales por mes
         const estadosFinalesPorMes: Map<number, Map<string, EstadoUsuario>> = new Map();
 
-        //estado al inicio de cada mes para calcular solo lo que se consiguio ese mes
-        const estadosInicialesPorMes = new Map<number, Map<string, EstadoUsuario>>();
-        let estadosAnteriores: Map<string, EstadoUsuario> = estadosUsuariosIniciales;
         const nuevosLogros: Map<string, Set<Logro>> = new Map();
         const nuevosLogrosPorMes: Map<number, Map<string, Set<Logro>>> = new Map();
         const nuevosLogrosOrdenados: Map<string, Logro[]> = new Map();
@@ -204,68 +203,20 @@ class ProcesarEnviosService {
             const haceUnAnio = hoy.valueOf() / 1000 - 365 * 24 * 60 * 60;
             if (envio.fecha >= haceUnAnio) {
 
-                //primer envio del mes: se fijan los estados y logros previos como referencia de inicio del mes
-                if (!estadosInicialesPorMes.has(envio.mes)) {
-                    estadosInicialesPorMes.set(envio.mes, estadosAnteriores);
+                //se guarda el snapshot acumulado del mes
+                estadosFinalesPorMes.set(envio.mes, structuredClone(estadosUsuarios));
+
+                if (!nuevosLogrosPorMes.has(envio.mes))
                     nuevosLogrosPorMes.set(envio.mes, new Map());
-                }
-
-                //se calcula y guarda solo la diferencia de estadisticas conseguida en este mes
-                const inicialesMes = estadosInicialesPorMes.get(envio.mes)!;
-                const deltaEstados = new Map<string, EstadoUsuario>();
-                for (const [usuario, estadoFinal] of estadosUsuarios)
-                    deltaEstados.set(usuario, this.diferenciaEstado(inicialesMes.get(usuario) ?? {}, estadoFinal));
-                estadosFinalesPorMes.set(envio.mes, deltaEstados);
-
-                //se acumulan los logros nuevos obtenidos este mes
                 const meslogros = nuevosLogrosPorMes.get(envio.mes)!;
                 for (const [usuario, logros] of nuevoslogroEnvio) {
                     if (!meslogros.has(usuario)) meslogros.set(usuario, new Set());
                     for (const logro of logros) meslogros.get(usuario)!.add(logro);
                 }
             }
-
-            //se actualiza el estado anterior para poder detectar el inicio de un nuevo mes
-            estadosAnteriores = structuredClone(estadosUsuarios);
         }
 
         return { estadosUsuarios, estadosProblemas, estadosFinalesPorMes, nuevosLogros, nuevosLogrosPorMes, nuevosLogrosOrdenados };
-    }
-
-    /**
-     * Calcula la diferencia entre dos estados de usuario campo a campo.
-     * Para numeros resta, para Sets devuelve los elementos nuevos en final,
-     * para Maps de numeros resta los valores, para Maps de Sets devuelve los elementos nuevos por clave.
-     * @param inicial - Estado de usuario de referencia.
-     * @param final - Estado de usuario posterior.
-     * @returns Nuevo EstadoUsuario con la diferencia entre ambos.
-     */
-    public diferenciaEstado(inicial: EstadoUsuario, final: EstadoUsuario): EstadoUsuario {
-        const delta: EstadoUsuario = {};
-        for (const key of Object.keys(final)) {
-            const v0 = inicial[key];
-            const v1 = final[key];
-            if (v1 === undefined) continue;
-            if (typeof v1 === 'number')
-                delta[key] = v1 - (typeof v0 === 'number' ? v0 : 0);
-            else if (v1 instanceof Set)
-                delta[key] = new Set([...v1].filter(x => !(v0 instanceof Set) || !v0.has(x)));
-            else if (v1 instanceof Map) {
-                const m = new Map();
-                for (const [k, val] of v1) {
-                    if (typeof val === 'number') {
-                        const prev = (v0 instanceof Map && typeof v0.get(k) === 'number') ? v0.get(k) : 0;
-                        m.set(k, val - prev);
-                    } else if (val instanceof Set) {
-                        const prevSet = (v0 instanceof Map && v0.get(k) instanceof Set) ? v0.get(k) : new Set();
-                        m.set(k, new Set([...val].filter(x => !prevSet.has(x))));
-                    }
-                }
-                delta[key] = m;
-            } else
-                delta[key] = v1;
-        }
-        return delta;
     }
 
     /**
