@@ -1,14 +1,54 @@
-\chapter*{Introduction}
+\chapter{Introduction}
 \label{cap:introduction}
-\addcontentsline{toc}{chapter}{Introduction}
 
-Introduction to the subject area. This chapter contains the translation of Chapter \ref{cap:introduccion}.
+\section{Motivation and Background} 
+
+\aer was launched for the first time in 2014 by professors Marco Antonio and Pedro Pablo Gómez Martín from the Universidad Complutense de Madrid. As detailed in \cite{Pedro_Pablo_Gomez_Martin_Marco_Antonio_Gomez_Martin_2017}, this online judge was created as an educational tool designed to facilitate programming learning, offering students a space to test their skills and knowledge thanks to its extensive archive of exercises in Spanish. In the following years, it continued to gain popularity, having already received over one million submissions and reaching more than 5,000 users\footnote{More significant milestones of \aer can be found here: \url{https://aceptaelreto.com/doc/history.php}}. Its utility as an online judge offering engaging exercises in Spanish has led to its widespread adoption across educational institutions and has served as a platform for competitions\footnote{\url{https://las12uvas.es/2025/\#/quees}}. However, despite its popularity and undeniable pedagogical value, \aer exhibits significant limitations regarding its functionalities. The platform lacks advanced tools for class or competition management, and its minimalist design prevents users from sharing or viewing other participants' code, thereby limiting opportunities for collaboration and peer learning.
+
+Another notable deficiency is the absence of a system allowing users to tangibly evaluate their progress, as the statistics provided to users are limited. Although the platform offers a wide range of exercises organized by categories, making it easy to search for specific topics according to the interests or needs of each user\footnote{\url{https://aceptaelreto.com/problems/categories.php}}, it does not include mechanisms to measure individual progress, compare oneself with other members of the community, or receive recognition for achievements.
+
+This situation presents a unique opportunity to improve and enrich the service offered by \aer. It can be observed that many commercial online judges, especially those focused on technical skill improvement (such as HackerRank\footnote{\url{https://www.hackerrank.com/about-us}} or LeetCode\footnote{\url{https://leetcode.com/}}), have achieved remarkable success in user retention through the implementation of points systems, rewards, and badges. Furthermore, third-party sites already exist that provide a statistics service\footnote{\url{https://aer.lluiscab.net/}} for the judge, demonstrating a clear demand from users. However, since this is not a native part of the application, it lacks the level of integration sought by this project.
+
+\aer already possesses a solid foundation upon which to integrate these improvements natively. The platform includes essential functionalities, such as detailed tracking of user submissions and a clear, accessible categorization of exercises. These features facilitate the implementation of a real-time reward and progress visualization system, which could transform the user experience and elevate the platform's educational value.
+
+The primary motivation behind this enhancement proposal is, therefore, to add significant value to the application, reinforcing its goal as a space for skill improvement. The introduction of an achievement system, alongside tools to visualize progress over time, could not only boost users' extrinsic motivation but also facilitate the integration of the platform into teaching environments. For instance, a teacher might decide to reward the student in their class who earns the most achievements within a specific timeframe.
+
+\section{Objectives}
+The objective of this Final Degree Project is to design a statistics panel and an achievement system for the online judge \aer to display relevant platform information and enhance the user experience, fostering participation through gamification techniques. The specific goals of the project are listed below:
+\begin{enumerate}
+    \item Identify the available information in \aer that can be utilized to compile statistics.
+    \item Establish relevant metrics to represent platform activity.
+    \item Design a statistics panel that allows for a clear visualization of the judge's data.
+    \item Display global and user-specific statistics that reflect platform activity.
+    \item Determine which information and achievements are relevant to the online judge's users.
+    \item Design an achievement and badge system associated with user activity.
+    \item Improve user experience and retention using gamification elements.
+\end{enumerate}
 
 
+\section{Work Plan}
+To achieve the objectives described in the previous section, the project development will be divided into different phases. This will allow the project to be approached in a structured manner. The gamified software design methodologies described in \cite{Morschheuser_Hassan_Werder_Hamari_2018} will be followed. This section describes the process that will be carried out from the initial context analysis to the implementation and evaluation of the final solution.
 
+In the first phase, the operation of the online judge \aer will be studied, as well as the information and data available on the platform. The objective of this phase is to identify those elements of the judge that can be used to obtain relevant statistics. Additionally, similar platforms and other online judges will be analyzed to identify best practices in aspects such as data presentation or the implementation of gamification techniques. This analysis will provide a comprehensive view of the system, identifying its capabilities and constraints regarding the project.
 
+In the second phase, based on the information identified in the previous step, metrics will be established to reflect the online judge's activity, both globally and at the user level. These metrics will be selected considering their relevance to users and their utility in evaluating the platform's activity and evolution.
 
+During the third phase, the statistics panel and the various dashboards that comprise it will be designed, allowing for the display of both global platform statistics and individual user statistics. To achieve this, different types of panels and data visualization techniques will be studied, with the goal of selecting those that represent the metrics in a clear and comprehensible manner.
 
+In the fourth phase, the needs, motivations, and profiles of the online judge's users will be analyzed through a questionnaire to design a gamification system tailored to those needs. Based on this analysis and following the principles of gamified software design, the various gamification elements—such as points, levels, or badges—will be defined \cite{Zichermann_Cunningham_2011}. Additionally, the achievement system associated with user activity will be designed to encourage participation.
 
+The fifth phase will consist of implementing the statistics panel and the gamification system designed in the previous phases. As indicated in the aforementioned book, the implementation will follow an iterative approach, allowing for progressive adjustments based on the results obtained and testing.
 
+Finally, in the sixth phase, testing will be conducted to verify the correct operation of the developed system and to ensure that the proposed objectives are met.
 
+Throughout the entire development process, this project report is produced in parallel, involving both research and writing about our results and experiences.
+
+The GitHub repository where the collaborative development of the application took place can be accessed at the following link:
+\begin{center}
+\url{https://github.com/inestrivino/Estadisticas-y-logros-Acepta-el-reto}
+\end{center}.
+
+Furthermore, for development purposes (testing, validation, etc.), the web application is currently deployed at the following link:
+\begin{center}
+\url{https://dashboard.aceptaelreto.com/}
+\end{center}.

@@ -1,7 +1,34 @@
-\chapter*{Conclusions and Future Work}
+\chapter{Conclusions and Future Work}
 \label{cap:conclusions}
-\addcontentsline{toc}{chapter}{Conclusions and Future Work}
 
-Conclusions and future lines of work. This chapter contains the translation of Chapter \ref{cap:conclusiones}.
+\section{Conclusions}
 
+During the development of this Final Degree Project (TFG), a Single Page Application (SPA) web platform dedicated to gamification and advanced statistical analysis for the online judge \aer has been successfully designed, developed, and deployed. The solution was built following a modular architecture approach based on containerized services, which guarantees its portability and non-intrusive integration with the original \aer system.
 
+The backend infrastructure stands out due to a robust initial data loading process and a selective version-based update mechanism. These are capable of efficiently and interruptibly processing the massive submission history of the online judge.
+
+For its part, the frontend incorporates highly reusable components, such as an indexed real-time search engine with persistence in \textit{localStorage}, and a real-time metrics update system.
+
+Furthermore, research was conducted on the architecture of online judges and web development technologies, which was essential for this successful development. This was complemented by the extensive requirements gathering and detailed design work presented in Chapter \ref{cap:disenoDeLaAplicacion}.
+
+In general, it has been possible to achieve several milestones that bring quality to the system. Specifically, the modular architecture, the correct use of modern technologies, the large-scale processing of submission data, and the application of design patterns stand out.
+
+The functional and usability evaluation conducted with real users and detailed in Chapter \ref{cap:evaluacion} has validated the technical viability of the proposal and its level of acceptance. Empirical tests demonstrate that the main tasks were completed in an agile, fluid manner and without critical errors by virtually all participants.
+
+Qualitative data also support this conclusion. Although certain usability frictions were noted (such as the lack of autocomplete for exercises and users), these were generally due to the use of a development version and do not appear in the final version of the project. Even with the described limitations, in the subjective satisfaction questionnaires administered after the tests, the attributes of ease of use, interface clarity, and perceived usefulness of the new tools consistently achieved average scores higher than 4 out of a maximum of 5 points. Users highly valued the added value provided by the visual breakdown of their academic performance and the incentive of the experience.
+
+Lastly, the automated functional testing environment integrated into the CI/CD pipeline proved to be a fundamental tool for system maintenance. It has objectively ensured compliance with software requirements upon every code modification, minimizing error regression and certifying that the system is technically reliable, scalable, and ready for secure production deployment.
+
+In summary, the results obtained corroborate that the solution fulfills the initial objectives of the project, balancing engineering performance with an optimal user experience.
+
+\section{Future Work}
+
+Although the application covers most of the objectives established at the beginning of the project, there are enhancements and functionalities that could not be implemented due to time constraints, which could be integrated into future development \textit{sprints}.
+
+Foremost among these is the functional requirement regarding the social sharing of a user's or exercise's statistics (REQ-FUN-008), described in Appendix \ref{cap:SRS}. This requirement, which was not implemented due to time limitations and its low priority, does have an alternative or partial implementation (although not visual, as originally conceived), since users can copy and share the resulting URL after accessing a user's or exercise's statistics to display the corresponding data to others.
+
+On the other hand, an idea was considered to improve future integration with \aer, which ultimately could not be put into practice due to technical limitations in communicating with internal \aer web services. The idea consists of making the communication between the two systems (\aer and the statistics and achievements panel) bidirectional, instead of having \aer act exclusively as the sender and the panel exclusively as the receiver. This new communication channel would serve to inform \aer (via a "notifications" system) when a user has earned a new achievement or reached a new level in the ranking. This would, in turn, allow \aer to inform the user of their progress from the main website.
+
+Finally, in the area of implementation, since \aer features a category system for exercises\footnote{\url{https://aceptaelreto.com/problems/categories.php}}, the idea of creating achievements based on the categories of the exercises resolved by the user was proposed (for example, earning an achievement for resolving at least one problem from each category). However, these categories are currently designed as an aid for discovering exercises on the website; therefore, their indexing is neither comprehensive nor efficient. Nevertheless, this category system could be redesigned in the future to enable the creation of corresponding new achievements.
+
+Concluding with the limitations mentioned in Chapter \ref{cap:evaluacion}, given more time and following the full deployment of this gamification system for \aer, a more comprehensive study could be conducted on its long-term effects on user motivation and engagement. Other metrics that could not be tested, such as potential improvements in submission quality, could also be explored. The results of these studies would, in turn, reveal new challenges, user desires, or needs, giving rise to future lines of development.

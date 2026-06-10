@@ -30,9 +30,9 @@ Los actualizadores calculan y mantienen el estado de usuarios y problemas a medi
 
 En este grupo se aplica el \textbf{patrón Template Method}\footnote{Más información sobre este patrón: \url{https://refactoring.guru/design-patterns/template-method}}: la clase abstracta define el flujo del algoritmo de inicialización en un método concreto, que a su vez invoca métodos abstractos que cada subclase implementa de forma específica. El método de actualización, también abstracto, es invocado por el servicio para cada envío procesado. El diagrama de clases correspondiente se muestra en la figura~\ref{fig:patrones-actualizadores}.
 
-\begin{figure}[H]
+\begin{figure}[htbp] % <--- Cambiado a htbp para dar flexibilidad si fuera necesario
     \centering
-    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-actualizadores.png}
+    \includegraphics[width=0.85\linewidth]{Imagenes/Bitmap/actualizadores.drawio.png} % <--- Escala corregida y más limpia sin hspace
     \caption{Diagrama de clases del patrón Template Method en los actualizadores}
     \label{fig:patrones-actualizadores}
 \end{figure}
@@ -43,9 +43,9 @@ Los registradores persisten en Redis el estado calculado por los actualizadores.
 
 A diferencia de los actualizadores, aquí se aplica únicamente el \textbf{patrón Strategy}\footnote{Más información sobre este patrón: \url{https://refactoring.guru/design-patterns/strategy}} sin herencia: las implementaciones son objetos que cumplen la interfaz directamente. El servicio itera sobre la colección de registradores y cada uno persiste el fragmento del estado que le corresponde. El diagrama de clases se muestra en la figura~\ref{fig:patrones-registradores}.
 
-\begin{figure}[H]
+\begin{figure}[htbp] % <--- Cambiado a htbp
     \centering
-    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-registradores.png}
+    \includegraphics[width=0.85\linewidth]{Imagenes/Bitmap/registradores.drawio.png} % <--- Escala corregida y más limpia sin hspace
     \caption{Diagrama de clases del patrón Strategy en los registradores}
     \label{fig:patrones-registradores}
 \end{figure}
@@ -56,9 +56,9 @@ Las estadísticas de experiencia calculan la puntuación XP que corresponde a ca
 
 Se aplica el patrón Strategy: el servicio de experiencia mantiene una lista de estadísticas y las agrega para obtener la XP total del usuario. El diagrama de clases se muestra en la figura~\ref{fig:patrones-estadistica-experiencia}.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-estadistica-experiencia.png}
+    \includegraphics[width=0.7\linewidth]{Imagenes/Bitmap/experiencia.drawio.png}
     \caption{Diagrama de clases del patrón Strategy en las estadísticas de experiencia}
     \label{fig:patrones-estadistica-experiencia}
 \end{figure}
@@ -69,9 +69,9 @@ Los logros comprueban si un usuario ha alcanzado una condición determinada. Tod
 
 También se aplica el patrón Strategy: el servicio de logros delega en cada instancia la evaluación de su condición particular. Las implementaciones más complejas son clases parametrizadas que reciben sus umbrales por constructor, mientras que los logros más simples se implementan como objetos literales. El diagrama de clases se muestra en la figura~\ref{fig:patrones-logros}.
 
-\begin{figure}[H]
+\begin{figure}[htbp] % <--- Cambiado a htbp
     \centering
-    \hspace*{-0.1\linewidth}\includegraphics[width=1.2\linewidth]{Imagenes/Bitmap/patrones-logros.png}
+    \includegraphics[width=0.7\linewidth]{Imagenes/Bitmap/logros.drawio.png}
     \caption{Diagrama de clases del patrón Strategy en los logros}
     \label{fig:patrones-logros}
 \end{figure}
@@ -166,7 +166,7 @@ Las estadísticas se presentan mediante una combinación de componentes numéric
 
 El proyecto incorpora un flujo de integración y despliegue continuo (CI/CD) orientado a facilitar el desarrollo colaborativo, la validación automática del código y el despliegue de la aplicación en distintos entornos. Para ello, se desarrollaron distintos scripts y configuraciones que automatizan tanto la ejecución de pruebas como la gestión de contenedores y procesos de compilación.
 
-En relación con la integración continua, el proyecto dispone de un flujo automatizado definido en el archivo \texttt{ci.yml}, encargado de ejecutar pruebas y comprobaciones automáticas sobre el código fuente antes de integrar cambios en las ramas principales. Los detalles concretos sobre las pruebas realizadas y su evaluación se describen en el capítulo correspondiente de \ref{cap:evaluacion}. Además, se dispone de una página de monitorización que permite supervisar el estado y funcionamiento de los distintos servicios de la aplicación según los tests.
+En relación con la integración continua, el proyecto dispone de un flujo automatizado definido en el archivo \texttt{ci.yml}, encargado de ejecutar pruebas y comprobaciones automáticas sobre el código fuente antes de integrar cambios en las ramas principales. Los detalles concretos sobre las pruebas realizadas y su evaluación se describen en el capítulo correspondiente \ref{cap:evaluacion}. Además, se dispone de una página de monitorización que permite supervisar el estado y funcionamiento de los distintos servicios de la aplicación según los tests.
 
 Durante el desarrollo se detectaron determinadas limitaciones relacionadas con el uso de contenedores Docker en entornos locales, por lo que se implementó un script específico denominado \texttt{startDev.js}. Este script automatiza el arranque del entorno de desarrollo y simplifica la gestión de los servicios necesarios para ejecutar la aplicación correctamente.
 

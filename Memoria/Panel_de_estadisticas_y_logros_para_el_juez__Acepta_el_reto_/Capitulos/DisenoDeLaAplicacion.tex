@@ -93,9 +93,9 @@ Como se ha establecido previamente, el objetivo de este proyecto es incorporar c
 
 \subsection{Introducción a la gamificación}
 
-El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la decada de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas \citep{Zichermann_Cunningham_2011}. En este sentido, la gamificación representa una herramienta para fomentar comportamientos deseables y no una solución mágica o independiente de contexto. Por ello, es crucial evitar prácticas de “gamificación por gamificar” que carezcan de un análisis previo sobre su pertinencia y efectos esperados. También conviene considerar la diferencia entre la motivación extrínseca (que procede de estímulos externos) e intrínseca (que procede de un deseo interno) a la hora de gamificar. El objetivo será producir una fuente de motivación extrínseca que ofrezca resultados predecibles en los usuarios, pero sea tan agradable y fluida para el usuario que parezca intrínseca. 
+Como se estableció en el capítulo anterior, la gamificación se puede definir como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios. En este sentido, la gamificación representa una herramienta para fomentar comportamientos deseables y no una solución mágica o independiente de contexto. Por ello, es crucial evitar prácticas de “gamificación por gamificar” que carezcan de un análisis previo sobre su pertinencia y efectos esperados. También conviene considerar la diferencia entre la motivación extrínseca (que procede de estímulos externos) e intrínseca (que procede de un deseo interno) a la hora de gamificar. El objetivo será producir una fuente de motivación extrínseca que ofrezca resultados predecibles en los usuarios, pero sea tan agradable y fluida para el usuario que parezca intrínseca. 
 
-De forma complementaria, otros autores la describen como el enriquecimiento de software mediante características de diseño propias de los juegos, con el objetivo de generar experiencias tan atractivas y absorbentes como las que ofrecen los juegos tradicionales \citep{Morschheuser_Hassan_Werder_Hamari_2018}. Este enfoque subraya que el diseño gamificado va más allá de la simple aplicación de recompensas superficiales y requiere integrar conocimientos sobre motivación y diseño de juegos para que las interacciones resulten realmente significativas y no solo un añadido cosmético.
+De forma complementaria a la definición anteriormente dada, otros autores la describen como el enriquecimiento de software mediante características de diseño propias de los juegos, con el objetivo de generar experiencias tan atractivas y absorbentes como las que ofrecen los juegos tradicionales \citep{Morschheuser_Hassan_Werder_Hamari_2018}. Este enfoque subraya que el diseño gamificado va más allá de la simple aplicación de recompensas superficiales y requiere integrar conocimientos sobre motivación y diseño de juegos para que las interacciones resulten realmente significativas y no solo un añadido cosmético.
 
 Por lo tanto, se debe realizar un análisis de los usuarios (en esta sección también llamados \textit{jugadores}) y mecánicas, para determinar qué es más conveniente en el contexto dado.
 
@@ -157,7 +157,7 @@ El sistema de logros es la primera de las mecánicas ideada. Para su diseño, se
         \item Uso de lenguajes: Premian al usuario por haber usado ciertos lenguajes.
         \item Rachas: Premian al usuario por su consistencia en diferentes aspectos.
         \item Calidad: Premian al usuario por ideas buenas para alcanzar la solución a un problema.
-        \item Categorías: Premian al usuario por hacer ejercicios de determinadas categorías. Las cateogrías que contemplamos son: construcciones de programación, estructuras de datos, algoritmia, matemáticas, grafos y geometría. 
+        \item Categorías: Premian al usuario por hacer ejercicios de determinadas categorías. Las categorías que contemplamos son: construcciones de programación, estructuras de datos, algoritmia, matemáticas, grafos y geometría. 
     \end{itemize}
     \item Logros sorpresa: Con el objetivo de fomentar la exploración y la sensación de descubrimiento en los usuarios, especialmente en aquellos con perfiles orientados al logro o de explorador, se han incluido dos logros cuya descripción no es accesible hasta que se obtienen. Estos logros no ofrecen pistas sobre cómo conseguirlos y pueden desbloquearse en cualquier momento.
 \end{itemize}
@@ -210,7 +210,7 @@ Realización de envíos en cada franja horaria & Plata & Rachas (sorpresa) \\
 \label{tab:logros}
 \end{table}
 
-La distribución final de los logros queda establecida en 5 de nivel \textit{Bronce}, 6 de nivel \textit{Plata} y 7 de nivel \textit{Oro}. Esta proporción garantiza un equilibrio en la progresión del usuario, al tiempo que diversifica las categorías de logros según su tipo. Asimismo, se han incluido solo dos logros sorpresa, una decisión que busca satisfacer, en la mayor medida posible, las preferencias de los usuarios encuestados (cuyos resultados pueden leerse en el Apéndice \ref{cap:FormularioJugadores}), cuyas opiniones sobre este aspecto estuvieron divididas.
+La distribución final de los logros queda establecida en 5 de nivel \textit{Bronce}, 6 de nivel \textit{Plata} y 7 de nivel \textit{Oro}. Esta proporción garantiza un equilibrio en la progresión del usuario, al tiempo que diversifica las categorías de logros según su tipo. Asimismo, se han incluido solo dos logros sorpresa, una decisión que busca satisfacer, en la mayor medida posible, las preferencias de los usuarios encuestados (cuyos resultados pueden leerse en el Apéndice \ref{FormularioJugadores}), cuyas opiniones sobre este aspecto estuvieron divididas.
 
 La siguiente mecánica a definir son las estadísticas. Se dispondrá tanto de estadísticas de cada usuario, como de cada ejercicio. 
 
@@ -229,7 +229,7 @@ Para los usuarios se han ideado las siguientes estadísticas, considerandolas in
     \item Puntos de experiencia (XP) y nivel de dominio a lo largo del tiempo.
     \item Proporción de lenguajes de programación utilizados.
 \end{enumerate}
-Se eliminarían además las estadísticas actualmente existentes de número de problemas intentados, número de envíos totales realizados, y número de envíos AC. En el caso de los dos primeros debido a que no responden a ninguna necesidad específica de un estudiante que quiere conocer su estado en el sistema, sobretodo en su representación númerica actual. Serían remplazadas por las estadísticas del punto 4, que además de dar la información sobre cantidad de envíos realizados lo representan y comparan en el tiempo, aplicandolo a una necesidad real (entender el progreso en el tiempo). Por otro lado el número de envíos AC es redundante cuando ya existe una estadística que indica el número de problemas resueltos y otra que indica la proporción de veredictos obtenidos.
+Se eliminarían además las estadísticas actualmente existentes de número de problemas intentados, número de envíos totales realizados, y número de envíos AC. En el caso de los dos primeros debido a que no responden a ninguna necesidad específica de un estudiante que quiere conocer su estado en el sistema, sobre todo en su representación númerica actual. Serían remplazadas por las estadísticas del punto 4, que además de dar la información sobre cantidad de envíos realizados lo representan y comparan en el tiempo, aplicandolo a una necesidad real (entender el progreso en el tiempo). Por otro lado el número de envíos AC es redundante cuando ya existe una estadística que indica el número de problemas resueltos y otra que indica la proporción de veredictos obtenidos.
 
 El sistema de puntos implementado se basa en el modelo de puntos de experiencia (XP), el cual se diferencia de otros sistemas de puntos por cumplir tres condiciones fundamentales:
 
@@ -398,7 +398,7 @@ El sistema constará de 5 pantallas, todas con una barra de navegación común q
         \caption{\textit{Wireframe} de las estadísticas de un problema}
         \label{fig:wireEstaProblema}
     \end{figure}
-    \item Tabla de clasificación: Indica al usuario cual es su estado respecto a los demás usuarios del sistema, tanto a nivel general, como dentro del rango de XP de su nivel. Su \textit{wireframe} se puede ver en la figura \ref{fig:wireClasificacion}.
+    \item Tabla de clasificación: Indica al usuario cuál es su estado respecto a los demás usuarios del sistema, tanto a nivel general, como dentro del rango de XP de su nivel. Su \textit{wireframe} se puede ver en la figura \ref{fig:wireClasificacion}.
     \begin{figure}
         \centering
         \includegraphics[width=0.8\linewidth]{Imagenes/Bitmap/wireframe_tabla_clasificacion.png}
