@@ -103,12 +103,12 @@ Por lo tanto, se debe realizar un análisis de los usuarios (en esta sección ta
 
 En la sección anterior se ha destacado la importancia de la motivación extrínseca para crear un buen sistema de gamificación. Sin embargo, todo diseño de gamificación debe realizarse con el foco en el jugador. Comprender qué motiva a los jugadores es esencial para construir un sistema gamificado exitoso.
 
-Según \cite{bartle_players_muds}, los jugadores pueden clasificarse en cuatro tipos no excluyentes, que determinan como debe diseñarse la experiencia de juego para poder fidelizarlos. Las cuatro categorías son:
+Según \cite{bartle_players_muds}, los jugadores pueden clasificarse en cuatro tipos no excluyentes, que determinan cómo debe diseñarse la experiencia de juego para poder fidelizarlos. Las cuatro categorías son:
 \begin{itemize}
     \item Exploradores (\textit{Explorers}): Buscan descubrir y experimentar.
     \item Orientados al logro (\textit{Achievers}): Se enfocan en completar objetivos y acumular recompensas.
     \item Socializadores (\textit{Socializers}): Priorizan la interacción con otros jugadores.
-    \item Competidores (\textit{Killers}): Disfrutan superando a otros, incluso a costa de la colaboración. Es decir, no solo buscan ganar, si no que además buscan hacer perder a otro.
+    \item Competidores (\textit{Killers}): Disfrutan superando a otros, incluso a costa de la colaboración. Es decir, no solo buscan ganar, sino que además buscan hacer perder a otro.
 \end{itemize}
 
 La figura \ref{fig:Taxonomía de jugadores de Bartle} muestra el alineamiento de cada personalidad de jugador en relación con su forma de actuar en el juego (unilateralmente o interaccionando) y su deseo de exploración (sobre el mundo o sobre otros jugadores).
@@ -214,7 +214,7 @@ La distribución final de los logros queda establecida en 5 de nivel \textit{Bro
 
 La siguiente mecánica a definir son las estadísticas. Se dispondrá tanto de estadísticas de cada usuario, como de cada ejercicio. 
 
-Para los usuarios se han ideado las siguientes estadísticas, considerandolas informativas para entender rápidamente el nivel de experiencia y conocimiento de un determinado usuario, o para servir de referencia a la hora de intentar obtener ciertos logros:
+Para los usuarios se han ideado las siguientes estadísticas, considerándolas informativas para entender rápidamente el nivel de experiencia y conocimiento de un determinado usuario, o para servir de referencia a la hora de intentar obtener ciertos logros:
 
 \begin{enumerate}
     \item Número de problemas resueltos: Total acumulado de ejercicios completados con éxito.
@@ -229,7 +229,7 @@ Para los usuarios se han ideado las siguientes estadísticas, considerandolas in
     \item Puntos de experiencia (XP) y nivel de dominio a lo largo del tiempo.
     \item Proporción de lenguajes de programación utilizados.
 \end{enumerate}
-Se eliminarían además las estadísticas actualmente existentes de número de problemas intentados, número de envíos totales realizados, y número de envíos AC. En el caso de los dos primeros debido a que no responden a ninguna necesidad específica de un estudiante que quiere conocer su estado en el sistema, sobre todo en su representación númerica actual. Serían remplazadas por las estadísticas del punto 4, que además de dar la información sobre cantidad de envíos realizados lo representan y comparan en el tiempo, aplicandolo a una necesidad real (entender el progreso en el tiempo). Por otro lado el número de envíos AC es redundante cuando ya existe una estadística que indica el número de problemas resueltos y otra que indica la proporción de veredictos obtenidos.
+Se eliminarían además las estadísticas actualmente existentes de número de problemas intentados, número de envíos totales realizados, y número de envíos AC. En el caso de los dos primeros debido a que no responden a ninguna necesidad específica de un estudiante que quiere conocer su estado en el sistema, sobre todo en su representación numérica actual. Serían remplazadas por las estadísticas del punto 4, que además de dar la información sobre cantidad de envíos realizados lo representan y comparan en el tiempo, aplicándolo a una necesidad real (entender el progreso en el tiempo). Por otro lado el número de envíos AC es redundante cuando ya existe una estadística que indica el número de problemas resueltos y otra que indica la proporción de veredictos obtenidos.
 
 El sistema de puntos implementado se basa en el modelo de puntos de experiencia (XP), el cual se diferencia de otros sistemas de puntos por cumplir tres condiciones fundamentales:
 
@@ -279,7 +279,7 @@ El sistema de XP permite generar una tabla de clasificación con dos vistas comp
 
 Este diseño fomenta la interacción competitiva entre los usuarios, al tiempo que ofrece una recompensa\textbf{ }tangible por interactuar con el sistema. Además, al vincularse directamente con el desbloqueo de logros, el sistema refuerza la sensación de progreso y logro personal.
 
-Una característica importante a tener en cuanta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobre todo uno que se introduce en en un sistema ya existente con años de existencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inutiliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
+Una característica importante a tener en cuenta tanto en el diseño como la evaluación de un sistema de gamificación es el problema de \textbf{la superación del jefe final}. Este problema se refiere a cuando un sistema de gamificación, sobre todo uno que se introduce en en un sistema ya existente con años de existencia como es \aer, se vuelve redundante porque un número considerable de usuarios obtienen el máximo nivel de dominio, todos los logros, etc. Se pierde la fuente de motivación extrínseca y se inutiliza el esfuerzo invertido en el sistema. Para evitar esto, todas las mecánicas del sistema de gamificación deben ser fácilmente extensibles. 
 En este caso, las estadísticas no cuentan con un \enquote{nivel máximo} y por lo tanto no corren riesgo de volverse obsoletas, ya que su único objetivo es mostrarle su situación al usuario, no evaluarle o recompensarle por ésta. Por otro lado, el sistema de logros es facilmente extensible añadiendo nuevos logros que cumplan las condiciones de diseño anteriormente definidas. Por ejemplo, podrían añadirse nuevos logros que recompensen la cantidad de ejercicios resueltos según se añadan más ejercicios a la plataforma. Finalmente, los niveles de dominio del sistema de puntos podrían ser reasignados a cantidades de XP diferentes, o definirse un nuevo nivel con su rango de XP correspondiente.
 
  \subsubsection{Dinámicas}

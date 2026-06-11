@@ -3,7 +3,7 @@
 
 \section{Introducción}
 
-Un \textbf{juez en línea} (OJ, del inglés \textit{Online Judge}) es un sistema automatizado accesible vía web que combina un repositorio de problemas de programación con un mecanismo de evaluación automática de soluciones. Los usuarios envían programas que representan propuestas de solución a alguno de los problemas planteados por el sistema. Cada problema define de manera precisa el formato de entrada, la salida esperada y una serie de restricciones que la solución debe cumplir. El juez en línea se encarga de compilar, ejecutar y probar las soluciones enviadas dentro de un entorno controlado y homogéneo, garantizando así condiciones de evaluación justas para todos los participantes, y la seguridad del propio sistema. Su objetivo principal es verificar tanto la corrección como la eficiencia del programa, generando posteriormente un veredicto \citep{Watanobe_Rahman_Matsumoto_Rage_Ravikumar_2022, Wasik_Antczak_Badura_Laskowski_Sternal_2019}. Entre los veredictos más comunes se encuentran \textit{Accepted} (AC),\textit{Wrong Answer} (WA) o \textit{Time Limit Exceeded} (TLE), aunque la nomenclatura y el conjunto exacto de resultados pueden variar ligeramente entre diferentes sistemas\footnote{Sobre las evaluaciones posibles en Online Judge: \url{https://onlinejudge.org/index.php?Itemid=31&id=16&option=com_content&task=view}}. En la figura \ref{fig:online-judge-process} se muestra el ciclo de uso de un OJ.
+Un \textbf{juez en línea} (OJ, del inglés \textit{Online Judge}) es un sistema automatizado accesible vía web que combina un repositorio de problemas de programación con un mecanismo de evaluación automática de soluciones. Los usuarios envían programas que representan propuestas de solución a alguno de los problemas planteados por el sistema. Cada problema define de manera precisa el formato de entrada, la salida esperada y una serie de restricciones que la solución debe cumplir. El juez en línea se encarga de compilar, ejecutar y probar las soluciones enviadas dentro de un entorno controlado y homogéneo, garantizando así condiciones de evaluación justas para todos los participantes, y la seguridad del propio sistema. Su objetivo principal es verificar tanto la corrección como la eficiencia del programa, generando posteriormente un veredicto \citep{Watanobe_Rahman_Matsumoto_Rage_Ravikumar_2022, Wasik_Antczak_Badura_Laskowski_Sternal_2019}. Entre los veredictos más comunes se encuentran \textit{Accepted} (AC), \textit{Wrong Answer} (WA) o \textit{Time Limit Exceeded} (TLE), aunque la nomenclatura y el conjunto exacto de resultados pueden variar ligeramente entre diferentes sistemas\footnote{Sobre las evaluaciones posibles en Online Judge: \url{https://onlinejudge.org/index.php?Itemid=31&id=16&option=com_content&task=view}}. En la figura \ref{fig:online-judge-process} se muestra el ciclo de uso de un OJ.
 
 \begin{figure}[h]
 \centering
@@ -53,8 +53,6 @@ Un \textbf{juez en línea} (OJ, del inglés \textit{Online Judge}) es un sistema
     {\textbf{AC} (Aceptada)\\[1mm]¡Problema\\completado!};
 
 \end{tikzpicture}
-\end{figure}
-
 \caption{Proceso de uso de un juez en línea y ciclo de iteración}
 \label{fig:online-judge-process}
 \end{figure}
@@ -78,7 +76,7 @@ Los jueces en línea pueden clasificarse en cuatro categorías principales en fu
 
 Uno de los elementos de los jueces en línea modernos de especial interés para el tema de este trabajo es la gamificación. 
 
-El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la decada de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas \citep{Zichermann_Cunningham_2011}.  
+El concepto de la gamificación ha emergido a partir de comienzos del siglo XXI como un campo interdisciplinario que combina principios de diseño de juegos, psicología motivacional y análisis de comportamiento humano para enriquecer la interacción con sistemas digitales\footnote{Se recomienda leer la siguiente presentación realizada por Amy Jo Kim en 2008, en la que se muestra claramente el panorama de la gamificación en la década de los 2000: \url{https://es.slideshare.net/slideshow/putting-the-fun-in-functiona/300487\#1}}. En términos generales, la gamificación se define como la utilización de elementos y mecánicas de juego con el propósito de motivar a los usuarios, aumentar su participación y ayudarles a resolver problemas \citep{Zichermann_Cunningham_2011}.  
 
 Los mecanismos de gamificación pueden variar según la categoría del juez, ya que cada tipo persigue objetivos diferentes:
 
@@ -208,7 +206,7 @@ En lo que respecta a \textbf{componentes web}, la plataforma segmenta su lógica
     \item \textbf{Capa de interacción y gestión de usuarios:} Implementada principalmente en PHP, se encarga del renderizado de la interfaz de usuario tradicional, la navegación por el catálogo de problemas y la consulta pública de envíos.
     \item \textbf{Capa de lógica de negocio interna:} Delegada en un contenedor de servlets Apache Tomcat (Java).
     \item \textbf{Servicio web interno de eventos}: Para la obtención de datos sobre los envíos y sus resultados en tiempo real. Este servicio es de especial importancia para el desarrollo de este proyecto.
-    \item \textbf{Evaluador}: Reciben los envíos de los usuarios y los comprueban en un sandbox para después devolver el resultado obtenido.
+    \item \textbf{Evaluador}: Recibe los envíos de los usuarios y los comprueban en un sandbox para después devolver el resultado obtenido.
 \end{itemize}
 
 El nexo de unión de esta infraestructura web es un sistema de gestión de bases de datos MySQL, el cual actúa como repositorio centralizado de persistencia para los datos de la aplicación.
