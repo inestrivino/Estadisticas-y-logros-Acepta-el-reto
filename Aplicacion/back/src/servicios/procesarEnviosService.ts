@@ -70,7 +70,7 @@ class ProcesarEnviosService {
             usuarios.add(envio.usuario);
             problemas.add(envio.problema);
         }
-        this.procesarBloqueEnvios(enviosProcesados, usuarios, problemas);
+        await this.procesarBloqueEnvios(enviosProcesados, usuarios, problemas);
 
         //avisa a los diagramas para que se actualicen
         for (const envioProcesado of enviosProcesados)

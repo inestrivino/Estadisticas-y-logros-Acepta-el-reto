@@ -51,17 +51,12 @@ class LogrosService {
 
     //para añadir nuevos logros basta con añadirlos a esta lista
     private logros: Logro[] = [
-        //onboarding
-        logro1,
-        logro2,
-        logro3,
-
         //problemas
         new TrofeoProblema(4, "Diezmo", 10, NivelLogro.BRONCE, "logro4.png"),
         new TrofeoProblema(5, "Cincuenta y contando", 50, NivelLogro.PLATA, "logro5.png"),
         new TrofeoProblema(6, "Centenario", 100, NivelLogro.PLATA, "logro6.png"),
         new TrofeoProblema(7, "Veni, vidi, vici", 500, NivelLogro.ORO, "logro7.png"),
-
+        
         //lenguajes
         new TrofeoLenguaje(8, "Competitivo", "c", "C", "logro8.png"),
         new TrofeoLenguaje(9, "Sobrecarga", "cpp", "C++", "logro9.png"),
@@ -72,11 +67,16 @@ class LogrosService {
         new TrofeoRachaEnviosAC(12, "Sin miedo al WA", 5, NivelLogro.ORO, "logro12.png"),
         new TrofeoRachaDias(13, "Menuda semanita", 7, NivelLogro.BRONCE, "logro13.png"),
         logro18,
-
+        
         //calidad
         logro14,
         logro15,
         logro17,
+        
+        //onboarding (al final para poder comprobar bien el de tener 5 logros)
+        logro1,
+        logro2,
+        logro3,
     ];
 
     /**
