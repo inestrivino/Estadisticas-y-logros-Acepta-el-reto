@@ -1,7 +1,7 @@
 # Statistics and Achievements Panel for the Online Judge ¡Acepta el Reto!
 
 ![Tests status](https://github.com/inestrivino/Estadisticas-y-logros-Acepta-el-reto/actions/workflows/ci.yml/badge.svg)
-[![es](https://img.shields.io/badge/lang-es-yellow.svg)](https://github.com/jonatasemidio/multilanguage-readme-pattern/blob/master/README.md)
+[![es](https://img.shields.io/badge/lang-es-yellow.svg)](https://github.com/inestrivino/Estadisticas-y-logros-Acepta-el-reto/blob/master/README.md)
 
 Índice:
 
