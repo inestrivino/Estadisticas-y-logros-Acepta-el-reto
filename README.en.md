@@ -7,7 +7,7 @@
 
 - [Statistics and Achievements Panel for the Online Judge ¡Acepta el Reto!](#statistics-and-achievements-panel-for-the-online-judge-acepta-el-reto)
   - [Introduction](#introduction)
-  - [Proyect structure](#proyect-structure)
+  - [Project structure](#project-structure)
   - [Installation and development](#installation-and-development)
 
 ## Introduction
@@ -22,7 +22,7 @@ A deployed version of the application is available here: [https://dashboard.acep
 ![User achievements panel](logros.png)
 ![Ranking table](ranking.png)
 
-## Proyect structure
+## Project structure
 
 The project repository is divided into two main folders:
 
